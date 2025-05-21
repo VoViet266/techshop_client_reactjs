@@ -4,8 +4,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@pages/*": ["./src/pages/*"],
+      "@helpers/*": ["./src/helpers/*"],
       "@layouts/*": ["./src/layouts/*"],
-      "@contexts/*": ["./src/contexts/*"]
+      "@contexts/*": ["./src/contexts/*"],
+      "@services/*": ["./src/services/*"]
     }
   },
   "include": ["src", "eslint.config.js"]
