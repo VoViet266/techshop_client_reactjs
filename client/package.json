@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config ./src/configs/vite.config.js",
-    "build": "vite build --config ./src/configs/vite.config.js",
-    "lint": "eslint --config ./src/configs/eslint.config.js",
-    "preview": "vite preview --config ./src/config/vite.config.js"
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint",
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.1.0",
