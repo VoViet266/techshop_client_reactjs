@@ -3,4 +3,6 @@
 
 @theme {
   --font-roboto: "Roboto", sans-serif;
+  --spacing: 1px;
+  --color-primary: #FE2C55;
 }
