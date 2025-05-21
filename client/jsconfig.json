@@ -7,5 +7,5 @@
       "@layouts/*": ["./src/layouts/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "eslint.config.js"]
 }
