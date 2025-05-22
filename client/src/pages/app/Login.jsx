@@ -7,7 +7,6 @@ import {
 } from "react-icons/ai";
 import Users from "@services/users";
 import { useAppContext } from "@contexts";
-import { Loading } from "@components/app";
 
 function Login() {
   useEffect(() => {
@@ -118,7 +117,6 @@ function Login() {
             </button>
           </div>
         </form>
-        <Loading />
       </div>
     </div>
   );
