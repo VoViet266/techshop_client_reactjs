@@ -5,8 +5,8 @@ import {
   AiOutlineClose,
   AiFillEyeInvisible,
 } from "react-icons/ai";
-import Users from "@/services/users";
-import { useAppContext } from "@/contexts";
+import Users from "@services/users";
+import { useAppContext } from "@contexts";
 
 function Login() {
   document.title = "TechShop | Đăng nhập";

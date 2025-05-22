@@ -1,5 +1,5 @@
-import { Login } from "@/pages/app";
-import { useAppContext } from "@/contexts";
+import { Login } from "@pages/app";
+import { useAppContext } from "@contexts";
 import { Outlet, Link } from "react-router";
 
 function Header() {

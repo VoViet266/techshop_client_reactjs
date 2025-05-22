@@ -1,4 +1,4 @@
-import { validateEmail, validatePassword } from "@/helpers";
+import { validateEmail, validatePassword } from "@helpers";
 
 function login(user, setEmailError, setPasswordError) {
   if (validateEmail(user.email)) {
