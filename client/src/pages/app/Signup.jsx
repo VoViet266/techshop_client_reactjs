@@ -1,3 +1,5 @@
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { useState, useEffect, useRef } from "react";
 import {
   AiFillEye,
@@ -6,6 +8,7 @@ import {
   AiFillEyeInvisible,
 } from "react-icons/ai";
 import Users from "@services/users";
+import Address from "@services/address";
 import { useAppContext } from "@contexts";
 
 function Signup() {
@@ -24,8 +27,49 @@ function Signup() {
     password: "",
   });
 
+  const [provinces, setProvinces] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+
+  const [districts, setDistricts] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+
+  const [wards, setWards] = useState([]);
+  const [selectedWard, setSelectedWard] = useState("");
+
+  useEffect(() => {
+    async function fetchProvinces() {
+      const provinces = await Address.getAllProvinces();
+      setProvinces(provinces);
+    }
+
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    async function fetchDistricts() {
+      const districts = await Address.getDistricts(selectedProvince.code);
+      setDistricts(districts);
+    }
+
+    if (selectedProvince !== "") {
+      fetchDistricts();
+    }
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    async function fetchWards() {
+      const wards = await Address.getWards(selectedDistrict.code);
+      setWards(wards);
+    }
+
+    if (selectedDistrict !== "") {
+      fetchWards();
+    }
+  }, [selectedDistrict]);
+
   const genders = ["Nam", "Nữ", "Khác"];
-  const { setShowSignup } = useAppContext();
+  const { setShowSignup, loading, setLoading, setToastLoading, setMessage } =
+    useAppContext();
   const places = ["Tỉnh/Thành phố", "Quận/Huyện", "Xã/Phường"];
 
   const [userError, setUserError] = useState({
@@ -85,7 +129,7 @@ function Signup() {
             </label>
             <input
               id="fullName"
-              type="fullName"
+              type="text"
               name="fullName"
               placeholder="Nhập họ và tên"
               onChange={(event) => {
@@ -106,6 +150,119 @@ function Signup() {
             )}
           </div>
 
+          <div className="flex flex-col my-10 relative">
+            <label htmlFor="address" className="text-sm font-medium mb-4">
+              Địa chỉ
+            </label>
+            <input
+              readOnly
+              id="address"
+              name="address"
+              value={user.address}
+              placeholder="Chọn địa chỉ"
+              onClick={() => setShowAddressDropdown(!showAddressDropdown)}
+              className="outline-none cursor-pointer text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
+            />
+
+            {showAddressDropdown && (
+              <div
+                ref={addressDropdownRef}
+                className="bg-white absolute z-1 top-full mt-4 overflow-hidden left-0 right-0 rounded-md border border-gray-200"
+              >
+                <div className="flex justify-center gap-8 border-b border-gray-200">
+                  {places.map((place, index) => (
+                    <div
+                      key={index}
+                      onClick={() => setSelectedPlace(place)}
+                      className={`w-[33%] cursor-pointer py-6 text-center ${""}  ${selectedPlace === place ? "border-b border-b-primary text-primary" : ""}`}
+                    >
+                      {place}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="overflow-y-auto h-200 z-1 p-6 cursor-pointer">
+                  {selectedPlace === "Tỉnh/Thành phố" &&
+                    provinces.map((province, index) => (
+                      <div
+                        key={index}
+                        onClick={(event) => {
+                          setUser({
+                            ...user,
+                            address: event.target.textContent,
+                          });
+                          setSelectedProvince(province);
+                          setSelectedPlace("Quận/Huyện");
+                        }}
+                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedProvince.name === province.name && "bg-gray-200"}`}
+                      >
+                        {province.name || <Skeleton count={5} />}
+                      </div>
+                    ))}
+
+                  {selectedPlace === "Quận/Huyện" &&
+                    districts.map((district, index) => (
+                      <div
+                        key={index}
+                        onClick={(event) => {
+                          setUser({
+                            ...user,
+                            address:
+                              selectedDistrict === ""
+                                ? user.address + ", " + event.target.textContent
+                                : selectedProvince.name +
+                                  ", " +
+                                  event.target.textContent,
+                          });
+                          setSelectedDistrict(district);
+                          setSelectedPlace("Xã/Phường");
+                        }}
+                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedDistrict.name === district.name && "bg-gray-200"}`}
+                      >
+                        {district.name || <Skeleton count={5} />}
+                      </div>
+                    ))}
+
+                  {selectedPlace === "Xã/Phường" &&
+                    wards.map((ward, index) => (
+                      <div
+                        key={index}
+                        onClick={(event) => {
+                          setUser({
+                            ...user,
+                            address:
+                              selectedWard === ""
+                                ? user.address + ", " + event.target.textContent
+                                : selectedProvince.name +
+                                  ", " +
+                                  selectedDistrict.name +
+                                  ", " +
+                                  event.target.textContent,
+                          });
+                          setSelectedWard(ward);
+                          setShowAddressDropdown(false);
+                        }}
+                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedWard.name === ward.name && "bg-gray-200"}`}
+                      >
+                        {ward.name || <Skeleton count={5} />}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {userError.addressError && (
+              <div className="flex items-center gap-2">
+                <div className="text-red-500">
+                  <AiFillWarning />
+                </div>
+                <span className="text-sm mt-2 text-red-500">
+                  Vui lòng chọn địa chỉ
+                </span>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-10 my-10">
             <div className="flex flex-col w-[70%]">
               <label htmlFor="phone" className="text-sm font-medium mb-4">
@@ -113,7 +270,7 @@ function Signup() {
               </label>
               <input
                 id="phone"
-                type="phone"
+                type="text"
                 name="phone"
                 placeholder="Nhập số điện thoại"
                 onChange={(event) => {
@@ -140,7 +297,6 @@ function Signup() {
               <input
                 readOnly
                 id="gender"
-                type="gender"
                 value={user.gender}
                 name="gender"
                 placeholder="Chọn giới tính"
@@ -153,8 +309,9 @@ function Signup() {
                   ref={genderDropdownRef}
                   className="absolute left-0 right-0 z-1 top-full rounded-md mt-4 p-6 bg-white border border-gray-200"
                 >
-                  {genders.map((gender) => (
+                  {genders.map((gender, index) => (
                     <li
+                      key={index}
                       onClick={(event) => {
                         setUser({ ...user, gender: event.target.textContent });
                         setShowGenderDropdown(false);
@@ -178,51 +335,6 @@ function Signup() {
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="flex flex-col my-10 relative">
-            <label htmlFor="address" className="text-sm font-medium mb-4">
-              Địa chỉ
-            </label>
-            <input
-              readOnly
-              id="address"
-              type="address"
-              name="address"
-              placeholder="Chọn địa chỉ"
-              onClick={() => setShowAddressDropdown(!showAddressDropdown)}
-              className="outline-none cursor-pointer text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
-            />
-
-            {showAddressDropdown && (
-              <div
-                ref={addressDropdownRef}
-                className="bg-white absolute top-full mt-4 h-100 left-0 right-0 rounded-md border border-gray-200"
-              >
-                <div className="flex justify-center gap-8 border-b border-gray-200">
-                  {places.map((place, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedPlace(place)}
-                      className={`w-[33%] cursor-pointer py-6 text-center ${selectedPlace === place ? "border-b border-b-primary text-primary" : ""}`}
-                    >
-                      {place}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {userError.addressError && (
-              <div className="flex items-center gap-2">
-                <div className="text-red-500">
-                  <AiFillWarning />
-                </div>
-                <span className="text-sm mt-2 text-red-500">
-                  Vui lòng chọn địa chỉ
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="flex flex-col my-10">
@@ -289,6 +401,7 @@ function Signup() {
             <button
               onClick={(event) => {
                 event.preventDefault();
+                Users.signup(user, userError, setUserError);
               }}
               className="bg-primary w-full cursor-pointer hover:opacity-80 py-6 rounded-md text-white"
             >

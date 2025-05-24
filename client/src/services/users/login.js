@@ -14,8 +14,6 @@ function login(user, setEmailError, setPasswordError) {
     setPasswordError(true);
     return;
   }
-
-  console.log("Thông tin đăng nhập hợp lệ.");
 }
 
 export default login;
