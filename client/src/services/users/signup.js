@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   validateEmail,
   validatePhone,
@@ -6,7 +7,7 @@ import {
   validateFullname,
 } from "@helpers";
 
-function signup(user, userError, setUserError) {
+async function signup(user, userError, setUserError) {
   if (validateFullname(user.fullName)) {
     setUserError({ ...userError, fullNameError: false });
   } else {
@@ -47,6 +48,18 @@ function signup(user, userError, setUserError) {
   } else {
     setUserError({ ...userError, passwordError: true });
     return;
+  }
+  try {
+    await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/v1/auth/register`, {
+      name: user.fullName,
+      address: user.address,
+      phone: user.phone,
+      gender: user.gender,
+      email: user.email,
+      password: user.password,
+    });
+  } catch (error) {
+    console.log("Lỗi:", error.message);
   }
 }
 

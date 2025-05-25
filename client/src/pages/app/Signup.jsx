@@ -68,8 +68,13 @@ function Signup() {
   }, [selectedDistrict]);
 
   const genders = ["Nam", "Nữ", "Khác"];
-  const { setShowSignup, loading, setLoading, setToastLoading, setMessage } =
-    useAppContext();
+  const {
+    setShowSignup,
+    setLoadingSuccess,
+    setShowLogin,
+    setToastLoading,
+    setMessage,
+  } = useAppContext();
   const places = ["Tỉnh/Thành phố", "Quận/Huyện", "Xã/Phường"];
 
   const [userError, setUserError] = useState({
@@ -399,9 +404,16 @@ function Signup() {
           </div>
           <div className="my-30 flex flex-col items-center">
             <button
-              onClick={(event) => {
+              onClick={async (event) => {
                 event.preventDefault();
-                Users.signup(user, userError, setUserError);
+                setToastLoading(true);
+                setMessage("Đang đăng ký");
+                await Users.signup(user, userError, setUserError);
+                setToastLoading(false);
+                setLoadingSuccess(true);
+                setMessage("Đăng ký thành công");
+                setShowSignup(false);
+                setShowLogin(true);
               }}
               className="bg-primary w-full cursor-pointer hover:opacity-80 py-6 rounded-md text-white"
             >
