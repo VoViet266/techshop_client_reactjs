@@ -7,14 +7,17 @@ import {
 } from "react-icons/ai";
 import Users from "@services/users";
 import { useAppContext } from "@contexts";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   useEffect(() => {
     document.title = "TechShop | Đăng nhập";
   }, []);
 
+  const navigate = useNavigate();
   const [emailError, setEmailError] = useState(false);
-  const { setShowLogin, setLoadingError, setMessage } = useAppContext();
+  const { setShowLogin, setLoadingSuccess, setMessage, setToastLoading } =
+    useAppContext();
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
@@ -99,9 +102,19 @@ function Login() {
           </div>
           <div className="mt-10 flex flex-col items-center">
             <button
-              onClick={(event) => {
+              onClick={async (event) => {
                 event.preventDefault();
-                Users.login(user, setEmailError, setPasswordError);
+                setToastLoading(true);
+                setMessage("Đang đăng nhập");
+                await Users.login(
+                  user,
+                  setEmailError,
+                  setPasswordError,
+                  navigate
+                );
+                setToastLoading(false);
+                setLoadingSuccess(true);
+                setMessage("Đăng nhập thành công");
               }}
               className="bg-primary w-full cursor-pointer hover:opacity-80 py-6 rounded-md text-white"
             >
