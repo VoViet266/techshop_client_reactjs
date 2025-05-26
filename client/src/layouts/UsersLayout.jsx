@@ -12,7 +12,7 @@ function Header() {
   }, []);
 
   return (
-    <header className="font-roboto xl:px-50 w-full h-60 flex items-center justify-between">
+    <header className="font-roboto xl:px-50 w-full fixed top-0 left-0 right-0 z-10 bg-white border-b border-b-gray-300 h-60 flex items-center justify-between">
       <Link to="/">
         <h3 className="font-bold xl:text-3xl text-primary">TechShop</h3>
       </Link>
@@ -53,9 +53,9 @@ function UsersLayout() {
   } = useAppContext();
 
   return (
-    <div className="relative">
+    <div className="font-roboto relative flex flex-col items-center">
       <Header />
-      <main>
+      <main className="w-full mt-60 flex flex-col items-center">
         <Outlet />
         {showLogin && <Login />}
         {showSignup && <Signup />}
@@ -63,7 +63,7 @@ function UsersLayout() {
       {loadingError && <ErrorToast />}
       {toastLoading && <LoadingToast />}
       {loadingSuccess && <SuccessToast />}
-      <footer>Footer</footer>
+      {/* <footer>Footer</footer> */}
     </div>
   );
 }
