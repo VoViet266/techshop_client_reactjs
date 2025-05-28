@@ -48,14 +48,14 @@ function ImagesSlider() {
   };
   return (
     <Slider {...settings}>
-      <div className="rounded-md px-10">
+      <div className="rounded-md flex justify-center px-10">
         <img
           alt=""
           className="rounded-md"
           src="https://happyphone.vn/wp-content/uploads/2024/12/Banner-Sale-Iphone-Thang-12-1920x1080-1.webp"
         />
       </div>
-      <div className="rounded-md px-10">
+      <div className="rounded-md flex justify-center px-10">
         <img
           alt=""
           className="rounded-md"

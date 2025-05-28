@@ -23,7 +23,7 @@ function Login() {
   const [user, setUser] = useState({ email: "", password: "" });
 
   return (
-    <div className="w-screen h-screen font-roboto bg-[rgba(0,0,0,0.05)] flex items-center justify-center backdrop-blur-sm fixed top-0 right-0 bottom-0 left-0">
+    <div className="w-screen h-screen font-roboto bg-[rgba(0,0,0,0.05)] flex items-center justify-center backdrop-blur-sm z-20 fixed top-0 right-0 bottom-0 left-0">
       <div className="xl:w-[50%] lg:w-[60%] md:w-[70%] sm:w-[80%] w-[90%] bg-white rounded-lg">
         <div className="border-b border-b-gray-200 rounded-t-lg flex justify-between items-center px-20 h-50">
           <h3 className="font-medium text-xl">Đăng nhập</h3>

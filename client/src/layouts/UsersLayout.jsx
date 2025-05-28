@@ -21,7 +21,7 @@ function Header() {
           onClick={() => {
             setShowLogin(true);
           }}
-          className="border border-gray-300 py-6 px-12 rounded-lg cursor-pointer"
+          className="border border-gray-300 min-w-100 py-6 px-12 rounded-md cursor-pointer"
         >
           Đăng nhập
         </button>
@@ -29,7 +29,7 @@ function Header() {
           onClick={() => {
             setShowSignup(true);
           }}
-          className="py-6 px-12 rounded-lg bg-primary text-white cursor-pointer hover:opacity-80"
+          className="py-6 px-12 rounded-md min-w-100 bg-primary text-white cursor-pointer hover:opacity-80"
         >
           Đăng ký
         </button>
