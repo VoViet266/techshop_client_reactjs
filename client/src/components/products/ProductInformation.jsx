@@ -1,16 +1,65 @@
+import { useState, useEffect, use } from "react";
+import { RiGiftFill } from "react-icons/ri";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { RiGiftFill } from "react-icons/ri";
 
 function ProductInformation({ className, product, loading }) {
+  const [price, setPrice] = useState("");
+  const [colors, setColors] = useState([]);
+  const [memories, setMemories] = useState([]);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedMemory, setSelectedMemory] = useState(null);
+
+  useEffect(() => {
+    if (product.variants) {
+      const variantMemories = product.variants.map((variant) => variant.memory);
+      console.log("Variant memories:", variantMemories);
+      setMemories(variantMemories);
+
+      const variantColors = product.variants
+        .filter((variant) => variant.memory === variantMemories[0])
+        .map((variant) => variant.color);
+
+      setColors(variantColors);
+      setSelectedColor(variantColors[0]);
+      setSelectedMemory(variantMemories[0]);
+
+      console.log("Variant memories:", variantMemories);
+      console.log("Selected memory:", selectedMemory);
+    }
+  }, [product.variants]);
+
+  useEffect(() => {
+    if (product.variants) {
+      const variantColors = product.variants
+        .filter((variant) => variant.memory === selectedMemory)
+        .map((variant) => variant.color);
+
+      console.log("Default variant colors:", variantColors);
+      setSelectedColor(variantColors[0]);
+      setColors(variantColors);
+    }
+  }, [selectedMemory]);
+
+  useEffect(() => {
+    if (product.variants) {
+      const variantPrice = product.variants.find(
+        (variant) =>
+          variant.color === selectedColor && variant.memory === selectedMemory
+      );
+
+      console.log("Price:", variantPrice);
+      setPrice(variantPrice?.price || "");
+    }
+  }, [selectedColor, selectedMemory, product.variants]);
+
   return (
     <div className={className}>
       <h3 className="text-2xl font-medium">
         {product.name || <Skeleton className="h-40" />}
       </h3>
-      <p>{product.description || <Skeleton className="h-50" />}</p>
       <span className="text-lg font-bold text-primary">
-        {product.price || <Skeleton className="h-40" />}
+        {price || <Skeleton className="h-40" />}
       </span>
 
       {product.variants ? (
@@ -19,14 +68,24 @@ function ProductInformation({ className, product, loading }) {
             Bộ nhớ
           </div>
           <div className="p-8 grid grid-cols-2 gap-8">
-            <div className="flex flex-col gap-4 p-6 border border-[#e5e7eb] rounded-sm">
-              <span className="font-medium">iPhone 16 Pro Max 12GB 256GB</span>
-              <span className="font-medium text-primary">30.000.000 VNĐ</span>
-            </div>
-            <div className="flex flex-col gap-4 p-6 border border-[#e5e7eb] rounded-sm">
-              <span className="font-medium">iPhone 16 Pro Max 12GB 256GB</span>
-              <span className="font-medium text-primary">30.000.000 VNĐ</span>
-            </div>
+            {memories.map((memory, index) => (
+              <div
+                key={index}
+                onClick={() => {
+                  setSelectedMemory(memory);
+                  setSelectedColor(null);
+                  const variants = product.variants.filter((variant) => {
+                    return variant.memory === memory;
+                  });
+                  const colors = variants.map((variant) => variant.color);
+                  setColors(colors);
+                }}
+                className={`flex cursor-pointer ${selectedMemory === memory && "border-primary"} hover:border-primary flex-col gap-4 p-6 border border-[#e5e7eb] rounded-sm`}
+              >
+                <span className="font-medium">Ram {memory.ram}</span>
+                <span className="font-medium">Bộ nhớ {memory.storage}</span>
+              </div>
+            ))}
           </div>
         </div>
       ) : (
@@ -39,22 +98,27 @@ function ProductInformation({ className, product, loading }) {
             Màu
           </div>
           <div className="p-8 grid grid-cols-2 gap-8">
-            <div className="flex flex-col gap-4 p-6 border border-[#e5e7db] rounded-sm">
-              <span className="font-medium">iPhone 16 Pro Max Đen</span>
-              <span className="font-medium text-primary">30.000.000 VNĐ</span>
-            </div>
-            <div className="flex flex-col gap-4 p-6 border border-[#e5e7db] rounded-sm">
-              <span className="font-medium">iPhone 16 Pro Max Vàng</span>
-              <span className="font-medium text-primary">30.000.000 VNĐ</span>
-            </div>
+            {colors.map((color, index) => (
+              <div
+                key={index}
+                onClick={() => {
+                  setSelectedColor(color);
+                }}
+                className={`flex ${selectedColor === color && "border-primary"} hover:border-primary cursor-pointer items-center gap-4 p-6 border border-[#e5e7db] rounded-sm`}
+              >
+                <span className="font-medium">Màu {color.name}</span>
+                <div
+                  className={`w-30 h-30 bg-[${color.hex}] rounded-full`}
+                ></div>
+              </div>
+            ))}
           </div>
         </div>
       ) : (
         <Skeleton className="h-100" />
       )}
 
-      {/* Gifts and offers */}
-      {product.giftsAndOffers ? (
+      {/* {product.giftsAndOffers ? (
         <div className="border rounded-md border-[#e5e7eb]">
           <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
             Quà tặng và ưu đãi khác
@@ -72,10 +136,8 @@ function ProductInformation({ className, product, loading }) {
         </div>
       ) : (
         <Skeleton className="h-100" />
-      )}
-      {/* Gifts and offers */}
+      )} */}
 
-      {/* Buttons */}
       <div className="flex gap-10 mt-16">
         {loading ? (
           <div className="w-[50%]">
@@ -97,7 +159,6 @@ function ProductInformation({ className, product, loading }) {
           </button>
         )}
       </div>
-      {/* Buttons */}
     </div>
   );
 }
