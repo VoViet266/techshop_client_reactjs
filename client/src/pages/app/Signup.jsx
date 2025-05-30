@@ -1,12 +1,14 @@
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useState, useEffect, useRef } from "react";
+
 import {
   AiFillEye,
   AiFillWarning,
   AiOutlineClose,
   AiFillEyeInvisible,
 } from "react-icons/ai";
+
 import Users from "@services/users";
 import Address from "@services/address";
 import { useAppContext } from "@contexts";
@@ -25,6 +27,15 @@ function Signup() {
     address: "",
     fullName: "",
     password: "",
+  });
+
+  const [userMessage, setUserMessage] = useState({
+    phoneMessage: "Số điện thoại không được để trống.",
+    emailMessage: "Email không được để trống.",
+    genderMessage: "Giới tính không được để trống.",
+    addressMessage: "Địa chỉ không được để trống.",
+    fullNameMessage: "Họ và tên không được để trống.",
+    passwordMessage: "Mật khẩu không được để trống.",
   });
 
   const [provinces, setProvinces] = useState([]);
@@ -69,12 +80,12 @@ function Signup() {
 
   const genders = ["Nam", "Nữ", "Khác"];
   const {
+    setMessage,
+    setShowLogin,
     setShowSignup,
+    setToastLoading,
     setLoadingError,
     setLoadingSuccess,
-    setShowLogin,
-    setToastLoading,
-    setMessage,
   } = useAppContext();
   const places = ["Tỉnh/Thành phố", "Quận/Huyện", "Xã/Phường"];
 
@@ -151,7 +162,7 @@ function Signup() {
                   <AiFillWarning />
                 </div>
                 <span className="text-sm mt-2 text-red-500">
-                  Họ và tên không được để trống hoặc bao gồm số
+                  {userMessage.fullNameMessage}
                 </span>
               </div>
             )}
@@ -264,7 +275,7 @@ function Signup() {
                   <AiFillWarning />
                 </div>
                 <span className="text-sm mt-2 text-red-500">
-                  Vui lòng chọn địa chỉ
+                  {userMessage.addressMessage}
                 </span>
               </div>
             )}
@@ -293,7 +304,7 @@ function Signup() {
                     <AiFillWarning />
                   </div>
                   <span className="text-sm mt-2 text-red-500">
-                    Số điện thoại không hợp lệ
+                    {userMessage.phoneMessage}
                   </span>
                 </div>
               )}
@@ -338,7 +349,7 @@ function Signup() {
                     <AiFillWarning />
                   </div>
                   <span className="text-sm mt-2 text-red-500">
-                    Vui lòng chọn giới tính
+                    {userMessage.genderMessage}
                   </span>
                 </div>
               )}
@@ -367,7 +378,7 @@ function Signup() {
                   <AiFillWarning />
                 </div>
                 <span className="text-sm mt-2 text-red-500">
-                  Email không đúng
+                  {userMessage.emailMessage}
                 </span>
               </div>
             )}
@@ -402,7 +413,7 @@ function Signup() {
                   <AiFillWarning />
                 </div>
                 <span className="text-sm mt-2 text-red-500">
-                  Mật khẩu tối thiểu 8 ký tự và không được chứa khoảng trắng
+                  {userMessage.passwordMessage}
                 </span>
               </div>
             )}
@@ -416,7 +427,11 @@ function Signup() {
                   user,
                   userError,
                   setMessage,
+                  userMessage,
                   setUserError,
+                  setShowLogin,
+                  setShowSignup,
+                  setUserMessage,
                   setToastLoading,
                   setLoadingError,
                   setLoadingSuccess

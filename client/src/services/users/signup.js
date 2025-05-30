@@ -12,18 +12,25 @@ async function signup(
   user,
   userError,
   setMessage,
+  userMessage,
   setUserError,
+  setShowLogin,
+  setShowSignup,
+  setUserMessage,
   setToastLoading,
   setLoadingError,
   setLoadingSuccess
 ) {
   const newUserError = { ...userError };
+  const newUserMessage = { ...userMessage };
+
   var hasError = false;
 
   if (validateFullname(user.fullName)) {
     newUserError.fullNameError = false;
   } else {
     newUserError.fullNameError = true;
+    newUserMessage.fullNameMessage = "Họ tên không được bao gồm số.";
     hasError = true;
   }
 
@@ -38,6 +45,7 @@ async function signup(
     newUserError.phoneError = false;
   } else {
     newUserError.phoneError = true;
+    newUserMessage.phoneMessage = "Số điện thoại không hợp lệ.";
     hasError = true;
   }
 
@@ -52,6 +60,7 @@ async function signup(
     newUserError.emailError = false;
   } else {
     newUserError.emailError = true;
+    newUserMessage.emailMessage = "Email không hợp lệ.";
     hasError = true;
   }
 
@@ -59,10 +68,13 @@ async function signup(
     newUserError.passwordError = false;
   } else {
     newUserError.passwordError = true;
+    newUserMessage.passwordMessage =
+      "Mật khẩu phải có ít nhất 8 ký tự và không bao gồm khoảng trắng.";
     hasError = true;
   }
 
   setUserError(newUserError);
+  setUserMessage(newUserMessage);
 
   if (!hasError) {
     setToastLoading(true);
@@ -85,12 +97,22 @@ async function signup(
         setToastLoading(false);
         setLoadingSuccess(true);
         setMessage("Đăng ký thành công.");
+        setShowSignup(false);
+        setShowLogin(true);
       }
-      setToastLoading(false);
     } catch (error) {
       setToastLoading(false);
       setLoadingError(true);
-      setMessage("Đăng ký thất bại.");
+
+      if (error.response && error.response.status === 409) {
+        setMessage("Đăng ký thất bại.");
+        newUserError.emailError = true;
+        setUserError(newUserError);
+        newUserMessage.emailMessage = "Email đã được sử dụng.";
+        setUserMessage(newUserMessage);
+      } else {
+        setMessage("Đăng ký thất bại.");
+      }
     }
   }
 }
