@@ -22,6 +22,8 @@
     "react-router-dom": "^7.6.0",
     "react-slick": "^0.30.3",
     "slick-carousel": "^1.8.1",
+    "suneditor": "^2.47.5",
+    "suneditor-react": "^3.6.1",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {

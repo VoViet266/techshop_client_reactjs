@@ -1,4 +1,9 @@
+import { Editor } from "@components/app";
+import { useState } from "react";
+
 function AddProduct() {
+  const [product, setProduct] = useState({});
+  console.log(product);
   return (
     <div className="">
       <div className="mb-10">
@@ -35,16 +40,7 @@ function AddProduct() {
           <label htmlFor="description" className="text-sm font-medium">
             Mô tả
           </label>
-          <div className="p-10 border border-gray-300 rounded-md flex flex-col justify-center gap-10">
-            <div className="h-30 border border-gray-300 rounded-md"></div>
-            <textarea
-              type="text"
-              id="description"
-              name="description"
-              placeholder="Nhập mô tả sản phẩm"
-              className="border border-gray-300 w-full outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-            ></textarea>
-          </div>
+          <Editor setProduct={setProduct} height="200px" />
         </div>
       </div>
     </div>
