@@ -16,16 +16,6 @@ function Header() {
           TechShop
         </h3>
       </Link>
-      <div className="flex items-center gap-8 font-medium">
-        <div className="w-40 h-40 rounded-full overflow-hidden">
-          <img
-            alt="Avatar quản trị viên"
-            className="w-full h-full rounded-full"
-            src="https://ionicframework.com/docs/img/demos/avatar.svg"
-          />
-        </div>
-        <span className="text-md">Chào Quản trị viên</span>
-      </div>
     </header>
   );
 }
