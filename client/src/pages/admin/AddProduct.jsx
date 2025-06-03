@@ -39,10 +39,28 @@ function AddProduct() {
         resolution: "",
         features: [],
       },
-      rear: null,
+      rear: {
+        resolution: "",
+        features: [],
+      },
       videoRecording: [],
     },
-    variants: [],
+    variants: [
+      {
+        name: "",
+        price: "",
+        compareAtPrice: "",
+        color: {
+          name: "",
+          hex: "",
+        },
+        memory: {
+          ram: "",
+          storage: "",
+        },
+        images: [],
+      },
+    ],
   });
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -104,8 +122,6 @@ function AddProduct() {
 
     fetchBrands();
   }, []);
-
-  console.log("Categories:", categories);
 
   return (
     <div className="">
@@ -416,12 +432,275 @@ function AddProduct() {
               </div>
             </div>
           </div>
+
+          <div className="flex flex-col gap-10 mt-20">
+            <div className="flex gap-12 items-center">
+              <span className="text-sm font-medium">Camera trước</span>
+              <div className="flex-1 border-t border-t-gray-300"></div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-10">
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="front-camera-resolution"
+                  className="font-medium text-sm"
+                >
+                  Độ phân giải
+                </label>
+                <input
+                  id="front-camera-resolution"
+                  name="front-camera-resolution"
+                  type="text"
+                  placeholder="Nhập độ phân giải camera trước"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="front-camera-feature"
+                  className="font-medium text-sm"
+                >
+                  Tính năng
+                </label>
+                <input
+                  id="front-camera-feature"
+                  name="front-camera-feature"
+                  type="text"
+                  placeholder="Nhập tính năng camera trước"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="front-camera-videoRecording"
+                  className="font-medium text-sm"
+                >
+                  Quay phim
+                </label>
+                <input
+                  id="front-camera-videoRecording"
+                  name="front-camera-videoRecording"
+                  type="text"
+                  placeholder="Nhập tính năng quay phim camera trước"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-10 mt-20">
+            <div className="flex gap-12 items-center">
+              <span className="text-sm font-medium">Camera sau</span>
+              <div className="flex-1 border-t border-t-gray-300"></div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-10">
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="rear-camera-resolution"
+                  className="font-medium text-sm"
+                >
+                  Độ phân giải
+                </label>
+                <input
+                  id="rear-camera-resolution"
+                  name="rear-camera-resolution"
+                  type="text"
+                  placeholder="Nhập độ phân giải camera sau"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="rear-camera-feature"
+                  className="font-medium text-sm"
+                >
+                  Tính năng
+                </label>
+                <input
+                  id="rear-camera-feature"
+                  name="rear-camera-feature"
+                  type="text"
+                  placeholder="Nhập tính năng camera sau"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="rear-camera-videoRecording"
+                  className="font-medium text-sm"
+                >
+                  Quay phim
+                </label>
+                <input
+                  id="rear-camera-videoRecording"
+                  name="rear-camera-videoRecording"
+                  type="text"
+                  placeholder="Nhập tính năng camera sau"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-10 mt-20">
+            <div className="flex gap-12 items-center">
+              <span className="text-sm font-medium">Biến thể</span>
+              <div className="flex-1 border-t border-t-gray-300"></div>
+            </div>
+
+            {product.variants.map((variant, index) => {
+              return (
+                <div className="grid grid-cols-3 gap-10">
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-name`}
+                      className="font-medium text-sm"
+                    >
+                      Tên biến thể
+                    </label>
+                    <input
+                      id={`variant-${index}-name`}
+                      name="name"
+                      value={variant.name}
+                      type="text"
+                      placeholder="Nhập tên biến thể"
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-price`}
+                      className="font-medium text-sm"
+                    >
+                      Giá
+                    </label>
+                    <input
+                      id={`variant-${index}-price`}
+                      value={variant.price}
+                      name="price"
+                      type="text"
+                      placeholder="Nhập giá của biến thể"
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-compareAtPrice`}
+                      className="font-medium text-sm"
+                    >
+                      Giá so sánh
+                    </label>
+                    <input
+                      id={`variant-${index}-compareAtPrice`}
+                      name="compareAtPrice"
+                      type="text"
+                      placeholder="Nhập giá so sánh của biến thể"
+                      value={variant.compareAtPrice}
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+
+            {product.variants.map((variant, index) => {
+              return (
+                <div className="grid grid-cols-4 gap-10">
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-colorName`}
+                      className="font-medium text-sm"
+                    >
+                      Tên màu
+                    </label>
+                    <input
+                      id={`variant-${index}-colorName`}
+                      name="name"
+                      value={variant.color.name}
+                      type="text"
+                      placeholder="Nhập tên màu biến thể"
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-hex`}
+                      className="font-medium text-sm"
+                    >
+                      Mã màu
+                    </label>
+                    <input
+                      id={`variant-${index}-hex`}
+                      value={variant.color.hex}
+                      name="hex"
+                      type="text"
+                      placeholder="Nhập mã màu của biến thể"
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-RAM`}
+                      className="font-medium text-sm"
+                    >
+                      RAM
+                    </label>
+                    <input
+                      id={`variant-${index}-RAM`}
+                      name="RAM"
+                      type="text"
+                      placeholder="Nhập RAM của biến thể"
+                      value={variant.memory.ram}
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-storage`}
+                      className="font-medium text-sm"
+                    >
+                      Bộ nhớ trong
+                    </label>
+                    <input
+                      id={`variant-${index}-storage`}
+                      name="storage"
+                      type="text"
+                      placeholder="Nhập bộ nhớ trong của biến thể"
+                      value={variant.memory.storage}
+                      className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+            {product.variants.map((variant, index) => {
+              return (
+                <div className="grid grid-cols-1 gap-10">
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`variant-${index}-images`}
+                      className="font-medium text-sm"
+                    >
+                      Hình ảnh
+                    </label>
+                    <div className="w-full h-200 focus:border-gray-400 rounded-md px-12 py-6 border border-gray-300 hover:border-gray-400"></div>
+                    <label htmlFor=""></label>
+                    <input
+                      id={`variant-${index}-image`}
+                      type="file"
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
       {loading && (
         <div className="rounded-md">
-          <Skeleton className="h-300" />
+          <Skeleton className="h-700" />
         </div>
       )}
     </div>
