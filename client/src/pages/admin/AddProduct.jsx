@@ -4,8 +4,8 @@ import { useAppContext } from "@contexts";
 import Skeleton from "react-loading-skeleton";
 import Categories from "@services/categories";
 import "react-loading-skeleton/dist/skeleton.css";
-import { AiFillCheckCircle } from "react-icons/ai";
 import { useState, useRef, useEffect } from "react";
+import { AiFillCheckCircle, AiOutlineClose } from "react-icons/ai";
 
 function AddProduct() {
   const { setSideBarSelectedTab } = useAppContext();
@@ -66,6 +66,38 @@ function AddProduct() {
   const [categories, setCategories] = useState([]);
   const [showBrandDropdown, setShowBrandDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
+  const handleFileChange = (event, variantIndex) => {
+    const files = Array.from(event.target.files);
+
+    const oldVariant = product.variants[variantIndex];
+    if (oldVariant.images && oldVariant.images.length > 0) {
+      oldVariant.images.forEach((image) => {
+        if (image instanceof File) {
+          URL.revokeObjectURL(URL.createObjectURL(image));
+        }
+      });
+    }
+
+    setProduct((currentProduct) => {
+      const newProduct = { ...currentProduct };
+      newProduct.variants[variantIndex].images = files;
+      return newProduct;
+    });
+  };
+
+  const handleRemoveImage = (variantIndex, imageIndex) => {
+    const image = product.variants[variantIndex].images[imageIndex];
+    if (image instanceof File) {
+      URL.revokeObjectURL(URL.createObjectURL(image));
+    }
+
+    setProduct((currentProduct) => {
+      const newProduct = { ...currentProduct };
+      newProduct.variants[variantIndex].images.splice(imageIndex, 1);
+      return newProduct;
+    });
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -673,23 +705,60 @@ function AddProduct() {
                 </div>
               );
             })}
+
             {product.variants.map((variant, index) => {
               return (
-                <div className="grid grid-cols-1 gap-10">
+                <div className="grid grid-cols-1 gap-10" key={index}>
                   <div className="flex flex-col gap-2">
                     <label
-                      htmlFor={`variant-${index}-images`}
+                      htmlFor={`variant-${index}-image`}
                       className="font-medium text-sm"
                     >
                       Hình ảnh
                     </label>
-                    <div className="w-full h-200 focus:border-gray-400 rounded-md px-12 py-6 border border-gray-300 hover:border-gray-400"></div>
-                    <label htmlFor=""></label>
+                    <div className="w-full min-h-[200px] focus:border-gray-400 rounded-md p-6 border border-gray-300 hover:border-gray-400">
+                      {variant.images && variant.images.length > 0 ? (
+                        <div className="grid grid-cols-4 gap-4">
+                          {variant.images.map((image, imageIndex) => (
+                            <div key={imageIndex} className="relative group">
+                              <img
+                                src={URL.createObjectURL(image)}
+                                alt={`Preview ${imageIndex}`}
+                                className="w-full object-cover rounded-md"
+                              />
+                              <button
+                                onClick={() =>
+                                  handleRemoveImage(index, imageIndex)
+                                }
+                                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <AiOutlineClose size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <span className="text-gray-500">
+                            Chọn ảnh để xem trước
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <input
-                      id={`variant-${index}-image`}
+                      multiple
                       type="file"
+                      accept="image/*"
                       className="hidden"
+                      id={`variant-${index}-image`}
+                      onChange={(event) => handleFileChange(event, index)}
                     />
+                    <label
+                      htmlFor={`variant-${index}-image`}
+                      className="mt-2 inline-block px-4 py-2 bg-gray-200 rounded cursor-pointer hover:bg-gray-300 text-center"
+                    >
+                      Chọn ảnh
+                    </label>
                   </div>
                 </div>
               );
