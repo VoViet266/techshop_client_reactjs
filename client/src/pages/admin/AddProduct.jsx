@@ -6,6 +6,7 @@ import Products from "@services/products";
 import { useAppContext } from "@contexts";
 import Skeleton from "react-loading-skeleton";
 import Categories from "@services/categories";
+import { useNavigate } from "react-router-dom";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
@@ -15,6 +16,7 @@ import {
 } from "react-icons/ai";
 
 function AddProduct() {
+  const navigate = useNavigate();
   const { setToastLoading, setLoadingError, setMessage } = useAppContext();
   const brandDropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
@@ -261,7 +263,10 @@ function AddProduct() {
                   name="tag"
                   type="text"
                   placeholder="Chọn thể loại"
-                  value={product.category || ""}
+                  value={
+                    categories.find((c) => c._id === product.category)?.name ||
+                    ""
+                  }
                   onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                   className="border border-gray-300 hover:border-gray-400 cursor-pointer outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
                 />
@@ -280,7 +285,7 @@ function AddProduct() {
                           });
                           setShowCategoryDropdown(false);
                         }}
-                        className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${product.category === category.name ? "bg-gray-200" : ""}`}
+                        className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${product.category === category._id ? "bg-gray-200" : ""}`}
                       >
                         {category.name}
                       </li>
@@ -296,7 +301,9 @@ function AddProduct() {
                   id="brand"
                   readOnly
                   name="brand"
-                  value={product.brand || ""}
+                  value={
+                    brands.find((b) => b._id === product.brand)?.name || ""
+                  }
                   type="text"
                   placeholder="Chọn thương hiệu"
                   onClick={() => setShowBrandDropdown(!showBrandDropdown)}
@@ -317,7 +324,7 @@ function AddProduct() {
                           });
                           setShowBrandDropdown(false);
                         }}
-                        className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${product.brand === brand.name ? "bg-gray-200" : ""}`}
+                        className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${product.brand === brand._id ? "bg-gray-200" : ""}`}
                       >
                         {brand.name}
                       </li>
@@ -917,7 +924,7 @@ function AddProduct() {
                             const newVariants = [...currentProduct.variants];
                             newVariants[index] = {
                               ...newVariants[index],
-                              price: event.target.value,
+                              price: parseInt(event.target.value),
                             };
                             return {
                               ...currentProduct,
@@ -1105,7 +1112,11 @@ function AddProduct() {
                             {variant.images.map((image, imageIndex) => (
                               <div key={imageIndex} className="relative group">
                                 <img
-                                  src={URL.createObjectURL(image)}
+                                  src={
+                                    image instanceof File
+                                      ? URL.createObjectURL(image)
+                                      : image
+                                  }
                                   alt={`Preview ${imageIndex}`}
                                   className="w-full object-cover rounded-md"
                                 />
@@ -1164,19 +1175,34 @@ function AddProduct() {
 
       <button
         onClick={async () => {
-          console.log("Product:", product);
-          // try {
-          //   setToastLoading(true);
-          //   setMessage("Đang thêm sản phẩm.");
-          //   await Products.add(product);
-          //   setToastLoading(false);
-          //   setLoadingSuccess(true);
-          //   setMessage("Thêm sản phẩm thành công.");
-          // } catch (error) {
-          //   setToastLoading(false);
-          //   setLoadingError(true);
-          //   setMessage(error.message);
-          // }
+          try {
+            setToastLoading(true);
+            setMessage("Đang thêm sản phẩm.");
+
+            const productToSubmit = { ...product };
+
+            for (let i = 0; i < productToSubmit.variants.length; i++) {
+              const variant = productToSubmit.variants[i];
+              const uploadedUrls = [];
+
+              for (let j = 0; j < variant.images.length; j++) {
+                const imageUrl = await Files.upload(variant.images[j]);
+                uploadedUrls.push(imageUrl);
+              }
+
+              productToSubmit.variants[i].images = uploadedUrls;
+            }
+
+            await Products.add(productToSubmit);
+            setToastLoading(false);
+            setLoadingSuccess(true);
+            setMessage("Thêm sản phẩm thành công.");
+            navigate("/dashboard");
+          } catch (error) {
+            setToastLoading(false);
+            setLoadingError(true);
+            setMessage(error.message);
+          }
         }}
         className="mt-10 rounded-md font-medium cursor-pointer float-right min-w-100 bg-primary text-white py-8 hover:opacity-80"
       >

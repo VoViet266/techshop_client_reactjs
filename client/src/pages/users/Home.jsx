@@ -5,13 +5,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { PreviewListProducts } from "@components/products";
 
 function Home() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   return (
     <>
