@@ -26,6 +26,7 @@ function AddProduct() {
     description: "",
     category: "",
     brand: "",
+    discount: "",
     specifications: {
       weight: "",
       battery: "",
@@ -51,6 +52,7 @@ function AddProduct() {
       rear: {
         resolution: "",
         features: [],
+        lensCount: "",
       },
       videoRecording: [],
     },
@@ -58,7 +60,6 @@ function AddProduct() {
       {
         name: "",
         price: "",
-        compareAtPrice: "",
         color: {
           name: "",
           hex: "",
@@ -236,7 +237,7 @@ function AddProduct() {
             </div>
 
             <div className="flex gap-10">
-              <div className="flex w-[60%] flex-col gap-2">
+              <div className="flex w-[50%] flex-col gap-2">
                 <label htmlFor="name" className="font-medium text-sm">
                   Tên sản phẩm
                 </label>
@@ -250,6 +251,26 @@ function AddProduct() {
                     });
                   }}
                   placeholder="Nhập tên sản phẩm"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+              <div className="flex flex-1 flex-col gap-2">
+                <label htmlFor="discount" className="font-medium text-sm">
+                  Giảm giá
+                </label>
+                <input
+                  id="discount"
+                  name="discount"
+                  type="text"
+                  onChange={(event) => {
+                    setProduct((currentProduct) => {
+                      return {
+                        ...currentProduct,
+                        discount: parseInt(event.target.value),
+                      };
+                    });
+                  }}
+                  placeholder="Nhập phần trăm giảm giá"
                   className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
                 />
               </div>
@@ -774,7 +795,7 @@ function AddProduct() {
               <div className="flex-1 border-t border-t-gray-300"></div>
             </div>
 
-            <div className="grid grid-cols-3 gap-10">
+            <div className="grid grid-cols-4 gap-10">
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="rear-camera-resolution"
@@ -859,6 +880,35 @@ function AddProduct() {
                     });
                   }}
                   placeholder="Nhập tính năng camera sau"
+                  className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="rear-camera-videoRecording"
+                  className="font-medium text-sm"
+                >
+                  Số lượng ống kính
+                </label>
+                <input
+                  id="rear-camera-videoRecording"
+                  name="rear-camera-videoRecording"
+                  type="text"
+                  onChange={(event) => {
+                    setProduct((currentProduct) => {
+                      return {
+                        ...currentProduct,
+                        camera: {
+                          ...currentProduct.camera,
+                          rear: {
+                            ...currentProduct.camera.rear,
+                            lensCount: parseInt(event.target.value),
+                          },
+                        },
+                      };
+                    });
+                  }}
+                  placeholder="Nhập số lượng ống kính"
                   className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
                 />
               </div>
@@ -947,21 +997,7 @@ function AddProduct() {
                         id={`variant-${index}-compareAtPrice`}
                         name="compareAtPrice"
                         type="text"
-                        onChange={(event) => {
-                          setProduct((currentProduct) => {
-                            const newVariants = [...currentProduct.variants];
-                            newVariants[index] = {
-                              ...newVariants[index],
-                              compareAtPrice: event.target.value,
-                            };
-                            return {
-                              ...currentProduct,
-                              variants: newVariants,
-                            };
-                          });
-                        }}
                         placeholder="Nhập giá so sánh của biến thể"
-                        value={variant.compareAtPrice}
                         className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
                       />
                     </div>
@@ -1175,34 +1211,36 @@ function AddProduct() {
 
       <button
         onClick={async () => {
-          try {
-            setToastLoading(true);
-            setMessage("Đang thêm sản phẩm.");
+          console.log(product);
+          // console.log(JSON.stringify(product));
+          // try {
+          //   setToastLoading(true);
+          //   setMessage("Đang thêm sản phẩm.");
 
-            const productToSubmit = { ...product };
+          //   const productToSubmit = { ...product };
 
-            for (let i = 0; i < productToSubmit.variants.length; i++) {
-              const variant = productToSubmit.variants[i];
-              const uploadedUrls = [];
+          //   for (let i = 0; i < productToSubmit.variants.length; i++) {
+          //     const variant = productToSubmit.variants[i];
+          //     const uploadedUrls = [];
 
-              for (let j = 0; j < variant.images.length; j++) {
-                const imageUrl = await Files.upload(variant.images[j]);
-                uploadedUrls.push(imageUrl);
-              }
+          //     for (let j = 0; j < variant.images.length; j++) {
+          //       const imageUrl = await Files.upload(variant.images[j]);
+          //       uploadedUrls.push(imageUrl);
+          //     }
 
-              productToSubmit.variants[i].images = uploadedUrls;
-            }
+          //     productToSubmit.variants[i].images = uploadedUrls;
+          //   }
+          //   console.log(productToSubmit);
 
-            await Products.add(productToSubmit);
-            setToastLoading(false);
-            setLoadingSuccess(true);
-            setMessage("Thêm sản phẩm thành công.");
-            navigate("/dashboard");
-          } catch (error) {
-            setToastLoading(false);
-            setLoadingError(true);
-            setMessage(error.message);
-          }
+          //   await Products.add(productToSubmit);
+          //   setToastLoading(false);
+          //   setLoadingSuccess(true);
+          //   setMessage("Thêm sản phẩm thành công.");
+          // } catch (error) {
+          //   setToastLoading(false);
+          //   setLoadingError(true);
+          //   setMessage(error.message);
+          // }
         }}
         className="mt-10 rounded-md font-medium cursor-pointer float-right min-w-100 bg-primary text-white py-8 hover:opacity-80"
       >
