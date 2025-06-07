@@ -11,7 +11,7 @@ function AppProvider({ children }) {
   const [toastLoading, setToastLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [loadingSuccess, setLoadingSuccess] = useState(false);
-  const [sideBarSelectedTab, setSideBarSelectedTab] = useState("Trang chủ");
+  const [sideBarSelectedTab, setSideBarSelectedTab] = useState();
 
   const data = {
     loading,

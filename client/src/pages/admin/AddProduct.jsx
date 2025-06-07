@@ -17,8 +17,13 @@ import {
 
 function AddProduct() {
   const navigate = useNavigate();
-  const { setToastLoading, setLoadingError, setMessage, setLoadingSuccess } =
-    useAppContext();
+  const {
+    setMessage,
+    setLoadingError,
+    setToastLoading,
+    setLoadingSuccess,
+    setSideBarSelectedTab,
+  } = useAppContext();
   const brandDropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
   const [brands, setBrands] = useState([]);
@@ -78,6 +83,10 @@ function AddProduct() {
   const [categories, setCategories] = useState([]);
   const [showBrandDropdown, setShowBrandDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
+  useEffect(() => {
+    setSideBarSelectedTab("Thêm sản phẩm");
+  }, []);
 
   const handleImageUpload = useCallback(async (files, info, uploadHandler) => {
     try {
