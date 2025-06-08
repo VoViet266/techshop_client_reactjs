@@ -34,17 +34,48 @@ function Variants({
   };
 
   const handleRemoveImage = (variantIndex, imageIndex) => {
-    const image = product.variants[variantIndex].images[imageIndex];
-    if (image instanceof File) {
-      URL.revokeObjectURL(URL.createObjectURL(image));
-    }
-
     setProduct((currentProduct) => {
-      const newProduct = { ...currentProduct };
-      newProduct.variants[variantIndex].images.splice(imageIndex, 1);
+      // Tạo deep copy của product và variants
+      const newProduct = {
+        ...currentProduct,
+        variants: currentProduct.variants.map((variant, idx) => {
+          // Chỉ xử lý variant được chọn
+          if (idx === variantIndex) {
+            const newImages = [...variant.images]; // Tạo bản sao của mảng images
+
+            // Xóa ObjectURL nếu là File
+            const removedImage = newImages[imageIndex];
+            if (removedImage instanceof File) {
+              URL.revokeObjectURL(URL.createObjectURL(removedImage));
+            }
+
+            // Xóa image tại imageIndex
+            newImages.splice(imageIndex, 1);
+
+            return {
+              ...variant,
+              images: newImages,
+            };
+          }
+          return variant;
+        }),
+      };
       return newProduct;
     });
   };
+
+  // const handleRemoveImage = (variantIndex, imageIndex) => {
+  //   const image = product.variants[variantIndex].images[imageIndex];
+  //   if (image instanceof File) {
+  //     URL.revokeObjectURL(URL.createObjectURL(image));
+  //   }
+
+  //   setProduct((currentProduct) => {
+  //     const newProduct = { ...currentProduct };
+  //     newProduct.variants[variantIndex].images.splice(imageIndex, 1);
+  //     return newProduct;
+  //   });
+  // };
 
   const handleAddVariant = () => {
     setProduct((currentProduct) => {
@@ -382,9 +413,9 @@ function Variants({
                               className="w-full object-cover rounded-md"
                             />
                             <button
-                              onClick={() =>
-                                handleRemoveImage(index, imageIndex)
-                              }
+                              onClick={() => {
+                                handleRemoveImage(index, imageIndex);
+                              }}
                               className="absolute top-4 right-4 p-4 text-black bg-white shadow-2xl cursor-pointer rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <AiOutlineClose size={16} />
