@@ -10,6 +10,7 @@ function CommonInformation({
   setProduct,
   productError,
   productMessage,
+  brandDropdownRef,
   showBrandDropdown,
   categoryDropdownRef,
   setShowBrandDropdown,
