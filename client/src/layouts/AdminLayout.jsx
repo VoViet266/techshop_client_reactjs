@@ -32,7 +32,7 @@ function AdminLayout() {
   return (
     <div className="relative font-roboto overflow-x-hidden">
       <Header />
-      <main className="mt-60 flex">
+      <main className="mt-90 flex">
         <div className="xl:pl-50 w-[20%] border-r fixed top-60 left-0 bottom-0 border-r-gray-300 flex flex-col gap-10 h-screen p-20">
           <Link to="/dashboard">
             <div
@@ -84,7 +84,7 @@ function AdminLayout() {
           </div>
         </div>
         <div
-          className={`w-full ml-[20%] p-20 ${window.location.pathname === "/product/all" && "h-[50vh] overflow-y-hidden"}`}
+          className={`w-full ml-[20%] p-20 ${window.location.pathname === "/product/all"}`}
         >
           <Outlet />
         </div>
