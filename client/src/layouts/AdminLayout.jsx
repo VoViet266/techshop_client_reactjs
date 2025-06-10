@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import { useAppContext } from "@contexts";
+import { Link, Outlet } from "react-router-dom";
 import { Layout, Typography, Flex } from "antd";
 import { HomeOutlined, ProductOutlined } from "@ant-design/icons";
 
@@ -27,8 +27,8 @@ function AdminLayout() {
       </Header>
       <Layout className="mt-60! min-h-500!">
         <Sider
-          width="20%"
-          className="xl:pl-50! max-w-[40%]! pt-20 w-300! border-r! border-r-gray-300! bg-white! flex! flex-col! gap-10!"
+          width="300px"
+          className="xl:pl-50! max-w-[40%]! pt-20 w-300! border-r! fixed! top-60! left-0! bottom-0! border-r-gray-300! bg-white! flex! flex-col! gap-10!"
         >
           <Flex vertical gap={10}>
             <Link to="/dashboard">
@@ -74,9 +74,10 @@ function AdminLayout() {
             </Flex>
           </Flex>
         </Sider>
-        <Content className="">Content</Content>
+        <Content className="bg-white! p-20! ml-300!">
+          <Outlet />
+        </Content>
       </Layout>
-      <Footer>Footer</Footer>
     </Layout>
   );
 }
