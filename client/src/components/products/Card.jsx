@@ -1,90 +1,59 @@
-import {
-
-  ShoppingCartOutlined,
-
-} from "@ant-design/icons";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Card, Badge, Button, Space, Typography, Divider, Image } from "antd";
 
 const { Text, Title } = Typography;
 
 function CardProduct() {
   return (
-    <Badge.Ribbon text="Mới" color="red" style={{ top: 10, right: -6 }}>
+    <Badge.Ribbon text="Mới" color="red" className="top-10! -right-6!">
       <Card
         hoverable
-        style={{
-          width: 280,
-          borderRadius: "12px",
-          overflow: "hidden",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-          border: "1px solid rgb(245, 239, 239)",
-        }}
         cover={
           <Image
-            src="https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg"
-            alt="iPhone 16 Pro Max"
-            style={{
-              objectFit: "fill",
-              width: "100%",
-              height: "auto",
-              borderRadius: "12px",
-            }}
             preview={false}
+            alt="iPhone 16 Pro Max"
+            className="object-fill mx-auto mt-20 w-[80%]! h-auto rounded-xl!"
+            src="https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg"
           />
         }
+        className="w-280 rounded-xl! overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[rgb(245,239,239)]"
       >
-        <Divider style={{ margin: "10px 0" }} />
-        <Title
-          level={4}
-          style={{ margin: "0 0 8px 0", fontSize: "16px", lineHeight: "1.4" }}
-        >
+        <Divider className="mt-10!" />
+        <Title level={4} className="mb-8! text-[16px]! leading-1.4!">
           iPhone 16 Pro Max 256GB | Chính hãng VN/A
         </Title>
-        <div style={{ marginBottom: "16px" }}>
+        <div className="mb-16">
           <Space direction="vertical" size={4}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Text style={{ fontSize: "12px", color: "#52c41a" }}>
+            <div className="flex items-center gap-8">
+              <Text className="text-xs! text-[#52c41a]!">
                 Miễn phí vận chuyển
               </Text>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Text style={{ fontSize: "12px", color: "#1890ff" }}>
+            <div className="flex items-center gap-8">
+              <Text className="text-xs! text-[#1890ff]!">
                 Trả góp 0% qua thẻ tín dụng
               </Text>
             </div>
           </Space>
         </div>
-        <div style={{ marginBottom: "10px" }}>
+        <div className="mb-10">
           <div>
-            <Text
-              style={{
-                fontSize: "20px",
-                fontWeight: "bold",
-                color: "#d32f2f",
-                marginRight: "8px",
-              }}
-            >
+            <Text className="text-xl! font-bold! text-[#d32f2f]! mr-8!">
               30.000.000₫
             </Text>
-            <Text delete type="secondary" style={{ fontSize: "14px" }}>
+            <Text delete type="secondary" className="text-sm!">
               35.290.000₫
             </Text>
           </div>
         </div>
-        <Divider style={{ margin: "12px 0" }} />
-        <Space direction="vertical" size={8} style={{ width: "100%" }}>
+        <Divider className="my-12!" />
+        <Space direction="vertical" size={8} className="w-full!">
           <Button
-            type="primary"
-            size="large"
-            icon={<ShoppingCartOutlined />}
             block
-            style={{
-              height: "44px",
-              borderRadius: "12px",
-              fontWeight: "500",
-              background: "red",
-              border: "none",
-            }}
+            size="large"
+            type="primary"
+            icon={<ShoppingCartOutlined />}
+            className="h-[44]! rounded-xl! font-medium! bg-red-500!"
           >
             Mua ngay
           </Button>
