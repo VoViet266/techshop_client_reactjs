@@ -50,7 +50,7 @@ async function login(
         setToastLoading(false);
         setLoadingSuccess(true);
         setMessage("Đăng nhập thành công.");
-        localStorage.setItem("Token", response.data.data.access_token);
+        localStorage.setItem("access_token", response.data.data.access_token);
         if (response.data.data.role.roleName.includes("admin")) {
           navigate("/dashboard");
         } else {
