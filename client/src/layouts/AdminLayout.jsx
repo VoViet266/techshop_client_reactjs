@@ -1,40 +1,33 @@
-import { useAppContext } from "@contexts";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  Layout,
-  Typography,
-  Flex,
-  Breadcrumb,
-  Menu,
-  Space,
-  Avatar,
-} from "antd";
-import {
-  DashboardOutlined,
-  HomeOutlined,
+  UserOutlined,
   LaptopOutlined,
-  NotificationOutlined,
   ProductOutlined,
   ShoppingOutlined,
-  UserOutlined,
-  MenuUnfoldOutlined,
+  DashboardOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useRef } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Menu, Space, Avatar, Layout, Typography, Breadcrumb } from "antd";
 
 function AdminLayout() {
-  const { Title, Text } = Typography;
-  const { Header, Footer, Sider, Content } = Layout;
-  const { sideBarSelectedTab, setSideBarSelectedTab } = useAppContext();
-  const [collapsed, setCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { Title } = Typography;
   const navigate = useNavigate();
   const location = useLocation();
-  function highlight(text) {
-    if (sideBarSelectedTab === text) return "text-primary!";
-    return "text-black! hover:text-primary!";
-  }
-  const navItems = [
+  const sidebarReference = useRef(null);
+  const { Header, Sider, Content } = Layout;
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sidebarCurrentWidth, setSidebarCurrentWidth] = useState(250);
+
+  // useEffect(() => {
+  //   if (sidebarReference?.current?.clientWidth)
+  //     setSidebarCurrentWidth(sidebarReference.current.clientWidth);
+  // }, [sidebarReference?.current?.clientWidth]);
+
+  const sidebarItems = [
     {
       key: "dashboard",
       label: "Dashboard",
@@ -129,7 +122,7 @@ function AdminLayout() {
           </Title>
         </Link>
       </Header>
-      <Space>
+      {/* <Space>
         {isMobile && (
           <Button
             type="text"
@@ -139,14 +132,16 @@ function AdminLayout() {
           />
         )}
         <Breadcrumb items={getBreadcrumbItems()} />
-      </Space>
+      </Space> */}
       <Layout className="mt-60! min-h-500!">
         <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-          theme="light"
           width={250}
+          collapsible
+          theme="light"
+          collapsed={collapsed}
+          ref={sidebarReference}
+          onCollapse={(value) => setCollapsed(value)}
+          className="fixed! top-60! left-0! bottom-0!"
         >
           <div
             style={{
@@ -171,12 +166,15 @@ function AdminLayout() {
           </div>
           <Menu
             mode="inline"
+            items={sidebarItems}
             selectedKeys={[getCurrentPath()]}
-            items={navItems}
+            className="font-roboto! text-base!"
             style={{ height: "100%", borderRight: 0 }}
           />
         </Sider>
-        <Content className="bg-white! p-20! m-20!">
+        <Content
+          className={`bg-white! transition-all! duration-300! p-20! ${collapsed ? "ml-80!" : "ml-250!"}`}
+        >
           <Space>
             <Breadcrumb items={getBreadcrumbItems()} />
           </Space>
