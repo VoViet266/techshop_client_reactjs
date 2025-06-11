@@ -15,6 +15,7 @@ import Categories from "@services/categories";
 import { useNavigate } from "react-router-dom";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useState, useRef, useEffect } from "react";
+import { Button, message } from "antd";
 
 function AddProduct() {
   const {
@@ -274,86 +275,99 @@ function AddProduct() {
 
     fetchBrands();
   }, []);
+  const onSubmit = async () => {
+    const isValidData = checkProductDataBeforeSubmit();
+    if (isValidData) {
+      try {
+        setToastLoading(true);
+        message.loading("Đang thêm sản phẩm");
+        const productToSubmit = removeEmptyFields({ ...product });
 
-  return (
-    <div className="">
-      <div className="mb-10">
-        <h1 className="text-xl">Thêm sản phẩm</h1>
-      </div>
-      {!loading && (
-        <div className="flex flex-col gap-10 border border-gray-300 p-10 rounded-md">
-          <CommonInformation
-            brands={brands}
-            product={product}
-            categories={categories}
-            setProduct={setProduct}
-            productError={productError}
-            productMessage={productMessage}
-            showBrandDropdown={showBrandDropdown}
-            categoryDropdownRef={categoryDropdownRef}
-            setShowBrandDropdown={setShowBrandDropdown}
-            showCategoryDropdown={showCategoryDropdown}
-            setShowCategoryDropdown={setShowCategoryDropdown}
-          />
-
-          <Specifications setProduct={setProduct} />
-
-          <ConnectionInformation product={product} setProduct={setProduct} />
-
-          <CameraInformations setProduct={setProduct} />
-
-          <Variants
-            product={product}
-            setProduct={setProduct}
-            productError={productError}
-            productMessage={productMessage}
-            setProductError={setProductError}
-          />
-        </div>
-      )}
-
-      {loading && (
-        <div className="rounded-md">
-          <Skeleton className="h-700" />
-        </div>
-      )}
-
-      <button
-        onClick={async () => {
-          const isValidData = checkProductDataBeforeSubmit();
-          if (isValidData) {
-            try {
-              setToastLoading(true);
-              setMessage("Đang thêm sản phẩm.");
-              const productToSubmit = removeEmptyFields({ ...product });
-
-              for (let i = 0; i < productToSubmit.variants.length; i++) {
-                const variant = productToSubmit.variants[i];
-                const uploadedUrls = [];
-                for (let j = 0; j < variant.images.length; j++) {
-                  const imageUrl = await Files.upload(variant.images[j]);
-                  uploadedUrls.push(imageUrl);
-                }
-                productToSubmit.variants[i].images = uploadedUrls;
-              }
-
-              await Products.add(productToSubmit);
-              setToastLoading(false);
-              navigate("/dashboard");
-              setLoadingSuccess(true);
-              setMessage("Thêm sản phẩm thành công.");
-            } catch (error) {
-              setToastLoading(false);
-              setLoadingError(true);
-              setMessage(error.message);
-            }
+        for (let i = 0; i < productToSubmit.variants.length; i++) {
+          const variant = productToSubmit.variants[i];
+          const uploadedUrls = [];
+          for (let j = 0; j < variant.images.length; j++) {
+            const imageUrl = await Files.upload(variant.images[j]);
+            uploadedUrls.push(imageUrl);
           }
-        }}
-        className="mt-10 rounded-md font-medium cursor-pointer float-right min-w-100 bg-primary text-white py-8 hover:opacity-80"
-      >
-        Thêm
-      </button>
-    </div>
+          productToSubmit.variants[i].images = uploadedUrls;
+        }
+
+        const addProduct = await Products.add(productToSubmit);
+        if (addProduct) {
+          message.success("Thêm sản phẩm thành công");
+          setToastLoading(false);
+          navigate("/product/add");
+          setLoadingSuccess(true);
+        }
+      } catch (error) {
+        setToastLoading(false);
+        setLoadingError(true);
+        message.error("Thêm thất bại", 0, error);
+      }
+    }
+  };
+  return (
+    <>
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Thêm sản phẩm
+          </h1>
+        </div>
+        {!loading && (
+          <div className="flex flex-col gap-8 border border-gray-200 bg-white p-6 rounded-lg shadow-sm">
+            <CommonInformation
+              brands={brands}
+              product={product}
+              categories={categories}
+              setProduct={setProduct}
+              productError={productError}
+              productMessage={productMessage}
+              showBrandDropdown={showBrandDropdown}
+              categoryDropdownRef={categoryDropdownRef}
+              setShowBrandDropdown={setShowBrandDropdown}
+              showCategoryDropdown={showCategoryDropdown}
+              setShowCategoryDropdown={setShowCategoryDropdown}
+            />
+
+            <Specifications setProduct={setProduct} />
+
+            <ConnectionInformation product={product} setProduct={setProduct} />
+
+            <CameraInformations setProduct={setProduct} />
+
+            <Variants
+              product={product}
+              setProduct={setProduct}
+              productError={productError}
+              productMessage={productMessage}
+              setProductError={setProductError}
+            />
+          </div>
+        )}
+
+        {loading && (
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            <Skeleton className="h-[700px]" />
+          </div>
+        )}
+
+        <Button
+          onClick={onSubmit}
+          disabled={loading}
+          type="primary"
+          size="large"
+          style={{
+            margin: "20px 10px 5px 0",
+            width: 200,
+          }}
+          className="mt-8 rounded-lg font-medium cursor-pointer float-right min-w-[100px] bg-blue-600 text-white py-2 px-4 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Đang xử lý..." : "Thêm"}
+        </Button>
+      </div>
+    </>
   );
 }
 
