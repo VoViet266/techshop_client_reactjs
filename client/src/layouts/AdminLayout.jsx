@@ -173,7 +173,7 @@ function AdminLayout() {
           />
         </Sider>
         <Content
-          className={`bg-white! transition-all! duration-300! p-20! ${collapsed ? "ml-80!" : "ml-250!"}`}
+          className={`bg-white! transition-all! duration-250! p-20! ${collapsed ? "ml-80!" : "ml-250!"}`}
         >
           <Space>
             <Breadcrumb items={getBreadcrumbItems()} />
