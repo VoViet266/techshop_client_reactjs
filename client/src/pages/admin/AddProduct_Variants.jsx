@@ -1,11 +1,22 @@
+import React, { useState } from "react";
 import {
-  AiFillDelete,
-  AiOutlinePlus,
-  AiFillWarning,
-  AiOutlineClose,
-} from "react-icons/ai";
-
-import { GoUpload } from "react-icons/go";
+  Button,
+  Input,
+  Upload,
+  Card,
+  Row,
+  Col,
+  Form,
+  Divider,
+  message,
+  Image,
+} from "antd";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import Dragger from "antd/es/upload/Dragger";
 
 function Variants({
   product,
@@ -14,9 +25,18 @@ function Variants({
   productMessage,
   setProductError,
 }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
   const handleFileChange = (event, variantIndex) => {
-    const files = Array.from(event.target.files);
-
+    const files = event.fileList.map((file) => {
+      if (file.originFileObj) {
+        return new File([file.originFileObj], file.name, {
+          type: file.type,
+          lastModified: file.lastModified,
+        });
+      }
+      return file;
+    });
     const oldVariant = product.variants[variantIndex];
     if (oldVariant.images && oldVariant.images.length > 0) {
       oldVariant.images.forEach((image) => {
@@ -35,23 +55,16 @@ function Variants({
 
   const handleRemoveImage = (variantIndex, imageIndex) => {
     setProduct((currentProduct) => {
-      // Tạo deep copy của product và variants
       const newProduct = {
         ...currentProduct,
         variants: currentProduct.variants.map((variant, idx) => {
-          // Chỉ xử lý variant được chọn
           if (idx === variantIndex) {
-            const newImages = [...variant.images]; // Tạo bản sao của mảng images
-
-            // Xóa ObjectURL nếu là File
+            const newImages = [...variant.images];
             const removedImage = newImages[imageIndex];
             if (removedImage instanceof File) {
               URL.revokeObjectURL(URL.createObjectURL(removedImage));
             }
-
-            // Xóa image tại imageIndex
             newImages.splice(imageIndex, 1);
-
             return {
               ...variant,
               images: newImages,
@@ -63,19 +76,6 @@ function Variants({
       return newProduct;
     });
   };
-
-  // const handleRemoveImage = (variantIndex, imageIndex) => {
-  //   const image = product.variants[variantIndex].images[imageIndex];
-  //   if (image instanceof File) {
-  //     URL.revokeObjectURL(URL.createObjectURL(image));
-  //   }
-
-  //   setProduct((currentProduct) => {
-  //     const newProduct = { ...currentProduct };
-  //     newProduct.variants[variantIndex].images.splice(imageIndex, 1);
-  //     return newProduct;
-  //   });
-  // };
 
   const handleAddVariant = () => {
     setProduct((currentProduct) => {
@@ -121,15 +121,14 @@ function Variants({
   function handleRemoveVariant(index) {
     if (product.variants.length > 1) {
       setProduct((currentProduct) => {
-        const newVariants = [...currentProduct.variants]; // Tạo bản sao mới
-        newVariants.splice(index, 1); // Xóa phần tử tại index
+        const newVariants = [...currentProduct.variants];
+        newVariants.splice(index, 1);
         return {
           ...currentProduct,
-          variants: newVariants, // Cập nhật variants với mảng đã xóa phần tử
+          variants: newVariants,
         };
       });
 
-      // Cập nhật productError state
       setProductError((currentError) => {
         const newVariants = [...currentError.variants];
         newVariants.splice(index, 1);
@@ -141,328 +140,277 @@ function Variants({
     }
   }
 
+  const handleInputChange = (index, field, value, nestedField = null) => {
+    setProduct((currentProduct) => {
+      const newVariants = [...currentProduct.variants];
+      if (nestedField) {
+        newVariants[index] = {
+          ...newVariants[index],
+          [field]: {
+            ...newVariants[index][field],
+            [nestedField]: value,
+          },
+        };
+      } else {
+        newVariants[index] = {
+          ...newVariants[index],
+          [field]: field === "price" ? parseInt(value) || "" : value,
+        };
+      }
+      return {
+        ...currentProduct,
+        variants: newVariants,
+      };
+    });
+  };
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  const handlePreview = (file) =>
+    (async () => {
+      file.preview = await getBase64(file.originFileObj);
+      setPreviewImage(file.preview);
+      setPreviewOpen(true);
+    })();
   return (
-    <>
-      <div className="flex flex-col gap-10 mt-20">
-        <div className="flex gap-12 items-center">
-          <span className="text-sm text-primary font-medium">Biến thể</span>
-          <div className="flex-1 border-t border-t-gray-300"></div>
+    <div className="flex flex-col gap-6 mt-8">
+      <div className="flex gap-12 items-center">
+        <span className="text-sm text-primary font-medium">Biến thể</span>
+        <div className="flex-1 border-t border-t-gray-300"></div>
 
-          <button
-            onClick={handleAddVariant}
-            className="cursor-pointer flex items-center gap-4 bg-gray-100 hover:bg-gray-200 py-4 px-8 rounded-sm text-sm font-medium"
-          >
-            <AiOutlinePlus />
-            Thêm biến thể
-          </button>
-        </div>
-
-        {product.variants.map((variant, index) => {
-          return (
-            <div
-              className={`flex border border-gray-300 rounded-sm ${index !== 0 ? "px-10 py-20" : "p-10"} relative flex-col gap-10`}
-              key={index}
-            >
-              {index !== 0 && (
-                <button
-                  onClick={() => {
-                    handleRemoveVariant(index);
-                  }}
-                  className="absolute top-8 right-8 flex items-center gap-4 font-medium text-sm bg-gray-100 hover:bg-gray-200 px-8 cursor-pointer py-4 rounded-xs"
-                >
-                  <AiFillDelete className="text-lg" />
-                  Xóa biến thể
-                </button>
-              )}
-              <div className="grid grid-cols-3 mt-10 gap-10">
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-name`}
-                    className="font-medium text-sm"
-                  >
-                    Tên biến thể
-                  </label>
-                  <input
-                    id={`variant-${index}-name`}
-                    name="name"
-                    value={variant.name}
-                    type="text"
-                    onChange={(event) => {
-                      setProduct((currentProduct) => {
-                        const newVariants = [...currentProduct.variants];
-                        newVariants[index] = {
-                          ...newVariants[index],
-                          name: event.target.value,
-                        };
-                        return {
-                          ...currentProduct,
-                          variants: newVariants,
-                        };
-                      });
-                    }}
-                    placeholder="Nhập tên biến thể"
-                    className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-                  />
-                  {productError.variants[index].name && (
-                    <span className="text-sm flex items-center gap-4 text-red-500">
-                      <AiFillWarning />
-                      {productMessage.variants.name}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-price`}
-                    className="font-medium text-sm"
-                  >
-                    Giá
-                  </label>
-                  <input
-                    id={`variant-${index}-price`}
-                    value={variant.price}
-                    name="price"
-                    type="text"
-                    onChange={(event) => {
-                      setProduct((currentProduct) => {
-                        const newVariants = [...currentProduct.variants];
-                        newVariants[index] = {
-                          ...newVariants[index],
-                          price: parseInt(event.target.value),
-                        };
-                        return {
-                          ...currentProduct,
-                          variants: newVariants,
-                        };
-                      });
-                    }}
-                    placeholder="Nhập giá của biến thể"
-                    className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-                  />
-                  {productError.variants[index].price && (
-                    <span className="text-sm flex items-center gap-4 text-red-500">
-                      <AiFillWarning />
-                      {productMessage.variants.price}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-colorName`}
-                    className="font-medium text-sm"
-                  >
-                    Tên màu
-                  </label>
-                  <input
-                    id={`variant-${index}-colorName`}
-                    name="name"
-                    value={variant.color.name}
-                    onChange={(event) => {
-                      setProduct((currentProduct) => {
-                        const newVariants = [...currentProduct.variants];
-                        newVariants[index] = {
-                          ...newVariants[index],
-                          color: {
-                            ...newVariants[index].color,
-                            name: event.target.value,
-                          },
-                        };
-                        return {
-                          ...currentProduct,
-                          variants: newVariants,
-                        };
-                      });
-                    }}
-                    type="text"
-                    placeholder="Nhập tên màu biến thể"
-                    className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-                  />
-                  {productError.variants[index].color.name && (
-                    <span className="text-sm flex items-center gap-4 text-red-500">
-                      <AiFillWarning />
-                      {productMessage.variants.color.name}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-10">
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-hex`}
-                    className="font-medium text-sm"
-                  >
-                    Mã màu
-                  </label>
-                  <input
-                    id={`variant-${index}-hex`}
-                    value={variant.color.hex}
-                    onChange={(event) => {
-                      setProduct((currentProduct) => {
-                        const newVariants = [...currentProduct.variants];
-                        newVariants[index] = {
-                          ...newVariants[index],
-                          color: {
-                            ...newVariants[index].color,
-                            hex: event.target.value,
-                          },
-                        };
-                        return {
-                          ...currentProduct,
-                          variants: newVariants,
-                        };
-                      });
-                    }}
-                    name="hex"
-                    type="text"
-                    placeholder="Nhập mã màu của biến thể"
-                    className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-                  />
-                  {productError.variants[index].color.name && (
-                    <span className="text-sm flex items-center gap-4 text-red-500">
-                      <AiFillWarning />
-                      {productMessage.variants.color.hex}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-RAM`}
-                    className="font-medium text-sm"
-                  >
-                    RAM
-                  </label>
-                  <input
-                    id={`variant-${index}-RAM`}
-                    name="RAM"
-                    type="text"
-                    onChange={(event) => {
-                      setProduct((currentProduct) => {
-                        const newVariants = [...currentProduct.variants];
-                        newVariants[index] = {
-                          ...newVariants[index],
-                          memory: {
-                            ...newVariants[index].memory,
-                            ram: event.target.value,
-                          },
-                        };
-                        return {
-                          ...currentProduct,
-                          variants: newVariants,
-                        };
-                      });
-                    }}
-                    placeholder="Nhập RAM của biến thể"
-                    value={variant.memory.ram}
-                    className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-storage`}
-                    className="font-medium text-sm"
-                  >
-                    Bộ nhớ trong
-                  </label>
-                  <input
-                    id={`variant-${index}-storage`}
-                    name="storage"
-                    onChange={(event) => {
-                      setProduct((currentProduct) => {
-                        const newVariants = [...currentProduct.variants];
-                        newVariants[index] = {
-                          ...newVariants[index],
-                          memory: {
-                            ...newVariants[index].memory,
-                            storage: event.target.value,
-                          },
-                        };
-                        return {
-                          ...currentProduct,
-                          variants: newVariants,
-                        };
-                      });
-                    }}
-                    type="text"
-                    placeholder="Nhập bộ nhớ trong của biến thể"
-                    value={variant.memory.storage}
-                    className="border border-gray-300 hover:border-gray-400 outline-none focus:border-gray-400 placeholder:text-sm placeholder:font-medium rounded-md px-12 py-6"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-10">
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`variant-${index}-image`}
-                    className="font-medium text-sm"
-                  >
-                    Hình ảnh
-                  </label>
-                  <div className="w-full min-h-[200px] focus:border-gray-400 rounded-md p-6 border-dashed border border-gray-300 hover:border-gray-400">
-                    {variant.images && variant.images.length > 0 ? (
-                      <div className="grid grid-cols-4 gap-4">
-                        {variant.images.map((image, imageIndex) => (
-                          <div key={imageIndex} className="relative group">
-                            <img
-                              src={
-                                image instanceof File
-                                  ? URL.createObjectURL(image)
-                                  : image
-                              }
-                              alt={`Preview ${imageIndex}`}
-                              className="w-full object-cover rounded-md"
-                            />
-                            <button
-                              onClick={() => {
-                                handleRemoveImage(index, imageIndex);
-                              }}
-                              className="absolute top-4 right-4 p-4 text-black bg-white shadow-2xl cursor-pointer rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <AiOutlineClose size={16} />
-                            </button>
-                          </div>
-                        ))}
-                        <label
-                          htmlFor={`variant-${index}-image`}
-                          className="flex gap-4 cursor-pointer items-center justify-center h-full"
-                        >
-                          <AiOutlinePlus className="text-gray-500 text-xl" />
-                          <span className="text-gray-500">Thêm ảnh</span>
-                        </label>
-                      </div>
-                    ) : (
-                      <label
-                        htmlFor={`variant-${index}-image`}
-                        className="flex flex-col gap-6 cursor-pointer items-center justify-center h-full"
-                      >
-                        <GoUpload className="text-xl font-thin text-gray-500" />
-                        <span className="text-gray-500">
-                          Chọn ảnh để xem trước
-                        </span>
-                      </label>
-                    )}
-                  </div>
-                  {productError.variants[index].images && (
-                    <span className="text-sm flex items-center gap-4 text-red-500">
-                      <AiFillWarning />
-                      {productMessage.variants.images}
-                    </span>
-                  )}
-                  <input
-                    multiple
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    id={`variant-${index}-image`}
-                    onChange={(event) => handleFileChange(event, index)}
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleAddVariant}
+          className="cursor-pointer flex items-center gap-4 bg-gray-100 hover:bg-gray-200 py-4 px-8 rounded-sm text-sm font-medium "
+        >
+          Thêm biến thể
+        </Button>
       </div>
-    </>
+      <div className="space-y-6">
+        {product.variants.map((variant, index) => (
+          <Card
+            key={index}
+            className={`relative ${index !== 0 ? "pt-12" : ""}`}
+          >
+            {index !== 0 && (
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => handleRemoveVariant(index)}
+                className="absolute top-4 right-4 flex items-center"
+              >
+                Xóa biến thể
+              </Button>
+            )}
+
+            <Form layout="vertical" className="mt-4" autoComplete="off">
+              <Row gutter={[10, 0]}>
+                <Col span={8}>
+                  <Form.Item
+                    label="Tên biến thể"
+                    validateStatus={
+                      productError.variants[index]?.name ? "error" : ""
+                    }
+                    help={
+                      productError.variants[index]?.name
+                        ? productMessage.variants.name
+                        : ""
+                    }
+                  >
+                    <Input
+                      placeholder="Nhập tên biến thể"
+                      value={variant.name}
+                      onChange={(e) =>
+                        handleInputChange(index, "name", e.target.value)
+                      }
+                      className="hover:border-gray-400 focus:border-blue-500"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Giá"
+                    validateStatus={
+                      productError.variants[index]?.price ? "error" : ""
+                    }
+                    help={
+                      productError.variants[index]?.price
+                        ? productMessage.variants.price
+                        : ""
+                    }
+                  >
+                    <Input
+                      placeholder="Nhập giá của biến thể"
+                      value={variant.price}
+                      onChange={(e) =>
+                        handleInputChange(index, "price", e.target.value)
+                      }
+                      className="hover:border-gray-400 focus:border-blue-500"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Tên màu"
+                    validateStatus={
+                      productError.variants[index]?.color?.name ? "error" : ""
+                    }
+                    help={
+                      productError.variants[index]?.color?.name
+                        ? productMessage.variants.color.name
+                        : ""
+                    }
+                  >
+                    <Input
+                      placeholder="Nhập tên màu biến thể"
+                      value={variant.color.name}
+                      onChange={(e) =>
+                        handleInputChange(
+                          index,
+                          "color",
+                          e.target.value,
+                          "name"
+                        )
+                      }
+                      className="hover:border-gray-400 focus:border-blue-500"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    label="Mã màu"
+                    validateStatus={
+                      productError.variants[index]?.color?.hex ? "error" : ""
+                    }
+                    help={
+                      productError.variants[index]?.color?.hex
+                        ? productMessage.variants.color.hex
+                        : ""
+                    }
+                  >
+                    <Input
+                      placeholder="Nhập mã màu của biến thể"
+                      value={variant.color.hex}
+                      onChange={(e) =>
+                        handleInputChange(index, "color", e.target.value, "hex")
+                      }
+                      className="hover:border-gray-400 focus:border-blue-500"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item label="RAM">
+                    <Input
+                      placeholder="Nhập RAM của biến thể"
+                      value={variant.memory.ram}
+                      onChange={(e) =>
+                        handleInputChange(
+                          index,
+                          "memory",
+                          e.target.value,
+                          "ram"
+                        )
+                      }
+                      className="hover:border-gray-400 focus:border-blue-500"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item label="Bộ nhớ trong">
+                    <Input
+                      placeholder="Nhập bộ nhớ trong của biến thể"
+                      value={variant.memory.storage}
+                      onChange={(e) =>
+                        handleInputChange(
+                          index,
+                          "memory",
+                          e.target.value,
+                          "storage"
+                        )
+                      }
+                      className="hover:border-gray-400 focus:border-blue-500"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col span={24}>
+                  <Form.Item
+                    label="Hình ảnh"
+                    validateStatus={
+                      productError.variants[index]?.images ? "error" : ""
+                    }
+                    help={
+                      productError.variants[index]?.images
+                        ? productMessage.variants.images
+                        : ""
+                    }
+                  >
+                    <Dragger
+                      name="files"
+                      multiple={false}
+                      accept="image/*"
+                      maxCount={1}
+                      //       showUploadList={{
+                      //         showPreviewIcon: true,
+                      //         showRemoveIcon: true,
+                      //       }}
+                      listType="picture"
+                      className="w-full min-h-[200px] focus:border-gray-400 rounded-md p-6 border-dashed border border-gray-300 hover:border-gray-400"
+                      onPreview={(file) => handlePreview(file)}
+                      onRemove={(file) => {
+                        const variantIndex = product.variants.findIndex(
+                          (v) => v === variant
+                        );
+                        handleRemoveImage(variantIndex, file.uid);
+                      }}
+                      beforeUpload={(file) => {
+                        const isImage = file.type.startsWith("image/");
+                        if (!isImage) {
+                          message.error("Chỉ hỗ trợ tải lên hình ảnh.");
+                          return Upload.LIST_IGNORE;
+                        }
+                        return false; // Không upload ngay, dùng để xử lý thủ công
+                      }}
+                      onChange={(event) => handleFileChange(event, index)}
+                    >
+                      <div className="flex flex-col items-center justify-center h-150">
+                        <UploadOutlined className="text-6xl text-gray-400 mb-6" />
+                        <span className="text-gray-600 text-lg mb-2">
+                          Nhấp hoặc kéo thả để tải lên
+                        </span>
+                      </div>
+                    </Dragger>
+                    {previewImage && (
+                      <Image
+                        wrapperStyle={{ display: "none" }}
+                        preview={{
+                          visible: previewOpen,
+                          onVisibleChange: (visible) => setPreviewOpen(visible),
+                          afterOpenChange: (visible) =>
+                            !visible && setPreviewImage(""),
+                        }}
+                        src={previewImage}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
 

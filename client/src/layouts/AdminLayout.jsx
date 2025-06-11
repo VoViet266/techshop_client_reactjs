@@ -1,17 +1,121 @@
 import { useAppContext } from "@contexts";
-import { Link, Outlet } from "react-router-dom";
-import { Layout, Typography, Flex } from "antd";
-import { HomeOutlined, ProductOutlined } from "@ant-design/icons";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Layout,
+  Typography,
+  Flex,
+  Breadcrumb,
+  Menu,
+  Space,
+  Avatar,
+} from "antd";
+import {
+  DashboardOutlined,
+  HomeOutlined,
+  LaptopOutlined,
+  NotificationOutlined,
+  ProductOutlined,
+  ShoppingOutlined,
+  UserOutlined,
+  MenuUnfoldOutlined,
+} from "@ant-design/icons";
+import { useEffect, useState } from "react";
 
 function AdminLayout() {
   const { Title, Text } = Typography;
   const { Header, Footer, Sider, Content } = Layout;
   const { sideBarSelectedTab, setSideBarSelectedTab } = useAppContext();
-
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   function highlight(text) {
     if (sideBarSelectedTab === text) return "text-primary!";
     return "text-black! hover:text-primary!";
   }
+  const navItems = [
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: <DashboardOutlined />,
+      onClick: () => navigate("/dashboard"),
+    },
+    {
+      key: "product",
+      label: "Quản lý sản phẩm",
+      icon: <ProductOutlined />,
+      children: [
+        {
+          key: "addproduct",
+          label: "Thêm sản phẩm",
+          onClick: () => navigate("/product/add"),
+        },
+        {
+          key: "allproducts",
+          label: "Danh sách sản phẩm",
+          onClick: () => navigate("/product/all"),
+        },
+      ],
+    },
+    {
+      key: "category",
+      label: "Categories",
+      icon: <LaptopOutlined />,
+      onClick: () => navigate("/categories"),
+    },
+    {
+      key: "brand",
+      label: "Brands",
+      icon: <NotificationOutlined />,
+      onClick: () => navigate("/brands"),
+    },
+    {
+      key: "user",
+      label: "Users",
+      icon: <UserOutlined />,
+      onClick: () => navigate("/users"),
+    },
+    {
+      key: "order",
+      label: "Orders",
+      icon: <ShoppingOutlined />,
+      onClick: () => navigate("/admin/order"),
+    },
+  ];
+
+  const getBreadcrumbItems = () => {
+    const pathSnippets = location.pathname.split("/").filter((i) => i);
+    const breadcrumbItems = [
+      {
+        title: <Link to="/dashboard">Admin</Link>,
+      },
+    ];
+
+    pathSnippets.forEach((_, index) => {
+      const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
+      const title =
+        pathSnippets[index].charAt(0).toUpperCase() +
+        pathSnippets[index].slice(1);
+
+      if (index > 0) {
+        breadcrumbItems.push({
+          title: <Link to={url}>{title}</Link>,
+        });
+      }
+    });
+
+    return breadcrumbItems;
+  };
+
+  useEffect(() => {
+    navigate("/dashboard");
+  }, []);
+
+  const getCurrentPath = () => {
+    const path = location.pathname.split("/");
+    return path.length > 2 ? path[2] : "";
+  };
 
   return (
     <Layout className="w-full!">
@@ -25,56 +129,57 @@ function AdminLayout() {
           </Title>
         </Link>
       </Header>
+      <Space>
+        {isMobile && (
+          <Button
+            type="text"
+            icon={<MenuUnfoldOutlined />}
+            onClick={toggleMobileMenu}
+            style={{ fontSize: "16px" }}
+          />
+        )}
+        <Breadcrumb items={getBreadcrumbItems()} />
+      </Space>
       <Layout className="mt-60! min-h-500!">
         <Sider
-          width="300px"
-          className="xl:pl-50! max-w-[40%]! pt-20 w-300! border-r! fixed! top-60! left-0! bottom-0! border-r-gray-300! bg-white! flex! flex-col! gap-10!"
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          theme="light"
+          width={250}
         >
-          <Flex vertical gap={10}>
-            <Link to="/dashboard">
-              <Flex gap={6} onClick={() => setSideBarSelectedTab("Trang chủ")}>
-                <Text
-                  className={`font-roboto! text-base! flex! gap-6! font-medium! ${highlight(
-                    "Trang chủ"
-                  )}`}
-                >
-                  <HomeOutlined />
-                  Trang chủ
-                </Text>
-              </Flex>
-            </Link>
-            <Flex vertical>
-              <Flex
-                gap={6}
-                onClick={() => setSideBarSelectedTab("Quản lý sản phẩm")}
-              >
-                <Text className="font-roboto! text-base! flex! items-center! gap-6! cursor-pointer! font-medium!">
-                  <ProductOutlined />
-                  Quản lý sản phẩm
-                </Text>
-              </Flex>
-              <Flex vertical align="start" gap={10} className="ml-30! mt-10!">
-                <Link to="/product/add">
-                  <Text
-                    onClick={() => setSideBarSelectedTab("Thêm sản phẩm")}
-                    className={`${highlight("Thêm sản phẩm")} cursor-pointer! font-roboto! font-medium! hover:text-primary!`}
-                  >
-                    Thêm sản phẩm
-                  </Text>
-                </Link>
-                <Link to="/product/all">
-                  <Text
-                    onClick={() => setSideBarSelectedTab("Danh sách sản phẩm")}
-                    className={`${highlight("Danh sách sản phẩm")} cursor-pointer! font-roboto! font-medium! hover:text-primary!`}
-                  >
-                    Danh sách sản phẩm
-                  </Text>
-                </Link>
-              </Flex>
-            </Flex>
-          </Flex>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: collapsed ? "16px 0" : "16px",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            {collapsed ? (
+              <Avatar size={40}>
+                <UserOutlined />
+              </Avatar>
+            ) : (
+              <Space direction="vertical" align="center">
+                <Avatar size={64}>
+                  <UserOutlined />
+                </Avatar>
+              </Space>
+            )}
+          </div>
+          <Menu
+            mode="inline"
+            selectedKeys={[getCurrentPath()]}
+            items={navItems}
+            style={{ height: "100%", borderRight: 0 }}
+          />
         </Sider>
-        <Content className="bg-white! p-20! ml-300!">
+        <Content className="bg-white! p-20! m-20!">
+          <Space>
+            <Breadcrumb items={getBreadcrumbItems()} />
+          </Space>
           <Outlet />
         </Content>
       </Layout>
