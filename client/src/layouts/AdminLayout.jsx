@@ -20,12 +20,6 @@ function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [sidebarCurrentWidth, setSidebarCurrentWidth] = useState(250);
-
-  // useEffect(() => {
-  //   if (sidebarReference?.current?.clientWidth)
-  //     setSidebarCurrentWidth(sidebarReference.current.clientWidth);
-  // }, [sidebarReference?.current?.clientWidth]);
 
   const sidebarItems = [
     {
@@ -53,25 +47,25 @@ function AdminLayout() {
     },
     {
       key: "category",
-      label: "Categories",
+      label: "Quản lý thể loại",
       icon: <LaptopOutlined />,
       onClick: () => navigate("/categories"),
     },
     {
       key: "brand",
-      label: "Brands",
+      label: "Quản lý thương hiệu",
       icon: <NotificationOutlined />,
       onClick: () => navigate("/brands"),
     },
     {
       key: "user",
-      label: "Users",
+      label: "Quản lý người dùng",
       icon: <UserOutlined />,
       onClick: () => navigate("/users"),
     },
     {
       key: "order",
-      label: "Orders",
+      label: "Quản lý đơn hàng",
       icon: <ShoppingOutlined />,
       onClick: () => navigate("/admin/order"),
     },
@@ -101,9 +95,9 @@ function AdminLayout() {
     return breadcrumbItems;
   };
 
-  useEffect(() => {
-    navigate("/dashboard");
-  }, []);
+  // useEffect(() => {
+  //   navigate("/dashboard");
+  // }, []);
 
   const getCurrentPath = () => {
     const path = location.pathname.split("/");
@@ -173,11 +167,11 @@ function AdminLayout() {
           />
         </Sider>
         <Content
-          className={`bg-white! transition-all! duration-250! p-20! ${collapsed ? "ml-80!" : "ml-250!"}`}
+          className={`bg-white! transition-all! min-h-[calc(100vh-60px)]! border-gray-300 border-l duration-250! p-20! ${collapsed ? "ml-80!" : "ml-250!"}`}
         >
-          <Space>
+          {/* <Space>
             <Breadcrumb items={getBreadcrumbItems()} />
-          </Space>
+          </Space> */}
           <Outlet />
         </Content>
       </Layout>
