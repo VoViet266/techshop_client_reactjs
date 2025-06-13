@@ -1,229 +1,31 @@
-import { useState, useEffect } from "react";
-// import Skeleton from "react-loading-skeleton";
-// import "react-loading-skeleton/dist/skeleton.css";
-import Products from "@services/products";
 import {
-  Card,
-  Descriptions,
-  Space,
-  Spin,
-  Table,
   Tag,
-  // ADDED MISSING IMPORTS HERE
-  Avatar,
-  Tooltip,
+  Card,
+  Spin,
+  Space,
+  Table,
   Badge,
+  Avatar,
   Select,
+  Tooltip,
   Divider,
+  Descriptions,
 } from "antd";
-import { Typography } from "antd";
+
 import {
+  TagOutlined,
+  WifiOutlined,
   CameraOutlined,
   FilterOutlined,
   MobileOutlined,
-  TagOutlined,
-  WifiOutlined,
 } from "@ant-design/icons";
+
+import { Typography } from "antd";
+import Products from "@services/products";
+import { useState, useEffect } from "react";
 import { callFetchBrands, callFetchCategories } from "@/services/apis";
 
-const { Text } = Typography; // Destructure Text from Typography
-
-// Example data row (replace with real data as needed)
-const data = [
-  {
-    key: "1", // Added unique key for stable rendering
-    name: "Product 1",
-    description:
-      "A great product that offers excellent performance and features for its price range. It's designed for everyday use with a focus on user experience and durability.",
-    discount: "10%",
-    category: { name: "Electronics" }, // Changed to object to match dataIndex ["category", "name"]
-    brand: { name: "BrandX" }, // Changed to object to match dataIndex ["brand", "name"]
-    specifications: {
-      // Grouped specifications
-      displaySize: '6.5"',
-      displayStyle: "AMOLED",
-      processor: "Snapdragon 888",
-      operatingSystem: "Android 12",
-      battery: "4500mAh",
-      weight: "180g",
-    },
-    connectivity: {
-      // Grouped connectivity
-      wifi: "802.11ac",
-      bluetooth: "5.2",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["USB-C", "3.5mm Jack"],
-    },
-    camera: {
-      // Grouped camera details
-      front: {
-        resolution: ["32MP"],
-        features: ["HDR", "Portrait Mode"],
-        videoRecording: ["4K@30fps"],
-      },
-      rear: {
-        resolution: ["64MP", "12MP"],
-        features: ["OIS", "Night Mode", "Ultrawide"],
-        videoRecording: ["8K@30fps", "4K@60fps"],
-      },
-    },
-    status: "active",
-  },
-  {
-    key: "2",
-    name: "Product 2",
-    description:
-      "Another excellent product with advanced features and a sleek design, perfect for tech enthusiasts looking for top-tier performance.",
-    discount: "15%",
-    category: { name: "Electronics" },
-    brand: { name: "BrandY" },
-    specifications: {
-      displaySize: '6.1"',
-      displayStyle: "OLED",
-      processor: "A15 Bionic",
-      operatingSystem: "iOS 16",
-      battery: "3200mAh",
-      weight: "170g",
-    },
-    connectivity: {
-      wifi: "802.11ax",
-      bluetooth: "5.3",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["Lightning"],
-    },
-    camera: {
-      front: {
-        resolution: ["12MP"],
-        features: ["Face ID", "Cinematic Mode"],
-        videoRecording: ["4K@60fps"],
-      },
-      rear: {
-        resolution: ["48MP", "12MP", "12MP"],
-        features: ["ProRes Video", "Photonic Engine"],
-        videoRecording: ["4K@60fps", "1080p@240fps"],
-      },
-    },
-    status: "active",
-  },
-  {
-    key: "3",
-    name: "Product 3",
-    description:
-      "A budget-friendly option that doesn't compromise on essential features, offering great value for money.",
-    discount: null, // No discount
-    category: { name: "Electronics" },
-    brand: { name: "BrandZ" },
-    specifications: {
-      displaySize: '6.7"',
-      displayStyle: "IPS LCD",
-      processor: "MediaTek Helio G99",
-      operatingSystem: "Android 13",
-      battery: "5000mAh",
-      weight: "200g",
-    },
-    connectivity: {
-      wifi: "802.11n",
-      bluetooth: "5.0",
-      cellular: "4G LTE",
-      nfc: "No",
-      gps: "Yes",
-      ports: ["USB-C"],
-    },
-    camera: {
-      front: {
-        resolution: ["8MP"],
-        features: ["Beauty Mode"],
-        videoRecording: ["1080p@30fps"],
-      },
-      rear: {
-        resolution: ["50MP", "2MP"],
-        features: ["Macro", "Depth Sensor"],
-        videoRecording: ["1080p@30fps"],
-      },
-    },
-    status: "inactive",
-  },
-  {
-    key: "4",
-    name: "Product 4",
-    description:
-      "High-end product designed for professionals, with superior build quality and cutting-edge technology.",
-    discount: "5%",
-    category: { name: "Electronics" },
-    brand: { name: "BrandA" },
-    specifications: {
-      displaySize: '6.8"',
-      displayStyle: "Dynamic AMOLED 2X",
-      processor: "Snapdragon 8 Gen 2",
-      operatingSystem: "Android 14",
-      battery: "5000mAh",
-      weight: "230g",
-    },
-    connectivity: {
-      wifi: "802.11be",
-      bluetooth: "5.4",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["USB-C (Thunderbolt)"],
-    },
-    camera: {
-      front: {
-        resolution: ["40MP"],
-        features: ["Autofocus", "Dual Pixel AF"],
-        videoRecording: ["4K@60fps"],
-      },
-      rear: {
-        resolution: ["200MP", "12MP", "10MP", "10MP"],
-        features: ["Space Zoom", "Expert RAW"],
-        videoRecording: ["8K@30fps", "4K@120fps"],
-      },
-    },
-    status: "active",
-  },
-  {
-    key: "5",
-    name: "Product 5",
-    description:
-      "Compact and powerful, ideal for users who prefer a smaller form factor without sacrificing performance.",
-    discount: "8%",
-    category: { name: "Electronics" },
-    brand: { name: "BrandB" },
-    specifications: {
-      displaySize: '5.9"',
-      displayStyle: "AMOLED",
-      processor: "Snapdragon 8 Gen 2",
-      operatingSystem: "Android 14",
-      battery: "4300mAh",
-      weight: "172g",
-    },
-    connectivity: {
-      wifi: "802.11ax",
-      bluetooth: "5.3",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["USB-C", "3.5mm Jack"],
-    },
-    camera: {
-      front: {
-        resolution: ["32MP"],
-        features: ["EIS"],
-        videoRecording: ["4K@30fps"],
-      },
-      rear: {
-        resolution: ["50MP", "13MP"],
-        features: ["Gimbal Stabilization"],
-        videoRecording: ["8K@24fps", "4K@60fps"],
-      },
-    },
-    status: "active",
-  },
-];
+const { Text } = Typography;
 
 function ListProduct() {
   const [loading, setLoading] = useState(true);
@@ -236,14 +38,9 @@ function ListProduct() {
   });
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
       try {
-        // const fetchedProducts = await Products.getAll();
-        // setProducts(fetchedProducts);
-        setTimeout(() => {
-          setProducts(data);
-          setLoading(false);
-        }, 1000);
+        const products = await Products.getAll();
+        setProducts(products);
       } catch (error) {
         console.error("Failed to fetch products:", error.message);
         setLoading(false);
@@ -272,6 +69,7 @@ function ListProduct() {
     fetchProducts();
     fetchCategories();
     fetchBrands();
+    setLoading(false);
   }, []);
 
   const columns = [
@@ -454,8 +252,7 @@ function ListProduct() {
           <Descriptions.Item label="Camera trước" span={2}>
             <Space direction="vertical" size="small">
               <Text strong>
-                <CameraOutlined />{" "}
-                {record.camera?.front?.resolution?.join(", ")}
+                <CameraOutlined /> {record.camera?.front?.resolution}
               </Text>
               <div>
                 <Text type="secondary">Tính năng: </Text>
@@ -479,8 +276,7 @@ function ListProduct() {
           <Descriptions.Item label="Camera sau" span={2}>
             <Space direction="vertical" size="small">
               <Text strong>
-                <CameraOutlined />{" "}
-                {record.camera?.rear?.resolution?.join(" + ")}
+                <CameraOutlined /> {record.camera?.rear?.resolution}
               </Text>
               <div>
                 <Text type="secondary">Tính năng: </Text>
@@ -571,7 +367,7 @@ function ListProduct() {
       <Spin spinning={loading} size="large">
         <Table
           columns={columns}
-          dataSource={products.length > 0 ? products : data}
+          dataSource={products.length > 0 ? products : []}
           expandable={{
             expandedRowRender,
             rowExpandable: () => true,
