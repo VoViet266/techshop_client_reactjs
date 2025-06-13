@@ -18,6 +18,8 @@ import {
   ShoppingOutlined,
   UserOutlined,
   MenuUnfoldOutlined,
+  TagsOutlined,
+  ContainerOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
@@ -37,7 +39,7 @@ function AdminLayout() {
   const navItems = [
     {
       key: "dashboard",
-      label: "Dashboard",
+      label: "Quản lý hệ thống",
       icon: <DashboardOutlined />,
       onClick: () => navigate("/dashboard"),
     },
@@ -51,6 +53,11 @@ function AdminLayout() {
           label: "Thêm sản phẩm",
           onClick: () => navigate("/product/add"),
         },
+        // {
+        //   key: "editproduct",
+        //   label: "Sửa sản phẩm",
+        //   onClick: () => navigate("/product/edit"),
+        // },
         {
           key: "allproducts",
           label: "Danh sách sản phẩm",
@@ -59,26 +66,64 @@ function AdminLayout() {
       ],
     },
     {
+      key: "inventory",
+      label: "Quản lý kho hàng",
+      icon: <ContainerOutlined />,
+      children: [
+        {
+          key: "allinventory",
+          label: "Danh sách kho hàng",
+          onClick: () => navigate("/inventory/all"),
+        },
+        // {
+        //   key: "addinventory",
+        //   label: "Thêm kho hàng",
+        //   onClick: () => navigate("/inventory/add"),
+        // },
+        {
+          key: "importinventory",
+          label: "Nhập hàng",
+          onClick: () => navigate("/inventory/import"),
+        },
+        // {
+        //   key: "exportinventory",
+        //   label: "Xuất hàng",
+        //   onClick: () => navigate("/inventory/export"),
+        // },
+        {
+          key: "transferinventory",
+          label: "Chuyển kho",
+          onClick: () => navigate("/inventory/transfer"),
+        },
+      ],
+    },
+    {
+      key: "branch",
+      label: "Quản lý chi nhánh",
+      icon: <HomeOutlined />,
+      onClick: () => navigate("/branch"),
+    },
+    {
       key: "category",
-      label: "Categories",
-      icon: <LaptopOutlined />,
-      onClick: () => navigate("/categories"),
+      label: "Quản lý danh mục",
+      icon: <ShoppingOutlined />,
+      onClick: () => navigate("/category"),
     },
     {
       key: "brand",
-      label: "Brands",
-      icon: <NotificationOutlined />,
-      onClick: () => navigate("/brands"),
+      label: "Quản lý thương hiệu",
+      icon: <TagsOutlined />,
+      onClick: () => navigate("/brand"),
     },
     {
       key: "user",
-      label: "Users",
+      label: "Quản lý người dùng",
       icon: <UserOutlined />,
-      onClick: () => navigate("/users"),
+      onClick: () => navigate("/user"),
     },
     {
       key: "order",
-      label: "Orders",
+      label: "Quản lý đơn hàng",
       icon: <ShoppingOutlined />,
       onClick: () => navigate("/admin/order"),
     },
@@ -121,32 +166,34 @@ function AdminLayout() {
     <Layout className="w-full!">
       <Header className="font-roboto! xl:px-50! lg:px-30! md:px-20! w-full! fixed! top-0! left-0! right-0! z-100! bg-white! border-b! border-b-gray-300! h-60! flex! items-center! justify-between!">
         <Link to="/dashboard">
-          <Title
-            level={3}
-            className="font-bold! font-roboto! xl:text-3xl! lg:text-2xl! md:text-2xl! m-0! text-primary!"
-          >
-            TechShop
-          </Title>
+          <div className="flex items-end space-x-2 cursor-pointer">
+            <Title
+              level={2}
+              className="font-bold font-roboto xl:text-3xl lg:text-2xl md:text-2xl m-0 text-primary"
+            >
+              TechShop
+            </Title>
+            <span className="text-xs text-gray-500 pb-1">Trang quản lý</span>
+          </div>
         </Link>
       </Header>
-      <Space>
-        {isMobile && (
-          <Button
-            type="text"
-            icon={<MenuUnfoldOutlined />}
-            onClick={toggleMobileMenu}
-            style={{ fontSize: "16px" }}
-          />
-        )}
-        <Breadcrumb items={getBreadcrumbItems()} />
-      </Space>
-      <Layout className="mt-60! min-h-500!">
+      <Layout className="mt-60! min-h-700!">
         <Sider
           collapsible
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
           theme="light"
           width={250}
+          style={{
+            overflow: "clip",
+            alignSelf: "flex-start",
+            height: "100vh",
+            position: "sticky",
+            marginTop: "20px",
+            insetInlineStart: 1,
+            top: 80,
+            bottom: 0,
+          }}
         >
           <div
             style={{
@@ -173,7 +220,7 @@ function AdminLayout() {
             mode="inline"
             selectedKeys={[getCurrentPath()]}
             items={navItems}
-            style={{ height: "100%", borderRight: 0 }}
+            style={{ height: "100vh", borderRight: 0 }}
           />
         </Sider>
         <Content className="bg-white! p-20! m-20!">

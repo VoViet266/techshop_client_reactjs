@@ -331,11 +331,11 @@ function AddProduct() {
               setShowCategoryDropdown={setShowCategoryDropdown}
             />
 
-            <Specifications setProduct={setProduct} />
+            <Specifications setProduct={setProduct} product={product} />
 
             <ConnectionInformation product={product} setProduct={setProduct} />
 
-            <CameraInformations setProduct={setProduct} />
+            <CameraInformations setProduct={setProduct} product={product} />
 
             <Variants
               product={product}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Input,
@@ -22,11 +22,12 @@ function Variants({
   product,
   setProduct,
   productError,
-  productMessage,
+
   setProductError,
 }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+
   const handleFileChange = (event, variantIndex) => {
     const files = event.fileList.map((file) => {
       if (file.originFileObj) {
@@ -172,8 +173,11 @@ function Variants({
     });
   const handlePreview = (file) =>
     (async () => {
-      file.preview = await getBase64(file.originFileObj);
-      setPreviewImage(file.preview);
+      if (!file.url && file.originFileObj) {
+        file.preview = await getBase64(file.originFileObj);
+      }
+
+      setPreviewImage(file.url || file.preview); // ưu tiên url nếu có, fallback về preview
       setPreviewOpen(true);
     })();
   return (
@@ -212,17 +216,7 @@ function Variants({
             <Form layout="vertical" className="mt-4" autoComplete="off">
               <Row gutter={[10, 0]}>
                 <Col span={8}>
-                  <Form.Item
-                    label="Tên biến thể"
-                    validateStatus={
-                      productError.variants[index]?.name ? "error" : ""
-                    }
-                    help={
-                      productError.variants[index]?.name
-                        ? productMessage.variants.name
-                        : ""
-                    }
-                  >
+                  <Form.Item label="Tên biến thể">
                     <Input
                       placeholder="Nhập tên biến thể"
                       value={variant.name}
@@ -234,17 +228,7 @@ function Variants({
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item
-                    label="Giá"
-                    validateStatus={
-                      productError.variants[index]?.price ? "error" : ""
-                    }
-                    help={
-                      productError.variants[index]?.price
-                        ? productMessage.variants.price
-                        : ""
-                    }
-                  >
+                  <Form.Item label="Giá">
                     <Input
                       placeholder="Nhập giá của biến thể"
                       value={variant.price}
@@ -256,17 +240,7 @@ function Variants({
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item
-                    label="Tên màu"
-                    validateStatus={
-                      productError.variants[index]?.color?.name ? "error" : ""
-                    }
-                    help={
-                      productError.variants[index]?.color?.name
-                        ? productMessage.variants.color.name
-                        : ""
-                    }
-                  >
+                  <Form.Item label="Tên màu">
                     <Input
                       placeholder="Nhập tên màu biến thể"
                       value={variant.color.name}
@@ -286,17 +260,7 @@ function Variants({
 
               <Row gutter={16}>
                 <Col span={8}>
-                  <Form.Item
-                    label="Mã màu"
-                    validateStatus={
-                      productError.variants[index]?.color?.hex ? "error" : ""
-                    }
-                    help={
-                      productError.variants[index]?.color?.hex
-                        ? productMessage.variants.color.hex
-                        : ""
-                    }
-                  >
+                  <Form.Item label="Mã màu">
                     <Input
                       placeholder="Nhập mã màu của biến thể"
                       value={variant.color.hex}
@@ -345,26 +309,12 @@ function Variants({
 
               <Row>
                 <Col span={24}>
-                  <Form.Item
-                    label="Hình ảnh"
-                    validateStatus={
-                      productError.variants[index]?.images ? "error" : ""
-                    }
-                    help={
-                      productError.variants[index]?.images
-                        ? productMessage.variants.images
-                        : ""
-                    }
-                  >
+                  <Form.Item label="Hình ảnh">
                     <Dragger
                       name="files"
                       multiple={false}
                       accept="image/*"
                       maxCount={1}
-                      //       showUploadList={{
-                      //         showPreviewIcon: true,
-                      //         showRemoveIcon: true,
-                      //       }}
                       listType="picture"
                       className="w-full min-h-[200px] focus:border-gray-400 rounded-md p-6 border-dashed border border-gray-300 hover:border-gray-400"
                       onPreview={(file) => handlePreview(file)}
@@ -380,8 +330,23 @@ function Variants({
                           message.error("Chỉ hỗ trợ tải lên hình ảnh.");
                           return Upload.LIST_IGNORE;
                         }
-                        return false; // Không upload ngay, dùng để xử lý thủ công
+                        return false;
                       }}
+                      fileList={
+                        variant.images && variant.images.length > 0
+                          ? variant.images.map((img, i) => ({
+                              uid: `${i}`,
+                              name: img instanceof File ? img.name : img,
+                              status: "done",
+                              url:
+                                img instanceof File
+                                  ? URL.createObjectURL(img)
+                                  : img,
+                              originFileObj:
+                                img instanceof File ? img : undefined,
+                            }))
+                          : []
+                      }
                       onChange={(event) => handleFileChange(event, index)}
                     >
                       <div className="flex flex-col items-center justify-center h-150">

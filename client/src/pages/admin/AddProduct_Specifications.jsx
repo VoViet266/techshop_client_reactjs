@@ -1,8 +1,8 @@
 import { Input, Divider, Typography, Space, Row, Col, Form } from "antd";
 
-const { Text } = Typography;
-
-function Specifications({ setProduct }) {
+function Specifications({ setProduct, product }) {
+  const { specifications } = product;
+  console.log(specifications);
   return (
     <>
       <div className="flex gap-12 items-center">
@@ -12,7 +12,7 @@ function Specifications({ setProduct }) {
         <div className="flex-1 border-t border-t-gray-300"></div>
       </div>
 
-      <Form layout="vertical" autoComplete="off">
+      <Form layout="vertical" autoComplete="off" initialValues={specifications}>
         <Row gutter={[10, 0]}>
           <Col span={8}>
             <Form.Item label="Vi xử lý" name="processor">
@@ -25,11 +25,10 @@ function Specifications({ setProduct }) {
           </Col>
 
           <Col span={8}>
-            <Form.Item label="Loại màn hình">
+            <Form.Item label="Loại màn hình" name="displayType">
               <Input
                 id="displayType"
                 name="displayType"
-              
                 placeholder="Nhập loại màn hình"
                 size="large"
               />
@@ -37,11 +36,10 @@ function Specifications({ setProduct }) {
           </Col>
 
           <Col span={8}>
-            <Form.Item label="Hệ điều hành">
+            <Form.Item label="Hệ điều hành" name="operatingSystem">
               <Input
                 id="operatingSystem"
                 name="operatingSystem"
-               
                 placeholder="Nhập hệ điều hành"
                 size="large"
               />
@@ -49,11 +47,10 @@ function Specifications({ setProduct }) {
           </Col>
 
           <Col span={8}>
-            <Form.Item label="Kích thước màn hình">
+            <Form.Item label="Kích thước màn hình" name="displaySize">
               <Input
                 id="displaySize"
                 name="displaySize"
-               
                 placeholder="Nhập kích thước màn hình"
                 size="large"
               />
@@ -61,11 +58,10 @@ function Specifications({ setProduct }) {
           </Col>
 
           <Col span={8}>
-            <Form.Item label="Pin">
+            <Form.Item label="Pin" name="battery">
               <Input
                 id="battery"
                 name="battery"
-                
                 placeholder="Nhập thông tin pin"
                 size="large"
               />
@@ -73,11 +69,10 @@ function Specifications({ setProduct }) {
           </Col>
 
           <Col span={8}>
-            <Form.Item label="Khối lượng">
+            <Form.Item label="Khối lượng" name="weight">
               <Input
                 id="weight"
                 name="weight"
-               
                 placeholder="Nhập thông tin khối lượng"
                 size="large"
               />

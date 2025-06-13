@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-// import Skeleton from "react-loading-skeleton";
-// import "react-loading-skeleton/dist/skeleton.css";
 import Products from "@services/products";
 import {
   Card,
@@ -9,250 +7,80 @@ import {
   Spin,
   Table,
   Tag,
-  // ADDED MISSING IMPORTS HERE
   Avatar,
   Tooltip,
   Badge,
   Select,
   Divider,
+  Button,
+  Image,
+  Row,
+  Col,
+  Statistic,
+  Input,
+  Typography,
+  Flex,
+  Empty,
 } from "antd";
-import { Typography } from "antd";
 import {
   CameraOutlined,
   FilterOutlined,
   MobileOutlined,
+  ReloadOutlined,
   TagOutlined,
   WifiOutlined,
+  SearchOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  AppstoreOutlined,
+  BarcodeOutlined,
+  CheckCircleOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
-import { callFetchBrands, callFetchCategories } from "@/services/apis";
+import {
+  callCreateProduct,
+  callDeleteProduct,
+  callFetchBrands,
+  callFetchCategories,
+} from "@/services/apis";
+import { useNavigate } from "react-router-dom";
 
-const { Text } = Typography; // Destructure Text from Typography
-
-// Example data row (replace with real data as needed)
-const data = [
-  {
-    key: "1", // Added unique key for stable rendering
-    name: "Product 1",
-    description:
-      "A great product that offers excellent performance and features for its price range. It's designed for everyday use with a focus on user experience and durability.",
-    discount: "10%",
-    category: { name: "Electronics" }, // Changed to object to match dataIndex ["category", "name"]
-    brand: { name: "BrandX" }, // Changed to object to match dataIndex ["brand", "name"]
-    specifications: {
-      // Grouped specifications
-      displaySize: '6.5"',
-      displayStyle: "AMOLED",
-      processor: "Snapdragon 888",
-      operatingSystem: "Android 12",
-      battery: "4500mAh",
-      weight: "180g",
-    },
-    connectivity: {
-      // Grouped connectivity
-      wifi: "802.11ac",
-      bluetooth: "5.2",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["USB-C", "3.5mm Jack"],
-    },
-    camera: {
-      // Grouped camera details
-      front: {
-        resolution: ["32MP"],
-        features: ["HDR", "Portrait Mode"],
-        videoRecording: ["4K@30fps"],
-      },
-      rear: {
-        resolution: ["64MP", "12MP"],
-        features: ["OIS", "Night Mode", "Ultrawide"],
-        videoRecording: ["8K@30fps", "4K@60fps"],
-      },
-    },
-    status: "active",
-  },
-  {
-    key: "2",
-    name: "Product 2",
-    description:
-      "Another excellent product with advanced features and a sleek design, perfect for tech enthusiasts looking for top-tier performance.",
-    discount: "15%",
-    category: { name: "Electronics" },
-    brand: { name: "BrandY" },
-    specifications: {
-      displaySize: '6.1"',
-      displayStyle: "OLED",
-      processor: "A15 Bionic",
-      operatingSystem: "iOS 16",
-      battery: "3200mAh",
-      weight: "170g",
-    },
-    connectivity: {
-      wifi: "802.11ax",
-      bluetooth: "5.3",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["Lightning"],
-    },
-    camera: {
-      front: {
-        resolution: ["12MP"],
-        features: ["Face ID", "Cinematic Mode"],
-        videoRecording: ["4K@60fps"],
-      },
-      rear: {
-        resolution: ["48MP", "12MP", "12MP"],
-        features: ["ProRes Video", "Photonic Engine"],
-        videoRecording: ["4K@60fps", "1080p@240fps"],
-      },
-    },
-    status: "active",
-  },
-  {
-    key: "3",
-    name: "Product 3",
-    description:
-      "A budget-friendly option that doesn't compromise on essential features, offering great value for money.",
-    discount: null, // No discount
-    category: { name: "Electronics" },
-    brand: { name: "BrandZ" },
-    specifications: {
-      displaySize: '6.7"',
-      displayStyle: "IPS LCD",
-      processor: "MediaTek Helio G99",
-      operatingSystem: "Android 13",
-      battery: "5000mAh",
-      weight: "200g",
-    },
-    connectivity: {
-      wifi: "802.11n",
-      bluetooth: "5.0",
-      cellular: "4G LTE",
-      nfc: "No",
-      gps: "Yes",
-      ports: ["USB-C"],
-    },
-    camera: {
-      front: {
-        resolution: ["8MP"],
-        features: ["Beauty Mode"],
-        videoRecording: ["1080p@30fps"],
-      },
-      rear: {
-        resolution: ["50MP", "2MP"],
-        features: ["Macro", "Depth Sensor"],
-        videoRecording: ["1080p@30fps"],
-      },
-    },
-    status: "inactive",
-  },
-  {
-    key: "4",
-    name: "Product 4",
-    description:
-      "High-end product designed for professionals, with superior build quality and cutting-edge technology.",
-    discount: "5%",
-    category: { name: "Electronics" },
-    brand: { name: "BrandA" },
-    specifications: {
-      displaySize: '6.8"',
-      displayStyle: "Dynamic AMOLED 2X",
-      processor: "Snapdragon 8 Gen 2",
-      operatingSystem: "Android 14",
-      battery: "5000mAh",
-      weight: "230g",
-    },
-    connectivity: {
-      wifi: "802.11be",
-      bluetooth: "5.4",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["USB-C (Thunderbolt)"],
-    },
-    camera: {
-      front: {
-        resolution: ["40MP"],
-        features: ["Autofocus", "Dual Pixel AF"],
-        videoRecording: ["4K@60fps"],
-      },
-      rear: {
-        resolution: ["200MP", "12MP", "10MP", "10MP"],
-        features: ["Space Zoom", "Expert RAW"],
-        videoRecording: ["8K@30fps", "4K@120fps"],
-      },
-    },
-    status: "active",
-  },
-  {
-    key: "5",
-    name: "Product 5",
-    description:
-      "Compact and powerful, ideal for users who prefer a smaller form factor without sacrificing performance.",
-    discount: "8%",
-    category: { name: "Electronics" },
-    brand: { name: "BrandB" },
-    specifications: {
-      displaySize: '5.9"',
-      displayStyle: "AMOLED",
-      processor: "Snapdragon 8 Gen 2",
-      operatingSystem: "Android 14",
-      battery: "4300mAh",
-      weight: "172g",
-    },
-    connectivity: {
-      wifi: "802.11ax",
-      bluetooth: "5.3",
-      cellular: "5G",
-      nfc: "Yes",
-      gps: "Yes",
-      ports: ["USB-C", "3.5mm Jack"],
-    },
-    camera: {
-      front: {
-        resolution: ["32MP"],
-        features: ["EIS"],
-        videoRecording: ["4K@30fps"],
-      },
-      rear: {
-        resolution: ["50MP", "13MP"],
-        features: ["Gimbal Stabilization"],
-        videoRecording: ["8K@24fps", "4K@60fps"],
-      },
-    },
-    status: "active",
-  },
-];
+const { Text, Title } = Typography;
+const { Option } = Select;
 
 function ListProduct() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const navigate = useNavigate();
+
   const [filters, setFilters] = useState({
     category: null,
     brand: null,
   });
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        // const fetchedProducts = await Products.getAll();
-        // setProducts(fetchedProducts);
-        setTimeout(() => {
-          setProducts(data);
-          setLoading(false);
-        }, 1000);
+        const fetchedProducts = await Products.getAll();
+        setProducts(fetchedProducts);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch products:", error.message);
         setLoading(false);
       }
     };
+
     const fetchCategories = async () => {
       try {
         const response = await callFetchCategories();
-        setCategories(response.data.data.result);
+        setCategories(response.data.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
         throw error;
@@ -262,7 +90,7 @@ function ListProduct() {
     const fetchBrands = async () => {
       try {
         const response = await callFetchBrands();
-        setBrands(response.data.data.result);
+        setBrands(response.data.data);
       } catch (error) {
         console.error("Error fetching brands:", error);
         throw error;
@@ -274,21 +102,83 @@ function ListProduct() {
     fetchBrands();
   }, []);
 
+  const handleDeleteProducts = async () => {
+    try {
+      await Promise.all(selectedRowKeys.map((id) => callDeleteProduct(id)));
+      setProducts((prev) =>
+        prev.filter((p) => !selectedRowKeys.includes(p._id))
+      );
+      setSelectedRowKeys([]);
+    } catch (error) {
+      console.error("Xóa sản phẩm thất bại", error);
+    }
+  };
+
+  const handleEditProduct = () => {
+    const productToEdit = selectedRows[0];
+    console.log("Sửa sản phẩm:", productToEdit._id);
+
+    navigate(`/product/edit/${productToEdit._id}`);
+  };
+
+  const handleFilterChange = (type, value) => {
+    setFilters((prev) => ({ ...prev, [type]: value }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({ category: null, brand: null });
+    setSearchText("");
+  };
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+    const matchesCategory =
+      !filters.category || product.category?.name === filters.category;
+    const matchesBrand =
+      !filters.brand || product.brand?.name === filters.brand;
+
+    return matchesSearch && matchesCategory && matchesBrand;
+  });
+
+  const stats = {
+    total: products.length,
+    active: products.filter((p) => p.status === "active").length,
+    inactive: products.filter((p) => p.status !== "active").length,
+    discounted: products.filter((p) => p.discount > 0).length,
+  };
+
   const columns = [
     {
       title: "Sản phẩm",
       dataIndex: "name",
       key: "name",
       fixed: "left",
-      sorter: true,
+      width: 280,
+      sorter: (a, b) => a.name.localeCompare(b.name),
       render: (text, record) => (
-        <Space>
-          <Avatar
-            size="large"
-            icon={<MobileOutlined />}
-            style={{ backgroundColor: "#87d068" }}
+        <Space size={12}>
+          <Image
+            src={record.variants?.[0]?.images?.[0]}
+            height={60}
+            width={60}
+            style={{
+              objectFit: "cover",
+              borderRadius: 8,
+              border: "1px solid #f0f0f0",
+            }}
+            fallback="/fallback.jpg"
+            preview={false}
           />
-          <Text strong>{text}</Text>
+          <div>
+            <Text
+              strong
+              style={{ fontSize: 14, display: "block", marginBottom: 4 }}
+            >
+              {text}
+            </Text>
+          </div>
         </Space>
       ),
     },
@@ -296,50 +186,64 @@ function ListProduct() {
       title: "Thương hiệu",
       dataIndex: ["brand", "name"],
       key: "brand",
-
+      width: 140,
       render: (text) => (
-        <Tooltip title={text}>
-          <Tag icon={<TagOutlined />} color="green">
-            {text}
-          </Tag>
-        </Tooltip>
+        <Tag
+          icon={<BarcodeOutlined />}
+          color="processing"
+          style={{ margin: 0 }}
+        >
+          {text}
+        </Tag>
       ),
     },
     {
       title: "Danh mục",
       dataIndex: ["category", "name"],
       key: "category",
-
+      width: 140,
       render: (text) => (
-        <Tag icon={<TagOutlined />} color="blue">
+        <Tag icon={<AppstoreOutlined />} color="default" style={{ margin: 0 }}>
           {text}
         </Tag>
       ),
     },
+
     {
       title: "Giảm giá",
       dataIndex: "discount",
       key: "discount",
+      width: 100,
       align: "center",
+      sorter: (a, b) => (a.discount || 0) - (b.discount || 0),
       render: (discount) =>
         discount ? (
-          <Badge
-            count={discount}
-            style={{
-              backgroundColor: "#f50",
-              fontSize: "12px",
-              fontWeight: "bold",
-            }}
-          />
+          <Tag color="error" style={{ margin: 0, fontWeight: 500 }}>
+            -{discount}%
+          </Tag>
         ) : (
-          <Text type="secondary">-</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            —
+          </Text>
         ),
     },
-
+    {
+      title: "Phiên bản",
+      key: "variants",
+      width: 100,
+      align: "center",
+      render: (_, record) => (
+        <Badge
+          count={record.variants?.length || 0}
+          style={{ backgroundColor: "#52c41a" }}
+        />
+      ),
+    },
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
+      width: 120,
       align: "center",
       render: (status) => (
         <Badge
@@ -349,13 +253,15 @@ function ListProduct() {
       ),
     },
   ];
-  const handleFilterChange = (type, value) => {
-    setFilters((prev) => ({ ...prev, [type]: value }));
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedKeys, selectedRows) => {
+      setSelectedRowKeys(selectedKeys);
+      setSelectedRows(selectedRows);
+    },
   };
 
-  const handleClearFilters = () => {
-    setFilters({ category: null, brand: null });
-  };
   const expandedRowRender = (record) => {
     return (
       <Card
@@ -454,8 +360,7 @@ function ListProduct() {
           <Descriptions.Item label="Camera trước" span={2}>
             <Space direction="vertical" size="small">
               <Text strong>
-                <CameraOutlined />{" "}
-                {record.camera?.front?.resolution?.join(", ")}
+                <CameraOutlined /> {record.camera?.front?.resolution}
               </Text>
               <div>
                 <Text type="secondary">Tính năng: </Text>
@@ -479,8 +384,8 @@ function ListProduct() {
           <Descriptions.Item label="Camera sau" span={2}>
             <Space direction="vertical" size="small">
               <Text strong>
-                <CameraOutlined />{" "}
-                {record.camera?.rear?.resolution?.join(" + ")}
+                <CameraOutlined />
+                {record.camera?.rear?.resolution}
               </Text>
               <div>
                 <Text type="secondary">Tính năng: </Text>
@@ -511,82 +416,242 @@ function ListProduct() {
             </Space>
           </Descriptions.Item>
         </Descriptions>
+        {record.variants?.length > 0 && (
+          <Descriptions title="Các phiên bản" size="small" bordered column={1}>
+            {record.variants.map((variant, index) => (
+              <Descriptions.Item
+                key={index}
+                label={
+                  <Avatar
+                    shape="square"
+                    size={150}
+                    src={variant.images?.[0]}
+                    alt={`Variant ${index + 1}`}
+                  />
+                }
+                labelStyle={{
+                  width: 100,
+                  padding: 20,
+                  textAlign: "center",
+                }}
+              >
+                <Space size="large" align="start">
+                  <div>
+                    <Space direction="vertical" size="small">
+                      <Text strong style={{ fontSize: 16 }}>
+                        {variant.name}
+                      </Text>
+                      <Tag
+                        color="red"
+                        style={{ fontSize: 14, padding: "4px 12px" }}
+                      >
+                        {`${variant.price?.toLocaleString()} VND`}
+                      </Tag>
+
+                      {variant.color && (
+                        <Space>
+                          <Text>Màu:</Text>
+                          <Tag color={variant.color.hex}>
+                            {variant.color.name}
+                          </Tag>
+                          <Tag color={variant.color.hex}>
+                            {variant.color.hex}
+                          </Tag>
+                        </Space>
+                      )}
+
+                      {variant.memory && (
+                        <Space direction="vertical" size={1}>
+                          <Text>RAM: {variant.memory.ram}</Text>
+                          <Text>Storage: {variant.memory.storage}</Text>
+                        </Space>
+                      )}
+                    </Space>
+                  </div>
+                </Space>
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+        )}
       </Card>
     );
   };
+
   return (
-    <>
-      <div style={{ marginBottom: "24px" }}>
-        <Typography.Title
-          level={2}
+    <div>
+      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+        <div
           style={{
-            margin: 0,
-            fontSize: "28px",
-            color: "#333",
-            fontWeight: 700,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            borderRadius: 16,
+            padding: "32px",
+            marginTop: 24,
+            marginBottom: 24,
+            color: "white",
           }}
         >
-          Danh sách sản phẩm
-        </Typography.Title>
-      </div>
-      <div className="filter-section" style={{ marginBottom: "16px" }}>
-        <Space wrap>
-          <Select
-            placeholder="Select Category"
-            style={{ width: 200 }}
-            allowClear
-            value={filters.category}
-            onChange={(value) => handleFilterChange("category", value)}
-            suffixIcon={<FilterOutlined />}
-          >
-            {categories?.map((category) => (
-              <Option key={category._id} value={category.name}>
-                {category.name}
-              </Option>
-            ))}
-          </Select>
-          <Select
-            placeholder="Select Brand"
-            style={{ width: 200 }}
-            allowClear
-            value={filters.brand}
-            onChange={(value) => handleFilterChange("brand", value)}
-            suffixIcon={<FilterOutlined />}
-          >
-            {brands?.map((brand) => (
-              <Option key={brand._id} value={brand.name}>
-                {brand.name}
-              </Option>
-            ))}
-          </Select>
+          <Title level={1} style={{ color: "white", margin: 0, fontSize: 32 }}>
+            Quản lý sản phẩm
+          </Title>
+          <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: 16 }}>
+            Quản lý toàn bộ sản phẩm trong hệ thống
+          </Text>
+        </div>
+        <Card style={{ marginBottom: 24, borderRadius: 12 }}>
+          <Row gutter={16}>
+            <Col xs={12} sm={6}>
+              <Statistic
+                title="Tổng sản phẩm"
+                value={stats.total}
+                prefix={<AppstoreOutlined />}
+                valueStyle={{ color: "#1890ff" }}
+              />
+            </Col>
+            <Col xs={12} sm={6}>
+              <Statistic
+                title="Đang bán"
+                value={stats.active}
+                prefix={<CheckCircleOutlined />}
+                valueStyle={{ color: "#52c41a" }}
+              />
+            </Col>
+            <Col xs={12} sm={6}>
+              <Statistic
+                title="Ngừng bán"
+                value={stats.inactive}
+                prefix={<StopOutlined />}
+                valueStyle={{ color: "#8c8c8c" }}
+              />
+            </Col>
+            <Col xs={12} sm={6}>
+              <Statistic
+                title="Có giảm giá"
+                value={stats.discounted}
+                prefix={<TagOutlined />}
+                valueStyle={{ color: "#ff4d4f" }}
+              />
+            </Col>
+          </Row>
+        </Card>
 
-          {(filters.category || filters.brand) && (
-            <Button onClick={handleClearFilters} icon={<ReloadOutlined />}>
-              Clear Filters
-            </Button>
-          )}
-        </Space>
+        <Card style={{ marginBottom: 24, borderRadius: 12 }}>
+          <Row gutter={[10, 16]} align="middle">
+            <Col xs={24} sm={8} md={4}>
+              <Input
+                placeholder="Tìm kiếm sản phẩm..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                allowClear
+              />
+            </Col>
+
+            <Col xs={12} sm={6} md={4}>
+              <Select
+                placeholder="Danh mục"
+                style={{ width: "100%" }}
+                allowClear
+                value={filters.category}
+                onChange={(value) => handleFilterChange("category", value)}
+                suffixIcon={<FilterOutlined />}
+              >
+                {categories?.map((category) => (
+                  <Option key={category._id} value={category.name}>
+                    {category.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+
+            <Col xs={12} sm={6} md={4}>
+              <Select
+                placeholder="Thương hiệu"
+                style={{ width: "100%" }}
+                allowClear
+                value={filters.brand}
+                onChange={(value) => handleFilterChange("brand", value)}
+                suffixIcon={<FilterOutlined />}
+              >
+                {brands?.map((brand) => (
+                  <Option key={brand._id} value={brand.name}>
+                    {brand.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={12} sm={6} md={4}>
+              {(filters.category || filters.brand || searchText) && (
+                <Button onClick={handleClearFilters} icon={<ReloadOutlined />}>
+                  Xóa bộ lọc
+                </Button>
+              )}
+            </Col>
+
+            <Col xs={24} md={8}>
+              <Flex gap={8} wrap="wrap" justify="end">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => navigate("/product/add")}
+                  style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                >
+                  Thêm sản phẩm
+                </Button>
+
+                <Button
+                  type="primary"
+                  onClick={handleEditProduct}
+                  disabled={selectedRowKeys.length !== 1}
+                  icon={<EditOutlined />}
+                >
+                  Sửa ({selectedRowKeys.length})
+                </Button>
+
+                <Button
+                  danger
+                  onClick={handleDeleteProducts}
+                  disabled={selectedRowKeys.length === 0}
+                  icon={<DeleteOutlined />}
+                >
+                  Xóa ({selectedRowKeys.length})
+                </Button>
+              </Flex>
+            </Col>
+          </Row>
+        </Card>
+
+        <Card style={{ borderRadius: 12 }}>
+          <Spin spinning={loading} size="large">
+            {filteredProducts.length === 0 ? (
+              <Empty
+                description="Không tìm thấy sản phẩm nào"
+                style={{ padding: "48px 0" }}
+              />
+            ) : (
+              <Table
+                rowKey="_id"
+                rowSelection={rowSelection}
+                columns={columns}
+                dataSource={filteredProducts}
+                expandable={{
+                  expandedRowRender,
+                  rowExpandable: (record) => record._id,
+                }}
+                pagination={{
+                  pageSize: 10,
+                }}
+                scroll={{ x: 1000 }}
+                size="middle"
+                style={{
+                  backgroundColor: "white",
+                }}
+              />
+            )}
+          </Spin>
+        </Card>
       </div>
-      <Divider style={{ margin: "16px 0" }} />
-      <Spin spinning={loading} size="large">
-        <Table
-          columns={columns}
-          dataSource={products.length > 0 ? products : data}
-          expandable={{
-            expandedRowRender,
-            rowExpandable: () => true,
-          }}
-          pagination={{
-            pageSize: 10,
-          }}
-          scroll={{ x: 1200 }}
-          size="middle"
-          rowClassName={(_, index) =>
-            index % 2 === 0 ? "row-even" : "row-odd"
-          }
-        />
-      </Spin>
-    </>
+    </div>
   );
 }
+
 export default ListProduct;

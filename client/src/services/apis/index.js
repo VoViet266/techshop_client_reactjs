@@ -9,39 +9,39 @@ const axiosInstance = axios.create({
     Authorization: `Bearer ${token}`,
   },
 });
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (originalRequest._retry) {
-      return Promise.reject(error);
-    }
-    // Kiểm tra nếu lỗi là Unauthorized (401) - access token hết hạn
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        localStorage.removeItem("access_token");
-        const res = await callFreshToken();
-        if (res.data && res.data.data && res.data.data.access_token) {
-          // Lưu access token mới vào localStorage
-          localStorage.setItem("access_token", res.data.data.access_token);
-          // Cập nhật lại header Authorization cho request ban đầu
-          originalRequest.headers["Authorization"] = `Bearer ${res.data.data.access_token}`;
-          // Gọi lại request ban đầu với access token mới
-          return axiosInstance(originalRequest);
-        }
-      } catch (refreshError) {
-        if (refreshError.response &&
-          (refreshError.response.status === 401)) {
-          // Nếu token refresh cũng hết hạn, yêu cầu người dùng đăng nhập lại
-          window.location.href = "/login";
-        }
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
+//     if (originalRequest._retry) {
+//       return Promise.reject(error);
+//     }
+//     // Kiểm tra nếu lỗi là Unauthorized (401) - access token hết hạn
+//     if (error.response && error.response.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
+//       try {
+//         localStorage.removeItem("access_token");
+//         const res = await callFreshToken();
+//         if (res.data && res.data.data && res.data.data.access_token) {
+//           // Lưu access token mới vào localStorage
+//           localStorage.setItem("access_token", res.data.data.access_token);
+//           // Cập nhật lại header Authorization cho request ban đầu
+//           originalRequest.headers["Authorization"] = `Bearer ${res.data.data.access_token}`;
+//           // Gọi lại request ban đầu với access token mới
+//           return axiosInstance(originalRequest);
+//         }
+//       } catch (refreshError) {
+//         if (refreshError.response &&
+//           (refreshError.response.status === 401)) {
+//           // Nếu token refresh cũng hết hạn, yêu cầu người dùng đăng nhập lại
+//           window.location.href = "/login";
+//         }
+//         return Promise.reject(refreshError);
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 export const callLogin = async (email, password) => {
   const response = await axiosInstance.post(`/api/v1/auth/login`, {
     username: email,
@@ -110,7 +110,7 @@ export const callFetchProductDetail = (id) => {
   return axiosInstance.get(`/api/v1/products/${id}`);
 }
 
-export const callUpdateProduct = (value) => {
+export const  callUpdateProduct = (value) => {
   return axiosInstance.patch(`/api/v1/products/${value._id}`, {
     ...value
   });
