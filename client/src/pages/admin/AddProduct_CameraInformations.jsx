@@ -1,8 +1,9 @@
 import { Form, Input, InputNumber, Divider, Row, Col } from "antd";
 
-function CameraInformations({ setProduct }) {
+function CameraInformations({ setProduct, product }) {
+  const { camera } = product;
   return (
-    <Form layout="vertical">
+    <Form layout="vertical" initialValues={camera}>
       <div className="flex gap-12 items-center">
         <span className="text-sm text-primary font-medium">Camera Trước</span>
         <div className="flex-1 border-t border-t-gray-300"></div>
@@ -11,7 +12,7 @@ function CameraInformations({ setProduct }) {
       <Row gutter={[10, 0]}>
         <Col span={8}>
           <Form.Item
-            name="frontResolution"
+            name={["front", "resolution"]}
             label="Độ phân giải"
             rules={[
               {
@@ -41,7 +42,7 @@ function CameraInformations({ setProduct }) {
         </Col>
 
         <Col span={8}>
-          <Form.Item name="frontFeatures" label="Tính năng">
+          <Form.Item name={["front", "features"]} label="Tính năng">
             <Input
               onChange={(event) => {
                 setProduct((currentProduct) => {
@@ -63,7 +64,7 @@ function CameraInformations({ setProduct }) {
         </Col>
 
         <Col span={8}>
-          <Form.Item name="frontVideoRecording" label="Quay phim">
+          <Form.Item name={["front", "videoRecording"]} label="Quay phim">
             <Input
               onChange={(event) => {
                 setProduct((currentProduct) => {
@@ -93,7 +94,7 @@ function CameraInformations({ setProduct }) {
       <Row gutter={[10, 0]}>
         <Col span={6}>
           <Form.Item
-            name="rearResolution"
+            name={["rear", "resolution"]}
             label="Độ phân giải"
             rules={[
               {
@@ -123,7 +124,7 @@ function CameraInformations({ setProduct }) {
         </Col>
 
         <Col span={6}>
-          <Form.Item name="rearFeatures" label="Tính năng">
+          <Form.Item name={["rear", "features"]} label="Tính năng">
             <Input
               onChange={(event) => {
                 setProduct((currentProduct) => {
@@ -145,7 +146,7 @@ function CameraInformations({ setProduct }) {
         </Col>
 
         <Col span={6}>
-          <Form.Item name="rearVideoRecording" label="Quay phim">
+          <Form.Item name={["rear", "videoRecording"]} label="Quay phim">
             <Input
               onChange={(event) => {
                 setProduct((currentProduct) => {
@@ -167,7 +168,7 @@ function CameraInformations({ setProduct }) {
         </Col>
 
         <Col span={6}>
-          <Form.Item name="rearLensCount" label="Số lượng ống kính">
+          <Form.Item name={["rear", "lensCount"]} label="Số lượng ống kính">
             <Input
               onChange={(event) => {
                 setProduct((currentProduct) => {

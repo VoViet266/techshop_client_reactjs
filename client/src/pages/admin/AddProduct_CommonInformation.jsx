@@ -182,6 +182,7 @@ function CommonInformation({
           <Editor
             height="200px"
             setProduct={setProduct}
+            product={product}
             onImageUploadBefore={handleImageUpload}
           />
         </Form.Item>

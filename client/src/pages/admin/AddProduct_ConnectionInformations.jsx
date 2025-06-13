@@ -2,8 +2,10 @@ import { Form, Input, Switch, Divider, Row, Col } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
 
 function ConnectionInformation({ product, setProduct }) {
+  const { connectivity } = product || {};
+
   return (
-    <Form layout="vertical">
+    <Form layout="vertical" initialValues={connectivity}>
       <div className="flex gap-12 items-center">
         <span className="text-sm text-primary font-medium">
           Thông tin kết nối

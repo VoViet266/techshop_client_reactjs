@@ -186,10 +186,8 @@ function AddProduct() {
       const value = obj[key];
 
       if (value !== null && value !== undefined) {
-        // Xử lý arrays
         if (Array.isArray(value)) {
           if (value.length > 0) {
-            // Kiểm tra nếu là mảng File objects thì giữ nguyên
             if (value[0] instanceof File) {
               filtered[key] = value;
             } else {
@@ -202,16 +200,12 @@ function AddProduct() {
                 .filter(Boolean);
             }
           }
-        }
-        // Xử lý objects
-        else if (typeof value === "object" && !(value instanceof File)) {
+        } else if (typeof value === "object" && !(value instanceof File)) {
           const nestedObj = removeEmptyFields(value);
           if (Object.values(nestedObj).length > 0) {
             filtered[key] = nestedObj;
           }
-        }
-        // Xử lý strings và các kiểu dữ liệu khác
-        else if (value !== "") {
+        } else if (value !== "") {
           filtered[key] = value;
         }
       }
@@ -219,62 +213,35 @@ function AddProduct() {
 
     return filtered;
   }
+  async function fetchCategories() {
+    try {
+      setLoading(true);
+      const categories = await Categories.getAll();
+      setCategories(categories);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchBrands() {
+    try {
+      setLoading(true);
+      const brands = await Brands.getAll();
+      setBrands(brands);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        categoryDropdownRef.current &&
-        !categoryDropdownRef.current.contains(event.target)
-      ) {
-        setShowCategoryDropdown(false);
-      }
-
-      if (
-        brandDropdownRef.current &&
-        !brandDropdownRef.current.contains(event.target)
-      ) {
-        setShowBrandDropdown(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        setLoading(true);
-        const categories = await Categories.getAll();
-        setCategories(categories);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    async function fetchBrands() {
-      try {
-        setLoading(true);
-        const brands = await Brands.getAll();
-        setBrands(brands);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchBrands();
   }, []);
+
   const onSubmit = async () => {
     const isValidData = checkProductDataBeforeSubmit();
     if (isValidData) {
@@ -307,67 +274,67 @@ function AddProduct() {
       }
     }
   };
+
   return (
-    <>
-      <div className="font-roboto! p-6 min-h-screen">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Thêm sản phẩm
-          </h1>
-        </div>
-        {!loading && (
-          <div className="flex flex-col gap-8 border border-gray-200 bg-white rounded-lg p-20">
-            <CommonInformation
-              brands={brands}
-              product={product}
-              categories={categories}
-              setProduct={setProduct}
-              productError={productError}
-              productMessage={productMessage}
-              showBrandDropdown={showBrandDropdown}
-              categoryDropdownRef={categoryDropdownRef}
-              setShowBrandDropdown={setShowBrandDropdown}
-              showCategoryDropdown={showCategoryDropdown}
-              setShowCategoryDropdown={setShowCategoryDropdown}
-            />
-
-            <Specifications setProduct={setProduct} />
-
-            <ConnectionInformation product={product} setProduct={setProduct} />
-
-            <CameraInformations setProduct={setProduct} />
-
-            <Variants
-              product={product}
-              setProduct={setProduct}
-              productError={productError}
-              productMessage={productMessage}
-              setProductError={setProductError}
-            />
-          </div>
-        )}
-
-        {loading && (
-          <div className="rounded-lg bg-white p-6 shadow-sm">
-            <Skeleton className="h-[700px]" />
-          </div>
-        )}
-
-        <Button
-          onClick={onSubmit}
-          disabled={loading}
-          type="primary"
-          size="large"
-          style={{
-            margin: "20px 10px 5px 0",
-            width: 200,
-          }}
-          className="mt-8 rounded-lg font-medium cursor-pointer float-right min-w-[100px] bg-blue-600 text-white py-2 px-4 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Đang xử lý..." : "Thêm"}
-        </Button>
+    <div className="min-h-screen p-4 sm:p-6">
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+          Thêm sản phẩm mới
+        </h1>
       </div>
-    </>
+
+      <CommonInformation
+        brands={brands}
+        product={product}
+        categories={categories}
+        setProduct={setProduct}
+        productError={productError}
+        productMessage={productMessage}
+        showBrandDropdown={showBrandDropdown}
+        categoryDropdownRef={categoryDropdownRef}
+        setShowBrandDropdown={setShowBrandDropdown}
+        showCategoryDropdown={showCategoryDropdown}
+        setShowCategoryDropdown={setShowCategoryDropdown}
+      />
+
+      <Specifications setProduct={setProduct} product={product} />
+
+      <ConnectionInformation product={product} setProduct={setProduct} />
+
+      <CameraInformations setProduct={setProduct} product={product} />
+
+      <Variants
+        product={product}
+        setProduct={setProduct}
+        productError={productError}
+        productMessage={productMessage}
+        setProductError={setProductError}
+      />
+
+      <div className="px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-end">
+          <div className="flex gap-3">
+            <Button
+              size="large"
+              disabled={loading}
+              className="min-w-[120px] border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800 focus:border-blue-500 focus:text-blue-600"
+              onClick={() => navigate(-1)}
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              loading={loading}
+              onClick={onSubmit}
+              className="min-w-[120px] bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 disabled:bg-gray-400"
+            >
+              {loading ? "Đang xử lý..." : "Thêm sản phẩm"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
