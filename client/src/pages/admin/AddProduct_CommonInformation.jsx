@@ -22,7 +22,6 @@ function CommonInformation({
   setProduct,
   productError,
   productMessage,
- 
 }) {
   const handleImageUpload = useCallback(async (files, info, uploadHandler) => {
     try {
@@ -68,6 +67,7 @@ function CommonInformation({
           <Col span={6}>
             <Form.Item
               label="Tên sản phẩm"
+              className="font-roboto!"
               validateStatus={productError.name ? "error" : ""}
               help={productError.name ? productMessage.name : ""}
               style={{ marginBottom: 0 }}
@@ -83,6 +83,7 @@ function CommonInformation({
                 }}
                 placeholder="Nhập tên sản phẩm"
                 size="large"
+                className="font-roboto! placeholder:text-sm! placeholder:font-medium! rounded-md!"
               />
             </Form.Item>
           </Col>

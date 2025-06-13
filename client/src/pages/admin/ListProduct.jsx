@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
 import Products from "@services/products";
 import {
-  Card,
-  Descriptions,
-  Space,
-  Spin,
-  Table,
   Tag,
   Avatar,
   Tooltip,
   Badge,
+  Avatar,
   Select,
+  Tooltip,
   Divider,
   Button,
   Image,
@@ -23,6 +20,8 @@ import {
   Empty,
 } from "antd";
 import {
+  TagOutlined,
+  WifiOutlined,
   CameraOutlined,
   FilterOutlined,
   MobileOutlined,
@@ -66,7 +65,6 @@ function ListProduct() {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
       try {
         const fetchedProducts = await Products.getAll();
         setProducts(fetchedProducts);
@@ -100,6 +98,7 @@ function ListProduct() {
     fetchProducts();
     fetchCategories();
     fetchBrands();
+    setLoading(false);
   }, []);
 
   const handleDeleteProducts = async () => {
