@@ -1,6 +1,19 @@
+import { useAppContext } from "@contexts";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  UserOutlined,
+  Layout,
+  Typography,
+  Flex,
+  Breadcrumb,
+  Menu,
+  Space,
+  Avatar,
+} from "antd";
+import {
+  DashboardOutlined,
+  HomeOutlined,
   LaptopOutlined,
+  NotificationOutlined,
   ProductOutlined,
   ShoppingOutlined,
   UserOutlined,
@@ -8,22 +21,23 @@ import {
   TagsOutlined,
   ContainerOutlined,
 } from "@ant-design/icons";
-
-import { useEffect, useState, useRef } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Space, Avatar, Layout, Typography, Breadcrumb } from "antd";
+import { useEffect, useState } from "react";
 
 function AdminLayout() {
-  const { Title } = Typography;
+  const { Title, Text } = Typography;
+  const { Header, Footer, Sider, Content } = Layout;
+  const { sideBarSelectedTab, setSideBarSelectedTab } = useAppContext();
+  const [collapsed, setCollapsed] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const sidebarReference = useRef(null);
-  const { Header, Sider, Content } = Layout;
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  const sidebarItems = [
+  function highlight(text) {
+    if (sideBarSelectedTab === text) return "text-primary!";
+    return "text-black! hover:text-primary!";
+  }
+  const navItems = [
     {
       key: "dashboard",
       label: "Quản lý hệ thống",
@@ -140,9 +154,9 @@ function AdminLayout() {
     return breadcrumbItems;
   };
 
-  // useEffect(() => {
-  //   navigate("/dashboard");
-  // }, []);
+  useEffect(() => {
+    navigate("/dashboard");
+  }, []);
 
   const getCurrentPath = () => {
     const path = location.pathname.split("/");
@@ -166,6 +180,10 @@ function AdminLayout() {
       </Header>
       <Layout className="mt-60! min-h-700!">
         <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          theme="light"
           width={250}
           style={{
             overflow: "clip",
@@ -201,18 +219,15 @@ function AdminLayout() {
           </div>
           <Menu
             mode="inline"
-            items={sidebarItems}
+            items={navItems }
             selectedKeys={[getCurrentPath()]}
-    
             style={{ height: "100vh", borderRight: 0 }}
           />
         </Sider>
-        <Content
-          className={`bg-white! transition-all! min-h-[calc(100vh-60px)]! border-gray-300 border-l duration-250! p-20! ${collapsed ? "ml-80!" : "ml-250!"}`}
-        >
-          {/* <Space>
+        <Content className="bg-white! p-20! m-20!">
+          <Space>
             <Breadcrumb items={getBreadcrumbItems()} />
-          </Space> */}
+          </Space>
           <Outlet />
         </Content>
       </Layout>

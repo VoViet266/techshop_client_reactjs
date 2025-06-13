@@ -2,13 +2,7 @@ import { useState, useEffect } from "react";
 import Products from "@services/products";
 import {
   Tag,
-  Avatar,
-  Tooltip,
-  Badge,
-  Avatar,
   Select,
-  Tooltip,
-  Divider,
   Button,
   Image,
   Row,
@@ -18,6 +12,12 @@ import {
   Typography,
   Flex,
   Empty,
+  Card,
+  Descriptions,
+  Space,
+  Spin,
+  Table,
+  Badge,
 } from "antd";
 import {
   TagOutlined,
@@ -26,8 +26,6 @@ import {
   FilterOutlined,
   MobileOutlined,
   ReloadOutlined,
-  TagOutlined,
-  WifiOutlined,
   SearchOutlined,
   DeleteOutlined,
   EditOutlined,

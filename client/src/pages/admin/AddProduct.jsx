@@ -309,14 +309,14 @@ function AddProduct() {
   };
   return (
     <>
-      <div className="font-roboto! p-6 min-h-screen">
+      <div className="p-6 bg-gray-50 min-h-screen">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-800">
             Thêm sản phẩm
           </h1>
         </div>
         {!loading && (
-          <div className="flex flex-col gap-8 border border-gray-200 bg-white rounded-lg p-20">
+          <div className="flex flex-col gap-8 border border-gray-200 bg-white p-6 rounded-lg shadow-sm">
             <CommonInformation
               brands={brands}
               product={product}
@@ -335,8 +335,8 @@ function AddProduct() {
 
             <ConnectionInformation product={product} setProduct={setProduct} />
 
-            <CameraInformations setProduct={setProduct} product={product} />
-
+            <CameraInformations setProduct={setProduct}  product={product}/>
+ 
             <Variants
               product={product}
               setProduct={setProduct}
