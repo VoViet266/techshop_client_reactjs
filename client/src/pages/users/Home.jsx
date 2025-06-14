@@ -10,7 +10,11 @@ function Home() {
   return (
     <>
       <div className="relative w-[60%] mt-20">
-        {loading ? <Skeleton className="h-500" /> : <ImagesSlider />}
+        {loading ? (
+          <Skeleton className="h-500" />
+        ) : (
+          <ImagesSlider images={[]} />
+        )}
       </div>
       <div className="mb-50">
         <PreviewListProducts loading={loading} title="Điện thoại nổi bật" />

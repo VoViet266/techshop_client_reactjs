@@ -4,22 +4,22 @@ import {
   CommonInformation,
   CameraInformations,
   ConnectionInformation,
-} from "@pages/admin";
+} from "@pages/admin/product";
 
 import Files from "@services/files";
 import Brands from "@services/brands";
-import Products from "@services/products";
+
 import { useAppContext } from "@contexts";
-import Skeleton from "react-loading-skeleton";
+
 import Categories from "@services/categories";
 import { useNavigate } from "react-router-dom";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useState, useRef, useEffect } from "react";
 import { Button, message } from "antd";
+import Products from "@/services/products";
 
 function AddProduct() {
   const {
-    setMessage,
     setLoadingError,
     setToastLoading,
     setLoadingSuccess,

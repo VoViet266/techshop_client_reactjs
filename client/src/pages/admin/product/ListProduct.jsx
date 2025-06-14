@@ -170,8 +170,9 @@ function ListProduct() {
             width={60}
             style={{
               objectFit: "cover",
-              borderRadius: 8,
-              border: "1px solid #f0f0f0",
+              borderRadius: 12,
+              border: `2px solid #E2E8F0"`,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
             }}
             fallback="/fallback.jpg"
             preview={false}
@@ -179,7 +180,12 @@ function ListProduct() {
           <div>
             <Text
               strong
-              style={{ fontSize: 14, display: "block", marginBottom: 4 }}
+              style={{
+                fontSize: 14,
+                display: "block",
+                marginBottom: 4,
+                color: "#0F172A",
+              }}
             >
               {text}
             </Text>
@@ -192,28 +198,15 @@ function ListProduct() {
       dataIndex: ["brand", "name"],
       key: "brand",
       width: 140,
-      render: (text) => (
-        <Tag
-          icon={<BarcodeOutlined />}
-          color="processing"
-          style={{ margin: 0 }}
-        >
-          {text}
-        </Tag>
-      ),
+      render: (text) => <Text strong>{text}</Text>,
     },
     {
       title: "Danh mục",
       dataIndex: ["category", "name"],
       key: "category",
       width: 140,
-      render: (text) => (
-        <Tag icon={<AppstoreOutlined />} color="default" style={{ margin: 0 }}>
-          {text}
-        </Tag>
-      ),
+      render: (text) => <Text strong>{text}</Text>,
     },
-
     {
       title: "Giảm giá",
       dataIndex: "discount",
@@ -223,11 +216,20 @@ function ListProduct() {
       sorter: (a, b) => (a.discount || 0) - (b.discount || 0),
       render: (discount) =>
         discount ? (
-          <Tag color="error" style={{ margin: 0, fontWeight: 500 }}>
+          <Tag
+            style={{
+              margin: 0,
+              fontWeight: 600,
+              backgroundColor: "#EF4444",
+              color: "#FEFEFE",
+              border: "none",
+              borderRadius: 6,
+            }}
+          >
             -{discount}%
           </Tag>
         ) : (
-          <Text type="secondary" style={{ fontSize: 12 }}>
+          <Text type="secondary" style={{ fontSize: 12, color: "#94A3B8" }}>
             —
           </Text>
         ),
@@ -240,7 +242,7 @@ function ListProduct() {
       render: (_, record) => (
         <Badge
           count={record.variants?.length || 0}
-          style={{ backgroundColor: "#52c41a" }}
+          style={{ backgroundColor: "#8B5CF6" }}
         />
       ),
     },
@@ -254,6 +256,9 @@ function ListProduct() {
         <Badge
           status={status === "active" ? "success" : "default"}
           text={status === "active" ? "Hoạt động" : "Ngừng bán"}
+          style={{
+            color: status === "active" ? "#8B5CF6" : "#94A3B8",
+          }}
         />
       ),
     },
@@ -271,11 +276,17 @@ function ListProduct() {
     return (
       <Card
         size="small"
-        style={{ margin: "16px 0", backgroundColor: "#fafafa" }}
+        style={{
+          margin: "16px 0",
+          backgroundColor: "#F8FAFC",
+          border: `1px solid #E2E8F0"`,
+          borderRadius: 12,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        }}
       >
         <Descriptions title="Mô tả sản phẩm" size="small" column={1} bordered>
           <Descriptions.Item label="Mô tả">
-            <Text style={{ fontSize: "14px" }}>
+            <Text style={{ fontSize: "14px", color: "#475569" }}>
               {record.description || "Chưa có mô tả cho sản phẩm này."}
             </Text>
           </Descriptions.Item>
@@ -305,46 +316,6 @@ function ListProduct() {
           </Descriptions.Item>
 
           <Descriptions.Item label="Kết nối" span={3}>
-            <Space wrap>
-              <Tag icon={<WifiOutlined />} color="blue">
-                {record.connectivity?.wifi}
-              </Tag>
-              <Tag color="green">
-                Bluetooth {record.connectivity?.bluetooth}
-              </Tag>
-              <Tag color="red">{record.connectivity?.cellular}</Tag>
-              {record.connectivity?.nfc === "Yes" && (
-                <Tag color="orange">NFC</Tag>
-              )}
-              {record.connectivity?.gps === "Yes" && (
-                <Tag color="purple">GPS</Tag>
-              )}
-            </Space>
-          </Descriptions.Item>
-          <Descriptions.Item label="Màn hình" span={1}>
-            <Space>
-              {record.specifications?.displaySize}{" "}
-              {record.specifications?.displayStyle}
-            </Space>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Chip xử lý" span={1}>
-            <Space>{record.specifications?.processor}</Space>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Hệ điều hành" span={1}>
-            {record.specifications?.operatingSystem}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Pin" span={1}>
-            <Space>{record.specifications?.battery}</Space>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Trọng lượng" span={1}>
-            {record.specifications?.weight}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Kết nối" span={2}>
             <Space wrap>
               <Tag icon={<WifiOutlined />} color="blue">
                 {record.connectivity?.wifi}
@@ -432,6 +403,10 @@ function ListProduct() {
                     size={160}
                     src={variant.images?.[0]}
                     alt={`Variant ${index + 1}`}
+                    style={{
+                      borderRadius: 12,
+                      border: `2px solid #E2E8F0"`,
+                    }}
                   />
                 }
                 labelStyle={{
@@ -443,12 +418,19 @@ function ListProduct() {
                 <Space size="large" align="start">
                   <div>
                     <Space direction="vertical" size="small">
-                      <Text strong style={{ fontSize: 16 }}>
+                      <Text strong style={{ fontSize: 16, color: "#0F172A" }}>
                         {variant.name}
                       </Text>
                       <Tag
-                        color="red"
-                        style={{ fontSize: 14, padding: "4px 12px" }}
+                        style={{
+                          fontSize: 14,
+                          padding: "4px 12px",
+                          backgroundColor: "#EF4444",
+                          color: "#FEFEFE",
+                          border: "none",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                        }}
                       >
                         {`${variant.price?.toLocaleString()} VND`}
                       </Tag>
@@ -456,10 +438,24 @@ function ListProduct() {
                       {variant.color && (
                         <Space>
                           <Text>Màu:</Text>
-                          <Tag color={variant.color.hex}>
+                          <Tag
+                            style={{
+                              backgroundColor: variant.color.hex,
+                              color: "#FEFEFE",
+                              border: "none",
+                              borderRadius: 6,
+                            }}
+                          >
                             {variant.color.name}
                           </Tag>
-                          <Tag color={variant.color.hex}>
+                          <Tag
+                            style={{
+                              backgroundColor: "#F1F5F9",
+                              color: "#0F172A",
+                              border: `1px solid "#CBD5E1"`,
+                              borderRadius: 6,
+                            }}
+                          >
                             {variant.color.hex}
                           </Tag>
                         </Space>
@@ -467,8 +463,12 @@ function ListProduct() {
 
                       {variant.memory && (
                         <Space direction="vertical" size={1}>
-                          <Text>RAM: {variant.memory.ram}</Text>
-                          <Text>Storage: {variant.memory.storage}</Text>
+                          <Text style={{ color: "#475569" }}>
+                            RAM: {variant.memory.ram}
+                          </Text>
+                          <Text style={{ color: "#475569" }}>
+                            Storage: {variant.memory.storage}
+                          </Text>
                         </Space>
                       )}
                     </Space>
@@ -484,79 +484,90 @@ function ListProduct() {
 
   return (
     <div>
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
-        <div
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            borderRadius: 16,
-            padding: "32px",
-            marginTop: 24,
-            marginBottom: 24,
-            color: "white",
+      <div style={{ maxWidth: 1400, margin: "20px auto" }}>
+        <Modal
+          title="Xác nhận"
+          open={open}
+          onOk={handleDeleteProducts}
+          okText="Xóa"
+          confirmLoading={confirmLoading}
+          onCancel={() => setOpen(false)}
+          okButtonProps={{
+            style: {
+              backgroundColor: "#EF4444",
+              borderColor: "#EF4444",
+            },
           }}
         >
-          <Title level={1} style={{ color: "white", margin: 0, fontSize: 32 }}>
-            Quản lý sản phẩm
-          </Title>
-          <Modal
-            title="Xác nhận"
-            open={open}
-            onOk={handleDeleteProducts}
-            confirmLoading={confirmLoading}
-            onCancel={() => setOpen(false)}
-          >
-            <p>{modalText}</p>
-          </Modal>
-          <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: 16 }}>
-            Quản lý toàn bộ sản phẩm trong hệ thống
-          </Text>
-        </div>
-        <Card style={{ marginBottom: 24, borderRadius: 12 }}>
+          <p>{modalText}</p>
+        </Modal>
+
+        <Card
+          style={{
+            marginBottom: 24,
+            borderRadius: 16,
+            border: `1px solid #E2E8F0"`,
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+          }}
+        >
           <Row gutter={16}>
             <Col xs={12} sm={6}>
               <Statistic
-                title="Tổng sản phẩm"
+                title={<span style={{ color: "#475569" }}>Tổng sản phẩm</span>}
                 value={stats.total}
-                prefix={<AppstoreOutlined />}
-                valueStyle={{ color: "#1890ff" }}
+                prefix={<AppstoreOutlined style={{ color: "#4F46E5" }} />}
+                valueStyle={{ color: "#4F46E5", fontWeight: 600 }}
               />
             </Col>
             <Col xs={12} sm={6}>
               <Statistic
-                title="Đang bán"
+                title={<span style={{ color: "#475569" }}>Đang bán</span>}
                 value={stats.active}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: "#52c41a" }}
+                prefix={<CheckCircleOutlined style={{ color: "#8B5CF6" }} />}
+                valueStyle={{ color: "#8B5CF6", fontWeight: 600 }}
               />
             </Col>
             <Col xs={12} sm={6}>
               <Statistic
-                title="Ngừng bán"
+                title={<span style={{ color: "#475569" }}>Ngừng bán</span>}
                 value={stats.inactive}
-                prefix={<StopOutlined />}
-                valueStyle={{ color: "#8c8c8c" }}
+                prefix={<StopOutlined style={{ color: "#94A3B8" }} />}
+                valueStyle={{
+                  color: "#94A3B8",
+                  fontWeight: 600,
+                }}
               />
             </Col>
             <Col xs={12} sm={6}>
               <Statistic
-                title="Có giảm giá"
+                title={<span style={{ color: "#475569" }}>Có giảm giá</span>}
                 value={stats.discounted}
-                prefix={<TagOutlined />}
-                valueStyle={{ color: "#ff4d4f" }}
+                prefix={<TagOutlined style={{ color: "#EF4444" }} />}
+                valueStyle={{ color: "#EF4444", fontWeight: 600 }}
               />
             </Col>
           </Row>
         </Card>
-
-        <Card style={{ marginBottom: 24, borderRadius: 12 }}>
+        <Card
+          style={{
+            marginBottom: 24,
+            borderRadius: 16,
+            border: `1px solid #E2E8F0"`,
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+          }}
+        >
           <Row gutter={[10, 16]} align="middle">
             <Col xs={24} sm={8} md={4}>
               <Input
                 placeholder="Tìm kiếm sản phẩm..."
-                prefix={<SearchOutlined />}
+                prefix={<SearchOutlined style={{ color: "#94A3B8" }} />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
+                style={{
+                  borderRadius: 8,
+                  border: `1px solid "#CBD5E1"`,
+                }}
               />
             </Col>
 
@@ -567,7 +578,7 @@ function ListProduct() {
                 allowClear
                 value={filters.category}
                 onChange={(value) => handleFilterChange("category", value)}
-                suffixIcon={<FilterOutlined />}
+                suffixIcon={<FilterOutlined style={{ color: "#94A3B8" }} />}
               >
                 {categories?.map((category) => (
                   <Option key={category._id} value={category.name}>
@@ -584,7 +595,7 @@ function ListProduct() {
                 allowClear
                 value={filters.brand}
                 onChange={(value) => handleFilterChange("brand", value)}
-                suffixIcon={<FilterOutlined />}
+                suffixIcon={<FilterOutlined style={{ color: "#94A3B8" }} />}
               >
                 {brands?.map((brand) => (
                   <Option key={brand._id} value={brand.name}>
@@ -595,19 +606,32 @@ function ListProduct() {
             </Col>
             <Col xs={12} sm={6} md={4}>
               {(filters.category || filters.brand || searchText) && (
-                <Button onClick={handleClearFilters} icon={<ReloadOutlined />}>
+                <Button
+                  onClick={handleClearFilters}
+                  icon={<ReloadOutlined />}
+                  style={{
+                    borderColor: "#94A3B8",
+                    color: "#475569",
+                    borderRadius: 8,
+                  }}
+                >
                   Xóa bộ lọc
                 </Button>
               )}
             </Col>
 
             <Col xs={24} md={8}>
-              <Flex gap={8} wrap="wrap" justify="end">
+              <Flex gap={8} wrap="nowrap" justify="end">
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => navigate("/product/add")}
-                  style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                  style={{
+                    backgroundColor: "rgb(11, 162, 36)",
+                    borderRadius: 8,
+                    fontWeight: 500,
+                    boxShadow: "0 2px 8px rgba(16, 185, 129, 0.2)",
+                  }}
                 >
                   Thêm sản phẩm
                 </Button>
@@ -617,6 +641,14 @@ function ListProduct() {
                   onClick={handleEditProduct}
                   disabled={selectedRowKeys.length !== 1}
                   icon={<EditOutlined />}
+                  style={{
+                    borderRadius: 8,
+                    fontWeight: 500,
+                    boxShadow:
+                      selectedRowKeys.length === 1
+                        ? "0 2px 8px rgba(79, 70, 229, 0.2)"
+                        : "none",
+                  }}
                 >
                   Sửa ({selectedRowKeys.length})
                 </Button>
@@ -626,6 +658,17 @@ function ListProduct() {
                   onClick={() => setOpen(true)}
                   disabled={selectedRowKeys.length === 0}
                   icon={<DeleteOutlined />}
+                  style={{
+                    borderRadius: 8,
+                    fontWeight: 500,
+
+                    borderColor:
+                      selectedRowKeys.length > 0 ? "#EF4444" : undefined,
+                    boxShadow:
+                      selectedRowKeys.length > 0
+                        ? "0 2px 8px rgba(239, 68, 68, 0.2)"
+                        : "none",
+                  }}
                 >
                   Xóa ({selectedRowKeys.length})
                 </Button>
@@ -633,12 +676,21 @@ function ListProduct() {
             </Col>
           </Row>
         </Card>
-
-        <Card style={{ borderRadius: 12 }}>
+        <Card
+          style={{
+            borderRadius: 16,
+            border: `1px solid #E2E8F0"`,
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+          }}
+        >
           <Spin spinning={loading} size="large">
             {filteredProducts.length === 0 ? (
               <Empty
-                description="Không tìm thấy sản phẩm nào"
+                description={
+                  <span style={{ color: "#475569" }}>
+                    Không tìm thấy sản phẩm nào
+                  </span>
+                }
                 style={{ padding: "48px 0" }}
               />
             ) : (
@@ -653,11 +705,15 @@ function ListProduct() {
                 }}
                 pagination={{
                   pageSize: 10,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} của ${total} sản phẩm`,
                 }}
                 scroll={{ x: 1000 }}
                 size="middle"
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: "#FEFEFE",
                 }}
               />
             )}

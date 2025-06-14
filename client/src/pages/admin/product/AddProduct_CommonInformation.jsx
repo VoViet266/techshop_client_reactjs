@@ -56,7 +56,7 @@ function CommonInformation({
 
   return (
     <>
-      <div className="flex gap-12 items-center">
+      <div className="flex gap-12 items-center ">
         <span className="text-sm text-primary font-medium">
           Thông tin chung
         </span>

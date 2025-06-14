@@ -7,7 +7,6 @@ import "react-loading-skeleton/dist/skeleton.css";
 import Files from "@services/files";
 import Brands from "@services/brands";
 import Categories from "@services/categories";
-import Products from "@services/products";
 import { useAppContext } from "@contexts";
 
 import {
@@ -16,7 +15,7 @@ import {
   ConnectionInformation,
   CameraInformations,
   Variants,
-} from "@pages/admin";
+} from "@pages/admin/product";
 import { callFetchProductDetail, callUpdateProduct } from "@/services/apis";
 
 function EditProduct() {

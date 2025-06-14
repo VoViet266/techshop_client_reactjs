@@ -23,6 +23,7 @@
     "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^7.6.0",
     "react-slick": "^0.30.3",
+    "recharts": "^2.15.3",
     "slick-carousel": "^1.8.1",
     "suneditor": "^2.47.5",
     "suneditor-react": "^3.6.1",
