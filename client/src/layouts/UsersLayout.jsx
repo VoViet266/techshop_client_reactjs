@@ -3,7 +3,13 @@ import { Login, Signup } from "@pages/app";
 import { useAppContext } from "@contexts";
 import { Outlet, Link } from "react-router-dom";
 import { Layout, Input, Typography, Button, Flex } from "antd";
-import { LoadingToast, SuccessToast, ErrorToast } from "@/components/app";
+
+import {
+  SearchBox,
+  ErrorToast,
+  LoadingToast,
+  SuccessToast,
+} from "@/components/app";
 
 function Header() {
   const { setShowLogin, setShowSignup } = useAppContext();
@@ -24,11 +30,9 @@ function Header() {
           TechShop
         </Typography.Title>
       </Link>
-      <Input.Search
-        onSearch={onSearch}
-        placeholder="Nhập nội dung"
-        className="w-300! text-base! font-roboto! placeholder:font-roboto!"
-      />
+
+      <SearchBox />
+
       <Flex gap={8}>
         <Button
           onClick={() => {

@@ -1,9 +1,24 @@
+import { Tag } from "antd";
+import CardProduct from "./Card";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import CardProduct from "./Card";
 
 function PreviewListProducts({ title, loading }) {
   const brands = ["Samsung", "Apple", "Xiaomi", "Oppo", "Vivo", "Realme"];
+
+  const colorsTag = [
+    "red",
+    "gold",
+    "cyan",
+    "lime",
+    "blue",
+    "green",
+    "orange",
+    "purple",
+    "magenta",
+    "volcano",
+    "geekblue",
+  ];
 
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 mt-50">
@@ -34,9 +49,15 @@ function PreviewListProducts({ title, loading }) {
                 <Skeleton className="h-25" />
               </div>
             ) : (
+              // <Tag
+              //   color={colorsTag[index]}
+              //   className="px-4! rounded-sm! cursor-pointer! min-w-70! text-center! py-4!"
+              // >
+              //   {brand}
+              // </Tag>
               <span
                 key={index}
-                className="px-8 rounded-sm cursor-pointer min-w-80 text-center bg-gray-200 border-gray-300 py-2 border"
+                className="px-8 rounded-sm cursor-pointer min-w-80 text-center bg-gray-200 border-gray-300 py-4 border"
               >
                 {brand}
               </span>
