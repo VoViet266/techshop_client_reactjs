@@ -59,12 +59,27 @@ function PreviewListProducts({
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-10">
-        {products.map((product, index) => {
-          return loading ? (
-            <div className="w-230">
-              <Skeleton className="h-360" />
+        {loading && (
+          <>
+            <div className="w-275">
+              <Skeleton className="h-500" />
             </div>
-          ) : (
+            <div className="w-275">
+              <Skeleton className="h-500" />
+            </div>
+            <div className="w-275">
+              <Skeleton className="h-500" />
+            </div>
+            <div className="w-275">
+              <Skeleton className="h-500" />
+            </div>
+            <div className="w-275">
+              <Skeleton className="h-500" />
+            </div>
+          </>
+        )}
+        {products.map((product, index) => {
+          return (
             <CardProduct key={index} product={product} loading={loading} />
           );
         })}
