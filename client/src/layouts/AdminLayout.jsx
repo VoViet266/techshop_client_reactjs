@@ -1,5 +1,5 @@
-import { useAppContext } from '@contexts';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAppContext } from "@contexts";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Layout,
   Typography,
@@ -14,7 +14,7 @@ import {
   Tooltip,
   Card,
   FloatButton,
-} from 'antd';
+} from "antd";
 import {
   DashboardOutlined,
   HomeOutlined,
@@ -33,9 +33,9 @@ import {
   SearchOutlined,
   CustomerServiceOutlined,
   ToolOutlined,
-} from '@ant-design/icons';
-import { useEffect, useState } from 'react';
-import { callLogout } from '@/services/apis';
+} from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { callLogout } from "@/services/apis";
 
 function AdminLayout() {
   const { Title, Text } = Typography;
@@ -49,94 +49,99 @@ function AdminLayout() {
 
   const navItems = [
     {
-      key: 'dashboard',
-      label: 'Tổng quan',
+      key: "dashboard",
+      label: "Tổng quan",
       icon: <DashboardOutlined />,
-      onClick: () => navigate('/dashboard'),
+      onClick: () => navigate("/dashboard"),
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'product',
-      label: 'Sản phẩm',
+      key: "product",
+      label: "Sản phẩm",
       icon: <ProductOutlined />,
       children: [
         {
-          key: 'allproducts',
-          label: 'Danh sách sản phẩm',
-          onClick: () => navigate('/product'),
+          key: "allproducts",
+          label: "Danh sách sản phẩm",
+          onClick: () => navigate("/product"),
         },
         {
-          key: 'addproduct',
-          label: 'Thêm sản phẩm',
-          onClick: () => navigate('/product/add'),
+          key: "addproduct",
+          label: "Thêm sản phẩm",
+          onClick: () => navigate("/product/add"),
         },
       ],
     },
     {
-      key: 'inventory',
-      label: 'Kho hàng',
+      key: "inventory",
+      label: "Kho hàng",
       icon: <ContainerOutlined />,
       children: [
         {
-          key: 'allinventory',
-          label: 'Danh sách kho hàng',
-          onClick: () => navigate('/inventory/all'),
+          key: "allinventory",
+          label: "Danh sách kho hàng",
+          onClick: () => navigate("/warehouse"),
         },
         {
-          key: 'importinventory',
-          label: 'Nhập hàng',
-          onClick: () => navigate('/inventory/import'),
+          key: "importinventory",
+          label: "Nhập hàng",
+          onClick: () => navigate("/warehouse/import"),
         },
         {
-          key: 'transferinventory',
-          label: 'Chuyển kho',
-          onClick: () => navigate('/inventory/transfer'),
+          key: "exportinventory",
+          label: "Xuất hàng",
+          onClick: () => navigate("/inventory/export"),
+        },
+        {
+          key: "transferinventory",
+          label: "Chuyển kho",
+          onClick: () => navigate("/inventory/transfer"),
         },
       ],
     },
     {
-      key: 'order',
-      label: 'Đơn hàng',
+      key: "order",
+      label: "Đơn hàng",
       icon: <ShoppingOutlined />,
-      onClick: () => navigate('/order'),
+      onClick: () => navigate("/order"),
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'branch',
-      label: 'Chi nhánh',
+      key: "branch",
+      label: "Chi nhánh",
       icon: <HomeOutlined />,
-      onClick: () => navigate('/branch/management'),
+      onClick: () => navigate("/branch/management"),
     },
     {
-      key: 'category',
-      label: 'Danh mục',
+      key: "category",
+      label: "Danh mục",
       icon: <ShoppingOutlined />,
-      onClick: () => navigate('/category'),
+      onClick: () => navigate("/category"),
     },
     {
-      key: 'brand',
-      label: 'Thương hiệu',
+      key: "brand",
+      label: "Thương hiệu",
       icon: <TagsOutlined />,
-      onClick: () => navigate('/brand'),
+      onClick: () => navigate("/brand"),
     },
     {
-      key: 'user',
-      label: 'Người dùng',
+      key: "user",
+      label: "Người dùng",
       icon: <UserOutlined />,
-      onClick: () => navigate('/user'),
+      onClick: () => navigate("/user"),
     },
   ];
 
   const getBreadcrumbItems = () => {
-    const pathSnippets = location.pathname.split('/').filter((i) => i);
+    const pathSnippets = location.pathname.split("/").filter((i) => i);
     const breadcrumbItems = [
       {
         title: (
-          <Link to="/dashboard" style={{ color: '#4F46E5' }}>
+          <Link to="/dashboard" style={{ color: "#4F46E5" }}>
             Admin
           </Link>
         ),
@@ -144,7 +149,7 @@ function AdminLayout() {
     ];
 
     pathSnippets.forEach((_, index) => {
-      const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+      const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
       const title =
         pathSnippets[index].charAt(0).toUpperCase() +
         pathSnippets[index].slice(1);
@@ -152,7 +157,7 @@ function AdminLayout() {
       if (index > 0) {
         breadcrumbItems.push({
           title: (
-            <Link to={url} style={{ color: '#475569' }}>
+            <Link to={url} style={{ color: "#475569" }}>
               {title}
             </Link>
           ),
@@ -164,7 +169,7 @@ function AdminLayout() {
   };
 
   useEffect(() => {
-    navigate('/dashboard');
+    navigate("/dashboard");
   }, []);
 
   useEffect(() => {
@@ -175,19 +180,19 @@ function AdminLayout() {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const getCurrentPath = () => {
-    const path = location.pathname.split('/');
+    const path = location.pathname.split("/");
     return path.length > 2 ? path[2] : path[1];
   };
 
   const handleLogout = async () => {
     await callLogout();
-    localStorage.removeItem('token');
-    navigate('/');
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   return (
@@ -198,7 +203,7 @@ function AdminLayout() {
           background: `linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(99, 102, 241, 0.95) 50%, rgba(6, 182, 212, 0.95) 100%)`,
           borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
           boxShadow:
-            '0 4px 24px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+            "0 4px 24px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
         }}
       >
         <div className="flex items-center space-x-4">
@@ -207,16 +212,16 @@ function AdminLayout() {
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
             style={{
-              fontSize: '16px',
+              fontSize: "16px",
               width: 40,
               height: 40,
-              color: '#FFFFFF',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              color: "#FFFFFF",
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
               border: `1px solid rgba(255, 255, 255, 0.25)`,
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           />
 
@@ -227,9 +232,9 @@ function AdminLayout() {
                 className="font-bold font-roboto xl:text-3xl lg:text-2xl md:text-xl text-lg m-0"
                 style={{
                   fontWeight: 800,
-                  color: '#FFFFFF',
-                  textShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  background: 'transparent',
+                  color: "#FFFFFF",
+                  textShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                  background: "transparent",
                 }}
               >
                 TechShop
@@ -237,8 +242,8 @@ function AdminLayout() {
               <span
                 className="text-xs pb-1 font-medium"
                 style={{
-                  color: 'rgba(255, 255, 255, 0.85)',
-                  textShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  color: "rgba(255, 255, 255, 0.85)",
+                  textShadow: "0 1px 3px rgba(0,0,0,0.1)",
                 }}
               >
                 Trang quản lý
@@ -256,32 +261,32 @@ function AdminLayout() {
           width={280}
           collapsedWidth={80}
           style={{
-            overflow: 'auto',
-            height: '100vh',
-            maxHeight: '90vh',
-            position: 'fixed',
+            overflow: "auto",
+            height: "100vh",
+            maxHeight: "90vh",
+            position: "fixed",
             left: 0,
             top: 64,
             bottom: 0,
-            background: '#F1F5F9',
+            background: "#F1F5F9",
             borderRight: `1px solid #E2E8F0"`,
             zIndex: 999,
-            boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
+            boxShadow: "2px 0 8px rgba(0, 0, 0, 0.06)",
           }}
         >
           <div
             style={{
-              padding: collapsed ? '0' : '24px',
-              textAlign: 'center',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: collapsed ? 'none' : '#FEFEFE',
-              margin: collapsed ? '16px 8px' : '16px',
+              padding: collapsed ? "0" : "24px",
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: collapsed ? "none" : "#FEFEFE",
+              margin: collapsed ? "16px 8px" : "16px",
               borderRadius: collapsed ? 12 : 16,
-              boxShadow: '0 4px 16px rgba(79, 70, 229, 0.08)',
+              boxShadow: "0 4px 16px rgba(79, 70, 229, 0.08)",
               border: `1px solid #E2E8F0"`,
-              transition: 'all 0.3s ease',
+              transition: "all 0.3s ease",
             }}
           >
             {collapsed ? (
@@ -291,35 +296,35 @@ function AdminLayout() {
                   style={{
                     background: `linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(99, 102, 241, 0.95) 50%, rgba(6, 182, 212, 0.95) 100%)`,
 
-                    border: `3px solid ${'#FEFEFE'}`,
-                    boxShadow: '0 4px 16px rgba(79, 70, 229, 0.2)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    border: `3px solid ${"#FEFEFE"}`,
+                    boxShadow: "0 4px 16px rgba(79, 70, 229, 0.2)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  <UserOutlined style={{ color: '#FEFEFE' }} />
+                  <UserOutlined style={{ color: "#FEFEFE" }} />
                 </Avatar>
               </Tooltip>
             ) : (
-              <Space direction="vertical" size={8} style={{ width: '100%' }}>
+              <Space direction="vertical" size={8} style={{ width: "100%" }}>
                 <Avatar
                   size={64}
                   style={{
                     background: `linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(99, 102, 241, 0.95) 50%, rgba(6, 182, 212, 0.95) 100%)`,
-                    border: `3px solid ${'#FEFEFE'}`,
-                    boxShadow: '0 6px 20px rgba(79, 70, 229, 0.25)',
+                    border: `3px solid ${"#FEFEFE"}`,
+                    boxShadow: "0 6px 20px rgba(79, 70, 229, 0.25)",
                   }}
                 >
-                  <UserOutlined style={{ color: '#FEFEFE' }} />
+                  <UserOutlined style={{ color: "#FEFEFE" }} />
                 </Avatar>
                 <div>
                   <Text
                     strong
                     style={{
                       fontSize: 16,
-                      display: 'block',
-                      color: '#0F172A',
+                      display: "block",
+                      color: "#0F172A",
                     }}
                   >
                     Admin
@@ -328,7 +333,7 @@ function AdminLayout() {
                     type="secondary"
                     style={{
                       fontSize: 12,
-                      color: '#475569',
+                      color: "#475569",
                     }}
                   >
                     Quản trị viên
@@ -337,20 +342,20 @@ function AdminLayout() {
               </Space>
             )}
           </div>
-          <div style={{ padding: collapsed ? '0 8px' : '0 16px' }}>
+          <div style={{ padding: collapsed ? "0 8px" : "0 16px" }}>
             <Menu
               mode="inline"
               items={navItems}
               style={{
-                border: 'none',
-                background: 'transparent',
+                border: "none",
+                background: "transparent",
                 fontSize: 14,
               }}
               theme="light"
               itemStyle={{
-                color: '#475569',
-                borderRadius: '8px',
-                margin: '4px 0',
+                color: "#475569",
+                borderRadius: "8px",
+                margin: "4px 0",
               }}
             />
           </div>
@@ -359,18 +364,18 @@ function AdminLayout() {
         <Layout
           style={{
             marginLeft: collapsed ? 80 : 280,
-            transition: 'margin-left 0.2s',
-            background: '#F8FAFC',
+            transition: "margin-left 0.2s",
+            background: "#F8FAFC",
           }}
         >
           <Content
             style={{
-              margin: '24px',
-              padding: '32px',
-              background: '#FEFEFE',
+              margin: "24px",
+              padding: "32px",
+              background: "#FEFEFE",
               borderRadius: 16,
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
-              minHeight: 'calc(100vh - 112px)',
+              boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+              minHeight: "calc(100vh - 112px)",
               border: `1px solid #E2E8F0"`,
             }}
           >
@@ -378,7 +383,7 @@ function AdminLayout() {
               items={getBreadcrumbItems()}
               style={{
                 fontSize: 14,
-                color: '#475569',
+                color: "#475569",
               }}
             />
 
@@ -389,20 +394,20 @@ function AdminLayout() {
               style={{
                 insetInlineEnd: 24,
                 insetBlockEnd: 24,
-                transform: 'scale(1.1)',
+                transform: "scale(1.1)",
               }}
-              icon={<ToolOutlined style={{ color: '#FEFEFE' }} />}
+              icon={<ToolOutlined style={{ color: "#FEFEFE" }} />}
               type="primary"
             >
               <FloatButton
                 icon={<SettingOutlined />}
                 tooltip="Cài đặt"
                 style={{
-                  backgroundColor: '#06B6D4',
-                  borderColor: '#06B6D4',
+                  backgroundColor: "#06B6D4",
+                  borderColor: "#06B6D4",
                 }}
                 onClick={() => {
-                  console.log('Cài đặt');
+                  console.log("Cài đặt");
                 }}
               />
               <FloatButton

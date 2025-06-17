@@ -138,10 +138,25 @@ export const callUpdateBranch = (value) => {
     ...value
   });
 }
+export const callFetchInventories = () => {
+  return axiosInstance.get(`/api/v1/inventories`);
+}
+
+export const callImportInventory = (value) => {
+  return axiosInstance.post(`/api/v1/inventories/import`, {
+    ...value
+  });
+}
+
+export const callFetchInboundHistory = () => {
+  return axiosInstance.get(`/api/v1/inventories/getImport`);
+}
+
 
 export const callFetchCategories = () => {
   return axiosInstance.get(`/api/v1/categories`);
 }
+
 
 export const callCreateCategory = (value) => {
   return axiosInstance.post(`/api/v1/categories`, {

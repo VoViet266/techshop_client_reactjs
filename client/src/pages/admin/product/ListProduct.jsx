@@ -36,6 +36,8 @@ import {
   BarcodeOutlined,
   CheckCircleOutlined,
   StopOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import {
   callDeleteProduct,
@@ -484,7 +486,14 @@ function ListProduct() {
 
   return (
     <div>
-      <div style={{ maxWidth: 1400, margin: "20px auto" }}>
+      <div
+        style={{
+          padding: "24px",
+          backgroundColor: "#f5f5f5",
+          minHeight: "100vh",
+          borderRadius: "8px",
+        }}
+      >
         <Modal
           title="Xác nhận"
           open={open}
@@ -502,32 +511,29 @@ function ListProduct() {
           <p>{modalText}</p>
         </Modal>
 
-        <Card
-          style={{
-            marginBottom: 24,
-            borderRadius: 16,
-            border: `1px solid #E2E8F0"`,
-            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
-          }}
-        >
-          <Row gutter={16}>
-            <Col xs={12} sm={6}>
+        <Row gutter={16} style={{ marginBottom: "24px" }}>
+          <Col xs={12} sm={6}>
+            <Card>
               <Statistic
                 title={<span style={{ color: "#475569" }}>Tổng sản phẩm</span>}
                 value={stats.total}
                 prefix={<AppstoreOutlined style={{ color: "#4F46E5" }} />}
                 valueStyle={{ color: "#4F46E5", fontWeight: 600 }}
               />
-            </Col>
-            <Col xs={12} sm={6}>
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
               <Statistic
                 title={<span style={{ color: "#475569" }}>Đang bán</span>}
                 value={stats.active}
                 prefix={<CheckCircleOutlined style={{ color: "#8B5CF6" }} />}
                 valueStyle={{ color: "#8B5CF6", fontWeight: 600 }}
               />
-            </Col>
-            <Col xs={12} sm={6}>
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
               <Statistic
                 title={<span style={{ color: "#475569" }}>Ngừng bán</span>}
                 value={stats.inactive}
@@ -537,17 +543,20 @@ function ListProduct() {
                   fontWeight: 600,
                 }}
               />
-            </Col>
-            <Col xs={12} sm={6}>
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
               <Statistic
                 title={<span style={{ color: "#475569" }}>Có giảm giá</span>}
                 value={stats.discounted}
                 prefix={<TagOutlined style={{ color: "#EF4444" }} />}
                 valueStyle={{ color: "#EF4444", fontWeight: 600 }}
               />
-            </Col>
-          </Row>
-        </Card>
+            </Card>
+          </Col>
+        </Row>
+
         <Card
           style={{
             marginBottom: 24,
@@ -698,17 +707,24 @@ function ListProduct() {
                 rowKey="_id"
                 rowSelection={rowSelection}
                 columns={columns}
+                bordered
                 dataSource={filteredProducts}
                 expandable={{
                   expandedRowRender,
+                  expandIcon: ({ expanded, onExpand, record }) => (
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={
+                        expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                      }
+                      onClick={(e) => onExpand(record, e)}
+                    />
+                  ),
                   rowExpandable: (record) => record._id,
                 }}
                 pagination={{
                   pageSize: 10,
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  showTotal: (total, range) =>
-                    `${range[0]}-${range[1]} của ${total} sản phẩm`,
                 }}
                 scroll={{ x: 1000 }}
                 size="middle"
