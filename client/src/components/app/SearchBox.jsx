@@ -1,23 +1,29 @@
+import Products from "@services/products";
 import { useAppContext } from "@contexts";
 import { useNavigate } from "react-router-dom";
-import Products from "@services/products";
-import { Input, List, Flex, Typography, Skeleton } from "antd";
 import React, { useState, useRef, useEffect } from "react";
+import { Input, List, Flex, Typography, Skeleton } from "antd";
 
 function SearchBox() {
   const navigate = useNavigate();
   const containerRef = useRef(null);
-  const { query, setQuery } = useAppContext();
   const [result, setResult] = useState([]);
+  const { query, setQuery } = useAppContext();
   const [loading, setLoading] = useState(false);
-  const [filteredResults, setFilteredResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [filteredResults, setFilteredResults] = useState([]);
 
   async function fetchSearchResult() {
     try {
       setLoading(true);
       const result = await Products.search(query);
       setResult(result);
+      const resultAfterFilter = Array.isArray(result)
+        ? result.filter((item) =>
+            item.name.toLowerCase().includes(query.toLowerCase())
+          )
+        : [];
+      setFilteredResults(resultAfterFilter);
       setLoading(false);
     } catch (error) {
       console.error(error.message);
@@ -27,12 +33,6 @@ function SearchBox() {
   useEffect(() => {
     if (query.trim() !== "") {
       fetchSearchResult();
-      const resultAfterFilter = Array.isArray(result)
-        ? result.filter((item) =>
-            item.name.toLowerCase().includes(query.toLowerCase())
-          )
-        : [];
-      setFilteredResults(resultAfterFilter);
     }
   }, [query]);
 
@@ -99,7 +99,9 @@ function SearchBox() {
           justify="center"
           className="absolute! bg-white! rounded-md! max-h-200! animate-[fadeInUp_0.1s_ease-out]! p-6! border! border-gray-300! top-full! mt-6! left-0! right-0! z-1000! overflow-auto!"
         >
-          {filteredResults.length > 0 ? (
+          {loading && <Skeleton.Input className="h-100! w-full!" />}
+
+          {filteredResults.length > 0 && !loading && (
             <List
               size="small"
               className="w-full! font-roboto! cursor-pointer! rounded-sm!"
@@ -115,7 +117,9 @@ function SearchBox() {
                 </>
               )}
             />
-          ) : (
+          )}
+
+          {filteredResults.length === 0 && !loading && (
             <Flex align="center" justify="center" className="min-h-100!">
               <Typography.Text className="font-roboto!">
                 Không tìm thấy sản phẩm nào
