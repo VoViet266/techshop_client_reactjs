@@ -60,7 +60,6 @@ const WarehouseManagement = () => {
     fetchInventory();
   }, []);
 
-
   useEffect(() => {
     let filtered = warehouses;
 
@@ -298,13 +297,6 @@ const WarehouseManagement = () => {
         borderRadius: "8px",
       }}
     >
-      {/* <div style={{ marginBottom: "24px" }}>
-        <Title level={2} style={{ margin: 0, color: "#1890ff" }}>
-          <ProductOutlined /> Quản lý Kho hàng
-        </Title>
-        <Text type="secondary">Theo dõi và quản lý tồn kho các sản phẩm</Text>
-      </div> */}
-
       <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col xs={24} sm={12} md={8}>
           <Card>

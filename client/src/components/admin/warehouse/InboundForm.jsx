@@ -115,7 +115,7 @@ const InboundForm = ({
       </Row>
 
       <Form.Item name="note" label="Ghi chú">
-        <TextArea placeholder="Ghi chú về phiếu nhập kho..." rows={3} />
+        <TextArea placeholder="Ghi chú về phiếu ..." rows={3} />
       </Form.Item>
     </Form>
   );

@@ -3,6 +3,7 @@ import { Modal, Input, Table, Tag, Button, Badge, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 const ModalSearchProduct = ({
+  inbound,
   productSearchVisible,
   setProductSearchVisible,
   handleSelectProduct,

@@ -1,17 +1,28 @@
 import React from "react";
-import { Drawer, Button, Space, Descriptions, Divider, Typography, Table, Badge, Tag } from "antd";
+import {
+  Drawer,
+  Button,
+  Space,
+  Descriptions,
+  Divider,
+  Typography,
+  Table,
+  Badge,
+  Tag,
+} from "antd";
 import { PrinterOutlined, CloseOutlined } from "@ant-design/icons";
 
 const { Text, Title } = Typography;
 
 const InboundDetailDrawer = ({
+  inbound,
   open,
   onClose,
   selectedInboundDetail,
 }) => {
   return (
     <Drawer
-      title="Chi tiết phiếu nhập"
+      title={inbound ? "Chi tiết phiếu nhập" : "Chi tiết phiêu xuất"}
       placement="right"
       onClose={onClose}
       open={open}
@@ -25,7 +36,7 @@ const InboundDetailDrawer = ({
     >
       {selectedInboundDetail && (
         <div>
-          <Descriptions title="Thông tin phiếu nhập" bordered column={1}>
+          <Descriptions title={inbound ? "Chi tiết phiếu nhập" : "Chi tiết phiêu xuất"} bordered column={1}>
             <Descriptions.Item label="Mã phiếu">
               <Text copyable>{selectedInboundDetail._id}</Text>
             </Descriptions.Item>
@@ -35,8 +46,10 @@ const InboundDetailDrawer = ({
             <Descriptions.Item label="Sản phẩm">
               {selectedInboundDetail.productId?.name}
             </Descriptions.Item>
-            <Descriptions.Item label="Ngày nhập">
-              {new Date(selectedInboundDetail.createdAt).toLocaleString("vi-VN")}
+            <Descriptions.Item label={inbound ? "Ngày nhập" : "Ngày xuất"}>
+              {new Date(selectedInboundDetail.createdAt).toLocaleString(
+                "vi-VN"
+              )}
             </Descriptions.Item>
             <Descriptions.Item label="Người tạo">
               {selectedInboundDetail.createdBy?.name}
@@ -70,7 +83,10 @@ const InboundDetailDrawer = ({
                 key: "quantity",
                 align: "center",
                 render: (quantity) => (
-                  <Badge count={quantity} style={{ backgroundColor: "#52c41a" }} />
+                  <Badge
+                    count={quantity}
+                    style={{ backgroundColor: "#52c41a" }}
+                  />
                 ),
               },
               {
@@ -113,7 +129,10 @@ const InboundDetailDrawer = ({
                     <Text strong>Tổng cộng:</Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell align="center">
-                    <Badge count={totalQuantity} style={{ backgroundColor: "#fa8c16" }} />
+                    <Badge
+                      count={totalQuantity}
+                      style={{ backgroundColor: "#fa8c16" }}
+                    />
                   </Table.Summary.Cell>
                   <Table.Summary.Cell />
                   <Table.Summary.Cell align="right">

@@ -5,13 +5,14 @@ import { SaveOutlined } from "@ant-design/icons";
 
 const InboundSummary = ({
   inboundItems = [],
+  inbound,
   totalQuantity = 0,
   totalValue = 0,
   handleSubmitInbound,
   loading = false,
 }) => {
   return (
-    <Card title="Tóm tắt phiếu nhập">
+    <Card title={inbound ? "Chi tiết phiếu nhập" : "Chi tiết phiêu xuất"}>
       <Space direction="vertical" style={{ width: "100%" }}>
         <Row justify="space-between">
           <Text>Tổng sản phẩm:</Text>
@@ -39,7 +40,9 @@ const InboundSummary = ({
           style={{ width: "100%" }}
           loading={loading}
         >
-          Xác nhận nhập kho
+         {
+           inbound ? "Xây dựng phieu nhap kho" : "Xây dựng phieu xuat kho"
+         }
         </Button>
       </Space>
     </Card>

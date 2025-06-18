@@ -148,12 +148,27 @@ export const callImportInventory = (value) => {
   });
 }
 
+export const callExportInventory = (value) => {
+  return axiosInstance.post(`/api/v1/inventories/export`, {
+    ...value
+  });
+}
+
 export const callFetchInboundHistory = () => {
   return axiosInstance.get(`/api/v1/inventories/getImport`);
 }
 
 export const callFetchDetailInbound = (id) => {
   return axiosInstance.get(`/api/v1/inventories/getImport/${id}`);
+}
+
+
+export const callFetchOutboundHistory = () => {
+  return axiosInstance.get(`/api/v1/inventories/getExport`);
+}
+
+export const callFetchDetailOutbound = (id) => {
+  return axiosInstance.get(`/api/v1/inventories/getExport/${id}`);
 }
 
 

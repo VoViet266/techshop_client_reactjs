@@ -8,6 +8,7 @@ import { AddProduct, EditProduct, ListProduct } from "@/pages/admin/product";
 import { createBrowserRouter } from "react-router-dom";
 import WarehouseManagement from "@/pages/admin/warehouse";
 import WarehouseInbound from "@/pages/admin/warehouse/import";
+import WarehouseOutbound from "@/pages/admin/warehouse/export";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: "/warehouse/import",
         element: <WarehouseInbound />,
+      },
+      {
+        path: "/warehouse/export",
+        element: <WarehouseOutbound />,
       },
     ],
   },

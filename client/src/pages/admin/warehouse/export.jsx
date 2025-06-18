@@ -47,12 +47,14 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import {
+  callExportInventory,
   callFetchBranches,
   callFetchDetailInbound,
+  callFetchDetailOutbound,
   callFetchInboundHistory,
+  callFetchOutboundHistory,
   callFetchProducts,
   callImportInventory,
-  // callFetchInboundDetail, // API mới để lấy chi tiết phiếu nhập
 } from "@/services/apis";
 import Search from "antd/es/transfer/search";
 import ModalSearchProduct from "../../../components/admin/warehouse/modalSearchProduct";
@@ -63,24 +65,24 @@ import InboundDetailDrawer from "@/components/admin/warehouse/InboundDetailDrawe
 
 const { Text } = Typography;
 
-const WarehouseInbound = () => {
+const WarehouseOutbound = () => {
   const [form] = Form.useForm();
+
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [branches, setBranches] = useState([]);
-  const [inboundItems, setInboundItems] = useState([]);
-  const [inboundHistory, setInboundHistory] = useState([]);
+  const [outboundItems, setOutboundItems] = useState([]);
+  const [outboundHistory, setOutboundHistory] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [productSearchVisible, setProductSearchVisible] = useState(false);
-  const [selectedInboundDetail, setSelectedInboundDetail] = useState(null);
+  const [selectedOutboundDetail, setSelectedOutboundDetail] = useState(null);
   const [productSearchText, setProductSearchText] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
-  const inbound = useState(true);
 
   const fetchProducts = async () => {
     try {
@@ -104,25 +106,25 @@ const WarehouseInbound = () => {
     }
   };
 
-  const fetchInboundHistory = async () => {
+  const fetchOutboundHistory = async () => {
     try {
-      const response = await callFetchInboundHistory();
-      setInboundHistory(response.data.data);
+      const response = await callFetchOutboundHistory();
+      setOutboundHistory(response.data.data);
     } catch (error) {
-      console.error("Error fetching inbound history:", error);
-      message.error("Không thể tải lịch sử nhập kho");
+      console.error("Error fetching outbound history:", error);
+      message.error("Không thể tải lịch sử xuất kho");
     }
   };
 
-  const fetchInboundDetail = async (inboundId) => {
+  const fetchOutboundDetail = async (OutboundId) => {
     setDetailLoading(true);
     try {
-      const response = await callFetchDetailInbound(inboundId);
-      setSelectedInboundDetail(response.data.data);
+      const response = await callFetchDetailOutbound(OutboundId);
+      setSelectedOutboundDetail(response.data.data);
       setDetailDrawerVisible(true);
     } catch (error) {
       console.error("Error fetching inbound detail:", error);
-      message.error("Không thể tải chi tiết phiếu nhập");
+      message.error("Không thể tải chi tiết phiếu xuất");
     } finally {
       setDetailLoading(false);
     }
@@ -134,7 +136,7 @@ const WarehouseInbound = () => {
       await Promise.all([
         fetchProducts(),
         fetchBranches(),
-        fetchInboundHistory(),
+        fetchOutboundHistory(),
       ]);
     } catch (error) {
       message.error("Có lỗi xảy ra khi tải dữ liệu");
@@ -147,18 +149,18 @@ const WarehouseInbound = () => {
     loadAllData();
   }, []);
 
-  const handleProductSearch = (value) => {
-    setProductSearchText(value);
-    if (!value.trim()) {
-      setFilteredProducts(products);
-      return;
-    }
+  //   const handleProductSearch = (value) => {
+  //     setProductSearchText(value);
+  //     if (!value.trim()) {
+  //       setFilteredProducts(products);
+  //       return;
+  //     }
 
-    const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredProducts(filtered);
-  };
+  //     const filtered = products.filter((product) =>
+  //       product.name.toLowerCase().includes(value.toLowerCase())
+  //     );
+  //     setFilteredProducts(filtered);
+  //   };
 
   const handleSelectProduct = (product) => {
     setSelectedProduct(product);
@@ -179,7 +181,7 @@ const WarehouseInbound = () => {
         const variant = product.variants.find(
           (v) => v._id === values.variantId
         );
-        const existingItem = inboundItems.find(
+        const existingItem = outboundItems.find(
           (item) =>
             item.productId === values.productId &&
             item.variantId === values.variantId
@@ -206,7 +208,7 @@ const WarehouseInbound = () => {
           total: values.quantity * (values.cost || variant.cost),
         };
 
-        setInboundItems([...inboundItems, newItem]);
+        setOutboundItems([...outboundItems, newItem]);
         form.setFieldsValue({
           productId: undefined,
           variantId: undefined,
@@ -222,13 +224,13 @@ const WarehouseInbound = () => {
   };
 
   const handleRemoveItem = (id) => {
-    setInboundItems(inboundItems.filter((item) => item.id !== id));
+    setInboundItems(outboundItems.filter((item) => item.id !== id));
     message.success("Đã xóa sản phẩm khỏi danh sách");
   };
 
   const handleUpdateQuantity = (id, quantity) => {
-    setInboundItems(
-      inboundItems.map((item) =>
+    setOutboundItems(
+      outboundItems.map((item) =>
         item.id === id
           ? { ...item, quantity, total: quantity * item.cost }
           : item
@@ -237,33 +239,33 @@ const WarehouseInbound = () => {
   };
 
   const handleUpdateCost = (id, cost) => {
-    setInboundItems(
-      inboundItems.map((item) =>
+    setOutboundItems(
+      outboundItems.map((item) =>
         item.id === id ? { ...item, cost, total: item.quantity * cost } : item
       )
     );
   };
 
-  const handleSubmitInbound = () => {
+  const handleSubmitOutbound = () => {
     form
       .validateFields(["branchId"])
       .then((values) => {
-        if (inboundItems.length === 0) {
+        if (outboundItems.length === 0) {
           message.error("Vui lòng thêm ít nhất một sản phẩm");
           return;
         }
 
-        const inboundData = {
+        const outboundData = {
           ...values,
-          items: inboundItems,
-          totalItems: inboundItems.reduce(
+          items: outboundItems,
+          totalItems: outboundItems.reduce(
             (sum, item) => sum + item.quantity,
             0
           ),
-          totalValue: inboundItems.reduce((sum, item) => sum + item.total, 0),
+          totalValue: outboundItems.reduce((sum, item) => sum + item.total, 0),
         };
 
-        setPreviewData(inboundData);
+        setPreviewData(outboundData);
         setIsModalVisible(true);
       })
       .catch(() => {
@@ -271,20 +273,20 @@ const WarehouseInbound = () => {
       });
   };
 
-  const confirmInbound = async () => {
+  const confirmOutbound = async () => {
     setLoading(true);
     try {
-      const importRequests = {};
+      const exportRequests = {};
 
-      inboundItems.forEach((item) => {
-        if (!importRequests[item.productId]) {
-          importRequests[item.productId] = {
+      outboundItems.forEach((item) => {
+        if (!exportRequests[item.productId]) {
+          exportRequests[item.productId] = {
             branchId: previewData.branchId,
             productId: item.productId,
             variants: [],
           };
         }
-        importRequests[item.productId].variants.push({
+        exportRequests[item.productId].variants.push({
           variantId: String(item.variantId),
           quantity: item.quantity,
           cost: item.cost,
@@ -292,16 +294,16 @@ const WarehouseInbound = () => {
       });
 
       await Promise.all(
-        Object.values(importRequests).map((data) => callImportInventory(data))
+        Object.values(exportRequests).map((data) => callExportInventory(data))
       );
 
-      message.success("Nhập kho thành công!");
-      setInboundItems([]);
+      message.success("Xuất kho thành công!");
+      setOutboundItems([]);
       form.resetFields();
       setIsModalVisible(false);
-      await fetchInboundHistory();
+      await fetchOutboundHistory();
     } catch (error) {
-      message.error(error.message || "Có lỗi xảy ra khi nhập kho");
+      message.error(error.message || "Có lỗi xảy ra khi xuất kho");
     } finally {
       setLoading(false);
     }
@@ -402,7 +404,7 @@ const WarehouseInbound = () => {
 
   const historyColumns = [
     {
-      title: "Mã phiếu xuất",
+      title: "Mã phiếu nhập",
       dataIndex: "_id",
       key: "code",
       width: 150,
@@ -449,7 +451,7 @@ const WarehouseInbound = () => {
       },
     },
     {
-      title: "Ngày xuất",
+      title: "Ngày nhập",
       dataIndex: "createdAt",
       key: "date",
       width: 150,
@@ -481,7 +483,7 @@ const WarehouseInbound = () => {
             <Button
               type="text"
               icon={<EyeOutlined />}
-              onClick={() => fetchInboundDetail(record._id)}
+              onClick={() => fetchOutboundDetail}
               loading={detailLoading}
             />
           </Tooltip>
@@ -490,11 +492,11 @@ const WarehouseInbound = () => {
     },
   ];
 
-  const totalQuantity = inboundItems.reduce(
+  const totalQuantity = outboundItems.reduce(
     (sum, item) => sum + item.quantity,
     0
   );
-  const totalValue = inboundItems.reduce((sum, item) => sum + item.total, 0);
+  const totalValue = outboundItems.reduce((sum, item) => sum + item.total, 0);
 
   if (pageLoading) {
     return (
@@ -538,7 +540,7 @@ const WarehouseInbound = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={14}>
           <Card
-            title="Tạo phiếu nhập kho"
+            title="Tạo phiếu xuất kho"
             extra={
               <Space>
                 <Upload
@@ -546,10 +548,10 @@ const WarehouseInbound = () => {
                   maxCount={1}
                   accept=".xlsx"
                   showUploadList={false}
-                  onChange={() => console.log("Import Excel")}
+                  onChange={() => console.log("Export Excel")}
                   disabled={loading}
                 >
-                  <Button icon={<UploadOutlined />}>Import Excel</Button>
+                  <Button icon={<UploadOutlined />}>Export Excel</Button>
                 </Upload>
               </Space>
             }
@@ -566,17 +568,16 @@ const WarehouseInbound = () => {
 
         <Col xs={24} lg={10}>
           <InboundSummary
-            inbound={inbound}
-            inboundItems={inboundItems}
+            inboundItems={outboundItems}
             totalQuantity={totalQuantity}
             totalValue={totalValue}
-            handleSubmitInbound={handleSubmitInbound}
+            handleSubmitInbound={handleSubmitOutbound}
             loading={loading}
           />
 
           <Card title="Danh sách sản phẩm" style={{ marginTop: "16px" }}>
             <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-              {inboundItems.map((item) => (
+              {outboundItems.map((item) => (
                 <div
                   key={item.id}
                   style={{
@@ -622,11 +623,11 @@ const WarehouseInbound = () => {
         </Col>
       </Row>
 
-      {inboundItems.length > 0 && (
-        <Card title="Chi tiết sản phẩm nhập kho" style={{ marginTop: "24px" }}>
+      {outboundItems.length > 0 && (
+        <Card title="Chi tiết sản phẩm xuất kho" style={{ marginTop: "24px" }}>
           <Table
             columns={itemColumns}
-            dataSource={inboundItems}
+            dataSource={outboundItems}
             bordered
             rowKey="id"
             pagination={false}
@@ -636,10 +637,10 @@ const WarehouseInbound = () => {
         </Card>
       )}
 
-      <Card title="Lịch sử nhập kho" style={{ marginTop: "24px" }}>
+      <Card title="Lịch sử xuất kho" style={{ marginTop: "24px" }}>
         <Table
           columns={historyColumns}
-          dataSource={inboundHistory}
+          dataSource={outboundHistory}
           rowKey="_id"
           pagination={{
             pageSize: 10,
@@ -648,7 +649,6 @@ const WarehouseInbound = () => {
       </Card>
 
       <ModalSearchProduct
-        inbound={inbound}
         setProductSearchVisible={setProductSearchVisible}
         productSearchVisible={productSearchVisible}
         handleSelectProduct={handleSelectProduct}
@@ -658,16 +658,14 @@ const WarehouseInbound = () => {
         setProducts={setProducts}
       />
       <InboundDetailDrawer
-        inbound={inbound}
         open={detailDrawerVisible}
         onClose={() => setDetailDrawerVisible(false)}
-        selectedInboundDetail={selectedInboundDetail}
+        selectedInboundDetail={selectedOutboundDetail}
       />
       <InboundConfirmModal
-        inbound={inbound}
         open={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        onConfirm={confirmInbound}
+        onConfirm={confirmOutbound}
         loading={loading}
         previewData={previewData}
         branches={branches}
@@ -676,4 +674,4 @@ const WarehouseInbound = () => {
   );
 };
 
-export default WarehouseInbound;
+export default WarehouseOutbound;

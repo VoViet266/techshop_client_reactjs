@@ -92,7 +92,7 @@ function AdminLayout() {
         {
           key: "exportinventory",
           label: "Xuất hàng",
-          onClick: () => navigate("/inventory/export"),
+          onClick: () => navigate("/warehouse/export"),
         },
         {
           key: "transferinventory",
