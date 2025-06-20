@@ -13,6 +13,7 @@ import Order from "@/pages/admin/order"; // Tạo component cho order management
 import NotExist from "@/components/error/notExist";
 import OrderList from "@/pages/admin/order";
 import OrderManagement from "@/pages/admin/order";
+import ProtectedRoute from "./ProtectedRoute";
 
 const router = createBrowserRouter([
   // User routes
@@ -37,7 +38,11 @@ const router = createBrowserRouter([
 
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute requireAdmin={true}>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

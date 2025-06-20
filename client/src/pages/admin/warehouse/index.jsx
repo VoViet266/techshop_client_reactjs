@@ -33,6 +33,7 @@ import {
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import { callFetchInventories } from "@/services/apis";
+import useMessage from "@/hooks/useMessage";
 
 const { Text, Title } = Typography;
 const { Option } = Select;
@@ -43,21 +44,26 @@ const WarehouseManagement = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
+  const { success, error, warning, contextHolder } = useMessage();
   const fetchInventory = async () => {
     try {
-      setLoading(true);
       const res = await callFetchInventories();
       setWarehouses(res.data.data);
       setFilteredData(res.data.data);
+      success("Lấy danh sách tồn kho");
+    } catch (error) {
+      console.error("Failed to fetch inventory:", error);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      fetchInventory();
     } catch (error) {
       console.error("Failed to fetch inventory:", error);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchInventory();
   }, []);
 
   useEffect(() => {
@@ -259,6 +265,7 @@ const WarehouseManagement = () => {
         borderRadius: "8px",
       }}
     >
+      {contextHolder}
       {/* <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col
           xs={24}

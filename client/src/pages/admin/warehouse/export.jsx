@@ -62,8 +62,6 @@ import InboundConfirmModal from "@/components/admin/warehouse/InboundConfirmModa
 import InboundForm from "@/components/admin/warehouse/InboundForm";
 import InboundSummary from "@/components/admin/warehouse/InboundSummary";
 import InboundDetailDrawer from "@/components/admin/warehouse/InboundDetailDrawer";
-import ModalSearchProductInventory from "@/components/admin/warehouse/modalSearchProductInventory";
-import Title from "antd/es/typography/Title";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -91,12 +89,11 @@ const WarehouseOutbound = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(null);
 
-  // Fetc
   const fetchInventories = async () => {
     try {
       const response = await callFetchInventories();
       setInventories(response.data.data);
-      console.log("Inventories:", response.data.data);
+      success("Lấy danh sách tồn kho");
     } catch (err) {
       console.error("Error fetching inventories:", err);
       error("Không thể tải danh sách tồn kho");
@@ -137,27 +134,21 @@ const WarehouseOutbound = () => {
     }
   };
 
-  const loadAllData = async () => {
-    setPageLoading(true);
-    try {
-      await Promise.all([
-        fetchInventories(),
-        fetchBranches(),
-        fetchOutboundHistory(),
-      ]);
-    } catch (error) {
-      error("Có lỗi xảy ra khi tải dữ liệu");
-    } finally {
-      setPageLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadAllData();
-  }, []);
-
-  useEffect(() => {
-    success("Đã chuyển tới xuất hàng");
+    const loadAllData = async () => {
+      setPageLoading(true);
+      try {
+        await Promise.all([
+          fetchInventories(),
+          fetchBranches(),
+          fetchOutboundHistory(),
+        ]);
+      } catch (error) {
+        error("Có lỗi xảy ra khi tải dữ liệu");
+      } finally {
+        setPageLoading(false);
+      }
+    };
   }, []);
 
   const getFilteredInventories = () => {
@@ -604,8 +595,8 @@ const WarehouseOutbound = () => {
         borderRadius: "8px",
       }}
     >
+      {contextHolder}
       <div style={{ marginBottom: "24px" }}>
-        {contextHolder}
         <Row justify="space-between" align="middle">
           <Col></Col>
           <Col>

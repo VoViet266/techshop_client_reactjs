@@ -45,8 +45,9 @@ import {
   callFetchCategories,
 } from "@/services/apis";
 import { useNavigate } from "react-router-dom";
+import useMessage from "@/hooks/useMessage";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 function ListProduct() {
@@ -60,6 +61,7 @@ function ListProduct() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const { error, success, warning, contextHolder, infor } = useMessage();
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
@@ -67,42 +69,47 @@ function ListProduct() {
     brand: null,
   });
 
+  const fetchProducts = async () => {
+    try {
+      const fetchedProducts = await Products.getAll();
+      setProducts(fetchedProducts);
+      success("Lấy danh sách sản phẩm");
+    } catch (error) {
+      console.error("Failed to fetch products:", error.message);
+      error("Lấy danh sách sản phẩm thất bại");
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await callFetchCategories();
+      setCategories(response.data.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      throw error;
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const response = await callFetchBrands();
+      setBrands(response.data.data);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAll = () => {
       try {
-        const fetchedProducts = await Products.getAll();
-        setProducts(fetchedProducts);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch products:", error.message);
+        Promise.all([fetchProducts(), fetchCategories(), fetchBrands()]);
+      } finally {
         setLoading(false);
       }
     };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await callFetchCategories();
-        setCategories(response.data.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        throw error;
-      }
-    };
-
-    const fetchBrands = async () => {
-      try {
-        const response = await callFetchBrands();
-        setBrands(response.data.data);
-      } catch (error) {
-        console.error("Error fetching brands:", error);
-        throw error;
-      }
-    };
-
-    fetchProducts();
-    fetchCategories();
-    fetchBrands();
-    setLoading(false);
+    fetchAll();
   }, []);
 
   const handleDeleteProducts = async () => {
@@ -494,6 +501,8 @@ function ListProduct() {
           borderRadius: "8px",
         }}
       >
+        {" "}
+        {contextHolder}
         <Modal
           title="Xác nhận"
           open={open}
@@ -510,7 +519,6 @@ function ListProduct() {
         >
           <p>{modalText}</p>
         </Modal>
-
         <Row gutter={16} style={{ marginBottom: "24px" }}>
           <Col xs={12} sm={6}>
             <Card>
@@ -556,7 +564,6 @@ function ListProduct() {
             </Card>
           </Col>
         </Row>
-
         <Card
           style={{
             marginBottom: 24,
