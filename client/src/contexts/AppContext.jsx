@@ -1,4 +1,4 @@
-import { callFetchAccount } from "@/services/apis";
+import { callFetchAccount, callLogout } from "@/services/apis";
 import { useContext, createContext, useState, useEffect } from "react";
 
 const AppContext = createContext();
