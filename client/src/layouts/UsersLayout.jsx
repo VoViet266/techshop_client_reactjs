@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { Login, Signup } from "@pages/app";
 import { useAppContext } from "@contexts";
 import { Outlet, Link } from "react-router-dom";
-import { Layout, Input, Typography, Button, Flex } from "antd";
+import { UserInformation } from "@components/users";
+import { Layout, Typography, Button, Flex } from "antd";
 
 import {
   SearchBox,
@@ -13,8 +14,6 @@ import {
 
 function Header() {
   const { setShowLogin, setShowSignup } = useAppContext();
-
-  function onSearch() {}
 
   useEffect(() => {
     document.title = "TechShop | Mua sắm thả ga";
@@ -33,25 +32,29 @@ function Header() {
 
       <SearchBox />
 
-      <Flex gap={8}>
-        <Button
-          onClick={() => {
-            setShowLogin(true);
-          }}
-          className="border! h-40! font-roboto! border-gray-300! text-base! font-medium! hover:text-primary! hover:border-primary! min-w-100! py-6! px-12! rounded-md! cursor-pointer!"
-        >
-          Đăng nhập
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => {
-            setShowSignup(true);
-          }}
-          className="text-base! h-40! font-roboto! rounded-md! min-w-100! font-medium! bg-primary! text-white! cursor-pointer!"
-        >
-          Đăng ký
-        </Button>
-      </Flex>
+      {localStorage.getItem("access_token") ? (
+        <UserInformation />
+      ) : (
+        <Flex gap={8}>
+          <Button
+            onClick={() => {
+              setShowLogin(true);
+            }}
+            className="border! h-40! font-roboto! border-gray-300! text-base! font-medium! hover:text-primary! hover:border-primary! min-w-100! py-6! px-12! rounded-md! cursor-pointer!"
+          >
+            Đăng nhập
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              setShowSignup(true);
+            }}
+            className="text-base! h-40! font-roboto! rounded-md! min-w-100! font-medium! bg-primary! text-white! cursor-pointer!"
+          >
+            Đăng ký
+          </Button>
+        </Flex>
+      )}
     </Layout.Header>
   );
 }

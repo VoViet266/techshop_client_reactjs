@@ -38,6 +38,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { callLogout } from "@/services/apis";
+import useMessage from "@/hooks/useMessage";
 
 function AdminLayout() {
   const { Title, Text } = Typography;
@@ -47,6 +48,7 @@ function AdminLayout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { contextHolder } = useMessage();
   const location = useLocation();
 
   const navItems = [
@@ -205,6 +207,7 @@ function AdminLayout() {
   }, []);
   return (
     <Layout className="w-full!">
+      {contextHolder}
       <Header
         className="font-roboto xl:px-12 lg:px-8 md:px-6 px-4 w-full fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between backdrop-blur-lg"
         // style={{

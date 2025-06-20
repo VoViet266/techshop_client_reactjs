@@ -1,16 +1,20 @@
-import axios from "axios";
+import axiosInstance from "@services/apis";
 
-async function getInformation() {
+async function getInformation(id) {
   try {
     if (!localStorage.getItem("token")) {
       throw new Error("Không tìm thấy token, vui lòng đăng nhập lại.");
     }
-    const response = await axios.get("/api/users/information", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-  } catch (error) {}
+    const response = await axiosInstance.get(`/api/v1/users/${id}`);
+
+    if (response.status !== 200) {
+      throw new Error("Lấy thông tin người dùng thất bại");
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error(error.message);
+  }
 }
 
 export default getInformation;
