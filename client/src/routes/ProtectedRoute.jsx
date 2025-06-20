@@ -1,9 +1,8 @@
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Spin, Button, Alert, Result } from "antd";
-import { Link } from "react-router-dom";
 import { useAppContext } from "@/contexts";
 
 import React, { useState } from "react";
+import { Button, Result } from "antd";
 
 const UnauthenticatedContent = ({ redirectUrl }) => {
   const { showLogin, setShowLogin } = useAppContext();
@@ -17,11 +16,20 @@ const UnauthenticatedContent = ({ redirectUrl }) => {
   return (
     <Result
       status="403"
-      title="403"
-      subTitle="Sorry, you are not authorized to access this page."
+      title="403 - Không có quyền"
+      subTitle="Bạn cần quyền để truy cập trang này!!"
       extra={
-        <Button onClick={handleLoginClick} type="primary">
-          Đang nhập
+        <Button
+          onClick={handleLoginClick}
+          type="primary"
+          size="large"
+          style={{
+            borderRadius: "8px",
+            padding: "0 24px",
+            height: "40px",
+          }}
+        >
+          Đăng nhập ngay
         </Button>
       }
     />
@@ -48,7 +56,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
   }
 
   if (!isAuthenticated()) {
-    return <UnauthenticatedContent redirectUrl={location.pathname} />;
+    return <UnauthenticatedContent />;
   }
 
   // Kiểm tra quyền admin nếu cần

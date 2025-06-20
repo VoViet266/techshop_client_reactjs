@@ -1,4 +1,4 @@
-// import { callFetchAccount } from "@/services/apis";
+import { callFetchAccount } from "@/services/apis";
 import { useContext, createContext, useState, useEffect } from "react";
 
 const AppContext = createContext();
@@ -24,7 +24,6 @@ function AppProvider({ children }) {
       }
       try {
         const response = await callFetchAccount();
-        console.log(response);
         if (response.data) {
           setUser(response.data.data.user);
           setLoading(false);
@@ -46,7 +45,6 @@ function AppProvider({ children }) {
       localStorage.setItem("access_token", access_token);
       message.success("Đăng nhập thành công!");
       window.location.href = redirect || "/";
-      localStorage.removeItem("redirectUrl");
     } else {
       throw new Error(res?.message || "Đăng nhập thất bại");
     }
@@ -107,6 +105,7 @@ function AppProvider({ children }) {
     logout,
     isAuthenticated,
     isAdmin,
+    user,
   };
 
   return <AppContext.Provider value={data}>{children}</AppContext.Provider>;
