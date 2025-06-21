@@ -1,84 +1,51 @@
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useState, useEffect, useRef } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import {
-  AiFillEye,
-  AiFillWarning,
-  AiOutlineClose,
-  AiFillEyeInvisible,
-} from 'react-icons/ai';
-
+  Modal,
+  Form,
+  Input,
+  Button,
+  Divider,
+  Typography,
+  Select,
+  Row,
+  Col,
+  Space,
+  message,
+  InputNumber,
+  Switch,
+  Card,
+  Upload,
+} from 'antd';
+import {
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  GoogleOutlined,
+  CloseOutlined,
+  UserOutlined,
+  LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  UserAddOutlined,
+} from '@ant-design/icons';
 import Users from '@services/users';
 import Address from '@services/address';
 import { useAppContext } from '@contexts';
 
+const { Title, Link, Text } = Typography;
+const { Option } = Select;
+const { TextArea } = Input;
+
 function Signup() {
-  useEffect(() => {
-    document.title = 'TechShop | Đăng ký';
-  }, []);
-
-  const genderDropdownRef = useRef(null);
-  const addressDropdownRef = useRef(null);
-  const [user, setUser] = useState({
-    phone: '',
-    email: '',
-    gender: '',
-    address: '',
-    fullName: '',
-    password: '',
-  });
-
-  const [userMessage, setUserMessage] = useState({
-    phoneMessage: 'Số điện thoại không được để trống.',
-    emailMessage: 'Email không được để trống.',
-    genderMessage: 'Giới tính không được để trống.',
-    addressMessage: 'Địa chỉ không được để trống.',
-    fullNameMessage: 'Họ và tên không được để trống.',
-    passwordMessage: 'Mật khẩu không được để trống.',
-  });
-
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
   const [provinces, setProvinces] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState('');
-
   const [districts, setDistricts] = useState([]);
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-
   const [wards, setWards] = useState([]);
-  const [selectedWard, setSelectedWard] = useState('');
 
-  useEffect(() => {
-    async function fetchProvinces() {
-      const provinces = await Address.getAllProvinces();
-      setProvinces(provinces);
-    }
-
-    fetchProvinces();
-  }, []);
-
-  useEffect(() => {
-    async function fetchDistricts() {
-      const districts = await Address.getDistricts(selectedProvince.code);
-      setDistricts(districts);
-    }
-
-    if (selectedProvince !== '') {
-      fetchDistricts();
-    }
-  }, [selectedProvince]);
-
-  useEffect(() => {
-    async function fetchWards() {
-      const wards = await Address.getWards(selectedDistrict.code);
-      setWards(wards);
-    }
-
-    if (selectedDistrict !== '') {
-      fetchWards();
-    }
-  }, [selectedDistrict]);
-
-  const genders = ['Nam', 'Nữ', 'Khác'];
   const {
     setMessage,
     setShowLogin,
@@ -87,364 +54,458 @@ function Signup() {
     setLoadingError,
     setLoadingSuccess,
   } = useAppContext();
-  const places = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Xã/Phường'];
-
-  const [userError, setUserError] = useState({
-    emailError: false,
-    phoneError: false,
-    genderError: false,
-    addressError: false,
-    fullNameError: false,
-    passwordError: false,
-  });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
-  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
-
-  const [selectedPlace, setSelectedPlace] = useState('Tỉnh/Thành phố');
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        genderDropdownRef.current &&
-        !genderDropdownRef.current.contains(event.target)
-      ) {
-        setShowGenderDropdown(false);
-      }
-
-      if (
-        addressDropdownRef.current &&
-        !addressDropdownRef.current.contains(event.target)
-      ) {
-        setShowAddressDropdown(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    document.title = 'TechShop | Đăng ký';
+    fetchProvinces();
   }, []);
 
+  const fetchProvinces = async () => {
+    try {
+      const provincesData = await Address.getAllProvinces();
+      setProvinces(provincesData);
+    } catch (error) {
+      message.error('Không thể tải danh sách tỉnh/thành phố');
+    }
+  };
+
+  const fetchDistricts = async (provinceCode) => {
+    try {
+      const districtsData = await Address.getDistricts(provinceCode);
+      setDistricts(districtsData);
+    } catch (error) {
+      message.error('Không thể tải danh sách quận/huyện');
+    }
+  };
+
+  const fetchWards = async (districtCode) => {
+    try {
+      const wardsData = await Address.getWards(districtCode);
+      setWards(wardsData);
+    } catch (error) {
+      message.error('Không thể tải danh sách xã/phường');
+    }
+  };
+
+  const handleSignup = async (values) => {
+    setLoading(true);
+    try {
+      // Transform form data to match DTO structure
+      const userData = {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        phone: values.phone,
+        gender: values.gender,
+        age: values.age,
+        avatar: values.avatar,
+        role: ['user'], // Default role
+        address: values.addresses || [],
+      };
+
+      await Users.signup(
+        userData,
+        {},
+        setMessage,
+        {},
+        () => {},
+        setShowLogin,
+        setShowSignup,
+        () => {},
+        setToastLoading,
+        setLoadingError,
+        setLoadingSuccess,
+      );
+
+      message.success('Đăng ký thành công!');
+    } catch (error) {
+      message.error('Đăng ký thất bại. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = () => {
+    message.info('Tính năng đăng ký với Google đang được phát triển');
+  };
+
+  const uploadProps = {
+    name: 'avatar',
+    listType: 'picture-card',
+    maxCount: 1,
+    beforeUpload: (file) => {
+      const isJpgOrPng =
+        file.type === 'image/jpeg' || file.type === 'image/png';
+      if (!isJpgOrPng) {
+        message.error('Chỉ được upload file JPG/PNG!');
+      }
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        message.error('Ảnh phải nhỏ hơn 2MB!');
+      }
+      return false; // Prevent upload, handle manually
+    },
+  };
+
   return (
-    <div className="w-screen h-screen font-roboto bg-[rgba(0,0,0,0.05)] flex items-center justify-center backdrop-blur-sm z-20 fixed top-0 right-0 bottom-0 left-0">
-      <div className="xl:w-[50%] lg:w-[60%] md:w-[70%] sm:w-[80%] w-[90%] bg-white rounded-lg">
-        <div className="border-b border-b-gray-200 rounded-t-lg flex justify-between items-center px-20 h-50">
-          <h3 className="font-medium text-xl">Đăng ký</h3>
-          <div
-            onClick={() => setShowSignup(false)}
-            className="w-40 h-40 text-xl font-light flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer"
+    <Modal
+      open={true}
+      onCancel={() => setShowSignup(false)}
+      footer={null}
+      width={800}
+      centered
+      closeIcon={
+        <CloseOutlined
+          style={{
+            fontSize: 18,
+            color: '#8c8c8c',
+          }}
+        />
+      }
+    >
+      <Space direction="vertical" size={12} style={{ width: '100%' }}>
+        <UserAddOutlined style={{ fontSize: 24, color: 'white' }} />
+
+        <Title
+          level={2}
+          style={{ margin: 0, fontWeight: 600, alignItems: 'center' }}
+        >
+          Tạo tài khoản mới
+        </Title>
+      </Space>
+
+      <div
+        style={{
+          padding: '30px 40px',
+
+          maxHeight: '60vh',
+          overflowY: 'auto',
+        }}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSignup}
+          autoComplete="off"
+          size="large"
+        >
+          {/* Avatar Upload */}
+          <Form.Item
+            label={
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}>
+                Ảnh đại diện
+              </span>
+            }
+            name="avatar"
           >
-            <AiOutlineClose />
-          </div>
-        </div>
-        <form className="px-20">
-          <div className="flex flex-col my-10">
-            <label htmlFor="fullName" className="text-sm font-medium mb-4">
-              Họ và tên
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              name="fullName"
-              value={user.fullName}
-              placeholder="Nhập họ và tên"
-              onChange={(event) => {
-                const fieldName = event.target.name;
-                setUser({ ...user, [fieldName]: event.target.value });
-              }}
-              className="outline-none text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
-            />
-            {userError.fullNameError && (
-              <div className="flex items-center gap-2">
-                <div className="text-red-500">
-                  <AiFillWarning />
-                </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.fullNameMessage}
-                </span>
+            <Upload {...uploadProps}>
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Tải ảnh</div>
               </div>
-            )}
-          </div>
+            </Upload>
+          </Form.Item>
 
-          <div className="flex flex-col my-10 relative">
-            <label htmlFor="address" className="text-sm font-medium mb-4">
-              Địa chỉ
-            </label>
-            <input
-              readOnly
-              id="address"
-              name="address"
-              value={user.address}
-              placeholder="Chọn địa chỉ"
-              onClick={() => setShowAddressDropdown(!showAddressDropdown)}
-              className="outline-none cursor-pointer text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
-            />
-
-            {showAddressDropdown && (
-              <div
-                ref={addressDropdownRef}
-                className="bg-white absolute z-1 top-full mt-4 overflow-hidden left-0 right-0 rounded-md border border-gray-200"
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label={
+                  <span
+                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+                  >
+                    Họ và tên
+                  </span>
+                }
+                name="name"
+                rules={[
+                  { required: true, message: 'Họ và tên không được để trống' },
+                  { min: 2, message: 'Họ và tên phải có ít nhất 2 ký tự' },
+                ]}
               >
-                <div className="flex justify-center gap-8 border-b border-gray-200">
-                  {places.map((place, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedPlace(place)}
-                      className={`w-[33%] cursor-pointer py-6 text-center ${''}  ${selectedPlace === place ? 'border-b border-b-primary text-primary' : ''}`}
-                    >
-                      {place}
-                    </div>
-                  ))}
-                </div>
+                <Input
+                  prefix={<UserOutlined style={{ color: '#8c8c8c' }} />}
+                  placeholder="Nhập họ và tên"
+                  style={{ borderRadius: 8, padding: '10px 12px' }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={
+                  <span
+                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+                  >
+                    Email
+                  </span>
+                }
+                name="email"
+                rules={[
+                  { required: true, message: 'Email không được để trống' },
+                  { type: 'email', message: 'Email không đúng định dạng' },
+                ]}
+              >
+                <Input
+                  prefix={<MailOutlined style={{ color: '#8c8c8c' }} />}
+                  placeholder="Nhập email"
+                  style={{ borderRadius: 8, padding: '10px 12px' }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
 
-                <div className="overflow-y-auto h-200 z-1 p-6 cursor-pointer">
-                  {selectedPlace === 'Tỉnh/Thành phố' &&
-                    provinces.map((province, index) => (
-                      <div
-                        key={index}
-                        onClick={(event) => {
-                          setUser({
-                            ...user,
-                            address: event.target.textContent,
-                          });
-                          setSelectedProvince(province);
-                          setSelectedPlace('Quận/Huyện');
-                        }}
-                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedProvince.name === province.name && 'bg-gray-200'}`}
-                      >
-                        {province.name || <Skeleton count={5} />}
-                      </div>
-                    ))}
-
-                  {selectedPlace === 'Quận/Huyện' &&
-                    districts.map((district, index) => (
-                      <div
-                        key={index}
-                        onClick={(event) => {
-                          setUser({
-                            ...user,
-                            address:
-                              selectedDistrict === ''
-                                ? user.address + ', ' + event.target.textContent
-                                : selectedProvince.name +
-                                  ', ' +
-                                  event.target.textContent,
-                          });
-                          setSelectedDistrict(district);
-                          setSelectedPlace('Xã/Phường');
-                        }}
-                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedDistrict.name === district.name && 'bg-gray-200'}`}
-                      >
-                        {district.name || <Skeleton count={5} />}
-                      </div>
-                    ))}
-
-                  {selectedPlace === 'Xã/Phường' &&
-                    wards.map((ward, index) => (
-                      <div
-                        key={index}
-                        onClick={(event) => {
-                          setUser({
-                            ...user,
-                            address:
-                              selectedWard === ''
-                                ? user.address + ', ' + event.target.textContent
-                                : selectedProvince.name +
-                                  ', ' +
-                                  selectedDistrict.name +
-                                  ', ' +
-                                  event.target.textContent,
-                          });
-                          setSelectedWard(ward);
-                          setShowAddressDropdown(false);
-                        }}
-                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedWard.name === ward.name && 'bg-gray-200'}`}
-                      >
-                        {ward.name || <Skeleton count={5} />}
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {userError.addressError && (
-              <div className="flex items-center gap-2">
-                <div className="text-red-500">
-                  <AiFillWarning />
-                </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.addressMessage}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-10 my-10">
-            <div className="flex flex-col w-[70%]">
-              <label htmlFor="phone" className="text-sm font-medium mb-4">
-                Số điện thoại
-              </label>
-              <input
-                id="phone"
-                type="text"
-                value={user.phone}
+          <Form.Item
+            label={
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}>
+                Mật khẩu
+              </span>
+            }
+            name="password"
+            rules={[
+              { required: true, message: 'Mật khẩu không được để trống' },
+              { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined style={{ color: '#8c8c8c' }} />}
+              placeholder="Nhập mật khẩu"
+              iconRender={(visible) =>
+                visible ? (
+                  <EyeTwoTone twoToneColor="#667eea" />
+                ) : (
+                  <EyeInvisibleOutlined style={{ color: '#8c8c8c' }} />
+                )
+              }
+              style={{ borderRadius: 8, padding: '10px 12px' }}
+            />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                label={
+                  <span
+                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+                  >
+                    Số điện thoại
+                  </span>
+                }
                 name="phone"
-                placeholder="Nhập số điện thoại"
-                onChange={(event) => {
-                  const fieldName = event.target.name;
-                  setUser({ ...user, [fieldName]: event.target.value });
-                }}
-                className="outline-none text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
-              />
-              {userError.phoneError && (
-                <div className="flex items-center gap-2">
-                  <div className="text-red-500">
-                    <AiFillWarning />
-                  </div>
-                  <span className="text-sm mt-2 text-red-500">
-                    {userMessage.phoneMessage}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col relative">
-              <label htmlFor="gender" className="text-sm font-medium mb-4">
-                Giới tính
-              </label>
-              <input
-                readOnly
-                id="gender"
-                value={user.gender}
-                name="gender"
-                placeholder="Chọn giới tính"
-                onClick={() => setShowGenderDropdown(!showGenderDropdown)}
-                className="outline-none text-base placeholder:text-sm cursor-pointer rounded-md px-12 py-8 bg-gray-100"
-              />
-
-              {showGenderDropdown && (
-                <ul
-                  ref={genderDropdownRef}
-                  className="absolute left-0 right-0 z-1 top-full rounded-md mt-4 p-6 bg-white border border-gray-200"
-                >
-                  {genders.map((gender, index) => (
-                    <li
-                      key={index}
-                      onClick={(event) => {
-                        setUser({ ...user, gender: event.target.textContent });
-                        setShowGenderDropdown(false);
-                      }}
-                      className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${user.gender === gender ? 'bg-gray-200' : ''}`}
-                    >
-                      {gender}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {userError.genderError && (
-                <div className="flex items-center gap-2">
-                  <div className="text-red-500">
-                    <AiFillWarning />
-                  </div>
-                  <span className="text-sm mt-2 text-red-500">
-                    {userMessage.genderMessage}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col my-10">
-            <label htmlFor="email" className="text-sm font-medium mb-4">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={user.email}
-              name="email"
-              placeholder="Nhập email"
-              onChange={(event) => {
-                const fieldName = event.target.name;
-                setUser({ ...user, [fieldName]: event.target.value });
-              }}
-              className="outline-none text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
-            />
-            {userError.emailError && (
-              <div className="flex items-center gap-2">
-                <div className="text-red-500">
-                  <AiFillWarning />
-                </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.emailMessage}
-                </span>
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col mb-10">
-            <label htmlFor="password" className="text-sm font-medium mb-4">
-              Mật khẩu
-            </label>
-            <div className="rounded-md w-full relative">
-              <input
-                id="password"
-                name="password"
-                value={user.password}
-                placeholder="Nhập mật khẩu"
-                type={showPassword ? 'text' : 'password'}
-                onChange={(event) => {
-                  const fieldName = event.target.name;
-                  setUser({ ...user, [fieldName]: event.target.value });
-                }}
-                className="outline-none w-full text-base placeholder:text-sm rounded-md px-12 py-8 bg-gray-100"
-              />
-              <div
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-10 top-[50%] -translate-y-[50%]"
+                rules={[
+                  {
+                    pattern: /^[0-9]{10,11}$/,
+                    message: 'Số điện thoại không hợp lệ',
+                  },
+                ]}
               >
-                {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
-              </div>
-            </div>
-            {userError.passwordError && (
-              <div className="flex items-center gap-2">
-                <div className="text-red-500">
-                  <AiFillWarning />
+                <Input
+                  prefix={<PhoneOutlined style={{ color: '#8c8c8c' }} />}
+                  placeholder="Nhập SĐT"
+                  style={{ borderRadius: 8, padding: '10px 12px' }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label={
+                  <span
+                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+                  >
+                    Giới tính
+                  </span>
+                }
+                name="gender"
+              >
+                <Select
+                  placeholder="Chọn giới tính"
+                  style={{ borderRadius: 8 }}
+                >
+                  <Option value="male">Nam</Option>
+                  <Option value="female">Nữ</Option>
+                  <Option value="other">Khác</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label={
+                  <span
+                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+                  >
+                    Tuổi
+                  </span>
+                }
+                name="age"
+                rules={[
+                  {
+                    type: 'number',
+                    min: 13,
+                    max: 100,
+                    message: 'Tuổi phải từ 13-100',
+                  },
+                ]}
+              >
+                <InputNumber
+                  placeholder="Nhập tuổi"
+                  style={{ width: '100%', borderRadius: 8 }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.List name="addresses">
+            {(fields, { add, remove }) => (
+              <>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 16,
+                  }}
+                >
+                  <span
+                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+                  >
+                    Địa chỉ
+                  </span>
+                  <Button
+                    type="dashed"
+                    onClick={() => add({ addressDetail: '', default: false })}
+                    icon={<PlusOutlined />}
+                    size="small"
+                  >
+                    Thêm địa chỉ
+                  </Button>
                 </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.passwordMessage}
-                </span>
-              </div>
+
+                {fields.map(({ key, name, ...restField }) => (
+                  <Card
+                    key={key}
+                    size="small"
+                    style={{ marginBottom: 16, borderRadius: 8 }}
+                    extra={
+                      <Button
+                        type="text"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        onClick={() => remove(name)}
+                      />
+                    }
+                  >
+                    <Row gutter={16}>
+                      <Col span={20}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'addressDetail']}
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Vui lòng nhập địa chỉ',
+                            },
+                          ]}
+                        >
+                          <TextArea
+                            placeholder="Nhập địa chỉ chi tiết"
+                            rows={2}
+                            style={{ borderRadius: 8 }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={4}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'default']}
+                          valuePropName="checked"
+                        >
+                          <div style={{ textAlign: 'center', paddingTop: 8 }}>
+                            <Switch size="small" />
+                            <div
+                              style={{
+                                fontSize: 12,
+                                color: '#8c8c8c',
+                                marginTop: 4,
+                              }}
+                            >
+                              Mặc định
+                            </div>
+                          </div>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))}
+              </>
             )}
-          </div>
-          <div className="my-30 flex flex-col items-center">
-            <button
-              onClick={async (event) => {
-                event.preventDefault();
-                console.log('User error:', userError);
-                await Users.signup(
-                  user,
-                  userError,
-                  setMessage,
-                  userMessage,
-                  setUserError,
-                  setShowLogin,
-                  setShowSignup,
-                  setUserMessage,
-                  setToastLoading,
-                  setLoadingError,
-                  setLoadingSuccess,
-                );
+          </Form.List>
+
+          <Form.Item>
+            <Button
+              type="link"
+              htmlType="submit"
+              loading={loading}
+              block
+              style={{
+                height: 50,
+                borderRadius: 12,
+                fontSize: 16,
+                fontWeight: 600,
+                border: '2px solid #f0f0f0',
+                backgroundColor: 'white',
+                color: '#262626',
               }}
-              className="bg-primary w-full cursor-pointer hover:opacity-80 py-6 rounded-md text-white"
             >
-              Đăng ký
-            </button>
-          </div>
-        </form>
+              Đăng nhập
+            </Button>
+          </Form.Item>
+
+          <Divider plain style={{ margin: '20px 0' }}>
+            <span style={{ color: '#8c8c8c', fontSize: 14 }}>
+              Hoặc tiếp tục với
+            </span>
+          </Divider>
+
+          <Button
+            icon={<GoogleOutlined style={{ fontSize: 16 }} />}
+            onClick={handleGoogleSignup}
+            block
+            style={{
+              height: 48,
+              borderRadius: 12,
+              fontSize: 16,
+              fontWeight: 500,
+              border: '2px solid #f0f0f0',
+            }}
+          >
+            Đăng ký với Google
+          </Button>
+        </Form>
       </div>
-    </div>
+
+      {/* Footer */}
+      <div
+        style={{
+          textAlign: 'center',
+          padding: '20px 40px 25px',
+          backgroundColor: 'white',
+          borderTop: '1px solid #f0f0f0',
+        }}
+      >
+        <Text style={{ color: '#8c8c8c', fontSize: 14 }}>
+          Đã có tài khoản?{' '}
+          <Link
+            onClick={() => {
+              setShowSignup(false);
+              setShowLogin(true);
+            }}
+            style={{
+              fontWeight: 600,
+              color: '#667eea',
+            }}
+          >
+            Đăng nhập ngay
+          </Link>
+        </Text>
+      </div>
+    </Modal>
   );
 }
 
