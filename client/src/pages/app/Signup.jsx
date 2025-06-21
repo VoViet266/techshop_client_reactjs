@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   Form,
@@ -45,7 +45,15 @@ function Signup() {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
+  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState('Tỉnh/Thành phố');
+  const [selectedProvince, setSelectedProvince] = useState({});
+  const [selectedDistrict, setSelectedDistrict] = useState({});
+  const [selectedWard, setSelectedWard] = useState({});
+  const [addressValue, setAddressValue] = useState('');
+  const addressDropdownRef = useRef(null);
 
+  const places = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Xã/Phường'];
   const {
     setMessage,
     setShowLogin,
@@ -58,6 +66,8 @@ function Signup() {
   useEffect(() => {
     document.title = 'TechShop | Đăng ký';
     fetchProvinces();
+    fetchDistricts();
+    fetchWards();
   }, []);
 
   const fetchProvinces = async () => {
@@ -90,7 +100,6 @@ function Signup() {
   const handleSignup = async (values) => {
     setLoading(true);
     try {
-      // Transform form data to match DTO structure
       const userData = {
         name: values.name,
         email: values.email,
@@ -99,10 +108,17 @@ function Signup() {
         gender: values.gender,
         age: values.age,
         avatar: values.avatar,
-        role: ['user'], // Default role
-        address: values.addresses || [],
+        // role: ['user'], // Default role
+        address: addressValue
+          ? [
+              {
+                addressDetail: addressValue,
+                default: true,
+              },
+            ]
+          : [],
       };
-
+      console.log(userData);
       await Users.signup(
         userData,
         {},
@@ -128,47 +144,70 @@ function Signup() {
   const handleGoogleSignup = () => {
     message.info('Tính năng đăng ký với Google đang được phát triển');
   };
+  const handleProvinceSelect = async (province, event) => {
+    const newAddress = event.target.textContent;
+    setAddressValue(newAddress);
+    setSelectedProvince(province);
+    setSelectedPlace('Quận/Huyện');
+    setSelectedDistrict({});
+    setSelectedWard({});
 
-  const uploadProps = {
-    name: 'avatar',
-    listType: 'picture-card',
-    maxCount: 1,
-    beforeUpload: (file) => {
-      const isJpgOrPng =
-        file.type === 'image/jpeg' || file.type === 'image/png';
-      if (!isJpgOrPng) {
-        message.error('Chỉ được upload file JPG/PNG!');
-      }
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        message.error('Ảnh phải nhỏ hơn 2MB!');
-      }
-      return false; // Prevent upload, handle manually
-    },
+    await fetchDistricts(province.code);
   };
 
+  const handleDistrictSelect = async (district, event) => {
+    const districtName = event.target.textContent;
+    const newAddress =
+      selectedDistrict.name === district.name
+        ? selectedProvince.name + ', ' + districtName
+        : addressValue + ', ' + districtName;
+
+    setAddressValue(newAddress);
+    setSelectedDistrict(district);
+    setSelectedPlace('Xã/Phường');
+    setSelectedWard({});
+
+    await fetchWards(district.code);
+  };
+
+  const handleWardSelect = (ward, event) => {
+    const wardName = event.target.textContent;
+    const newAddress =
+      selectedWard.name === ward.name
+        ? selectedProvince.name + ', ' + selectedDistrict.name + ', ' + wardName
+        : selectedProvince.name +
+          ', ' +
+          selectedDistrict.name +
+          ', ' +
+          wardName;
+
+    setAddressValue(newAddress);
+    setSelectedWard(ward);
+    setShowAddressDropdown(false);
+  };
   return (
     <Modal
       open={true}
       onCancel={() => setShowSignup(false)}
       footer={null}
-      width={800}
+      width={900}
       centered
       closeIcon={
         <CloseOutlined
           style={{
-            fontSize: 18,
-            color: '#8c8c8c',
+            fontSize: 20,
           }}
         />
       }
     >
-      <Space direction="vertical" size={12} style={{ width: '100%' }}>
-        <UserAddOutlined style={{ fontSize: 24, color: 'white' }} />
-
+      <Space
+        direction="vertical"
+        size={12}
+        style={{ width: '100%', textAlign: 'center', padding: '16px 0' }}
+      >
         <Title
           level={2}
-          style={{ margin: 0, fontWeight: 600, alignItems: 'center' }}
+          style={{ margin: 0, fontWeight: 'bold', color: '#e53935' }}
         >
           Tạo tài khoản mới
         </Title>
@@ -176,9 +215,8 @@ function Signup() {
 
       <div
         style={{
-          padding: '30px 40px',
-
-          maxHeight: '60vh',
+          padding: '24px 40px',
+          maxHeight: '70vh',
           overflowY: 'auto',
         }}
       >
@@ -189,23 +227,6 @@ function Signup() {
           autoComplete="off"
           size="large"
         >
-          {/* Avatar Upload */}
-          <Form.Item
-            label={
-              <span style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}>
-                Ảnh đại diện
-              </span>
-            }
-            name="avatar"
-          >
-            <Upload {...uploadProps}>
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Tải ảnh</div>
-              </div>
-            </Upload>
-          </Form.Item>
-
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -219,7 +240,7 @@ function Signup() {
                 name="name"
                 rules={[
                   { required: true, message: 'Họ và tên không được để trống' },
-                  { min: 2, message: 'Họ và tên phải có ít nhất 2 ký tự' },
+                  { min: 8, message: 'Họ và tên phải có ít nhất 2 ký tự' },
                 ]}
               >
                 <Input
@@ -270,7 +291,7 @@ function Signup() {
               placeholder="Nhập mật khẩu"
               iconRender={(visible) =>
                 visible ? (
-                  <EyeTwoTone twoToneColor="#667eea" />
+                  <EyeTwoTone twoToneColor={'#8c8c8c'} />
                 ) : (
                   <EyeInvisibleOutlined style={{ color: '#8c8c8c' }} />
                 )
@@ -278,6 +299,7 @@ function Signup() {
               style={{ borderRadius: 8, padding: '10px 12px' }}
             />
           </Form.Item>
+
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item
@@ -349,111 +371,177 @@ function Signup() {
                 />
               </Form.Item>
             </Col>
-          </Row>
-          <Form.List name="addresses">
-            {(fields, { add, remove }) => (
-              <>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 16,
-                  }}
-                >
-                  <span
-                    style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}
+            <Col span={24}>
+              <Form.Item>
+                <div style={{ marginBottom: 24, position: 'relative' }}>
+                  <label
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: '#262626',
+                      display: 'block',
+                      marginBottom: 8,
+                    }}
                   >
-                    Địa chỉ
-                  </span>
-                  <Button
-                    type="dashed"
-                    onClick={() => add({ addressDetail: '', default: false })}
-                    icon={<PlusOutlined />}
-                    size="small"
-                  >
-                    Thêm địa chỉ
-                  </Button>
-                </div>
+                    Địa chỉ (mặc định)
+                  </label>
+                  <Input
+                    readOnly
+                    value={addressValue}
+                    placeholder="Chọn địa chỉ"
+                    onClick={() => setShowAddressDropdown(!showAddressDropdown)}
+                    prefix={<HomeOutlined style={{ color: '#8c8c8c' }} />}
+                    style={{
+                      borderRadius: 8,
+                      padding: '10px 12px',
+                      cursor: 'pointer',
+                      backgroundColor: '#fff',
+                    }}
+                  />
 
-                {fields.map(({ key, name, ...restField }) => (
-                  <Card
-                    key={key}
-                    size="small"
-                    style={{ marginBottom: 16, borderRadius: 8 }}
-                    extra={
-                      <Button
-                        type="text"
-                        danger
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => remove(name)}
-                      />
-                    }
-                  >
-                    <Row gutter={16}>
-                      <Col span={20}>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'addressDetail']}
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Vui lòng nhập địa chỉ',
-                            },
-                          ]}
-                        >
-                          <TextArea
-                            placeholder="Nhập địa chỉ chi tiết"
-                            rows={2}
-                            style={{ borderRadius: 8 }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={4}>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'default']}
-                          valuePropName="checked"
-                        >
-                          <div style={{ textAlign: 'center', paddingTop: 8 }}>
-                            <Switch size="small" />
+                  {showAddressDropdown && (
+                    <div
+                      ref={addressDropdownRef}
+                      style={{
+                        backgroundColor: 'white',
+                        position: 'absolute',
+                        zIndex: 1000,
+                        top: '100%',
+                        marginTop: 8,
+                        left: 0,
+                        right: 0,
+                        borderRadius: 8,
+                        border: '1px solid #d9d9d9',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          borderBottom: '1px solid #f0f0f0',
+                        }}
+                      >
+                        {places.map((place, index) => (
+                          <div
+                            key={index}
+                            onClick={() => setSelectedPlace(place)}
+                            style={{
+                              width: '33.33%',
+                              cursor: 'pointer',
+                              padding: '12px 8px',
+                              textAlign: 'center',
+                              fontSize: 14,
+                              borderBottom:
+                                selectedPlace === place
+                                  ? '2px solid #667eea'
+                                  : '2px solid transparent',
+                              color:
+                                selectedPlace === place ? '#667eea' : '#262626',
+                              fontWeight: selectedPlace === place ? 500 : 400,
+                            }}
+                          >
+                            {place}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div
+                        style={{
+                          overflowY: 'auto',
+                          maxHeight: 200,
+                          padding: 8,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {selectedPlace === 'Tỉnh/Thành phố' &&
+                          provinces.map((province, index) => (
                             <div
+                              key={index}
+                              onClick={(event) =>
+                                handleProvinceSelect(province, event)
+                              }
                               style={{
-                                fontSize: 12,
-                                color: '#8c8c8c',
-                                marginTop: 4,
+                                padding: '8px 12px',
+                                margin: '4px 0',
+                                borderRadius: 6,
+                                fontSize: 14,
+                                backgroundColor:
+                                  selectedProvince.name === province.name
+                                    ? '#f6f6f6'
+                                    : 'transparent',
+                                ':hover': { backgroundColor: '#f6f6f6' },
                               }}
                             >
-                              Mặc định
+                              {province.name}
                             </div>
-                          </div>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
-              </>
-            )}
-          </Form.List>
+                          ))}
+
+                        {selectedPlace === 'Quận/Huyện' &&
+                          districts.map((district, index) => (
+                            <div
+                              key={index}
+                              onClick={(event) =>
+                                handleDistrictSelect(district, event)
+                              }
+                              style={{
+                                padding: '8px 12px',
+                                margin: '4px 0',
+                                borderRadius: 6,
+                                fontSize: 14,
+                                backgroundColor:
+                                  selectedDistrict.name === district.name
+                                    ? '#f6f6f6'
+                                    : 'transparent',
+                              }}
+                            >
+                              {district.name}
+                            </div>
+                          ))}
+
+                        {selectedPlace === 'Xã/Phường' &&
+                          wards.map((ward, index) => (
+                            <div
+                              key={index}
+                              onClick={(event) => handleWardSelect(ward, event)}
+                              style={{
+                                padding: '8px 12px',
+                                margin: '4px 0',
+                                borderRadius: 6,
+                                fontSize: 14,
+                                backgroundColor:
+                                  selectedWard.name === ward.name
+                                    ? '#f6f6f6'
+                                    : 'transparent',
+                              }}
+                            >
+                              {ward.name}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item>
             <Button
-              type="link"
               htmlType="submit"
               loading={loading}
               block
               style={{
-                height: 50,
-                borderRadius: 12,
+                height: 48,
+                borderRadius: 8,
                 fontSize: 16,
                 fontWeight: 600,
-                border: '2px solid #f0f0f0',
-                backgroundColor: 'white',
-                color: '#262626',
+                backgroundColor: '#e53935',
+                color: '#fff',
+                border: 'none',
               }}
             >
-              Đăng nhập
+              Đăng ký
             </Button>
           </Form.Item>
 
@@ -464,27 +552,27 @@ function Signup() {
           </Divider>
 
           <Button
-            icon={<GoogleOutlined style={{ fontSize: 16 }} />}
+            icon={<GoogleOutlined style={{ fontSize: 18 }} />}
             onClick={handleGoogleSignup}
             block
             style={{
               height: 48,
-              borderRadius: 12,
+              borderRadius: 8,
               fontSize: 16,
-              fontWeight: 500,
-              border: '2px solid #f0f0f0',
+              fontWeight: 600,
+              border: '1px solid #e0e0e0',
+              color: '#e53935',
+              backgroundColor: '#fff',
             }}
           >
             Đăng ký với Google
           </Button>
         </Form>
       </div>
-
-      {/* Footer */}
       <div
         style={{
           textAlign: 'center',
-          padding: '20px 40px 25px',
+          padding: '16px 40px 20px',
           backgroundColor: 'white',
           borderTop: '1px solid #f0f0f0',
         }}
@@ -498,7 +586,7 @@ function Signup() {
             }}
             style={{
               fontWeight: 600,
-              color: '#667eea',
+              color: '#e53935',
             }}
           >
             Đăng nhập ngay

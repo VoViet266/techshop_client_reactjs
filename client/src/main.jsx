@@ -10,6 +10,7 @@ createRoot(document.getElementById('root')).render(
       theme={{
         token: {
           fontFamily: 'Roboto, sans-serif',
+          colorPrimary: '#e53935',
         },
         components: {
           Input: {

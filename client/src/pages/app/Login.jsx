@@ -24,13 +24,13 @@ function Login() {
       open={true}
       onCancel={() => setShowLogin(false)}
       footer={null}
-      width={600}
+      width={700}
       centered
       closeIcon={
         <CloseOutlined
           style={{
-            fontSize: 18,
-            color: '#8c8c8c',
+            fontSize: 20,
+            
             transition: 'all 0.3s ease',
           }}
         />
@@ -39,16 +39,23 @@ function Login() {
       <Space
         direction="vertical"
         size={16}
-        style={{ width: '100%', padding: '40px 0 0 0', textAlign: 'center' }}
+        style={{
+          width: '100%',
+          padding: '32px 0 0 0',
+          textAlign: 'center',
+        }}
       >
         <div>
-          <Title level={2} style={{ margin: 0, fontWeight: 600 }}>
+          <Title
+            level={2}
+            style={{ margin: 0, fontWeight: 'bold', color: '#e53935' }}
+          >
             Đăng Nhập
           </Title>
         </div>
       </Space>
 
-      <div style={{ padding: '40px 40px 30px' }}>
+      <div style={{ padding: '32px 24px' }}>
         <Form
           form={form}
           layout="vertical"
@@ -84,14 +91,13 @@ function Login() {
             ]}
           >
             <Input
-              prefix={<UserOutlined style={{ color: '#8c8c8c' }} />}
+              prefix={<UserOutlined />}
               placeholder="Nhập email của bạn"
               style={{
-                borderRadius: 12,
+                borderRadius: 8,
                 padding: '12px 16px',
-                border: '2px solid #f0f0f0',
+                border: '1px solid #e0e0e0',
                 fontSize: 15,
-                transition: 'all 0.3s ease',
               }}
             />
           </Form.Item>
@@ -115,38 +121,36 @@ function Login() {
                 message: 'Mật khẩu không được để trống.',
               },
               {
-                min: 6,
+                min: 8,
                 message: 'Mật khẩu phải có ít nhất 6 ký tự.',
               },
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined style={{ color: '#8c8c8c' }} />}
+              prefix={<LockOutlined />}
               placeholder="Nhập mật khẩu của bạn"
               iconRender={(visible) =>
                 visible ? (
-                  <EyeTwoTone twoToneColor="#667eea" />
+                  <EyeTwoTone twoToneColor="#8c8c8c" />
                 ) : (
                   <EyeInvisibleOutlined style={{ color: '#8c8c8c' }} />
                 )
               }
               style={{
-                borderRadius: 12,
+                borderRadius: 8,
                 padding: '12px 16px',
-                border: '2px solid #f0f0f0',
+                border: '1px solid #e0e0e0',
                 fontSize: 15,
-                transition: 'all 0.3s ease',
               }}
             />
           </Form.Item>
 
-          <div style={{ textAlign: 'right', marginBottom: 32 }}>
+          <div style={{ textAlign: 'right', marginBottom: 24 }}>
             <Link
               style={{
                 fontSize: 14,
                 fontWeight: 500,
-                color: '#667eea',
-                transition: 'all 0.3s ease',
+                color: '#e53935',
               }}
             >
               Quên mật khẩu?
@@ -155,17 +159,16 @@ function Login() {
 
           <Form.Item>
             <Button
-              type="link"
-              htmlType="submit"
               block
+              htmlType="submit"
               style={{
-                height: 50,
-                borderRadius: 12,
+                height: 48,
+                borderRadius: 8,
                 fontSize: 16,
                 fontWeight: 600,
-                border: '2px solid #f0f0f0',
-                backgroundColor: 'white',
-                color: '#262626',
+                backgroundColor: '#e53935',
+                color: '#fff',
+                border: 'none',
               }}
             >
               Đăng nhập
@@ -175,8 +178,8 @@ function Login() {
           <Divider
             plain
             style={{
-              margin: '24px 0',
-              borderColor: '#e8e8e8',
+              margin: '20px 0',
+              borderColor: '#e0e0e0',
             }}
           >
             <span
@@ -195,16 +198,13 @@ function Login() {
             icon={<GoogleOutlined style={{ fontSize: 18 }} />}
             block
             style={{
-              height: 50,
-              borderRadius: 12,
+              height: 48,
+              borderRadius: 8,
               fontSize: 16,
-              fontWeight: 500,
-              border: '2px solid #f0f0f0',
-
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
+              fontWeight: 600,
+              border: '1px solid #e0e0e0',
+              color: '#e53935',
+              backgroundColor: '#fff',
             }}
           >
             Đăng nhập với Google
@@ -212,26 +212,26 @@ function Login() {
         </Form>
       </div>
 
-      {/* Footer */}
       <div
         style={{
           textAlign: 'center',
-          padding: '20px 40px 30px',
+          padding: '16px 0',
           backgroundColor: 'white',
           borderTop: '1px solid #f0f0f0',
         }}
       >
         <Text style={{ color: '#8c8c8c', fontSize: 14 }}>
-          Chưa có tài khoản?{' '}
-          <Button
-            type="link"
-            onClick={() => {
-              setShowLogin(false), setShowSignup(true);
-            }}
-          >
-            Đăng ký
-          </Button>
+          Chưa có tài khoản?
         </Text>
+        <Button
+          type="link"
+          style={{ color: '#e53935', fontWeight: 600 }}
+          onClick={() => {
+            setShowLogin(false), setShowSignup(true);
+          }}
+        >
+          Đăng ký
+        </Button>
       </div>
     </Modal>
   );
