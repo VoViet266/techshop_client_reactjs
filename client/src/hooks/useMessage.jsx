@@ -7,6 +7,7 @@ function useMessage() {
     messageApi.open({
       type: 'success',
       content: message,
+      duration: 2,
     });
   };
 
@@ -14,6 +15,7 @@ function useMessage() {
     messageApi.open({
       type: 'error',
       content: message,
+      duration: 2,
     });
   };
 
@@ -21,17 +23,24 @@ function useMessage() {
     messageApi.open({
       type: 'warning',
       content: message,
+      duration: 2,
     });
   };
 
   const loading = (message) => {
     messageApi.open({
+      key: 'loading',
       type: 'loading',
       content: message,
+      duration: 0,
     });
   };
 
-  return { success, error, warning, loading, contextHolder };
+  const destroyLoading = () => {
+    messageApi.destroy('loading');
+  };
+
+  return { success, error, warning, loading, destroyLoading, contextHolder };
 }
 
 export default useMessage;

@@ -1,13 +1,13 @@
-// import { callFetchAccount } from "@/services/apis";
+import useMessage from '@/hooks/useMessage';
 import { callFetchAccount, callLogout } from '@/services/apis';
 import { useContext, createContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
 function AppProvider({ children }) {
+  const message = useMessage();
   const [user, setUser] = useState(null);
   const [query, setQuery] = useState('');
-  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
@@ -98,7 +98,6 @@ function AppProvider({ children }) {
 
     setQuery,
     setLoading,
-    setMessage,
     setShowLogin,
     setShowSignup,
     setLoadingError,

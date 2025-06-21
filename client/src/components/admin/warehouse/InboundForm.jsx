@@ -79,14 +79,20 @@ const InboundForm = ({
               },
             ]}
           >
-            <InputNumber placeholder="Nhập số lượng" style={{ width: '100%' }} min={1} />
+            <InputNumber
+              placeholder="Nhập số lượng"
+              style={{ width: '100%' }}
+              min={1}
+            />
           </Form.Item>
         </Col>
         <Col span={9}>
           <Form.Item name="cost" label="Giá vốn (tùy chọn)">
             <InputNumber
               placeholder="Để trống sẽ dùng giá mặc định"
-              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
               parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
               addonAfter="₫"
               style={{ width: '100%' }}

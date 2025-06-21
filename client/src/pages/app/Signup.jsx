@@ -2,7 +2,12 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useState, useEffect, useRef } from 'react';
 
-import { AiFillEye, AiFillWarning, AiOutlineClose, AiFillEyeInvisible } from 'react-icons/ai';
+import {
+  AiFillEye,
+  AiFillWarning,
+  AiOutlineClose,
+  AiFillEyeInvisible,
+} from 'react-icons/ai';
 
 import Users from '@services/users';
 import Address from '@services/address';
@@ -101,11 +106,17 @@ function Signup() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (genderDropdownRef.current && !genderDropdownRef.current.contains(event.target)) {
+      if (
+        genderDropdownRef.current &&
+        !genderDropdownRef.current.contains(event.target)
+      ) {
         setShowGenderDropdown(false);
       }
 
-      if (addressDropdownRef.current && !addressDropdownRef.current.contains(event.target)) {
+      if (
+        addressDropdownRef.current &&
+        !addressDropdownRef.current.contains(event.target)
+      ) {
         setShowAddressDropdown(false);
       }
     }
@@ -150,7 +161,9 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">{userMessage.fullNameMessage}</span>
+                <span className="text-sm mt-2 text-red-500">
+                  {userMessage.fullNameMessage}
+                </span>
               </div>
             )}
           </div>
@@ -215,7 +228,9 @@ function Signup() {
                             address:
                               selectedDistrict === ''
                                 ? user.address + ', ' + event.target.textContent
-                                : selectedProvince.name + ', ' + event.target.textContent,
+                                : selectedProvince.name +
+                                  ', ' +
+                                  event.target.textContent,
                           });
                           setSelectedDistrict(district);
                           setSelectedPlace('Xã/Phường');
@@ -259,7 +274,9 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">{userMessage.addressMessage}</span>
+                <span className="text-sm mt-2 text-red-500">
+                  {userMessage.addressMessage}
+                </span>
               </div>
             )}
           </div>
@@ -286,7 +303,9 @@ function Signup() {
                   <div className="text-red-500">
                     <AiFillWarning />
                   </div>
-                  <span className="text-sm mt-2 text-red-500">{userMessage.phoneMessage}</span>
+                  <span className="text-sm mt-2 text-red-500">
+                    {userMessage.phoneMessage}
+                  </span>
                 </div>
               )}
             </div>
@@ -329,7 +348,9 @@ function Signup() {
                   <div className="text-red-500">
                     <AiFillWarning />
                   </div>
-                  <span className="text-sm mt-2 text-red-500">{userMessage.genderMessage}</span>
+                  <span className="text-sm mt-2 text-red-500">
+                    {userMessage.genderMessage}
+                  </span>
                 </div>
               )}
             </div>
@@ -356,7 +377,9 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">{userMessage.emailMessage}</span>
+                <span className="text-sm mt-2 text-red-500">
+                  {userMessage.emailMessage}
+                </span>
               </div>
             )}
           </div>
@@ -389,7 +412,9 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">{userMessage.passwordMessage}</span>
+                <span className="text-sm mt-2 text-red-500">
+                  {userMessage.passwordMessage}
+                </span>
               </div>
             )}
           </div>

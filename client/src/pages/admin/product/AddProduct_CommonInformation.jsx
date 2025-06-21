@@ -1,7 +1,16 @@
 import Files from '@services/files';
 import { useCallback } from 'react';
 import { Editor } from '@components/app';
-import { Input, Select, Divider, Typography, Space, Row, Col, Form } from 'antd';
+import {
+  Input,
+  Select,
+  Divider,
+  Typography,
+  Space,
+  Row,
+  Col,
+  Form,
+} from 'antd';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -48,7 +57,9 @@ function CommonInformation({
   return (
     <>
       <div className="flex gap-12 items-center ">
-        <span className="text-sm text-primary font-medium">Thông tin chung</span>
+        <span className="text-sm text-primary font-medium">
+          Thông tin chung
+        </span>
         <div className="flex-1 border-t border-t-gray-300"></div>
       </div>
       <Form layout="vertical">

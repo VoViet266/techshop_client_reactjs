@@ -5,7 +5,11 @@ function CardProduct({ product }) {
   const navigate = useNavigate();
 
   return (
-    <Badge.Ribbon text="Mới" color="red" className="top-10! font-roboto! -right-6!">
+    <Badge.Ribbon
+      text="Mới"
+      color="red"
+      className="top-10! font-roboto! -right-6!"
+    >
       <Link to={`/product/${product._id}`}>
         <Card
           hoverable
@@ -46,9 +50,14 @@ function CardProduct({ product }) {
           <div className="mb-10">
             <div className="line-clamp-1">
               <Typography.Text className="text-xl! font-bold! font-roboto! text-[#d32f2f]! mr-8!">
-                {product?.variants[0]?.price * product?.discount || '30.000.000 VNĐ'}
+                {product?.variants[0]?.price * product?.discount ||
+                  '30.000.000 VNĐ'}
               </Typography.Text>
-              <Typography.Text delete type="secondary" className="text-sm! font-roboto!">
+              <Typography.Text
+                delete
+                type="secondary"
+                className="text-sm! font-roboto!"
+              >
                 {product?.variants[0]?.price || '35.290.000 VNĐ'}
               </Typography.Text>
             </div>

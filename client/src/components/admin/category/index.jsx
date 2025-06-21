@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Input, message } from 'antd';
-import { callCreateCategory, callFetchCategories, callUpdateCategory } from '@/services/apis';
+import {
+  callCreateCategory,
+  callFetchCategories,
+  callUpdateCategory,
+} from '@/services/apis';
 
 const ModalCategory = (props) => {
   const { setOpenModal, reloadTable, dataInit, setDataInit, visible } = props;
@@ -48,7 +52,9 @@ const ModalCategory = (props) => {
       : await callCreateCategory(categoryData);
     if (res.data) {
       message.success(
-        dataInit?._id ? 'Category updated successfully.' : 'Category created successfully.',
+        dataInit?._id
+          ? 'Category updated successfully.'
+          : 'Category created successfully.',
       );
       setOpenModal(false);
       reloadTable();

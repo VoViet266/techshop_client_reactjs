@@ -28,7 +28,11 @@ import {
   AppstoreOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
-import { callDeleteBranch, callFetchBranches, callUpdateBranch } from '@/services/apis';
+import {
+  callDeleteBranch,
+  callFetchBranches,
+  callUpdateBranch,
+} from '@/services/apis';
 import ModalBranch from '@/components/admin/branch';
 
 const { Title } = Typography;
@@ -201,7 +205,9 @@ const BranchManagement = () => {
       key: 'isActive',
       render: (isActive) => (
         <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
-          <Tag color={isActive ? 'green' : 'red'}>{isActive ? 'Hoạt động' : 'Ngưng hoạt động'}</Tag>
+          <Tag color={isActive ? 'green' : 'red'}>
+            {isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          </Tag>
         </Tooltip>
       ),
     },
@@ -226,16 +232,30 @@ const BranchManagement = () => {
         okButtonProps={{ danger: true }}
         style={{ top: 20, zIndex: 9999 }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-          <ExclamationCircleOutlined style={{ color: '#ff4d4f', fontSize: 22, marginRight: 8 }} />
-          <span style={{ fontSize: 16, fontWeight: 500 }}>Xác nhận xóa chi nhánh này</span>
+        <div
+          style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}
+        >
+          <ExclamationCircleOutlined
+            style={{ color: '#ff4d4f', fontSize: 22, marginRight: 8 }}
+          />
+          <span style={{ fontSize: 16, fontWeight: 500 }}>
+            Xác nhận xóa chi nhánh này
+          </span>
         </div>
         <div>
-          <p>Bạn có chắc là muốn xóa {selectedRowKeys.length} chi nhánh đã chọn?</p>
+          <p>
+            Bạn có chắc là muốn xóa {selectedRowKeys.length} chi nhánh đã chọn?
+          </p>
         </div>
       </Modal>
-      <Card style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)' }}>
-        <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+      <Card
+        style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)' }}
+      >
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: 24 }}
+        >
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               <AppstoreOutlined style={{ marginRight: 8 }} />
@@ -244,7 +264,11 @@ const BranchManagement = () => {
           </Col>
         </Row>
 
-        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: 16 }}
+        >
           <Col xs={24} sm={12} md={6}>
             <Input
               placeholder="Tìm kiếm danh mục..."
@@ -289,7 +313,9 @@ const BranchManagement = () => {
                   borderRadius: 8,
                   fontWeight: 500,
                   boxShadow:
-                    selectedRowKeys.length === 1 ? '0 2px 8px rgba(79, 70, 229, 0.2)' : 'none',
+                    selectedRowKeys.length === 1
+                      ? '0 2px 8px rgba(79, 70, 229, 0.2)'
+                      : 'none',
                 }}
               >
                 Sửa ({selectedRowKeys.length})
@@ -305,9 +331,12 @@ const BranchManagement = () => {
                 style={{
                   borderRadius: 8,
                   fontWeight: 500,
-                  borderColor: selectedRowKeys.length > 0 ? '#EF4444' : undefined,
+                  borderColor:
+                    selectedRowKeys.length > 0 ? '#EF4444' : undefined,
                   boxShadow:
-                    selectedRowKeys.length > 0 ? '0 2px 8px rgba(239, 68, 68, 0.2)' : 'none',
+                    selectedRowKeys.length > 0
+                      ? '0 2px 8px rgba(239, 68, 68, 0.2)'
+                      : 'none',
                 }}
               >
                 Xóa ({selectedRowKeys.length})
@@ -329,7 +358,8 @@ const BranchManagement = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             total: branches.length,
-            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} chi nhánh`,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} của ${total} chi nhánh`,
           }}
           scroll={{ x: 800 }}
         />

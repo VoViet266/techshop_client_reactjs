@@ -1,46 +1,25 @@
-import Users from '@services/users';
-import useMessage from '@/hooks/useMessage';
-
+import { useLogin } from '@/hooks/users';
 import { useAppContext } from '@contexts';
+import useMessage from '@/hooks/useMessage';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Form, Input, Button, Typography, Divider, message } from 'antd';
-import { EyeInvisibleOutlined, EyeTwoTone, CloseOutlined, GoogleOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Button, Typography, Divider } from 'antd';
+import {
+  EyeTwoTone,
+  CloseOutlined,
+  GoogleOutlined,
+  EyeInvisibleOutlined,
+} from '@ant-design/icons';
 
 function Login() {
-  const {
-    showLogin,
-    setMessage,
-    setShowLogin,
-    setToastLoading,
-    setLoadingError,
-    setLoadingSuccess,
-  } = useAppContext();
+  const { showLogin, setShowLogin, message } = useAppContext();
+  const { handleLogin } = useLogin(message);
 
   const [form] = Form.useForm();
-  const navigate = useNavigate();
-  const { success, error, loading } = useMessage();
   const [user, setUser] = useState({ email: '', password: '' });
 
   useEffect(() => {
     document.title = 'TechShop | Đăng nhập';
   }, []);
-
-  const onFinish = async (values) => {
-    // await Users.login(
-    //   values,
-    //   navigate,
-    //   setMessage,
-    //   setShowLogin,
-    //   setEmailError,
-    //   setToastLoading,
-    //   () => {},
-    //   setLoadingError,
-    //   setPasswordError,
-    //   setLoadingSuccess,
-    //   setPasswordMessage,
-    // );
-  };
 
   function handleInputChange(_, allValues) {
     setUser(allValues);
@@ -59,7 +38,7 @@ function Login() {
       <Form
         form={form}
         layout="vertical"
-        onFinish={onFinish}
+        onFinish={() => handleLogin(user)}
         initialValues={user}
         onValuesChange={handleInputChange}
       >
@@ -81,7 +60,9 @@ function Login() {
         >
           <Input.Password
             placeholder="Nhập mật khẩu"
-            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
           />
         </Form.Item>
 
@@ -92,7 +73,12 @@ function Login() {
         </div>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block style={{ marginBottom: 24 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            style={{ marginBottom: 24 }}
+          >
             Đăng nhập
           </Button>
         </Form.Item>

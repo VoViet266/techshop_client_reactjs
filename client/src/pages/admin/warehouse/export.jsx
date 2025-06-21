@@ -138,7 +138,11 @@ const WarehouseOutbound = () => {
     const loadAllData = async () => {
       setPageLoading(true);
       try {
-        await Promise.all([fetchInventories(), fetchBranches(), fetchOutboundHistory()]);
+        await Promise.all([
+          fetchInventories(),
+          fetchBranches(),
+          fetchOutboundHistory(),
+        ]);
       } catch (error) {
         error('Có lỗi xảy ra khi tải dữ liệu');
       } finally {
@@ -163,7 +167,9 @@ const WarehouseOutbound = () => {
   };
 
   const handleProductChange = (productId) => {
-    const inventory = getFilteredInventories().find((inv) => inv.product._id === productId);
+    const inventory = getFilteredInventories().find(
+      (inv) => inv.product._id === productId,
+    );
     setSelectedInventory(inventory);
     setSelectedProduct(inventory?.product);
     form.setFieldsValue({
@@ -173,7 +179,9 @@ const WarehouseOutbound = () => {
 
   const getVariantInfo = (variantId) => {
     if (!selectedInventory) return null;
-    return selectedInventory.variants.find((v) => v.variantId._id === variantId);
+    return selectedInventory.variants.find(
+      (v) => v.variantId._id === variantId,
+    );
   };
 
   const checkStockAvailability = (variantId, requestedQuantity) => {
@@ -194,12 +202,16 @@ const WarehouseOutbound = () => {
         }
 
         if (!checkStockAvailability(values.variantId, values.quantity)) {
-          warning(`Số lượng tồn kho không đủ. Tồn kho hiện tại: ${variantInfo.stock}`);
+          warning(
+            `Số lượng tồn kho không đủ. Tồn kho hiện tại: ${variantInfo.stock}`,
+          );
           return;
         }
 
         const existingItem = outboundItems.find(
-          (item) => item.productId === values.productId && item.variantId === values.variantId,
+          (item) =>
+            item.productId === values.productId &&
+            item.variantId === values.variantId,
         );
 
         if (existingItem) {
@@ -216,7 +228,8 @@ const WarehouseOutbound = () => {
 
           setOutboundItems(
             outboundItems.map((item) =>
-              item.productId === values.productId && item.variantId === values.variantId
+              item.productId === values.productId &&
+              item.variantId === values.variantId
                 ? {
                     ...item,
                     quantity: totalQuantity,
@@ -269,13 +282,17 @@ const WarehouseOutbound = () => {
     if (!item) return;
 
     if (!checkStockAvailability(item.variantId, quantity)) {
-      warning(`Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.availableStock}`);
+      warning(
+        `Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.availableStock}`,
+      );
       return;
     }
 
     setOutboundItems(
       outboundItems.map((item) =>
-        item.id === id ? { ...item, quantity, total: quantity * item.cost } : item,
+        item.id === id
+          ? { ...item, quantity, total: quantity * item.cost }
+          : item,
       ),
     );
   };
@@ -300,7 +317,10 @@ const WarehouseOutbound = () => {
         const outboundData = {
           ...values,
           items: outboundItems,
-          totalItems: outboundItems.reduce((sum, item) => sum + item.quantity, 0),
+          totalItems: outboundItems.reduce(
+            (sum, item) => sum + item.quantity,
+            0,
+          ),
           totalValue: outboundItems.reduce((sum, item) => sum + item.total, 0),
         };
 
@@ -332,7 +352,9 @@ const WarehouseOutbound = () => {
         });
       });
 
-      await Promise.all(Object.values(exportRequests).map((data) => callExportInventory(data)));
+      await Promise.all(
+        Object.values(exportRequests).map((data) => callExportInventory(data)),
+      );
 
       success('Xuất kho thành công!');
       setOutboundItems([]);
@@ -356,7 +378,10 @@ const WarehouseOutbound = () => {
       width: 300,
       render: (_, record) => (
         <Space>
-          <Avatar icon={<ProductOutlined />} style={{ backgroundColor: '#1890ff' }} />
+          <Avatar
+            icon={<ProductOutlined />}
+            style={{ backgroundColor: '#1890ff' }}
+          />
           <div>
             <Text strong>{record.productName}</Text>
             <br />
@@ -415,7 +440,9 @@ const WarehouseOutbound = () => {
           min={0}
           value={record.cost}
           onChange={(value) => handleUpdateCost(record.id, value)}
-          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          formatter={(value) =>
+            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+          }
           parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
           addonAfter="₫"
           style={{ width: '100%' }}
@@ -491,7 +518,8 @@ const WarehouseOutbound = () => {
       width: 100,
       align: 'center',
       render: (_, record) => {
-        const total = record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
+        const total =
+          record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
         return <Badge count={total} style={{ backgroundColor: '#f5222d' }} />;
       },
     },
@@ -537,7 +565,10 @@ const WarehouseOutbound = () => {
     },
   ];
 
-  const totalQuantity = outboundItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = outboundItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
   const totalValue = outboundItems.reduce((sum, item) => sum + item.total, 0);
 
   if (pageLoading) {
@@ -569,7 +600,11 @@ const WarehouseOutbound = () => {
         <Row justify="space-between" align="middle">
           <Col></Col>
           <Col>
-            <Button icon={<ReloadOutlined />} onClick={loadAllData} loading={pageLoading}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={loadAllData}
+              loading={pageLoading}
+            >
               Làm mới
             </Button>
           </Col>
@@ -602,9 +637,15 @@ const WarehouseOutbound = () => {
                   <Form.Item
                     label="Chi nhánh"
                     name="branchId"
-                    rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
+                    rules={[
+                      { required: true, message: 'Vui lòng chọn chi nhánh' },
+                    ]}
                   >
-                    <Select placeholder="Chọn chi nhánh" onChange={handleBranchChange} size="large">
+                    <Select
+                      placeholder="Chọn chi nhánh"
+                      onChange={handleBranchChange}
+                      size="large"
+                    >
                       {branches.map((branch) => (
                         <Option key={branch._id} value={branch._id}>
                           <Space>
@@ -624,7 +665,9 @@ const WarehouseOutbound = () => {
                     <Form.Item
                       label="Sản phẩm"
                       name="productId"
-                      rules={[{ required: true, message: 'Vui lòng chọn sản phẩm' }]}
+                      rules={[
+                        { required: true, message: 'Vui lòng chọn sản phẩm' },
+                      ]}
                     >
                       <Select
                         placeholder="Chọn sản phẩm"
@@ -633,11 +676,16 @@ const WarehouseOutbound = () => {
                         showSearch
                         optionFilterProp="children"
                         filterOption={(input, option) =>
-                          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          option.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
                         }
                       >
                         {getFilteredInventories().map((inventory) => (
-                          <Option key={inventory.product._id} value={inventory.product._id}>
+                          <Option
+                            key={inventory.product._id}
+                            value={inventory.product._id}
+                          >
                             <Space>
                               <ProductOutlined />
                               {inventory.product.name}
@@ -652,7 +700,9 @@ const WarehouseOutbound = () => {
                     <Form.Item
                       label="Biến thể"
                       name="variantId"
-                      rules={[{ required: true, message: 'Vui lòng chọn biến thể' }]}
+                      rules={[
+                        { required: true, message: 'Vui lòng chọn biến thể' },
+                      ]}
                     >
                       <Select
                         placeholder="Chọn biến thể"
@@ -662,7 +712,10 @@ const WarehouseOutbound = () => {
                         {selectedInventory?.variants
                           ?.filter((v) => !v.isDeleted && v.stock > 0)
                           .map((variant) => (
-                            <Option key={variant.variantId._id} value={variant.variantId._id}>
+                            <Option
+                              key={variant.variantId._id}
+                              value={variant.variantId._id}
+                            >
                               <div>
                                 <Tooltip
                                   title={`${variant.variantId.name} - Tồn kho: ${variant.stock}`}
@@ -695,7 +748,9 @@ const WarehouseOutbound = () => {
                         min={1}
                         max={
                           selectedInventory?.variants?.find(
-                            (v) => v.variantId._id === form.getFieldValue('variantId'),
+                            (v) =>
+                              v.variantId._id ===
+                              form.getFieldValue('variantId'),
                           )?.stock
                         }
                         placeholder="Nhập số lượng"

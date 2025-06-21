@@ -47,7 +47,11 @@ function ProductDetail() {
       <div className="flex">
         <div className="w-[60%] relative">
           <div className="py-20 px-40">
-            {images.length > 0 ? <ImagesSlider images={images} /> : <Skeleton className="h-500" />}
+            {images.length > 0 ? (
+              <ImagesSlider images={images} />
+            ) : (
+              <Skeleton className="h-500" />
+            )}
           </div>
         </div>
         <ProductInformation
@@ -58,7 +62,11 @@ function ProductDetail() {
       </div>
 
       <div className="flex gap-20 p-20">
-        <ProductDescription product={product} loading={loading} className="w-2/3" />
+        <ProductDescription
+          product={product}
+          loading={loading}
+          className="w-2/3"
+        />
         <ProductSpecification className="flex-1" />
       </div>
 

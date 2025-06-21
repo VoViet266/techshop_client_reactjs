@@ -161,7 +161,9 @@ function AdminLayout() {
 
     pathSnippets.forEach((_, index) => {
       const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-      const title = pathSnippets[index].charAt(0).toUpperCase() + pathSnippets[index].slice(1);
+      const title =
+        pathSnippets[index].charAt(0).toUpperCase() +
+        pathSnippets[index].slice(1);
 
       if (index > 0) {
         breadcrumbItems.push({

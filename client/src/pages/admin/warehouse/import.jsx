@@ -112,7 +112,11 @@ const WarehouseInbound = () => {
   const loadAllData = async () => {
     setPageLoading(true);
     try {
-      await Promise.all([fetchProducts(), fetchBranches(), fetchInboundHistory()]);
+      await Promise.all([
+        fetchProducts(),
+        fetchBranches(),
+        fetchInboundHistory(),
+      ]);
     } catch (error) {
       message.error('Có lỗi xảy ra khi tải dữ liệu');
     } finally {
@@ -140,13 +144,19 @@ const WarehouseInbound = () => {
       .validateFields(['productId', 'variantId', 'quantity', 'cost'])
       .then((values) => {
         const product = products.find((p) => p._id === values.productId);
-        const variant = product.variants.find((v) => v._id === values.variantId);
+        const variant = product.variants.find(
+          (v) => v._id === values.variantId,
+        );
         const existingItem = inboundItems.find(
-          (item) => item.productId === values.productId && item.variantId === values.variantId,
+          (item) =>
+            item.productId === values.productId &&
+            item.variantId === values.variantId,
         );
 
         if (existingItem) {
-          message.warning('Sản phẩm này đã có trong danh sách. Vui lòng chỉnh sửa số lượng.');
+          message.warning(
+            'Sản phẩm này đã có trong danh sách. Vui lòng chỉnh sửa số lượng.',
+          );
           return;
         }
 
@@ -187,7 +197,9 @@ const WarehouseInbound = () => {
   const handleUpdateQuantity = (id, quantity) => {
     setInboundItems(
       inboundItems.map((item) =>
-        item.id === id ? { ...item, quantity, total: quantity * item.cost } : item,
+        item.id === id
+          ? { ...item, quantity, total: quantity * item.cost }
+          : item,
       ),
     );
   };
@@ -212,7 +224,10 @@ const WarehouseInbound = () => {
         const inboundData = {
           ...values,
           items: inboundItems,
-          totalItems: inboundItems.reduce((sum, item) => sum + item.quantity, 0),
+          totalItems: inboundItems.reduce(
+            (sum, item) => sum + item.quantity,
+            0,
+          ),
           totalValue: inboundItems.reduce((sum, item) => sum + item.total, 0),
         };
 
@@ -244,7 +259,9 @@ const WarehouseInbound = () => {
         });
       });
 
-      await Promise.all(Object.values(importRequests).map((data) => callImportInventory(data)));
+      await Promise.all(
+        Object.values(importRequests).map((data) => callImportInventory(data)),
+      );
 
       message.success('Nhập kho thành công!');
       setInboundItems([]);
@@ -265,7 +282,10 @@ const WarehouseInbound = () => {
       width: 300,
       render: (_, record) => (
         <Space>
-          <Avatar icon={<ProductOutlined />} style={{ backgroundColor: '#1890ff' }} />
+          <Avatar
+            icon={<ProductOutlined />}
+            style={{ backgroundColor: '#1890ff' }}
+          />
           <div>
             <Text strong>{record.productName}</Text>
             <br />
@@ -312,7 +332,9 @@ const WarehouseInbound = () => {
           min={0}
           value={record.cost}
           onChange={(value) => handleUpdateCost(record.id, value)}
-          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          formatter={(value) =>
+            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+          }
           parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
           addonAfter="₫"
           style={{ width: '100%' }}
@@ -389,7 +411,8 @@ const WarehouseInbound = () => {
       width: 100,
       align: 'center',
       render: (_, record) => {
-        const total = record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
+        const total =
+          record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
         return <Badge count={total} style={{ backgroundColor: '#52c41a' }} />;
       },
     },
@@ -435,7 +458,10 @@ const WarehouseInbound = () => {
     },
   ];
 
-  const totalQuantity = inboundItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = inboundItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
   const totalValue = inboundItems.reduce((sum, item) => sum + item.total, 0);
 
   if (pageLoading) {

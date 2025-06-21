@@ -30,7 +30,11 @@ import {
   HomeOutlined,
   DollarOutlined,
 } from '@ant-design/icons';
-import { callFetchBranches, callFetchOrders, callUpdateOrder } from '@/services/apis';
+import {
+  callFetchBranches,
+  callFetchOrders,
+  callUpdateOrder,
+} from '@/services/apis';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -103,7 +107,9 @@ const OrderManagement = () => {
     let filtered = [...orders];
 
     if (filters.branch) {
-      filtered = filtered.filter((order) => order.branch._id === filters.branch);
+      filtered = filtered.filter(
+        (order) => order.branch._id === filters.branch,
+      );
     }
 
     if (filters.searchText) {
@@ -130,9 +136,16 @@ const OrderManagement = () => {
 
   const getStatistics = () => {
     const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-    const pendingOrders = orders.filter((order) => order.status === 'PENDING').length;
-    const unpaidOrders = orders.filter((order) => order.paymentStatus === 'PENDING').length;
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + order.totalPrice,
+      0,
+    );
+    const pendingOrders = orders.filter(
+      (order) => order.status === 'PENDING',
+    ).length;
+    const unpaidOrders = orders.filter(
+      (order) => order.paymentStatus === 'PENDING',
+    ).length;
 
     return { totalOrders, totalRevenue, pendingOrders, unpaidOrders };
   };
@@ -170,7 +183,9 @@ const OrderManagement = () => {
       render: (_, record) => (
         <div>
           <div>{record.createdBy.name || 'Không có'}</div>
-          <div style={{ fontSize: '12px', color: '#666' }}>{record.createdBy.email}</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>
+            {record.createdBy.email}
+          </div>
         </div>
       ),
     },
@@ -187,7 +202,10 @@ const OrderManagement = () => {
       render: (_, record) => (
         <div>
           {record.items.map((item, index) => (
-            <div key={index} style={{ marginBottom: index < record.items.length - 1 ? 4 : 0 }}>
+            <div
+              key={index}
+              style={{ marginBottom: index < record.items.length - 1 ? 4 : 0 }}
+            >
               <div style={{ fontSize: '13px' }}>{item.product.name}</div>
               <div style={{ fontSize: '11px', color: '#666' }}>
                 {item.variant.name} x {item.quantity}
@@ -214,8 +232,10 @@ const OrderManagement = () => {
       key: 'status',
       width: 120,
       render: (status) => {
-        const statusLabel = statusOptions.find((opt) => opt.value === status)?.label || status;
-        const statusColor = statusOptions.find((opt) => opt.value === status)?.color || 'default';
+        const statusLabel =
+          statusOptions.find((opt) => opt.value === status)?.label || status;
+        const statusColor =
+          statusOptions.find((opt) => opt.value === status)?.color || 'default';
         return <Tag color={statusColor}>{statusLabel}</Tag>;
       },
     },
@@ -306,7 +326,9 @@ const OrderManagement = () => {
               placeholder="Tìm kiếm..."
               prefix={<SearchOutlined />}
               value={filters.searchText}
-              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, searchText: e.target.value })
+              }
             />
           </Col>
 
@@ -405,13 +427,17 @@ const OrderManagement = () => {
               <Descriptions.Item label="Khách hàng" span={1}>
                 <div>
                   <div>{selectedOrder.createdBy.name}</div>
-                  <div style={{ color: '#666' }}>{selectedOrder.createdBy.email}</div>
+                  <div style={{ color: '#666' }}>
+                    {selectedOrder.createdBy.email}
+                  </div>
                 </div>
               </Descriptions.Item>
               <Descriptions.Item label="Số điện thoại" span={1}>
                 {selectedOrder.phone}
               </Descriptions.Item>
-              <Descriptions.Item label="Chi nhánh">{selectedOrder.branch.name}</Descriptions.Item>
+              <Descriptions.Item label="Chi nhánh">
+                {selectedOrder.branch.name}
+              </Descriptions.Item>
               <Descriptions.Item label="Phương thức thanh toán" span={2}>
                 <Select
                   value={selectedOrder.paymentMethod}
@@ -497,7 +523,9 @@ const OrderManagement = () => {
                   render: (_, item) => (
                     <div>
                       <div>{item.product.name}</div>
-                      <div style={{ fontSize: '12px', color: '#666' }}>{item.variant.name}</div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>
+                        {item.variant.name}
+                      </div>
                     </div>
                   ),
                 },
@@ -514,7 +542,8 @@ const OrderManagement = () => {
                 },
                 {
                   title: 'Thành tiền',
-                  render: (_, item) => formatCurrency(item.price * item.quantity),
+                  render: (_, item) =>
+                    formatCurrency(item.price * item.quantity),
                   align: 'right',
                 },
               ]}

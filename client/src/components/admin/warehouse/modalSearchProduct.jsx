@@ -48,7 +48,10 @@ const ModalSearchProduct = ({
       width: 100,
       align: 'center',
       render: (_, record) => (
-        <Badge count={record.variants?.length || 0} style={{ backgroundColor: '#52c41a' }} />
+        <Badge
+          count={record.variants?.length || 0}
+          style={{ backgroundColor: '#52c41a' }}
+        />
       ),
     },
     {

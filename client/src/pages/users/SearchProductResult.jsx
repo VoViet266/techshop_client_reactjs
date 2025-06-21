@@ -36,7 +36,11 @@ function SearchProductResult() {
       ) : (
         <Result
           status="404"
-          subTitle={<Typography.Text className="font-roboto! text-lg!">{result}</Typography.Text>}
+          subTitle={
+            <Typography.Text className="font-roboto! text-lg!">
+              {result}
+            </Typography.Text>
+          }
           extra={
             <Link to="/">
               <Button

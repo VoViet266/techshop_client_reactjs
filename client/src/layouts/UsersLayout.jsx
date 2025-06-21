@@ -1,4 +1,9 @@
-import { SearchBox, ErrorToast, LoadingToast, SuccessToast } from '@/components/app';
+import {
+  SearchBox,
+  ErrorToast,
+  LoadingToast,
+  SuccessToast,
+} from '@/components/app';
 import { useEffect } from 'react';
 import { useAppContext } from '@contexts';
 import useMessage from '@/hooks/useMessage';
@@ -55,12 +60,18 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, toastLoading, loadingError, loadingSuccess } = useAppContext();
-  const { contextHolder } = useMessage();
+  const {
+    message,
+    showLogin,
+    showSignup,
+    toastLoading,
+    loadingError,
+    loadingSuccess,
+  } = useAppContext();
 
   return (
     <Layout className="font-roboto! relative! flex! flex-col! items-center!">
-      {contextHolder}
+      {message.contextHolder}
       <Header />
       <Layout.Content className="w-full! bg-white! mt-60! flex! flex-col! items-center!">
         <Outlet />

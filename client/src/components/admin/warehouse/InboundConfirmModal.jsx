@@ -35,7 +35,9 @@ const InboundConfirmModal = ({
             <Col span={12}>
               <Text strong>Chi nhánh:</Text>
               <br />
-              <Text>{branches.find((b) => b._id === previewData.branchId)?.name}</Text>
+              <Text>
+                {branches.find((b) => b._id === previewData.branchId)?.name}
+              </Text>
             </Col>
             <Col span={12}>
               <Text strong>Tổng sản phẩm:</Text>

@@ -1,10 +1,25 @@
 import React from 'react';
-import { Drawer, Button, Space, Descriptions, Divider, Typography, Table, Badge, Tag } from 'antd';
+import {
+  Drawer,
+  Button,
+  Space,
+  Descriptions,
+  Divider,
+  Typography,
+  Table,
+  Badge,
+  Tag,
+} from 'antd';
 import { PrinterOutlined, CloseOutlined } from '@ant-design/icons';
 
 const { Text, Title } = Typography;
 
-const InboundDetailDrawer = ({ inbound, open, onClose, selectedInboundDetail }) => {
+const InboundDetailDrawer = ({
+  inbound,
+  open,
+  onClose,
+  selectedInboundDetail,
+}) => {
   return (
     <Drawer
       title={inbound ? 'Chi tiết phiếu nhập' : 'Chi tiết phiêu xuất'}
@@ -36,7 +51,9 @@ const InboundDetailDrawer = ({ inbound, open, onClose, selectedInboundDetail }) 
               {selectedInboundDetail.productId?.name}
             </Descriptions.Item>
             <Descriptions.Item label={inbound ? 'Ngày nhập' : 'Ngày xuất'}>
-              {new Date(selectedInboundDetail.createdAt).toLocaleString('vi-VN')}
+              {new Date(selectedInboundDetail.createdAt).toLocaleString(
+                'vi-VN',
+              )}
             </Descriptions.Item>
             <Descriptions.Item label="Người tạo">
               {selectedInboundDetail.createdBy?.name}
@@ -70,7 +87,10 @@ const InboundDetailDrawer = ({ inbound, open, onClose, selectedInboundDetail }) 
                 key: 'quantity',
                 align: 'center',
                 render: (quantity) => (
-                  <Badge count={quantity} style={{ backgroundColor: '#52c41a' }} />
+                  <Badge
+                    count={quantity}
+                    style={{ backgroundColor: '#52c41a' }}
+                  />
                 ),
               },
               {
@@ -78,7 +98,9 @@ const InboundDetailDrawer = ({ inbound, open, onClose, selectedInboundDetail }) 
                 dataIndex: 'cost',
                 key: 'cost',
                 align: 'right',
-                render: (cost) => <Text>{cost?.toLocaleString('vi-VN')} ₫</Text>,
+                render: (cost) => (
+                  <Text>{cost?.toLocaleString('vi-VN')} ₫</Text>
+                ),
               },
               {
                 title: 'Thành tiền',
@@ -96,7 +118,10 @@ const InboundDetailDrawer = ({ inbound, open, onClose, selectedInboundDetail }) 
             pagination={false}
             size="small"
             summary={(pageData) => {
-              const totalQuantity = pageData.reduce((sum, record) => sum + record.quantity, 0);
+              const totalQuantity = pageData.reduce(
+                (sum, record) => sum + record.quantity,
+                0,
+              );
               const totalValue = pageData.reduce(
                 (sum, record) => sum + record.quantity * record.cost,
                 0,
@@ -108,7 +133,10 @@ const InboundDetailDrawer = ({ inbound, open, onClose, selectedInboundDetail }) 
                     <Text strong>Tổng cộng:</Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell align="center">
-                    <Badge count={totalQuantity} style={{ backgroundColor: '#fa8c16' }} />
+                    <Badge
+                      count={totalQuantity}
+                      style={{ backgroundColor: '#fa8c16' }}
+                    />
                   </Table.Summary.Cell>
                   <Table.Summary.Cell />
                   <Table.Summary.Cell align="right">

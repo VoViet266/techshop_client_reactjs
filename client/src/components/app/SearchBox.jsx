@@ -34,7 +34,10 @@ function SearchBox() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
         setShowResults(false);
       }
     };
@@ -73,7 +76,11 @@ function SearchBox() {
   };
 
   return (
-    <Flex ref={containerRef} gap={10} style={{ width: 300, position: 'relative' }}>
+    <Flex
+      ref={containerRef}
+      gap={10}
+      style={{ width: 300, position: 'relative' }}
+    >
       <Input.Search
         value={query}
         onSearch={onSearch}

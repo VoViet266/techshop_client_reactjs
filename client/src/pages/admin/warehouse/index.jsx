@@ -143,7 +143,9 @@ const WarehouseManagement = () => {
       width: 120,
       align: 'center',
       render: (_, record) => {
-        const totalStock = record.variants?.reduce((sum, variant) => sum + variant.stock, 0) || 0;
+        const totalStock =
+          record.variants?.reduce((sum, variant) => sum + variant.stock, 0) ||
+          0;
 
         return (
           <Space>
@@ -336,7 +338,11 @@ const WarehouseManagement = () => {
           </Col>
           <Col xs={24} sm={24} md={10}>
             <Space>
-              <Button icon={<ReloadOutlined />} onClick={fetchInventory} loading={loading}>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={fetchInventory}
+                loading={loading}
+              >
                 Làm mới
               </Button>
             </Space>
@@ -382,7 +388,10 @@ const WarehouseManagement = () => {
           loading={loading}
           locale={{
             emptyText: (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có dữ liệu kho hàng" />
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="Không có dữ liệu kho hàng"
+              />
             ),
           }}
           scroll={{ x: 1000 }}

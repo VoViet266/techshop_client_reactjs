@@ -120,7 +120,12 @@ const Dashboard = () => {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card>
-            <Statistic title="Tỷ lệ chuyển đổi" value={12.3} suffix="%" precision={1} />
+            <Statistic
+              title="Tỷ lệ chuyển đổi"
+              value={12.3}
+              suffix="%"
+              precision={1}
+            />
           </Card>
         </Col>
       </Row>
@@ -143,7 +148,12 @@ const Dashboard = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="doanhthu" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line
+                  type="monotone"
+                  dataKey="doanhthu"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
+                />
                 <Line type="monotone" dataKey="chiphi" stroke="#82ca9d" />
               </LineChart>
             </ResponsiveContainer>
@@ -161,10 +171,15 @@ const Dashboard = () => {
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {trafficData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -191,7 +206,11 @@ const Dashboard = () => {
         </Col>
         <Col xs={24} md={12}>
           <Card title="Khách hàng hàng đầu" extra={<UserOutlined />}>
-            <Table dataSource={customerData} columns={columns} pagination={false} />
+            <Table
+              dataSource={customerData}
+              columns={columns}
+              pagination={false}
+            />
           </Card>
         </Col>
       </Row>

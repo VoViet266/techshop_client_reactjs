@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Upload, Card, Row, Col, Form, Divider, message, Image } from 'antd';
-import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Input,
+  Upload,
+  Card,
+  Row,
+  Col,
+  Form,
+  Divider,
+  message,
+  Image,
+} from 'antd';
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 import Dragger from 'antd/es/upload/Dragger';
 
 function Variants({
@@ -182,7 +197,10 @@ function Variants({
       </div>
       <div className="space-y-6">
         {product.variants.map((variant, index) => (
-          <Card key={index} className={`relative ${index !== 0 ? 'pt-12' : ''}`}>
+          <Card
+            key={index}
+            className={`relative ${index !== 0 ? 'pt-12' : ''}`}
+          >
             {index !== 0 && (
               <Button
                 type="text"
@@ -202,7 +220,9 @@ function Variants({
                     <Input
                       placeholder="Nhập tên biến thể"
                       value={variant.name}
-                      onChange={(e) => handleInputChange(index, 'name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(index, 'name', e.target.value)
+                      }
                       className="hover:border-gray-400 focus:border-blue-500"
                     />
                   </Form.Item>
@@ -212,7 +232,9 @@ function Variants({
                     <Input
                       placeholder="Nhập giá của biến thể"
                       value={variant.price}
-                      onChange={(e) => handleInputChange(index, 'price', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(index, 'price', e.target.value)
+                      }
                       className="hover:border-gray-400 focus:border-blue-500"
                     />
                   </Form.Item>
@@ -222,7 +244,14 @@ function Variants({
                     <Input
                       placeholder="Nhập tên màu biến thể"
                       value={variant.color.name}
-                      onChange={(e) => handleInputChange(index, 'color', e.target.value, 'name')}
+                      onChange={(e) =>
+                        handleInputChange(
+                          index,
+                          'color',
+                          e.target.value,
+                          'name',
+                        )
+                      }
                       className="hover:border-gray-400 focus:border-blue-500"
                     />
                   </Form.Item>
@@ -235,7 +264,9 @@ function Variants({
                     <Input
                       placeholder="Nhập mã màu của biến thể"
                       value={variant.color.hex}
-                      onChange={(e) => handleInputChange(index, 'color', e.target.value, 'hex')}
+                      onChange={(e) =>
+                        handleInputChange(index, 'color', e.target.value, 'hex')
+                      }
                       className="hover:border-gray-400 focus:border-blue-500"
                     />
                   </Form.Item>
@@ -245,7 +276,14 @@ function Variants({
                     <Input
                       placeholder="Nhập RAM của biến thể"
                       value={variant.memory.ram}
-                      onChange={(e) => handleInputChange(index, 'memory', e.target.value, 'ram')}
+                      onChange={(e) =>
+                        handleInputChange(
+                          index,
+                          'memory',
+                          e.target.value,
+                          'ram',
+                        )
+                      }
                       className="hover:border-gray-400 focus:border-blue-500"
                     />
                   </Form.Item>
@@ -256,7 +294,12 @@ function Variants({
                       placeholder="Nhập bộ nhớ trong của biến thể"
                       value={variant.memory.storage}
                       onChange={(e) =>
-                        handleInputChange(index, 'memory', e.target.value, 'storage')
+                        handleInputChange(
+                          index,
+                          'memory',
+                          e.target.value,
+                          'storage',
+                        )
                       }
                       className="hover:border-gray-400 focus:border-blue-500"
                     />
@@ -276,7 +319,9 @@ function Variants({
                       className="w-full min-h-[200px] focus:border-gray-400 rounded-md p-6 border-dashed border border-gray-300 hover:border-gray-400"
                       onPreview={(file) => handlePreview(file)}
                       onRemove={(file) => {
-                        const variantIndex = product.variants.findIndex((v) => v === variant);
+                        const variantIndex = product.variants.findIndex(
+                          (v) => v === variant,
+                        );
                         handleRemoveImage(variantIndex, file.uid);
                       }}
                       beforeUpload={(file) => {
@@ -293,8 +338,12 @@ function Variants({
                               uid: `${i}`,
                               name: img instanceof File ? img.name : img,
                               status: 'done',
-                              url: img instanceof File ? URL.createObjectURL(img) : img,
-                              originFileObj: img instanceof File ? img : undefined,
+                              url:
+                                img instanceof File
+                                  ? URL.createObjectURL(img)
+                                  : img,
+                              originFileObj:
+                                img instanceof File ? img : undefined,
                             }))
                           : []
                       }
@@ -313,7 +362,8 @@ function Variants({
                         preview={{
                           visible: previewOpen,
                           onVisibleChange: (visible) => setPreviewOpen(visible),
-                          afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                          afterOpenChange: (visible) =>
+                            !visible && setPreviewImage(''),
                         }}
                         src={previewImage}
                       />

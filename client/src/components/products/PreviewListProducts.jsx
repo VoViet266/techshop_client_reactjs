@@ -34,7 +34,9 @@ function PreviewListProducts({
           </div>
         )}
         {!loading && canViewAll && products.length > 0 && (
-          <span className="cursor-pointer font-medium text-primary">Xem tất cả</span>
+          <span className="cursor-pointer font-medium text-primary">
+            Xem tất cả
+          </span>
         )}
       </div>
 
@@ -72,7 +74,10 @@ function PreviewListProducts({
         </div>
       )}
 
-      <Row gutter={10} justify={loading ? 'start' : products.length > 0 ? 'start' : 'center'}>
+      <Row
+        gutter={10}
+        justify={loading ? 'start' : products.length > 0 ? 'start' : 'center'}
+      >
         {loading && (
           <>
             <Col className="w-275">

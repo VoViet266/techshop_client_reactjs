@@ -19,8 +19,12 @@ import { Button, message } from 'antd';
 import Products from '@/services/products';
 
 function AddProduct() {
-  const { setLoadingError, setToastLoading, setLoadingSuccess, setSideBarSelectedTab } =
-    useAppContext();
+  const {
+    setLoadingError,
+    setToastLoading,
+    setLoadingSuccess,
+    setSideBarSelectedTab,
+  } = useAppContext();
 
   const navigate = useNavigate();
   const brandDropdownRef = useRef(null);
@@ -148,7 +152,8 @@ function AddProduct() {
     product.variants.forEach((variant, index) => {
       if (!variant.name) newProductError.variants[index].name = true;
       if (!variant.price) newProductError.variants[index].price = true;
-      if (!variant.color.name) newProductError.variants[index].color.name = true;
+      if (!variant.color.name)
+        newProductError.variants[index].color.name = true;
       if (!variant.color.hex) newProductError.variants[index].color.hex = true;
       if (!variant.images.length) newProductError.variants[index].images = true;
     });

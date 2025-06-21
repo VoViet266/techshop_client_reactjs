@@ -5,7 +5,9 @@ function Specifications({ setProduct, product }) {
   return (
     <>
       <div className="flex gap-12 items-center">
-        <span className="text-sm text-primary font-medium">Thông số kỹ thuật</span>
+        <span className="text-sm text-primary font-medium">
+          Thông số kỹ thuật
+        </span>
         <div className="flex-1 border-t border-t-gray-300"></div>
       </div>
 
@@ -13,7 +15,11 @@ function Specifications({ setProduct, product }) {
         <Row gutter={[10, 0]}>
           <Col span={8}>
             <Form.Item label="Vi xử lý" name="processor">
-              <Input id="processor" placeholder="Nhập thông tin vi xử lý" size="large" />
+              <Input
+                id="processor"
+                placeholder="Nhập thông tin vi xử lý"
+                size="large"
+              />
             </Form.Item>
           </Col>
 
@@ -52,7 +58,12 @@ function Specifications({ setProduct, product }) {
 
           <Col span={8}>
             <Form.Item label="Pin" name="battery">
-              <Input id="battery" name="battery" placeholder="Nhập thông tin pin" size="large" />
+              <Input
+                id="battery"
+                name="battery"
+                placeholder="Nhập thông tin pin"
+                size="large"
+              />
             </Form.Item>
           </Col>
 

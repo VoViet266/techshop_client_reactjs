@@ -38,7 +38,8 @@ function ProductInformation({ className, product, loading }) {
   useEffect(() => {
     if (product.variants) {
       const variantPrice = product.variants.find(
-        (variant) => variant.color === selectedColor && variant.memory === selectedMemory,
+        (variant) =>
+          variant.color === selectedColor && variant.memory === selectedMemory,
       );
       setPrice(variantPrice?.price || '');
     }
@@ -46,14 +47,18 @@ function ProductInformation({ className, product, loading }) {
 
   return (
     <div className={className}>
-      <h3 className="text-2xl font-medium">{product.name || <Skeleton className="h-40" />}</h3>
+      <h3 className="text-2xl font-medium">
+        {product.name || <Skeleton className="h-40" />}
+      </h3>
       <span className="text-lg font-bold text-primary">
         {`${price} VNĐ` || <Skeleton className="h-40" />}
       </span>
 
       {product.variants ? (
         <div className="border rounded-md border-[#e5e7eb]">
-          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">Bộ nhớ</div>
+          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
+            Bộ nhớ
+          </div>
           <div className="p-8 grid grid-cols-2 gap-8">
             {memories.map((memory, index) => (
               <div
@@ -81,7 +86,9 @@ function ProductInformation({ className, product, loading }) {
 
       {product.variants ? (
         <div className="border rounded-md border-[#e5e7eb]">
-          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">Màu</div>
+          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
+            Màu
+          </div>
           <div className="p-8 grid grid-cols-2 gap-8">
             {colors.map((color, index) => (
               <div
@@ -92,7 +99,9 @@ function ProductInformation({ className, product, loading }) {
                 className={`flex ${selectedColor === color && 'border-primary'} hover:border-primary cursor-pointer items-center gap-4 p-6 border border-[#e5e7db] rounded-sm`}
               >
                 <span className="font-medium">Màu {color.name}</span>
-                <div className={`w-30 h-30 bg-[${color.hex}] rounded-full`}></div>
+                <div
+                  className={`w-30 h-30 bg-[${color.hex}] rounded-full`}
+                ></div>
               </div>
             ))}
           </div>

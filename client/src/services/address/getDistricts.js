@@ -7,7 +7,9 @@ async function getDistricts(code) {
     throw new Error('Không tìm thấy danh sách huyện.');
   }
 
-  const result = districts.data.filter((district) => district.province_code === code);
+  const result = districts.data.filter(
+    (district) => district.province_code === code,
+  );
 
   return result;
 }

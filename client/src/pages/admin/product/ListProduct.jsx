@@ -39,7 +39,11 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
 } from '@ant-design/icons';
-import { callDeleteProduct, callFetchBrands, callFetchCategories } from '@/services/apis';
+import {
+  callDeleteProduct,
+  callFetchBrands,
+  callFetchCategories,
+} from '@/services/apis';
 import { useNavigate } from 'react-router-dom';
 import useMessage from '@/hooks/useMessage';
 
@@ -113,7 +117,9 @@ function ListProduct() {
     setConfirmLoading(true);
     try {
       await Promise.all(selectedRowKeys.map((id) => callDeleteProduct(id)));
-      setProducts((prev) => prev.filter((p) => !selectedRowKeys.includes(p._id)));
+      setProducts((prev) =>
+        prev.filter((p) => !selectedRowKeys.includes(p._id)),
+      );
       setSelectedRowKeys([]);
       setOpen(false);
       setConfirmLoading(false);
@@ -139,9 +145,13 @@ function ListProduct() {
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesCategory = !filters.category || product.category?.name === filters.category;
-    const matchesBrand = !filters.brand || product.brand?.name === filters.brand;
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+    const matchesCategory =
+      !filters.category || product.category?.name === filters.category;
+    const matchesBrand =
+      !filters.brand || product.brand?.name === filters.brand;
 
     return matchesSearch && matchesCategory && matchesBrand;
   });
@@ -239,7 +249,10 @@ function ListProduct() {
       width: 100,
       align: 'center',
       render: (_, record) => (
-        <Badge count={record.variants?.length || 0} style={{ backgroundColor: '#8B5CF6' }} />
+        <Badge
+          count={record.variants?.length || 0}
+          style={{ backgroundColor: '#8B5CF6' }}
+        />
       ),
     },
     {
@@ -290,7 +303,8 @@ function ListProduct() {
         <Descriptions title="Chi tiết kỹ thuật" size="small" bordered>
           <Descriptions.Item label="Màn hình" span={1}>
             <Space>
-              {record.specifications?.displaySize} {record.specifications?.displayStyle}
+              {record.specifications?.displaySize}{' '}
+              {record.specifications?.displayStyle}
             </Space>
           </Descriptions.Item>
 
@@ -315,10 +329,16 @@ function ListProduct() {
               <Tag icon={<WifiOutlined />} color="blue">
                 {record.connectivity?.wifi}
               </Tag>
-              <Tag color="green">Bluetooth {record.connectivity?.bluetooth}</Tag>
+              <Tag color="green">
+                Bluetooth {record.connectivity?.bluetooth}
+              </Tag>
               <Tag color="red">{record.connectivity?.cellular}</Tag>
-              {record.connectivity?.nfc === 'Yes' && <Tag color="orange">NFC</Tag>}
-              {record.connectivity?.gps === 'Yes' && <Tag color="purple">GPS</Tag>}
+              {record.connectivity?.nfc === 'Yes' && (
+                <Tag color="orange">NFC</Tag>
+              )}
+              {record.connectivity?.gps === 'Yes' && (
+                <Tag color="purple">GPS</Tag>
+              )}
             </Space>
           </Descriptions.Item>
 
@@ -452,7 +472,9 @@ function ListProduct() {
 
                       {variant.memory && (
                         <Space direction="vertical" size={1}>
-                          <Text style={{ color: '#475569' }}>RAM: {variant.memory.ram}</Text>
+                          <Text style={{ color: '#475569' }}>
+                            RAM: {variant.memory.ram}
+                          </Text>
                           <Text style={{ color: '#475569' }}>
                             Storage: {variant.memory.storage}
                           </Text>
@@ -639,7 +661,9 @@ function ListProduct() {
                     borderRadius: 8,
                     fontWeight: 500,
                     boxShadow:
-                      selectedRowKeys.length === 1 ? '0 2px 8px rgba(79, 70, 229, 0.2)' : 'none',
+                      selectedRowKeys.length === 1
+                        ? '0 2px 8px rgba(79, 70, 229, 0.2)'
+                        : 'none',
                   }}
                 >
                   Sửa ({selectedRowKeys.length})
@@ -654,9 +678,12 @@ function ListProduct() {
                     borderRadius: 8,
                     fontWeight: 500,
 
-                    borderColor: selectedRowKeys.length > 0 ? '#EF4444' : undefined,
+                    borderColor:
+                      selectedRowKeys.length > 0 ? '#EF4444' : undefined,
                     boxShadow:
-                      selectedRowKeys.length > 0 ? '0 2px 8px rgba(239, 68, 68, 0.2)' : 'none',
+                      selectedRowKeys.length > 0
+                        ? '0 2px 8px rgba(239, 68, 68, 0.2)'
+                        : 'none',
                   }}
                 >
                   Xóa ({selectedRowKeys.length})
@@ -675,7 +702,11 @@ function ListProduct() {
           <Spin spinning={loading} size="large">
             {filteredProducts.length === 0 ? (
               <Empty
-                description={<span style={{ color: '#475569' }}>Không tìm thấy sản phẩm nào</span>}
+                description={
+                  <span style={{ color: '#475569' }}>
+                    Không tìm thấy sản phẩm nào
+                  </span>
+                }
                 style={{ padding: '48px 0' }}
               />
             ) : (
@@ -691,7 +722,9 @@ function ListProduct() {
                     <Button
                       type="text"
                       size="small"
-                      icon={expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                      icon={
+                        expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                      }
                       onClick={(e) => onExpand(record, e)}
                     />
                   ),

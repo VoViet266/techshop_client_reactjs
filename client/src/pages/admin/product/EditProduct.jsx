@@ -21,8 +21,12 @@ import { callFetchProductDetail, callUpdateProduct } from '@/services/apis';
 function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { setSideBarSelectedTab, setToastLoading, setLoadingSuccess, setLoadingError } =
-    useAppContext();
+  const {
+    setSideBarSelectedTab,
+    setToastLoading,
+    setLoadingSuccess,
+    setLoadingError,
+  } = useAppContext();
 
   const brandDropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
@@ -64,10 +68,16 @@ function EditProduct() {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(e.target)) {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(e.target)
+      ) {
         setShowCategoryDropdown(false);
       }
-      if (brandDropdownRef.current && !brandDropdownRef.current.contains(e.target)) {
+      if (
+        brandDropdownRef.current &&
+        !brandDropdownRef.current.contains(e.target)
+      ) {
         setShowBrandDropdown(false);
       }
     }
@@ -149,7 +159,12 @@ function EditProduct() {
             >
               Hủy bỏ
             </Button>
-            <Button type="primary" size="large" className="mt-8 float-right" onClick={onSubmit}>
+            <Button
+              type="primary"
+              size="large"
+              className="mt-8 float-right"
+              onClick={onSubmit}
+            >
               Cập nhật
             </Button>
           </div>

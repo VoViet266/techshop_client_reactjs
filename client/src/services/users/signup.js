@@ -81,14 +81,17 @@ async function signup(
     setMessage('Đang đăng ký.');
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/v1/auth/register`, {
-        name: user.fullName,
-        address: user.address,
-        phone: user.phone,
-        gender: user.gender,
-        email: user.email,
-        password: user.password,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/v1/auth/register`,
+        {
+          name: user.fullName,
+          address: user.address,
+          phone: user.phone,
+          gender: user.gender,
+          email: user.email,
+          password: user.password,
+        },
+      );
 
       if (response.data.statusCode === 201) {
         setToastLoading(false);

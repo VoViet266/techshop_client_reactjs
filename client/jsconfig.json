@@ -4,6 +4,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@pages/*": ["./src/pages/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@styles/*": ["./src/styles/*"],
       "@helpers/*": ["./src/helpers/*"],
       "@layouts/*": ["./src/layouts/*"],
