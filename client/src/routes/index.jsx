@@ -14,6 +14,8 @@ import NotExist from '@/components/error/notExist';
 import OrderList from '@/pages/admin/order';
 import OrderManagement from '@/pages/admin/order';
 import ProtectedRoute from './ProtectedRoute';
+import BrandManagement from '@/pages/admin/brand';
+import CategoryManagement from '@/pages/admin/category/category';
 
 const router = createBrowserRouter([
   // User routes
@@ -71,13 +73,20 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Category management
       {
         path: 'category',
-        element: <CategoryPage />,
+        children: [
+          {
+            index: true,
+            element: <CategoryManagement />,
+          },
+          {
+            path: 'management',
+            element: <CategoryManagement />,
+          },
+        ],
       },
 
-      // Branch management
       {
         path: 'branch',
         children: [
@@ -86,13 +95,25 @@ const router = createBrowserRouter([
             element: <BranchManagement />,
           },
           {
-            path: 'management', // Redirect cho backward compatibility
+            path: 'management',
             element: <BranchManagement />,
           },
         ],
       },
 
-      // Warehouse management routes
+      {
+        path: 'brand',
+        children: [
+          {
+            index: true,
+            element: <BrandManagement />,
+          },
+          {
+            path: 'management',
+            element: <BrandManagement />,
+          },
+        ],
+      },
       {
         path: 'warehouse',
         children: [
@@ -123,19 +144,6 @@ const router = createBrowserRouter([
             index: true,
             element: <OrderManagement />,
           },
-          // Có thể thêm các sub-routes cho order
-          // {
-          //   path: "pending",
-          //   element: <PendingOrders />,
-          // },
-          // {
-          //   path: "completed",
-          //   element: <CompletedOrders />,
-          // },
-          // {
-          //   path: "detail/:id",
-          //   element: <OrderDetail />,
-          // },
         ],
       },
 

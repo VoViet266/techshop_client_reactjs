@@ -83,7 +83,7 @@ function AppProvider({ children }) {
 
   // Hàm kiểm tra quyền admin
   const isAdmin = () => {
-    return user && user?.role?.permission.length > 0;
+    return user && user?.permission.length > 0;
   };
 
   const data = {

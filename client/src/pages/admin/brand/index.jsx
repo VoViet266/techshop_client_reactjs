@@ -13,6 +13,8 @@ import {
   Tag,
   Flex,
   Modal,
+  Avatar,
+  Empty,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -22,15 +24,15 @@ import {
   AppstoreOutlined,
   SearchOutlined,
   ExclamationCircleOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
-import { callDeleteCategory, callFetchCategories } from '@/services/apis';
-import ModalCategory from '@/components/admin/category';
+import ModalBrand from '../../../components/admin/brand/modal_brand';
+import { callFetchBrands, callDeleteBrand } from '@/services/apis';
 
-const { Title, Text } = Typography;
-const { Search } = Input;
+const { Title, Text, Paragraph } = Typography;
 
-const CategoryManagement = () => {
-  const [categories, setCategories] = useState([]);
+const BrandManagement = () => {
+  const [brands, setBrands] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [dataInit, setDataInit] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,19 +40,21 @@ const CategoryManagement = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState(null);
 
   useEffect(() => {
-    fetchCategories();
+    fetchBrands();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchBrands = async () => {
     setLoading(true);
     try {
-      const response = await callFetchCategories();
-      setCategories(response.data.data);
+      const response = await callFetchBrands();
+      setBrands(response.data.data);
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      message.error('Failed to load categories');
+      console.error('Error fetching brands:', error);
+      message.error('Failed to load brands');
     } finally {
       setLoading(false);
     }
@@ -58,14 +62,16 @@ const CategoryManagement = () => {
 
   const handleBulkDelete = async () => {
     try {
-      await Promise.all(selectedRowKeys.map((id) => callDeleteCategory(id)));
-      message.success(`Đã xóa ${selectedRowKeys.length} danh mục thành công`);
+      await Promise.all(selectedRowKeys.map((id) => callDeleteBrand(id)));
+      message.success(
+        `Đã xóa ${selectedRowKeys.length} thương hiệu thành công`,
+      );
       setSelectedRowKeys([]);
       setSelectedRows([]);
       setOpenModalDelete(false);
-      fetchCategories();
+      fetchBrands();
     } catch (error) {
-      console.error('Failed to delete categories:', error);
+      console.error('Failed to delete brands:', error);
       message.error('Xóa thất bại');
     }
   };
@@ -73,26 +79,45 @@ const CategoryManagement = () => {
   const reloadTable = async () => {
     setLoading(true);
     try {
-      const response = await callFetchCategories();
-      setCategories(response.data.data);
-      message.success('Categories refreshed successfully');
+      const response = await callFetchBrands();
+      setBrands(response.data.data);
+      message.success('Brands refreshed successfully');
     } catch (error) {
-      console.error('Failed to reload categories:', error);
-      message.error('Failed to refresh categories');
+      console.error('Failed to reload brands:', error);
+      message.error('Failed to refresh brands');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredCategories = categories.filter(
-    (category) =>
-      category.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-      category.description?.toLowerCase().includes(searchText.toLowerCase()),
+  const filteredBrands = brands.filter(
+    (brand) =>
+      brand.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+      brand.description?.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   const columns = [
     {
-      title: 'Tên danh mục',
+      title: 'Logo',
+      dataIndex: 'logo',
+      key: 'logo',
+
+      render: (text, record) => (
+        <Avatar
+          src={text}
+          alt={record.name}
+          shape="square"
+          size={50}
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            setSelectedBrand(record);
+            setPreviewVisible(true);
+          }}
+        />
+      ),
+    },
+    {
+      title: 'Tên thương hiệu',
       dataIndex: 'name',
       key: 'name',
       render: (text) => <Text strong>{text}</Text>,
@@ -118,16 +143,29 @@ const CategoryManagement = () => {
     {
       title: 'Trạng thái',
       key: 'status',
-      render: (s) =>
-        s.isActive ? (
-          <Tooltip title="Đang hoạt động">
-            <Tag color="green">Đang hoạt động</Tag>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Ngưng hoạt động">
-            <Tag color="red">Ngưng hoạt động</Tag>
-          </Tooltip>
-        ),
+      align: 'center',
+      render: (record) => (
+        <Tooltip title="Đang hoạt động">
+          {record.isActive ? ' Còn hoạt động' : 'Ngưng hoạt động'}
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      align: 'center',
+      render: (_, record) => (
+        <Button
+          type="link"
+          icon={<EyeOutlined />}
+          size="small"
+          style={{ padding: 0 }}
+          onClick={() => {
+            setSelectedBrand(record);
+            setPreviewVisible(true);
+          }}
+        />
+      ),
     },
   ];
 
@@ -142,7 +180,7 @@ const CategoryManagement = () => {
   return (
     <>
       <Modal
-        title="Xóa danh mục"
+        title="Xóa thương hiệu"
         open={openModalDelete}
         onCancel={() => setOpenModalDelete(false)}
         onOk={handleBulkDelete}
@@ -158,12 +196,13 @@ const CategoryManagement = () => {
             style={{ color: '#ff4d4f', fontSize: 22, marginRight: 8 }}
           />
           <span style={{ fontSize: 16, fontWeight: 500 }}>
-            Xác nhận xóa danh mục
+            Xác nhận xóa thương hiệu
           </span>
         </div>
         <div>
           <p>
-            Bạn có chắc là muốn xóa {selectedRowKeys.length} danh mục đã chọn?
+            Bạn có chắc là muốn xóa {selectedRowKeys.length} thương hiệu đã
+            chọn?
           </p>
         </div>
       </Modal>
@@ -179,7 +218,7 @@ const CategoryManagement = () => {
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               <AppstoreOutlined style={{ marginRight: 8 }} />
-              Danh sách các danh mục
+              Danh sách các thương hiệu
             </Title>
           </Col>
         </Row>
@@ -191,7 +230,7 @@ const CategoryManagement = () => {
         >
           <Col xs={24} sm={12} md={6}>
             <Input
-              placeholder="Tìm kiếm danh mục..."
+              placeholder="Tìm kiếm thương hiệu, mô tả..."
               prefix={<SearchOutlined style={{ color: '#94A3B8' }} />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -215,10 +254,11 @@ const CategoryManagement = () => {
                   boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)',
                 }}
                 onClick={() => {
+                  setDataInit(null);
                   setOpenModal(true);
                 }}
               >
-                Thêm danh mục
+                Thêm thương hiệu
               </Button>
 
               <Button
@@ -243,9 +283,7 @@ const CategoryManagement = () => {
 
               <Button
                 danger
-                onClick={() => {
-                  setOpenModalDelete(true);
-                }}
+                onClick={() => setOpenModalDelete(true)}
                 disabled={selectedRowKeys.length === 0}
                 icon={<DeleteOutlined />}
                 style={{
@@ -261,6 +299,18 @@ const CategoryManagement = () => {
               >
                 Xóa ({selectedRowKeys.length})
               </Button>
+
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={reloadTable}
+                loading={loading}
+                style={{
+                  borderRadius: 8,
+                  fontWeight: 500,
+                }}
+              >
+                Làm mới
+              </Button>
             </Flex>
           </Col>
         </Row>
@@ -269,19 +319,24 @@ const CategoryManagement = () => {
           loading={loading}
           rowKey={(record) => record._id}
           rowSelection={rowSelection}
-          dataSource={filteredCategories}
+          dataSource={filteredBrands}
           columns={columns}
           bordered
           size="middle"
           pagination={{
             defaultPageSize: 10,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            showTotal: (total) => `Total ${total} categories`,
+          }}
+          locale={{
+            emptyText: (
+              <Empty
+                description="Không tìm thấy thương hiệu nào"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            ),
           }}
         />
 
-        <ModalCategory
+        <ModalBrand
           openModal={openModal}
           setOpenModal={setOpenModal}
           reloadTable={reloadTable}
@@ -290,8 +345,56 @@ const CategoryManagement = () => {
           visible={openModal}
         />
       </Card>
+
+      <Modal
+        title={selectedBrand?.name}
+        open={previewVisible}
+        onCancel={() => setPreviewVisible(false)}
+        footer={[
+          <Button key="back" onClick={() => setPreviewVisible(false)}>
+            Đóng
+          </Button>,
+          <Button
+            key="edit"
+            type="primary"
+            onClick={() => {
+              setDataInit(selectedBrand);
+              setOpenModal(true);
+              setPreviewVisible(false);
+            }}
+          >
+            Chỉnh sửa
+          </Button>,
+        ]}
+        width={600}
+      >
+        {selectedBrand && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+            }}
+          >
+            <Avatar
+              src={selectedBrand.logo}
+              alt={selectedBrand.name}
+              shape="square"
+              size={120}
+              style={{ marginBottom: 16 }}
+            />
+            <div style={{ width: '100%' }}>
+              <Title level={5}>Mô tả</Title>
+              <Paragraph>
+                {selectedBrand.description || 'Không có mô tả.'}
+              </Paragraph>
+            </div>
+          </div>
+        )}
+      </Modal>
     </>
   );
 };
 
-export default CategoryManagement;
+export default BrandManagement;

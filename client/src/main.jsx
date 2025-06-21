@@ -1,6 +1,7 @@
 import router from './routes';
 import { StrictMode } from 'react';
-import { ConfigProvider, message } from 'antd';
+import { App as AntdApp, ConfigProvider } from 'antd';
+import 'antd/dist/reset.css'; // cần cho Ant Design v5
 import { AppProvider } from '@contexts';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
@@ -14,7 +15,6 @@ createRoot(document.getElementById('root')).render(
         },
         components: {
           Input: {
-            // paddingBlock: '8px',
             activeBorderColor: '#ee4d2d',
             hoverBorderColor: '#ee4d2d',
             activeShadow: '0',
@@ -27,9 +27,11 @@ createRoot(document.getElementById('root')).render(
         },
       }}
     >
-      <AppProvider>
-        <RouterProvider router={router} />
-      </AppProvider>
+      <AntdApp>
+        <AppProvider>
+          <RouterProvider router={router} />
+        </AppProvider>
+      </AntdApp>
     </ConfigProvider>
   </StrictMode>,
 );

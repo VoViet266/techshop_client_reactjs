@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useAppContext } from '@/contexts';
+import useMessage from '@/hooks/useMessage';
 import {
-  Table,
-  Card,
-  Select,
-  Button,
-  Tag,
-  Space,
-  Modal,
-  Descriptions,
-  Typography,
-  message,
-  Input,
-  DatePicker,
-  Row,
-  Col,
-  Statistic,
-  Badge,
-  Divider,
-} from 'antd';
+  callCreateOrder,
+  callFetchBranches,
+  callFetchOrders,
+  callFetchProducts,
+  callUpdateOrder,
+} from '@/services/apis';
 import {
   EyeOutlined,
   EditOutlined,
@@ -29,12 +18,33 @@ import {
   ReloadOutlined,
   HomeOutlined,
   DollarOutlined,
+  PlusOutlined,
+  MinusOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import {
-  callFetchBranches,
-  callFetchOrders,
-  callUpdateOrder,
-} from '@/services/apis';
+  Badge,
+  Button,
+  Card,
+  Col,
+  Tag,
+  DatePicker,
+  Descriptions,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Table,
+  Typography,
+  Popconfirm,
+  message,
+} from 'antd';
+import { useEffect, useState } from 'react';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -43,16 +53,30 @@ const { RangePicker } = DatePicker;
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [branches, setBranches] = useState([]);
+  const [products, setProducts] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [createForm] = Form.useForm();
+  const { success, error, warning, contextHolder } = useMessage();
   const [filters, setFilters] = useState({
     branch: '',
     searchText: '',
     dateRange: null,
   });
 
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const { user } = useAppContext();
+  const [createOrderData, setCreateOrderData] = useState({
+    phone: '',
+    items: [],
+    paymentMethod: 'cash',
+    branch: user.branch,
+  });
   const fetchOrders = async () => {
     try {
       setLoading(true);
@@ -66,7 +90,15 @@ const OrderManagement = () => {
     }
   };
 
-  // Order status options
+  const fetchProducts = async () => {
+    try {
+      const res = await callFetchProducts();
+      setProducts(res.data.data.result);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
+
   const statusOptions = [
     { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
     { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
@@ -77,6 +109,8 @@ const OrderManagement = () => {
     { value: 'RETURNED', label: 'Đã trả hàng', color: 'gray' },
   ];
 
+  const paymentMethodOptions = [];
+
   const paymentStatusOptions = [
     { value: 'PENDING', label: 'Đang chờ thanh toán', color: 'orange' },
     { value: 'SUCCESS', label: 'Đã thanh toán', color: 'green' },
@@ -86,17 +120,29 @@ const OrderManagement = () => {
   ];
 
   const paymentMethods = [
-    { value: 'COD', label: 'Thanh toán khi nhận hàng' },
-    // { value: "bank_transfer", label: "Chuyển khoản ngân hàng" },
-    { value: 'credit_card', label: 'Thẻ tín dụng' },
-    { value: 'e_wallet', label: 'Ví điện tử' },
+    {
+      value: 'cash',
+      label: (
+        <>
+          <DollarOutlined style={{ marginRight: 6 }} />
+          Thanh toán tiền mặt tại quầy
+        </>
+      ),
+    },
+    {
+      value: 'online',
+      label: (
+        <>
+          <CreditCardOutlined style={{ marginRight: 6 }} />
+          Thanh toán online
+        </>
+      ),
+    },
   ];
 
   const fetchBranches = async () => {
     try {
       const res = await callFetchBranches();
-
-      console.log(res.data.data);
       setBranches(res.data.data);
     } catch (error) {
       console.error('Failed to fetch branches:', error);
@@ -116,8 +162,8 @@ const OrderManagement = () => {
       const searchLower = filters.searchText.toLowerCase();
       filtered = filtered.filter(
         (order) =>
-          order._id.toLowerCase().includes(searchLower) ||
-          order.createdBy.email.toLowerCase().includes(searchLower) ||
+          order._id?.toLowerCase().includes(searchLower) ||
+          order.createdBy.email?.toLowerCase().includes(searchLower) ||
           order.createdBy.name?.toLowerCase().includes(searchLower) ||
           order.shippingAddress.toLowerCase().includes(searchLower),
       );
@@ -164,6 +210,133 @@ const OrderManagement = () => {
     }).format(amount);
   };
 
+  const addProductToCart = () => {
+    if (!selectedProduct || !selectedVariant || quantity <= 0) {
+      message.error('Vui lòng chọn đầy đủ thông tin sản phẩm');
+      return;
+    }
+
+    const existingItemIndex = createOrderData.items.findIndex(
+      (item) =>
+        item.product === selectedProduct._id &&
+        item.variant === selectedVariant._id,
+    );
+
+    let newItems;
+    if (existingItemIndex >= 0) {
+      newItems = [...createOrderData.items];
+      newItems[existingItemIndex].quantity += quantity;
+    } else {
+      const newItem = {
+        product: selectedProduct._id,
+        productName: selectedProduct.name,
+        variant: selectedVariant._id,
+        variantName: selectedVariant.name,
+        quantity: quantity,
+        price: selectedVariant.salePrice || selectedVariant.price, // Lấy giá bán
+      };
+      newItems = [...createOrderData.items, newItem];
+    }
+
+    setCreateOrderData({
+      ...createOrderData,
+      items: newItems,
+    });
+
+    setSelectedProduct(null);
+    setSelectedVariant(null);
+    setQuantity(1);
+
+    message.success('Đã thêm sản phẩm vào đơn hàng');
+  };
+
+  const removeProductFromCart = (index) => {
+    const newItems = createOrderData.items.filter((_, i) => i !== index);
+    setCreateOrderData({
+      ...createOrderData,
+      items: newItems,
+    });
+  };
+
+  const updateCartItemQuantity = (index, newQuantity) => {
+    if (newQuantity <= 0) {
+      removeProductFromCart(index);
+      return;
+    }
+
+    const newItems = [...createOrderData.items];
+    newItems[index].quantity = newQuantity;
+
+    setCreateOrderData({
+      ...createOrderData,
+      items: newItems,
+    });
+  };
+
+  const calculateTotal = () => {
+    return createOrderData.items.reduce((total, item) => {
+      return total + item.price * item.quantity;
+    }, 0);
+  };
+
+  const handleCreateOrderSubmit = async () => {
+    if (!createOrderData.phone) {
+      message.error('Vui lòng nhập số điện thoại khách hàng');
+      return;
+    }
+
+    if (createOrderData.items.length === 0) {
+      message.error('Vui lòng thêm ít nhất một sản phẩm');
+      return;
+    }
+
+    if (
+      createOrderData.items.some(
+        (item) => item.quantity <= 0 || item.price <= 0,
+      )
+    ) {
+      message.error('Vui lòng kiểm tra lại số lượng và giá sản phẩm');
+      return;
+    }
+
+    setLoading(true);
+
+    const orderData = {
+      branch: createOrderData.branch,
+      phone: createOrderData.phone,
+      items: createOrderData.items.map((item) => ({
+        product: item.product,
+        variant: item.variant,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      paymentMethod: createOrderData.paymentMethod,
+    };
+    try {
+      await callCreateOrder(orderData);
+      setIsCreateModalVisible(false);
+
+      setCreateOrderData({
+        phone: '',
+        items: [],
+        paymentMethod: 'cash',
+        branch: user.branch,
+      });
+      success('Tạo đơn hàng thành công!');
+      callFetchOrders();
+    } catch (err) {
+      if (err.response.status === 404) {
+        error(
+          'Số lượng tồn kho hiện tại của sản phẩm không đủ, vui lòng kiểm tra lại kho hàng!',
+        );
+      } else {
+        error(err.response.data.message);
+      }
+      setLoading(false);
+      return;
+    }
+  };
+
   const columns = [
     {
       title: 'Mã đơn hàng',
@@ -177,8 +350,6 @@ const OrderManagement = () => {
       ),
     },
     {
-      title: 'Khách hàng',
-      key: 'customer',
       width: 180,
       render: (_, record) => (
         <div>
@@ -255,10 +426,11 @@ const OrderManagement = () => {
       ),
     },
   ];
+
   const handleUpdateOrder = (orderId, data) => {
     try {
       setLoading(true);
-      console.log(orderId);
+
       callUpdateOrder(orderId, data).then((res) => {
         setLoading(false);
         fetchOrders();
@@ -267,15 +439,18 @@ const OrderManagement = () => {
       console.error('Failed to update order:', error);
     }
   };
+
   useEffect(() => {
     fetchOrders();
     fetchBranches();
+    fetchProducts();
   }, []);
+
   return (
     <div style={{ padding: '24px' }}>
+      {contextHolder}
       <Title level={2}>Quản lý đơn hàng</Title>
 
-      {/* Statistics */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={6}>
           <Card>
@@ -317,11 +492,9 @@ const OrderManagement = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* Filters */}
       <Card style={{ marginBottom: 24 }}>
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={6}>
             <Input
               placeholder="Tìm kiếm..."
               prefix={<SearchOutlined />}
@@ -332,7 +505,7 @@ const OrderManagement = () => {
             />
           </Col>
 
-          <Col span={6}>
+          <Col span={4}>
             <Select
               placeholder="Chi nhánh"
               style={{ width: '100%' }}
@@ -373,10 +546,18 @@ const OrderManagement = () => {
               Làm mới
             </Button>
           </Col>
+          <Col span={6}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setIsCreateModalVisible(true)}
+            >
+              Tạo Đơn Hàng Tại Quầy
+            </Button>
+          </Col>
         </Row>
       </Card>
 
-      {/* Orders Table */}
       <Card>
         <Table
           columns={columns}
@@ -385,8 +566,10 @@ const OrderManagement = () => {
           pagination={{
             pageSize: 10,
           }}
+          loading={loading}
         />
       </Card>
+
       <Modal
         title={`Chi tiết đơn hàng #${selectedOrder?._id.slice(-8)}`}
         open={isModalVisible}
@@ -556,6 +739,320 @@ const OrderManagement = () => {
             </div>
           </div>
         )}
+      </Modal>
+      <Modal
+        title="Tạo Đơn Hàng Tại Quầy"
+        open={isCreateModalVisible}
+        onCancel={() => {
+          setIsCreateModalVisible(false);
+          setCreateOrderData({
+            phone: '',
+            items: [],
+            paymentMethod: 'cash',
+            branch: '665ab123456789abcdef0001',
+          });
+          setSelectedProduct(null);
+          setSelectedVariant(null);
+          setQuantity(1);
+        }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
+              setIsCreateModalVisible(false);
+              setCreateOrderData({
+                phone: '',
+                items: [],
+                paymentMethod: 'cash',
+                branch: '665ab123456789abcdef0001',
+              });
+              setSelectedProduct(null);
+              setSelectedVariant(null);
+              setQuantity(1);
+            }}
+          >
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={handleCreateOrderSubmit}
+          >
+            Tạo Đơn Hàng
+          </Button>,
+        ]}
+        width={900}
+      >
+        <div>
+          <Row gutter={16} style={{ marginBottom: 16 }}>
+            <Col span={12}>
+              <div style={{ marginBottom: 8 }}>
+                <Text strong>Số điện thoại khách hàng</Text>
+                <Text style={{ color: '#ff4d4f' }}> *</Text>
+              </div>
+              <Input
+                placeholder="Nhập số điện thoại"
+                value={createOrderData.phone}
+                onChange={(e) =>
+                  setCreateOrderData({
+                    ...createOrderData,
+                    phone: e.target.value,
+                  })
+                }
+              />
+            </Col>
+            <Col span={12}>
+              <div style={{ marginBottom: 8 }}>
+                <Text strong>Phương thức thanh toán</Text>
+              </div>
+              <Select
+                style={{ width: '100%' }}
+                value={createOrderData.paymentMethod}
+                onChange={(value) =>
+                  setCreateOrderData({
+                    ...createOrderData,
+                    paymentMethod: value,
+                  })
+                }
+              >
+                {paymentMethods.map((method) => (
+                  <Option key={method.value} value={method.value}>
+                    {method.label}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+          </Row>
+
+          <Divider>Chọn sản phẩm</Divider>
+
+          <Card
+            size="small"
+            style={{ marginBottom: 16, backgroundColor: '#fafafa' }}
+          >
+            <Row gutter={16} align="bottom">
+              <Col span={8}>
+                <div style={{ marginBottom: 8 }}>
+                  <Text strong>Sản phẩm</Text>
+                  <Text style={{ color: '#ff4d4f' }}> *</Text>
+                </div>
+                <Select
+                  showSearch
+                  placeholder="Tìm và chọn sản phẩm"
+                  style={{ width: '100%' }}
+                  value={selectedProduct?._id}
+                  onChange={(value) => {
+                    const product = products.find((p) => p._id === value);
+                    setSelectedProduct(product);
+                    setSelectedVariant(null); // Reset variant khi đổi sản phẩm
+                  }}
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {products.map((product) => (
+                    <Option key={product._id} value={product._id}>
+                      {product.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+
+              <Col span={6}>
+                <div style={{ marginBottom: 8 }}>
+                  <Text strong>Phân loại</Text>
+                  <Text style={{ color: '#ff4d4f' }}> *</Text>
+                </div>
+                <Select
+                  placeholder="Chọn phân loại"
+                  style={{ width: '100%' }}
+                  value={selectedVariant?._id}
+                  onChange={(value) => {
+                    const variant = selectedProduct?.variants.find(
+                      (v) => v._id === value,
+                    );
+                    setSelectedVariant(variant);
+                  }}
+                  disabled={!selectedProduct}
+                >
+                  {selectedProduct?.variants?.map((variant) => (
+                    <Option key={variant._id} value={variant._id}>
+                      {variant.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+
+              <Col span={4}>
+                <div style={{ marginBottom: 8 }}>
+                  <Text strong>Số lượng</Text>
+                  <Text style={{ color: '#ff4d4f' }}> *</Text>
+                </div>
+                <InputNumber
+                  min={1}
+                  style={{ width: '100%' }}
+                  value={quantity}
+                  onChange={(value) => setQuantity(value || 1)}
+                />
+              </Col>
+
+              <Col span={4}>
+                <div style={{ marginBottom: 8 }}>
+                  <Text strong>Giá bán</Text>
+                </div>
+                <Input
+                  value={
+                    selectedVariant
+                      ? formatCurrency(
+                          selectedVariant.salePrice || selectedVariant.price,
+                        )
+                      : ''
+                  }
+                  disabled
+                  style={{ width: '100%' }}
+                />
+              </Col>
+
+              <Col span={2}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={addProductToCart}
+                  disabled={!selectedProduct || !selectedVariant}
+                  style={{ width: '100%', padding: '0 8px' }}
+                ></Button>
+              </Col>
+            </Row>
+          </Card>
+
+          <Divider>Giỏ hàng ({createOrderData.items.length} sản phẩm)</Divider>
+
+          {createOrderData.items.length === 0 ? (
+            <div
+              style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}
+            >
+              <ShoppingCartOutlined
+                style={{ fontSize: '48px', marginBottom: '16px' }}
+              />
+              <div>Chưa có sản phẩm nào trong giỏ hàng</div>
+              <div>Vui lòng chọn sản phẩm ở trên để thêm vào đơn hàng</div>
+            </div>
+          ) : (
+            <Table
+              dataSource={createOrderData.items}
+              pagination={false}
+              size="small"
+              rowKey="id"
+              columns={[
+                {
+                  title: 'Sản phẩm',
+                  render: (_, item) => (
+                    <div>
+                      <div style={{ fontWeight: 500 }}>{item.productName}</div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>
+                        {item.variantName}
+                      </div>
+                    </div>
+                  ),
+                  width: '40%',
+                },
+                {
+                  title: 'Đơn giá',
+                  render: (_, item) => formatCurrency(item.price),
+                  align: 'right',
+                  width: '20%',
+                },
+                {
+                  title: 'Số lượng',
+                  render: (_, item, index) => (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Button
+                        size="small"
+                        icon={<MinusOutlined />}
+                        onClick={() =>
+                          updateCartItemQuantity(index, item.quantity - 1)
+                        }
+                        disabled={item.quantity <= 1}
+                      />
+                      <InputNumber
+                        size="small"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(value) =>
+                          updateCartItemQuantity(index, value || 1)
+                        }
+                        style={{ width: '60px', margin: '0 8px' }}
+                      />
+                      <Button
+                        size="small"
+                        icon={<PlusOutlined />}
+                        onClick={() =>
+                          updateCartItemQuantity(index, item.quantity + 1)
+                        }
+                      />
+                    </div>
+                  ),
+                  align: 'center',
+                  width: '25%',
+                },
+                {
+                  title: 'Thành tiền',
+                  render: (_, item) => (
+                    <Text strong style={{ color: '#1890ff' }}>
+                      {formatCurrency(item.price * item.quantity)}
+                    </Text>
+                  ),
+                  align: 'right',
+                  width: '20%',
+                },
+                {
+                  title: '',
+                  render: (_, item, index) => (
+                    <Popconfirm
+                      title="Bạn có chắc muốn xóa sản phẩm này?"
+                      onConfirm={() => removeProductFromCart(index)}
+                      okText="Có"
+                      cancelText="Không"
+                    >
+                      <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        size="small"
+                      />
+                    </Popconfirm>
+                  ),
+                  width: '10%',
+                },
+              ]}
+            />
+          )}
+
+          {createOrderData.items.length > 0 && (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 16,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 6,
+                textAlign: 'right',
+              }}
+            >
+              <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
+                Tổng cộng: {formatCurrency(calculateTotal())}
+              </Text>
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );

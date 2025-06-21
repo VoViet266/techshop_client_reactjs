@@ -124,26 +124,26 @@ function AdminLayout() {
       key: 'category',
       label: 'Danh mục',
       icon: <ShoppingOutlined />,
-      onClick: () => navigate('/admin/category'),
+      onClick: () => navigate('/admin/category/management'),
     },
     {
       key: 'brand',
       label: 'Thương hiệu',
       icon: <TagsOutlined />,
-      onClick: () => navigate('/admin/brand'),
+      onClick: () => navigate('/admin/brand/management'),
     },
     {
       key: 'user',
       label: 'Người dùng',
       icon: <UserOutlined />,
-      onClick: () => navigate('/admin/user'),
+      onClick: () => navigate('/admin/user/management'),
     },
     {
       key: 'permission',
       label: 'Phân quyền',
       icon: <SafetyOutlined />,
       // Chưa có route cụ thể trong router — bạn có thể thêm sau
-      onClick: () => navigate('/admin/permission'),
+      onClick: () => navigate('/admin/permission/'),
     },
   ];
 
@@ -151,11 +151,7 @@ function AdminLayout() {
     const pathSnippets = location.pathname.split('/').filter((i) => i);
     const breadcrumbItems = [
       {
-        title: (
-          <Link to="/admin/dashboard" style={{ color: '#4F46E5' }}>
-            Admin
-          </Link>
-        ),
+        title: <Link to="/admin/dashboard">Admin</Link>,
       },
     ];
 
@@ -178,10 +174,6 @@ function AdminLayout() {
 
     return breadcrumbItems;
   };
-
-  useEffect(() => {
-    navigate('/admin/dashboard');
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
