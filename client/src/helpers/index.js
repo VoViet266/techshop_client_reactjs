@@ -1,5 +1,5 @@
-export { default as validatePhone } from "./validatePhone";
-export { default as validateEmail } from "./validateEmail";
-export { default as validateAddress } from "./validateAddress";
-export { default as validateFullname } from "./validateFullname";
-export { default as validatePassword } from "./validatePassword";
+export { default as validatePhone } from './validatePhone';
+export { default as validateEmail } from './validateEmail';
+export { default as validateAddress } from './validateAddress';
+export { default as validateFullname } from './validateFullname';
+export { default as validatePassword } from './validatePassword';

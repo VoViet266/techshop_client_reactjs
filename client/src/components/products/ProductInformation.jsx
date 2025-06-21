@@ -1,10 +1,10 @@
-import { useState, useEffect, use } from "react";
-import { RiGiftFill } from "react-icons/ri";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import { useState, useEffect, use } from 'react';
+import { RiGiftFill } from 'react-icons/ri';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function ProductInformation({ className, product, loading }) {
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState('');
   const [colors, setColors] = useState([]);
   const [memories, setMemories] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -38,27 +38,22 @@ function ProductInformation({ className, product, loading }) {
   useEffect(() => {
     if (product.variants) {
       const variantPrice = product.variants.find(
-        (variant) =>
-          variant.color === selectedColor && variant.memory === selectedMemory
+        (variant) => variant.color === selectedColor && variant.memory === selectedMemory,
       );
-      setPrice(variantPrice?.price || "");
+      setPrice(variantPrice?.price || '');
     }
   }, [selectedColor, selectedMemory, product.variants]);
 
   return (
     <div className={className}>
-      <h3 className="text-2xl font-medium">
-        {product.name || <Skeleton className="h-40" />}
-      </h3>
+      <h3 className="text-2xl font-medium">{product.name || <Skeleton className="h-40" />}</h3>
       <span className="text-lg font-bold text-primary">
         {`${price} VNĐ` || <Skeleton className="h-40" />}
       </span>
 
       {product.variants ? (
         <div className="border rounded-md border-[#e5e7eb]">
-          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
-            Bộ nhớ
-          </div>
+          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">Bộ nhớ</div>
           <div className="p-8 grid grid-cols-2 gap-8">
             {memories.map((memory, index) => (
               <div
@@ -72,7 +67,7 @@ function ProductInformation({ className, product, loading }) {
                   const colors = variants.map((variant) => variant.color);
                   setColors(colors);
                 }}
-                className={`flex cursor-pointer ${selectedMemory === memory && "border-primary"} hover:border-primary flex-col gap-4 p-6 border border-[#e5e7eb] rounded-sm`}
+                className={`flex cursor-pointer ${selectedMemory === memory && 'border-primary'} hover:border-primary flex-col gap-4 p-6 border border-[#e5e7eb] rounded-sm`}
               >
                 <span className="font-medium">Ram {memory.ram}</span>
                 <span className="font-medium">Bộ nhớ {memory.storage}</span>
@@ -86,9 +81,7 @@ function ProductInformation({ className, product, loading }) {
 
       {product.variants ? (
         <div className="border rounded-md border-[#e5e7eb]">
-          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
-            Màu
-          </div>
+          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">Màu</div>
           <div className="p-8 grid grid-cols-2 gap-8">
             {colors.map((color, index) => (
               <div
@@ -96,12 +89,10 @@ function ProductInformation({ className, product, loading }) {
                 onClick={() => {
                   setSelectedColor(color);
                 }}
-                className={`flex ${selectedColor === color && "border-primary"} hover:border-primary cursor-pointer items-center gap-4 p-6 border border-[#e5e7db] rounded-sm`}
+                className={`flex ${selectedColor === color && 'border-primary'} hover:border-primary cursor-pointer items-center gap-4 p-6 border border-[#e5e7db] rounded-sm`}
               >
                 <span className="font-medium">Màu {color.name}</span>
-                <div
-                  className={`w-30 h-30 bg-[${color.hex}] rounded-full`}
-                ></div>
+                <div className={`w-30 h-30 bg-[${color.hex}] rounded-full`}></div>
               </div>
             ))}
           </div>

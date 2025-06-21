@@ -1,6 +1,6 @@
-import React, { use, useEffect, useState } from "react";
-import { Modal, Input, Table, Tag, Button, Badge, Typography } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import React, { use, useEffect, useState } from 'react';
+import { Modal, Input, Table, Tag, Button, Badge, Typography } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 
 const ModalSearchProduct = ({
   inbound,
@@ -11,7 +11,7 @@ const ModalSearchProduct = ({
   filteredProducts,
   setFilteredProducts,
 }) => {
-  const [productSearchText, setProductSearchText] = useState("");
+  const [productSearchText, setProductSearchText] = useState('');
 
   const handleProductSearch = (value) => {
     setProductSearchText(value);
@@ -21,52 +21,49 @@ const ModalSearchProduct = ({
     }
 
     const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(value.toLowerCase())
+      product.name.toLowerCase().includes(value.toLowerCase()),
     );
     setFilteredProducts(filtered);
   };
 
   const productSearchColumns = [
     {
-      title: "Sản phẩm",
-      key: "product",
+      title: 'Sản phẩm',
+      key: 'product',
       render: (_, record) => (
         <div>
           <Typography.Text strong>{record.name}</Typography.Text>
           <br />
 
           <br />
-          <Tag color="blue" style={{ fontSize: "10px" }}>
+          <Tag color="blue" style={{ fontSize: '10px' }}>
             {record.category?.name}
           </Tag>
         </div>
       ),
     },
     {
-      title: "Số biến thể",
-      key: "variants",
+      title: 'Số biến thể',
+      key: 'variants',
       width: 100,
-      align: "center",
+      align: 'center',
       render: (_, record) => (
-        <Badge
-          count={record.variants?.length || 0}
-          style={{ backgroundColor: "#52c41a" }}
-        />
+        <Badge count={record.variants?.length || 0} style={{ backgroundColor: '#52c41a' }} />
       ),
     },
     {
-      title: "Trạng thái",
-      key: "status",
+      title: 'Trạng thái',
+      key: 'status',
       width: 100,
       render: (_, record) => (
-        <Tag color={record.status === "active" ? "green" : "red"}>
-          {record.status === "active" ? "Hoạt động" : "Ngừng bán"}
+        <Tag color={record.status === 'active' ? 'green' : 'red'}>
+          {record.status === 'active' ? 'Hoạt động' : 'Ngừng bán'}
         </Tag>
       ),
     },
     {
-      title: "Thao tác",
-      key: "actions",
+      title: 'Thao tác',
+      key: 'actions',
       width: 100,
       render: (_, record) => (
         <Button
@@ -91,7 +88,7 @@ const ModalSearchProduct = ({
         width={800}
         style={{ top: 20 }}
       >
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: '16px' }}>
           <Input
             placeholder="Tìm kiếm theo tên sản phẩm, mã sản phẩm hoặc danh mục..."
             prefix={<SearchOutlined />}

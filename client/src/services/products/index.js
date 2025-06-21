@@ -1,7 +1,7 @@
-import add from "./add";
-import search from "./search";
-import getAll from "./getAll";
-import getProductDetail from "./getProductDetail";
+import add from './add';
+import search from './search';
+import getAll from './getAll';
+import getProductDetail from './getProductDetail';
 
 class Products {
   static add = add;

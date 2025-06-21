@@ -1,15 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Card, Badge, Button, Space, Typography, Divider, Image } from "antd";
+import { Link, useNavigate } from 'react-router-dom';
+import { Card, Badge, Button, Space, Typography, Divider, Image } from 'antd';
 
 function CardProduct({ product }) {
   const navigate = useNavigate();
 
   return (
-    <Badge.Ribbon
-      text="Mới"
-      color="red"
-      className="top-10! font-roboto! -right-6!"
-    >
+    <Badge.Ribbon text="Mới" color="red" className="top-10! font-roboto! -right-6!">
       <Link to={`/product/${product._id}`}>
         <Card
           hoverable
@@ -20,7 +16,7 @@ function CardProduct({ product }) {
               className="object-fill! aspect-square! mx-auto! mt-20! w-[80%]! rounded-xl!"
               src={
                 product.variants?.[0]?.images?.[0] ||
-                "https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg"
+                'https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg'
               }
             />
           }
@@ -31,7 +27,7 @@ function CardProduct({ product }) {
             level={4}
             className="mb-8! line-clamp-1! font-roboto! text-[16px]! leading-1.4!"
           >
-            {product.name || "iPhone 16 Pro Max 256GB | Chính hãng VN/A"}
+            {product.name || 'iPhone 16 Pro Max 256GB | Chính hãng VN/A'}
           </Typography.Title>
           <div className="mb-16">
             <Space direction="vertical" size={4}>
@@ -50,15 +46,10 @@ function CardProduct({ product }) {
           <div className="mb-10">
             <div className="line-clamp-1">
               <Typography.Text className="text-xl! font-bold! font-roboto! text-[#d32f2f]! mr-8!">
-                {product?.variants[0]?.price * product?.discount ||
-                  "30.000.000 VNĐ"}
+                {product?.variants[0]?.price * product?.discount || '30.000.000 VNĐ'}
               </Typography.Text>
-              <Typography.Text
-                delete
-                type="secondary"
-                className="text-sm! font-roboto!"
-              >
-                {product?.variants[0]?.price || "35.290.000 VNĐ"}
+              <Typography.Text delete type="secondary" className="text-sm! font-roboto!">
+                {product?.variants[0]?.price || '35.290.000 VNĐ'}
               </Typography.Text>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import axiosInstance from "@services/apis";
+import axiosInstance from '@services/apis';
 
 async function getAll() {
   try {
@@ -8,7 +8,7 @@ async function getAll() {
       categories = response.data.data;
       return categories;
     }
-    throw new Error("Không thể lấy danh sách thể loại.");
+    throw new Error('Không thể lấy danh sách thể loại.');
   } catch (error) {
     console.error(error);
   }

@@ -1,5 +1,5 @@
-import { useAppContext } from "@contexts";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useAppContext } from '@contexts';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
 function LoadingToast() {
   const { message } = useAppContext();

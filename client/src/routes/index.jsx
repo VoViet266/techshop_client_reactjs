@@ -1,24 +1,24 @@
-import { UsersLayout, AdminLayout } from "@layouts";
-import BranchManagement from "@/pages/admin/branch";
-import Dashboard from "@/pages/admin/dashboard/Dashboard";
-import CategoryPage from "@/pages/admin/category/category";
-import { Home, ProductDetail, SearchProductResult } from "@/pages/users";
-import { AddProduct, EditProduct, ListProduct } from "@/pages/admin/product";
-import { createBrowserRouter } from "react-router-dom";
-import WarehouseManagement from "@/pages/admin/warehouse";
-import WarehouseInbound from "@/pages/admin/warehouse/import";
-import WarehouseOutbound from "@/pages/admin/warehouse/export";
+import { UsersLayout, AdminLayout } from '@layouts';
+import BranchManagement from '@/pages/admin/branch';
+import Dashboard from '@/pages/admin/dashboard/Dashboard';
+import CategoryPage from '@/pages/admin/category/category';
+import { Home, ProductDetail, SearchProductResult } from '@/pages/users';
+import { AddProduct, EditProduct, ListProduct } from '@/pages/admin/product';
+import { createBrowserRouter } from 'react-router-dom';
+import WarehouseManagement from '@/pages/admin/warehouse';
+import WarehouseInbound from '@/pages/admin/warehouse/import';
+import WarehouseOutbound from '@/pages/admin/warehouse/export';
 // import WarehouseTransfer from "@/pages/admin/warehouse/transfer"; // Tạo component riêng cho transfer
-import Order from "@/pages/admin/order"; // Tạo component cho order management
-import NotExist from "@/components/error/notExist";
-import OrderList from "@/pages/admin/order";
-import OrderManagement from "@/pages/admin/order";
-import ProtectedRoute from "./ProtectedRoute";
+import Order from '@/pages/admin/order'; // Tạo component cho order management
+import NotExist from '@/components/error/notExist';
+import OrderList from '@/pages/admin/order';
+import OrderManagement from '@/pages/admin/order';
+import ProtectedRoute from './ProtectedRoute';
 
 const router = createBrowserRouter([
   // User routes
   {
-    path: "/",
+    path: '/',
     element: <UsersLayout />,
     children: [
       {
@@ -26,18 +26,18 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "product/:id",
+        path: 'product/:id',
         element: <ProductDetail />,
       },
       {
-        path: "search/:query",
+        path: 'search/:query',
         element: <SearchProductResult />,
       },
     ],
   },
 
   {
-    path: "/admin",
+    path: '/admin',
     element: (
       <ProtectedRoute requireAdmin={true}>
         <AdminLayout />
@@ -49,23 +49,23 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "dashboard",
+        path: 'dashboard',
         element: <Dashboard />,
       },
 
       {
-        path: "product",
+        path: 'product',
         children: [
           {
             index: true,
             element: <ListProduct />,
           },
           {
-            path: "add",
+            path: 'add',
             element: <AddProduct />,
           },
           {
-            path: "edit/:id",
+            path: 'edit/:id',
             element: <EditProduct />,
           },
         ],
@@ -73,20 +73,20 @@ const router = createBrowserRouter([
 
       // Category management
       {
-        path: "category",
+        path: 'category',
         element: <CategoryPage />,
       },
 
       // Branch management
       {
-        path: "branch",
+        path: 'branch',
         children: [
           {
             index: true,
             element: <BranchManagement />,
           },
           {
-            path: "management", // Redirect cho backward compatibility
+            path: 'management', // Redirect cho backward compatibility
             element: <BranchManagement />,
           },
         ],
@@ -94,18 +94,18 @@ const router = createBrowserRouter([
 
       // Warehouse management routes
       {
-        path: "warehouse",
+        path: 'warehouse',
         children: [
           {
             index: true,
             element: <WarehouseManagement />,
           },
           {
-            path: "import",
+            path: 'import',
             element: <WarehouseInbound />,
           },
           {
-            path: "export",
+            path: 'export',
             element: <WarehouseOutbound />,
           },
           // {
@@ -117,7 +117,7 @@ const router = createBrowserRouter([
 
       // Order management
       {
-        path: "order",
+        path: 'order',
         children: [
           {
             index: true,
@@ -141,14 +141,14 @@ const router = createBrowserRouter([
 
       // Catch-all route for admin
       {
-        path: "*",
+        path: '*',
         element: <NotExist />,
       },
     ],
   },
 
   {
-    path: "*",
+    path: '*',
     element: <NotExist />,
   },
 ]);

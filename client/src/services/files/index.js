@@ -1,4 +1,4 @@
-import upload from "./upload";
+import upload from './upload';
 
 class Files {
   static upload = upload;

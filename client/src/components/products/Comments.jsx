@@ -1,6 +1,6 @@
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { AiOutlineLike, AiOutlineRollback } from "react-icons/ai";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { AiOutlineLike, AiOutlineRollback } from 'react-icons/ai';
 
 function Comments({ className, product, loading, comment, setComment }) {
   return (
@@ -12,11 +12,11 @@ function Comments({ className, product, loading, comment, setComment }) {
               <Skeleton className="h-30" />
             </div>
           ) : (
-            "Bình luận và đánh giá"
+            'Bình luận và đánh giá'
           )}
         </span>
         <span className="flex items-center text-sm text-gray-500">
-          {loading ? <Skeleton className="h-20" /> : "10 bình luận"}
+          {loading ? <Skeleton className="h-20" /> : '10 bình luận'}
         </span>
       </div>
       <div>

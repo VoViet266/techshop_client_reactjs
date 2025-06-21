@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import Products from "@services/products";
+import { useState, useEffect } from 'react';
+import Products from '@services/products';
 import {
   Tag,
   Select,
@@ -20,7 +20,7 @@ import {
   Table,
   Badge,
   Avatar,
-} from "antd";
+} from 'antd';
 import {
   TagOutlined,
   WifiOutlined,
@@ -38,14 +38,10 @@ import {
   StopOutlined,
   EyeOutlined,
   EyeInvisibleOutlined,
-} from "@ant-design/icons";
-import {
-  callDeleteProduct,
-  callFetchBrands,
-  callFetchCategories,
-} from "@/services/apis";
-import { useNavigate } from "react-router-dom";
-import useMessage from "@/hooks/useMessage";
+} from '@ant-design/icons';
+import { callDeleteProduct, callFetchBrands, callFetchCategories } from '@/services/apis';
+import { useNavigate } from 'react-router-dom';
+import useMessage from '@/hooks/useMessage';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -53,14 +49,14 @@ const { Option } = Select;
 function ListProduct() {
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Bạn có chắc chắn muốn xóa?");
+  const [modalText, setModalText] = useState('Bạn có chắc chắn muốn xóa?');
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const { error, success, warning, contextHolder, infor } = useMessage();
   const navigate = useNavigate();
 
@@ -73,10 +69,10 @@ function ListProduct() {
     try {
       const fetchedProducts = await Products.getAll();
       setProducts(fetchedProducts);
-      success("Lấy danh sách sản phẩm");
+      success('Lấy danh sách sản phẩm');
     } catch (error) {
-      console.error("Failed to fetch products:", error.message);
-      error("Lấy danh sách sản phẩm thất bại");
+      console.error('Failed to fetch products:', error.message);
+      error('Lấy danh sách sản phẩm thất bại');
       setLoading(false);
     }
   };
@@ -86,7 +82,7 @@ function ListProduct() {
       const response = await callFetchCategories();
       setCategories(response.data.data);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error('Error fetching categories:', error);
       throw error;
     }
   };
@@ -96,7 +92,7 @@ function ListProduct() {
       const response = await callFetchBrands();
       setBrands(response.data.data);
     } catch (error) {
-      console.error("Error fetching brands:", error);
+      console.error('Error fetching brands:', error);
       throw error;
     }
   };
@@ -113,24 +109,22 @@ function ListProduct() {
   }, []);
 
   const handleDeleteProducts = async () => {
-    setModalText("The modal will be closed after two seconds");
+    setModalText('The modal will be closed after two seconds');
     setConfirmLoading(true);
     try {
       await Promise.all(selectedRowKeys.map((id) => callDeleteProduct(id)));
-      setProducts((prev) =>
-        prev.filter((p) => !selectedRowKeys.includes(p._id))
-      );
+      setProducts((prev) => prev.filter((p) => !selectedRowKeys.includes(p._id)));
       setSelectedRowKeys([]);
       setOpen(false);
       setConfirmLoading(false);
     } catch (error) {
-      console.error("Xóa sản phẩm thất bại", error);
+      console.error('Xóa sản phẩm thất bại', error);
     }
   };
 
   const handleEditProduct = () => {
     const productToEdit = selectedRows[0];
-    console.log("Sửa sản phẩm:", productToEdit._id);
+    console.log('Sửa sản phẩm:', productToEdit._id);
 
     navigate(`/admin/product/edit/${productToEdit._id}`);
   };
@@ -141,34 +135,30 @@ function ListProduct() {
 
   const handleClearFilters = () => {
     setFilters({ category: null, brand: null });
-    setSearchText("");
+    setSearchText('');
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchText.toLowerCase());
-    const matchesCategory =
-      !filters.category || product.category?.name === filters.category;
-    const matchesBrand =
-      !filters.brand || product.brand?.name === filters.brand;
+    const matchesSearch = product.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesCategory = !filters.category || product.category?.name === filters.category;
+    const matchesBrand = !filters.brand || product.brand?.name === filters.brand;
 
     return matchesSearch && matchesCategory && matchesBrand;
   });
 
   const stats = {
     total: products.length,
-    active: products.filter((p) => p.status === "active").length,
-    inactive: products.filter((p) => p.status !== "active").length,
+    active: products.filter((p) => p.status === 'active').length,
+    inactive: products.filter((p) => p.status !== 'active').length,
     discounted: products.filter((p) => p.discount > 0).length,
   };
 
   const columns = [
     {
-      title: "Sản phẩm",
-      dataIndex: "name",
-      key: "name",
-      fixed: "left",
+      title: 'Sản phẩm',
+      dataIndex: 'name',
+      key: 'name',
+      fixed: 'left',
       width: 280,
       sorter: (a, b) => a.name.localeCompare(b.name),
       render: (text, record) => (
@@ -178,10 +168,10 @@ function ListProduct() {
             height={60}
             width={60}
             style={{
-              objectFit: "cover",
+              objectFit: 'cover',
               borderRadius: 12,
               border: `2px solid #E2E8F0"`,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
             }}
             fallback="/fallback.jpg"
             preview={false}
@@ -191,9 +181,9 @@ function ListProduct() {
               strong
               style={{
                 fontSize: 14,
-                display: "block",
+                display: 'block',
                 marginBottom: 4,
-                color: "#0F172A",
+                color: '#0F172A',
               }}
             >
               {text}
@@ -203,25 +193,25 @@ function ListProduct() {
       ),
     },
     {
-      title: "Thương hiệu",
-      dataIndex: ["brand", "name"],
-      key: "brand",
+      title: 'Thương hiệu',
+      dataIndex: ['brand', 'name'],
+      key: 'brand',
       width: 140,
       render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: "Danh mục",
-      dataIndex: ["category", "name"],
-      key: "category",
+      title: 'Danh mục',
+      dataIndex: ['category', 'name'],
+      key: 'category',
       width: 140,
       render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: "Giảm giá",
-      dataIndex: "discount",
-      key: "discount",
+      title: 'Giảm giá',
+      dataIndex: 'discount',
+      key: 'discount',
       width: 100,
-      align: "center",
+      align: 'center',
       sorter: (a, b) => (a.discount || 0) - (b.discount || 0),
       render: (discount) =>
         discount ? (
@@ -229,44 +219,41 @@ function ListProduct() {
             style={{
               margin: 0,
               fontWeight: 600,
-              backgroundColor: "#EF4444",
-              color: "#FEFEFE",
-              border: "none",
+              backgroundColor: '#EF4444',
+              color: '#FEFEFE',
+              border: 'none',
               borderRadius: 6,
             }}
           >
             -{discount}%
           </Tag>
         ) : (
-          <Text type="secondary" style={{ fontSize: 12, color: "#94A3B8" }}>
+          <Text type="secondary" style={{ fontSize: 12, color: '#94A3B8' }}>
             —
           </Text>
         ),
     },
     {
-      title: "Phiên bản",
-      key: "variants",
+      title: 'Phiên bản',
+      key: 'variants',
       width: 100,
-      align: "center",
+      align: 'center',
       render: (_, record) => (
-        <Badge
-          count={record.variants?.length || 0}
-          style={{ backgroundColor: "#8B5CF6" }}
-        />
+        <Badge count={record.variants?.length || 0} style={{ backgroundColor: '#8B5CF6' }} />
       ),
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
       width: 120,
-      align: "center",
+      align: 'center',
       render: (status) => (
         <Badge
-          status={status === "active" ? "success" : "default"}
-          text={status === "active" ? "Hoạt động" : "Ngừng bán"}
+          status={status === 'active' ? 'success' : 'default'}
+          text={status === 'active' ? 'Hoạt động' : 'Ngừng bán'}
           style={{
-            color: status === "active" ? "#8B5CF6" : "#94A3B8",
+            color: status === 'active' ? '#8B5CF6' : '#94A3B8',
           }}
         />
       ),
@@ -286,25 +273,24 @@ function ListProduct() {
       <Card
         size="small"
         style={{
-          margin: "16px 0",
-          backgroundColor: "#F8FAFC",
+          margin: '16px 0',
+          backgroundColor: '#F8FAFC',
           border: `1px solid #E2E8F0"`,
           borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
         }}
       >
         <Descriptions title="Mô tả sản phẩm" size="small" column={1} bordered>
           <Descriptions.Item label="Mô tả">
-            <Text style={{ fontSize: "14px", color: "#475569" }}>
-              {record.description || "Chưa có mô tả cho sản phẩm này."}
+            <Text style={{ fontSize: '14px', color: '#475569' }}>
+              {record.description || 'Chưa có mô tả cho sản phẩm này.'}
             </Text>
           </Descriptions.Item>
         </Descriptions>
         <Descriptions title="Chi tiết kỹ thuật" size="small" bordered>
           <Descriptions.Item label="Màn hình" span={1}>
             <Space>
-              {record.specifications?.displaySize}{" "}
-              {record.specifications?.displayStyle}
+              {record.specifications?.displaySize} {record.specifications?.displayStyle}
             </Space>
           </Descriptions.Item>
 
@@ -329,16 +315,10 @@ function ListProduct() {
               <Tag icon={<WifiOutlined />} color="blue">
                 {record.connectivity?.wifi}
               </Tag>
-              <Tag color="green">
-                Bluetooth {record.connectivity?.bluetooth}
-              </Tag>
+              <Tag color="green">Bluetooth {record.connectivity?.bluetooth}</Tag>
               <Tag color="red">{record.connectivity?.cellular}</Tag>
-              {record.connectivity?.nfc === "Yes" && (
-                <Tag color="orange">NFC</Tag>
-              )}
-              {record.connectivity?.gps === "Yes" && (
-                <Tag color="purple">GPS</Tag>
-              )}
+              {record.connectivity?.nfc === 'Yes' && <Tag color="orange">NFC</Tag>}
+              {record.connectivity?.gps === 'Yes' && <Tag color="purple">GPS</Tag>}
             </Space>
           </Descriptions.Item>
 
@@ -421,22 +401,22 @@ function ListProduct() {
                 labelStyle={{
                   width: 100,
                   padding: 20,
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 <Space size="large" align="start">
                   <div>
                     <Space direction="vertical" size="small">
-                      <Text strong style={{ fontSize: 16, color: "#0F172A" }}>
+                      <Text strong style={{ fontSize: 16, color: '#0F172A' }}>
                         {variant.name}
                       </Text>
                       <Tag
                         style={{
                           fontSize: 14,
-                          padding: "4px 12px",
-                          backgroundColor: "#EF4444",
-                          color: "#FEFEFE",
-                          border: "none",
+                          padding: '4px 12px',
+                          backgroundColor: '#EF4444',
+                          color: '#FEFEFE',
+                          border: 'none',
                           borderRadius: 6,
                           fontWeight: 600,
                         }}
@@ -450,8 +430,8 @@ function ListProduct() {
                           <Tag
                             style={{
                               backgroundColor: variant.color.hex,
-                              color: "#FEFEFE",
-                              border: "none",
+                              color: '#FEFEFE',
+                              border: 'none',
                               borderRadius: 6,
                             }}
                           >
@@ -459,8 +439,8 @@ function ListProduct() {
                           </Tag>
                           <Tag
                             style={{
-                              backgroundColor: "#F1F5F9",
-                              color: "#0F172A",
+                              backgroundColor: '#F1F5F9',
+                              color: '#0F172A',
                               border: `1px solid "#CBD5E1"`,
                               borderRadius: 6,
                             }}
@@ -472,10 +452,8 @@ function ListProduct() {
 
                       {variant.memory && (
                         <Space direction="vertical" size={1}>
-                          <Text style={{ color: "#475569" }}>
-                            RAM: {variant.memory.ram}
-                          </Text>
-                          <Text style={{ color: "#475569" }}>
+                          <Text style={{ color: '#475569' }}>RAM: {variant.memory.ram}</Text>
+                          <Text style={{ color: '#475569' }}>
                             Storage: {variant.memory.storage}
                           </Text>
                         </Space>
@@ -495,13 +473,13 @@ function ListProduct() {
     <div>
       <div
         style={{
-          padding: "24px",
+          padding: '24px',
           // backgroundColor: "#f5f5f5",
-          minHeight: "100vh",
-          borderRadius: "8px",
+          minHeight: '100vh',
+          borderRadius: '8px',
         }}
       >
-        {" "}
+        {' '}
         {contextHolder}
         <Modal
           title="Xác nhận"
@@ -512,42 +490,42 @@ function ListProduct() {
           onCancel={() => setOpen(false)}
           okButtonProps={{
             style: {
-              backgroundColor: "#EF4444",
-              borderColor: "#EF4444",
+              backgroundColor: '#EF4444',
+              borderColor: '#EF4444',
             },
           }}
         >
           <p>{modalText}</p>
         </Modal>
-        <Row gutter={16} style={{ marginBottom: "24px" }}>
+        <Row gutter={16} style={{ marginBottom: '24px' }}>
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
-                title={<span style={{ color: "#475569" }}>Tổng sản phẩm</span>}
+                title={<span style={{ color: '#475569' }}>Tổng sản phẩm</span>}
                 value={stats.total}
-                prefix={<AppstoreOutlined style={{ color: "#4F46E5" }} />}
-                valueStyle={{ color: "#4F46E5", fontWeight: 600 }}
+                prefix={<AppstoreOutlined style={{ color: '#4F46E5' }} />}
+                valueStyle={{ color: '#4F46E5', fontWeight: 600 }}
               />
             </Card>
           </Col>
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
-                title={<span style={{ color: "#475569" }}>Đang bán</span>}
+                title={<span style={{ color: '#475569' }}>Đang bán</span>}
                 value={stats.active}
-                prefix={<CheckCircleOutlined style={{ color: "#8B5CF6" }} />}
-                valueStyle={{ color: "#8B5CF6", fontWeight: 600 }}
+                prefix={<CheckCircleOutlined style={{ color: '#8B5CF6' }} />}
+                valueStyle={{ color: '#8B5CF6', fontWeight: 600 }}
               />
             </Card>
           </Col>
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
-                title={<span style={{ color: "#475569" }}>Ngừng bán</span>}
+                title={<span style={{ color: '#475569' }}>Ngừng bán</span>}
                 value={stats.inactive}
-                prefix={<StopOutlined style={{ color: "#94A3B8" }} />}
+                prefix={<StopOutlined style={{ color: '#94A3B8' }} />}
                 valueStyle={{
-                  color: "#94A3B8",
+                  color: '#94A3B8',
                   fontWeight: 600,
                 }}
               />
@@ -556,10 +534,10 @@ function ListProduct() {
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
-                title={<span style={{ color: "#475569" }}>Có giảm giá</span>}
+                title={<span style={{ color: '#475569' }}>Có giảm giá</span>}
                 value={stats.discounted}
-                prefix={<TagOutlined style={{ color: "#EF4444" }} />}
-                valueStyle={{ color: "#EF4444", fontWeight: 600 }}
+                prefix={<TagOutlined style={{ color: '#EF4444' }} />}
+                valueStyle={{ color: '#EF4444', fontWeight: 600 }}
               />
             </Card>
           </Col>
@@ -569,14 +547,14 @@ function ListProduct() {
             marginBottom: 24,
             borderRadius: 16,
             border: `1px solid #E2E8F0"`,
-            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Row gutter={[10, 16]} align="middle">
             <Col xs={24} sm={8} md={4}>
               <Input
                 placeholder="Tìm kiếm sản phẩm..."
-                prefix={<SearchOutlined style={{ color: "#94A3B8" }} />}
+                prefix={<SearchOutlined style={{ color: '#94A3B8' }} />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
@@ -590,11 +568,11 @@ function ListProduct() {
             <Col xs={12} sm={6} md={4}>
               <Select
                 placeholder="Danh mục"
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 allowClear
                 value={filters.category}
-                onChange={(value) => handleFilterChange("category", value)}
-                suffixIcon={<FilterOutlined style={{ color: "#94A3B8" }} />}
+                onChange={(value) => handleFilterChange('category', value)}
+                suffixIcon={<FilterOutlined style={{ color: '#94A3B8' }} />}
               >
                 {categories?.map((category) => (
                   <Option key={category._id} value={category.name}>
@@ -607,11 +585,11 @@ function ListProduct() {
             <Col xs={12} sm={6} md={4}>
               <Select
                 placeholder="Thương hiệu"
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 allowClear
                 value={filters.brand}
-                onChange={(value) => handleFilterChange("brand", value)}
-                suffixIcon={<FilterOutlined style={{ color: "#94A3B8" }} />}
+                onChange={(value) => handleFilterChange('brand', value)}
+                suffixIcon={<FilterOutlined style={{ color: '#94A3B8' }} />}
               >
                 {brands?.map((brand) => (
                   <Option key={brand._id} value={brand.name}>
@@ -626,8 +604,8 @@ function ListProduct() {
                   onClick={handleClearFilters}
                   icon={<ReloadOutlined />}
                   style={{
-                    borderColor: "#94A3B8",
-                    color: "#475569",
+                    borderColor: '#94A3B8',
+                    color: '#475569',
                     borderRadius: 8,
                   }}
                 >
@@ -641,12 +619,12 @@ function ListProduct() {
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
-                  onClick={() => navigate("/admin/product/add")}
+                  onClick={() => navigate('/admin/product/add')}
                   style={{
-                    backgroundColor: "rgb(11, 162, 36)",
+                    backgroundColor: 'rgb(11, 162, 36)',
                     borderRadius: 8,
                     fontWeight: 500,
-                    boxShadow: "0 2px 8px rgba(16, 185, 129, 0.2)",
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)',
                   }}
                 >
                   Thêm sản phẩm
@@ -661,9 +639,7 @@ function ListProduct() {
                     borderRadius: 8,
                     fontWeight: 500,
                     boxShadow:
-                      selectedRowKeys.length === 1
-                        ? "0 2px 8px rgba(79, 70, 229, 0.2)"
-                        : "none",
+                      selectedRowKeys.length === 1 ? '0 2px 8px rgba(79, 70, 229, 0.2)' : 'none',
                   }}
                 >
                   Sửa ({selectedRowKeys.length})
@@ -678,12 +654,9 @@ function ListProduct() {
                     borderRadius: 8,
                     fontWeight: 500,
 
-                    borderColor:
-                      selectedRowKeys.length > 0 ? "#EF4444" : undefined,
+                    borderColor: selectedRowKeys.length > 0 ? '#EF4444' : undefined,
                     boxShadow:
-                      selectedRowKeys.length > 0
-                        ? "0 2px 8px rgba(239, 68, 68, 0.2)"
-                        : "none",
+                      selectedRowKeys.length > 0 ? '0 2px 8px rgba(239, 68, 68, 0.2)' : 'none',
                   }}
                 >
                   Xóa ({selectedRowKeys.length})
@@ -696,18 +669,14 @@ function ListProduct() {
           style={{
             borderRadius: 16,
             border: `1px solid #E2E8F0"`,
-            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Spin spinning={loading} size="large">
             {filteredProducts.length === 0 ? (
               <Empty
-                description={
-                  <span style={{ color: "#475569" }}>
-                    Không tìm thấy sản phẩm nào
-                  </span>
-                }
-                style={{ padding: "48px 0" }}
+                description={<span style={{ color: '#475569' }}>Không tìm thấy sản phẩm nào</span>}
+                style={{ padding: '48px 0' }}
               />
             ) : (
               <Table
@@ -722,9 +691,7 @@ function ListProduct() {
                     <Button
                       type="text"
                       size="small"
-                      icon={
-                        expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />
-                      }
+                      icon={expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                       onClick={(e) => onExpand(record, e)}
                     />
                   ),
@@ -736,7 +703,7 @@ function ListProduct() {
                 scroll={{ x: 1000 }}
                 size="middle"
                 style={{
-                  backgroundColor: "#FEFEFE",
+                  backgroundColor: '#FEFEFE',
                 }}
               />
             )}

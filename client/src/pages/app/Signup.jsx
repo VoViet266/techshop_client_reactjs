@@ -1,51 +1,46 @@
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { useState, useEffect, useRef } from "react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useState, useEffect, useRef } from 'react';
 
-import {
-  AiFillEye,
-  AiFillWarning,
-  AiOutlineClose,
-  AiFillEyeInvisible,
-} from "react-icons/ai";
+import { AiFillEye, AiFillWarning, AiOutlineClose, AiFillEyeInvisible } from 'react-icons/ai';
 
-import Users from "@services/users";
-import Address from "@services/address";
-import { useAppContext } from "@contexts";
+import Users from '@services/users';
+import Address from '@services/address';
+import { useAppContext } from '@contexts';
 
 function Signup() {
   useEffect(() => {
-    document.title = "TechShop | Đăng ký";
+    document.title = 'TechShop | Đăng ký';
   }, []);
 
   const genderDropdownRef = useRef(null);
   const addressDropdownRef = useRef(null);
   const [user, setUser] = useState({
-    phone: "",
-    email: "",
-    gender: "",
-    address: "",
-    fullName: "",
-    password: "",
+    phone: '',
+    email: '',
+    gender: '',
+    address: '',
+    fullName: '',
+    password: '',
   });
 
   const [userMessage, setUserMessage] = useState({
-    phoneMessage: "Số điện thoại không được để trống.",
-    emailMessage: "Email không được để trống.",
-    genderMessage: "Giới tính không được để trống.",
-    addressMessage: "Địa chỉ không được để trống.",
-    fullNameMessage: "Họ và tên không được để trống.",
-    passwordMessage: "Mật khẩu không được để trống.",
+    phoneMessage: 'Số điện thoại không được để trống.',
+    emailMessage: 'Email không được để trống.',
+    genderMessage: 'Giới tính không được để trống.',
+    addressMessage: 'Địa chỉ không được để trống.',
+    fullNameMessage: 'Họ và tên không được để trống.',
+    passwordMessage: 'Mật khẩu không được để trống.',
   });
 
   const [provinces, setProvinces] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState('');
 
   const [districts, setDistricts] = useState([]);
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState('');
 
   const [wards, setWards] = useState([]);
-  const [selectedWard, setSelectedWard] = useState("");
+  const [selectedWard, setSelectedWard] = useState('');
 
   useEffect(() => {
     async function fetchProvinces() {
@@ -62,7 +57,7 @@ function Signup() {
       setDistricts(districts);
     }
 
-    if (selectedProvince !== "") {
+    if (selectedProvince !== '') {
       fetchDistricts();
     }
   }, [selectedProvince]);
@@ -73,12 +68,12 @@ function Signup() {
       setWards(wards);
     }
 
-    if (selectedDistrict !== "") {
+    if (selectedDistrict !== '') {
       fetchWards();
     }
   }, [selectedDistrict]);
 
-  const genders = ["Nam", "Nữ", "Khác"];
+  const genders = ['Nam', 'Nữ', 'Khác'];
   const {
     setMessage,
     setShowLogin,
@@ -87,7 +82,7 @@ function Signup() {
     setLoadingError,
     setLoadingSuccess,
   } = useAppContext();
-  const places = ["Tỉnh/Thành phố", "Quận/Huyện", "Xã/Phường"];
+  const places = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Xã/Phường'];
 
   const [userError, setUserError] = useState({
     emailError: false,
@@ -102,28 +97,22 @@ function Signup() {
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
 
-  const [selectedPlace, setSelectedPlace] = useState("Tỉnh/Thành phố");
+  const [selectedPlace, setSelectedPlace] = useState('Tỉnh/Thành phố');
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (
-        genderDropdownRef.current &&
-        !genderDropdownRef.current.contains(event.target)
-      ) {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(event.target)) {
         setShowGenderDropdown(false);
       }
 
-      if (
-        addressDropdownRef.current &&
-        !addressDropdownRef.current.contains(event.target)
-      ) {
+      if (addressDropdownRef.current && !addressDropdownRef.current.contains(event.target)) {
         setShowAddressDropdown(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -161,9 +150,7 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.fullNameMessage}
-                </span>
+                <span className="text-sm mt-2 text-red-500">{userMessage.fullNameMessage}</span>
               </div>
             )}
           </div>
@@ -192,7 +179,7 @@ function Signup() {
                     <div
                       key={index}
                       onClick={() => setSelectedPlace(place)}
-                      className={`w-[33%] cursor-pointer py-6 text-center ${""}  ${selectedPlace === place ? "border-b border-b-primary text-primary" : ""}`}
+                      className={`w-[33%] cursor-pointer py-6 text-center ${''}  ${selectedPlace === place ? 'border-b border-b-primary text-primary' : ''}`}
                     >
                       {place}
                     </div>
@@ -200,7 +187,7 @@ function Signup() {
                 </div>
 
                 <div className="overflow-y-auto h-200 z-1 p-6 cursor-pointer">
-                  {selectedPlace === "Tỉnh/Thành phố" &&
+                  {selectedPlace === 'Tỉnh/Thành phố' &&
                     provinces.map((province, index) => (
                       <div
                         key={index}
@@ -210,15 +197,15 @@ function Signup() {
                             address: event.target.textContent,
                           });
                           setSelectedProvince(province);
-                          setSelectedPlace("Quận/Huyện");
+                          setSelectedPlace('Quận/Huyện');
                         }}
-                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedProvince.name === province.name && "bg-gray-200"}`}
+                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedProvince.name === province.name && 'bg-gray-200'}`}
                       >
                         {province.name || <Skeleton count={5} />}
                       </div>
                     ))}
 
-                  {selectedPlace === "Quận/Huyện" &&
+                  {selectedPlace === 'Quận/Huyện' &&
                     districts.map((district, index) => (
                       <div
                         key={index}
@@ -226,22 +213,20 @@ function Signup() {
                           setUser({
                             ...user,
                             address:
-                              selectedDistrict === ""
-                                ? user.address + ", " + event.target.textContent
-                                : selectedProvince.name +
-                                  ", " +
-                                  event.target.textContent,
+                              selectedDistrict === ''
+                                ? user.address + ', ' + event.target.textContent
+                                : selectedProvince.name + ', ' + event.target.textContent,
                           });
                           setSelectedDistrict(district);
-                          setSelectedPlace("Xã/Phường");
+                          setSelectedPlace('Xã/Phường');
                         }}
-                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedDistrict.name === district.name && "bg-gray-200"}`}
+                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedDistrict.name === district.name && 'bg-gray-200'}`}
                       >
                         {district.name || <Skeleton count={5} />}
                       </div>
                     ))}
 
-                  {selectedPlace === "Xã/Phường" &&
+                  {selectedPlace === 'Xã/Phường' &&
                     wards.map((ward, index) => (
                       <div
                         key={index}
@@ -249,18 +234,18 @@ function Signup() {
                           setUser({
                             ...user,
                             address:
-                              selectedWard === ""
-                                ? user.address + ", " + event.target.textContent
+                              selectedWard === ''
+                                ? user.address + ', ' + event.target.textContent
                                 : selectedProvince.name +
-                                  ", " +
+                                  ', ' +
                                   selectedDistrict.name +
-                                  ", " +
+                                  ', ' +
                                   event.target.textContent,
                           });
                           setSelectedWard(ward);
                           setShowAddressDropdown(false);
                         }}
-                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedWard.name === ward.name && "bg-gray-200"}`}
+                        className={`py-4 my-4 px-6 hover:bg-gray-200 rounded-md ${selectedWard.name === ward.name && 'bg-gray-200'}`}
                       >
                         {ward.name || <Skeleton count={5} />}
                       </div>
@@ -274,9 +259,7 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.addressMessage}
-                </span>
+                <span className="text-sm mt-2 text-red-500">{userMessage.addressMessage}</span>
               </div>
             )}
           </div>
@@ -303,9 +286,7 @@ function Signup() {
                   <div className="text-red-500">
                     <AiFillWarning />
                   </div>
-                  <span className="text-sm mt-2 text-red-500">
-                    {userMessage.phoneMessage}
-                  </span>
+                  <span className="text-sm mt-2 text-red-500">{userMessage.phoneMessage}</span>
                 </div>
               )}
             </div>
@@ -335,7 +316,7 @@ function Signup() {
                         setUser({ ...user, gender: event.target.textContent });
                         setShowGenderDropdown(false);
                       }}
-                      className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${user.gender === gender ? "bg-gray-200" : ""}`}
+                      className={`px-8 my-2 py-4 rounded-sm hover:bg-gray-200 cursor-pointer ${user.gender === gender ? 'bg-gray-200' : ''}`}
                     >
                       {gender}
                     </li>
@@ -348,9 +329,7 @@ function Signup() {
                   <div className="text-red-500">
                     <AiFillWarning />
                   </div>
-                  <span className="text-sm mt-2 text-red-500">
-                    {userMessage.genderMessage}
-                  </span>
+                  <span className="text-sm mt-2 text-red-500">{userMessage.genderMessage}</span>
                 </div>
               )}
             </div>
@@ -377,9 +356,7 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.emailMessage}
-                </span>
+                <span className="text-sm mt-2 text-red-500">{userMessage.emailMessage}</span>
               </div>
             )}
           </div>
@@ -393,7 +370,7 @@ function Signup() {
                 name="password"
                 value={user.password}
                 placeholder="Nhập mật khẩu"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 onChange={(event) => {
                   const fieldName = event.target.name;
                   setUser({ ...user, [fieldName]: event.target.value });
@@ -412,9 +389,7 @@ function Signup() {
                 <div className="text-red-500">
                   <AiFillWarning />
                 </div>
-                <span className="text-sm mt-2 text-red-500">
-                  {userMessage.passwordMessage}
-                </span>
+                <span className="text-sm mt-2 text-red-500">{userMessage.passwordMessage}</span>
               </div>
             )}
           </div>
@@ -422,7 +397,7 @@ function Signup() {
             <button
               onClick={async (event) => {
                 event.preventDefault();
-                console.log("User error:", userError);
+                console.log('User error:', userError);
                 await Users.signup(
                   user,
                   userError,
@@ -434,7 +409,7 @@ function Signup() {
                   setUserMessage,
                   setToastLoading,
                   setLoadingError,
-                  setLoadingSuccess
+                  setLoadingSuccess,
                 );
               }}
               className="bg-primary w-full cursor-pointer hover:opacity-80 py-6 rounded-md text-white"

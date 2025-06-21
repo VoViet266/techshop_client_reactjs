@@ -4,27 +4,23 @@ import {
   CommonInformation,
   CameraInformations,
   ConnectionInformation,
-} from "@pages/admin/product";
+} from '@pages/admin/product';
 
-import Files from "@services/files";
-import Brands from "@services/brands";
+import Files from '@services/files';
+import Brands from '@services/brands';
 
-import { useAppContext } from "@contexts";
+import { useAppContext } from '@contexts';
 
-import Categories from "@services/categories";
-import { useNavigate } from "react-router-dom";
-import "react-loading-skeleton/dist/skeleton.css";
-import { useState, useRef, useEffect } from "react";
-import { Button, message } from "antd";
-import Products from "@/services/products";
+import Categories from '@services/categories';
+import { useNavigate } from 'react-router-dom';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useState, useRef, useEffect } from 'react';
+import { Button, message } from 'antd';
+import Products from '@/services/products';
 
 function AddProduct() {
-  const {
-    setLoadingError,
-    setToastLoading,
-    setLoadingSuccess,
-    setSideBarSelectedTab,
-  } = useAppContext();
+  const { setLoadingError, setToastLoading, setLoadingSuccess, setSideBarSelectedTab } =
+    useAppContext();
 
   const navigate = useNavigate();
   const brandDropdownRef = useRef(null);
@@ -37,52 +33,52 @@ function AddProduct() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const [product, setProduct] = useState({
-    name: "",
-    description: "",
-    category: "",
-    brand: "",
-    discount: "",
+    name: '',
+    description: '',
+    category: '',
+    brand: '',
+    discount: '',
     specifications: {
-      weight: "",
-      battery: "",
-      processor: "",
-      dimensions: "",
-      displaySize: "",
-      displayType: "",
-      operatingSystem: "",
+      weight: '',
+      battery: '',
+      processor: '',
+      dimensions: '',
+      displaySize: '',
+      displayType: '',
+      operatingSystem: '',
     },
     connectivity: {
-      wifi: "",
-      bluetooth: "",
-      cellular: "",
+      wifi: '',
+      bluetooth: '',
+      cellular: '',
       nfc: false,
       gps: false,
       ports: [],
     },
     camera: {
       front: {
-        resolution: "",
+        resolution: '',
         features: [],
         videoRecording: [],
       },
       rear: {
-        resolution: "",
+        resolution: '',
         features: [],
-        lensCount: "",
+        lensCount: '',
         videoRecording: [],
       },
     },
     variants: [
       {
-        name: "",
-        price: "",
+        name: '',
+        price: '',
         color: {
-          name: "",
-          hex: "",
+          name: '',
+          hex: '',
         },
         memory: {
-          ram: "",
-          storage: "",
+          ram: '',
+          storage: '',
         },
         images: [],
       },
@@ -109,19 +105,19 @@ function AddProduct() {
   });
 
   const [productMessage, setProductMessage] = useState({
-    name: "Vui lòng nhập tên sản phẩm",
-    description: "Vui lòng nhập mô tả",
-    category: "Chọn thể loại",
-    brand: "Chọn thương hiệu",
-    discount: "Nhập phần trăm giảm giá",
+    name: 'Vui lòng nhập tên sản phẩm',
+    description: 'Vui lòng nhập mô tả',
+    category: 'Chọn thể loại',
+    brand: 'Chọn thương hiệu',
+    discount: 'Nhập phần trăm giảm giá',
     variants: {
-      name: "Nhập tên biến thể",
-      price: "Nhập giá biến thể",
+      name: 'Nhập tên biến thể',
+      price: 'Nhập giá biến thể',
       color: {
-        name: "Nhập tên màu",
-        hex: "Nhập mã màu",
+        name: 'Nhập tên màu',
+        hex: 'Nhập mã màu',
       },
-      images: "Vui lòng chọn ảnh",
+      images: 'Vui lòng chọn ảnh',
     },
   });
 
@@ -152,8 +148,7 @@ function AddProduct() {
     product.variants.forEach((variant, index) => {
       if (!variant.name) newProductError.variants[index].name = true;
       if (!variant.price) newProductError.variants[index].price = true;
-      if (!variant.color.name)
-        newProductError.variants[index].color.name = true;
+      if (!variant.color.name) newProductError.variants[index].color.name = true;
       if (!variant.color.hex) newProductError.variants[index].color.hex = true;
       if (!variant.images.length) newProductError.variants[index].images = true;
     });
@@ -161,12 +156,12 @@ function AddProduct() {
     setProductError(newProductError);
 
     return !Object.values(newProductError).some((value) => {
-      if (typeof value === "boolean") return value;
+      if (typeof value === 'boolean') return value;
       if (Array.isArray(value)) {
         return value.some((v) => {
-          if (typeof v === "boolean") return v;
+          if (typeof v === 'boolean') return v;
           return Object.values(v).some((nested) => {
-            if (typeof nested === "boolean") return nested;
+            if (typeof nested === 'boolean') return nested;
             return Object.values(nested).some(Boolean);
           });
         });
@@ -176,7 +171,7 @@ function AddProduct() {
   }
 
   useEffect(() => {
-    setSideBarSelectedTab("Thêm sản phẩm");
+    setSideBarSelectedTab('Thêm sản phẩm');
   }, []);
 
   function removeEmptyFields(obj) {
@@ -193,19 +188,19 @@ function AddProduct() {
             } else {
               filtered[key] = value
                 .map((item) =>
-                  typeof item === "object" && !(item instanceof File)
+                  typeof item === 'object' && !(item instanceof File)
                     ? removeEmptyFields(item)
-                    : item
+                    : item,
                 )
                 .filter(Boolean);
             }
           }
-        } else if (typeof value === "object" && !(value instanceof File)) {
+        } else if (typeof value === 'object' && !(value instanceof File)) {
           const nestedObj = removeEmptyFields(value);
           if (Object.values(nestedObj).length > 0) {
             filtered[key] = nestedObj;
           }
-        } else if (value !== "") {
+        } else if (value !== '') {
           filtered[key] = value;
         }
       }
@@ -247,7 +242,7 @@ function AddProduct() {
     if (isValidData) {
       try {
         setToastLoading(true);
-        message.loading("Đang thêm sản phẩm");
+        message.loading('Đang thêm sản phẩm');
         const productToSubmit = removeEmptyFields({ ...product });
 
         for (let i = 0; i < productToSubmit.variants.length; i++) {
@@ -263,15 +258,15 @@ function AddProduct() {
         const addProduct = await Products.add(productToSubmit);
 
         if (addProduct) {
-          message.success("Thêm sản phẩm thành công");
+          message.success('Thêm sản phẩm thành công');
           setToastLoading(false);
-          navigate("/product");
+          navigate('/product');
           setLoadingSuccess(true);
         }
       } catch (error) {
         setToastLoading(false);
         setLoadingError(true);
-        message.error("Thêm thất bại", 0, error);
+        message.error('Thêm thất bại', 0, error);
       }
     }
   };
@@ -330,7 +325,7 @@ function AddProduct() {
               onClick={onSubmit}
               className="min-w-[120px] bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 disabled:bg-gray-400"
             >
-              {loading ? "Đang xử lý..." : "Thêm sản phẩm"}
+              {loading ? 'Đang xử lý...' : 'Thêm sản phẩm'}
             </Button>
           </div>
         </div>

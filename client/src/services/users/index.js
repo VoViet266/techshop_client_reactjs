@@ -1,5 +1,5 @@
-import login from "./login";
-import signup from "./signup";
+import login from './login';
+import signup from './signup';
 
 class Users {
   static login = login;

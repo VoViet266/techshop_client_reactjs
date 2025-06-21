@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useAppContext } from "@contexts";
-import { AiFillCheckCircle, AiOutlineClose } from "react-icons/ai";
+import { useEffect } from 'react';
+import { useAppContext } from '@contexts';
+import { AiFillCheckCircle, AiOutlineClose } from 'react-icons/ai';
 
 function SuccessToast() {
   const { message, loadingSuccess, setLoadingSuccess } = useAppContext();

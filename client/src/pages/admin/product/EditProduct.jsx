@@ -1,13 +1,13 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
-import { Button, message, Spin } from "antd";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Button, message, Spin } from 'antd';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
-import Files from "@services/files";
-import Brands from "@services/brands";
-import Categories from "@services/categories";
-import { useAppContext } from "@contexts";
+import Files from '@services/files';
+import Brands from '@services/brands';
+import Categories from '@services/categories';
+import { useAppContext } from '@contexts';
 
 import {
   CommonInformation,
@@ -15,18 +15,14 @@ import {
   ConnectionInformation,
   CameraInformations,
   Variants,
-} from "@pages/admin/product";
-import { callFetchProductDetail, callUpdateProduct } from "@/services/apis";
+} from '@pages/admin/product';
+import { callFetchProductDetail, callUpdateProduct } from '@/services/apis';
 
 function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    setSideBarSelectedTab,
-    setToastLoading,
-    setLoadingSuccess,
-    setLoadingError,
-  } = useAppContext();
+  const { setSideBarSelectedTab, setToastLoading, setLoadingSuccess, setLoadingError } =
+    useAppContext();
 
   const brandDropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
@@ -41,7 +37,7 @@ function EditProduct() {
   const [productMessage, setProductMessage] = useState({});
 
   useEffect(() => {
-    setSideBarSelectedTab("Sửa sản phẩm");
+    setSideBarSelectedTab('Sửa sản phẩm');
   }, []);
 
   useEffect(() => {
@@ -68,27 +64,21 @@ function EditProduct() {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (
-        categoryDropdownRef.current &&
-        !categoryDropdownRef.current.contains(e.target)
-      ) {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(e.target)) {
         setShowCategoryDropdown(false);
       }
-      if (
-        brandDropdownRef.current &&
-        !brandDropdownRef.current.contains(e.target)
-      ) {
+      if (brandDropdownRef.current && !brandDropdownRef.current.contains(e.target)) {
         setShowBrandDropdown(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const onSubmit = async () => {
     try {
       setToastLoading(true);
-      message.loading("Đang cập nhật sản phẩm...");
+      message.loading('Đang cập nhật sản phẩm...');
       const prodSub = { ...product };
       for (let v of prodSub.variants) {
         const newImgs = [];
@@ -103,15 +93,15 @@ function EditProduct() {
       }
 
       await callUpdateProduct(prodSub);
-      message.success("Cập nhật thành công!");
+      message.success('Cập nhật thành công!');
       setToastLoading(false);
       setLoadingSuccess(true);
-      navigate("/product");
+      navigate('/product');
     } catch (err) {
       console.error(err);
       setToastLoading(false);
       setLoadingError(true);
-      message.error("Cập nhật thất bại");
+      message.error('Cập nhật thất bại');
     }
   };
 
@@ -159,12 +149,7 @@ function EditProduct() {
             >
               Hủy bỏ
             </Button>
-            <Button
-              type="primary"
-              size="large"
-              className="mt-8 float-right"
-              onClick={onSubmit}
-            >
+            <Button type="primary" size="large" className="mt-8 float-right" onClick={onSubmit}>
               Cập nhật
             </Button>
           </div>

@@ -1,7 +1,7 @@
-import { Tag, Typography, Empty, Row, Col } from "antd";
-import CardProduct from "./Card";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import { Tag, Typography, Empty, Row, Col } from 'antd';
+import CardProduct from './Card';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function PreviewListProducts({
   title,
@@ -34,9 +34,7 @@ function PreviewListProducts({
           </div>
         )}
         {!loading && canViewAll && products.length > 0 && (
-          <span className="cursor-pointer font-medium text-primary">
-            Xem tất cả
-          </span>
+          <span className="cursor-pointer font-medium text-primary">Xem tất cả</span>
         )}
       </div>
 
@@ -74,10 +72,7 @@ function PreviewListProducts({
         </div>
       )}
 
-      <Row
-        gutter={10}
-        justify={loading ? "start" : products.length > 0 ? "start" : "center"}
-      >
+      <Row gutter={10} justify={loading ? 'start' : products.length > 0 ? 'start' : 'center'}>
         {loading && (
           <>
             <Col className="w-275">
@@ -113,7 +108,7 @@ function PreviewListProducts({
 
         {products.map((product, index) => {
           return (
-            <Col>
+            <Col key={index}>
               <CardProduct key={index} product={product} loading={loading} />
             </Col>
           );

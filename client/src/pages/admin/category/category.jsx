@@ -151,31 +151,17 @@ const CategoryPage = () => {
         okButtonProps={{ danger: true }}
         style={{ top: 20, zIndex: 9999 }}
       >
-        <div
-          style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}
-        >
-          <ExclamationCircleOutlined
-            style={{ color: '#ff4d4f', fontSize: 22, marginRight: 8 }}
-          />
-          <span style={{ fontSize: 16, fontWeight: 500 }}>
-            Xác nhận xóa danh mục
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+          <ExclamationCircleOutlined style={{ color: '#ff4d4f', fontSize: 22, marginRight: 8 }} />
+          <span style={{ fontSize: 16, fontWeight: 500 }}>Xác nhận xóa danh mục</span>
         </div>
         <div>
-          <p>
-            Bạn có chắc là muốn xóa {selectedRowKeys.length} danh mục đã chọn?
-          </p>
+          <p>Bạn có chắc là muốn xóa {selectedRowKeys.length} danh mục đã chọn?</p>
         </div>
       </Modal>
 
-      <Card
-        style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)' }}
-      >
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 24 }}
-        >
+      <Card style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)' }}>
+        <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               <AppstoreOutlined style={{ marginRight: 8 }} />
@@ -184,11 +170,7 @@ const CategoryPage = () => {
           </Col>
         </Row>
 
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
-        >
+        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col xs={24} sm={12} md={6}>
             <Input
               placeholder="Tìm kiếm danh mục..."
@@ -233,9 +215,7 @@ const CategoryPage = () => {
                   borderRadius: 8,
                   fontWeight: 500,
                   boxShadow:
-                    selectedRowKeys.length === 1
-                      ? '0 2px 8px rgba(79, 70, 229, 0.2)'
-                      : 'none',
+                    selectedRowKeys.length === 1 ? '0 2px 8px rgba(79, 70, 229, 0.2)' : 'none',
                 }}
               >
                 Sửa ({selectedRowKeys.length})
@@ -251,12 +231,9 @@ const CategoryPage = () => {
                 style={{
                   borderRadius: 8,
                   fontWeight: 500,
-                  borderColor:
-                    selectedRowKeys.length > 0 ? '#EF4444' : undefined,
+                  borderColor: selectedRowKeys.length > 0 ? '#EF4444' : undefined,
                   boxShadow:
-                    selectedRowKeys.length > 0
-                      ? '0 2px 8px rgba(239, 68, 68, 0.2)'
-                      : 'none',
+                    selectedRowKeys.length > 0 ? '0 2px 8px rgba(239, 68, 68, 0.2)' : 'none',
                 }}
               >
                 Xóa ({selectedRowKeys.length})

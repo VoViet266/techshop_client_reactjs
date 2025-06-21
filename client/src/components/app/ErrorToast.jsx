@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useAppContext } from "@contexts";
-import { AiFillCloseCircle, AiOutlineClose } from "react-icons/ai";
+import { useEffect } from 'react';
+import { useAppContext } from '@contexts';
+import { AiFillCloseCircle, AiOutlineClose } from 'react-icons/ai';
 
 function ErrorToast() {
   const { message, setLoadingError } = useAppContext();

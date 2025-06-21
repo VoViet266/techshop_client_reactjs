@@ -1,8 +1,8 @@
-import Products from "@services/products";
-import { useAppContext } from "@contexts";
-import { useNavigate } from "react-router-dom";
-import React, { useState, useRef, useEffect } from "react";
-import { Input, List, Flex, Typography, Skeleton, Empty } from "antd";
+import Products from '@services/products';
+import { useAppContext } from '@contexts';
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Input, List, Flex, Typography, Skeleton, Empty } from 'antd';
 
 function SearchBox() {
   const navigate = useNavigate();
@@ -26,33 +26,30 @@ function SearchBox() {
   }
 
   useEffect(() => {
-    if (query.trim() !== "") {
+    if (query.trim() !== '') {
       fetchSearchResult();
-      console.log("Result:", filteredResults);
+      console.log('Result:', filteredResults);
     }
   }, [query]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
         setShowResults(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleFocus = () => {
-    if (query.trim() !== "") {
+    if (query.trim() !== '') {
       setShowResults(true);
     }
   };
 
   function onSearch() {
-    if (query.trim() !== "") {
+    if (query.trim() !== '') {
       setShowResults(false);
       navigate(`/search/${query}`);
     }
@@ -68,7 +65,7 @@ function SearchBox() {
   const handleChange = (event) => {
     const value = event.target.value;
     setQuery(value);
-    if (value.trim() !== "") {
+    if (value.trim() !== '') {
       setShowResults(true);
     } else {
       setShowResults(false);
@@ -76,11 +73,7 @@ function SearchBox() {
   };
 
   return (
-    <Flex
-      ref={containerRef}
-      gap={10}
-      style={{ width: 300, position: "relative" }}
-    >
+    <Flex ref={containerRef} gap={10} style={{ width: 300, position: 'relative' }}>
       <Input.Search
         value={query}
         onSearch={onSearch}

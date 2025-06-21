@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Card,
@@ -17,7 +17,7 @@ import {
   Statistic,
   Badge,
   Divider,
-} from "antd";
+} from 'antd';
 import {
   EyeOutlined,
   EditOutlined,
@@ -29,12 +29,8 @@ import {
   ReloadOutlined,
   HomeOutlined,
   DollarOutlined,
-} from "@ant-design/icons";
-import {
-  callFetchBranches,
-  callFetchOrders,
-  callUpdateOrder,
-} from "@/services/apis";
+} from '@ant-design/icons';
+import { callFetchBranches, callFetchOrders, callUpdateOrder } from '@/services/apis';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -48,8 +44,8 @@ const OrderManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    branch: "",
-    searchText: "",
+    branch: '',
+    searchText: '',
     dateRange: null,
   });
 
@@ -61,35 +57,35 @@ const OrderManagement = () => {
       setFilteredOrders(res.data.data);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch orders:", error);
+      console.error('Failed to fetch orders:', error);
       setLoading(false);
     }
   };
 
   // Order status options
   const statusOptions = [
-    { value: "PENDING", label: "Chờ xử lý", color: "orange" },
-    { value: "CONFIRMED", label: "Đã xác nhận", color: "blue" },
-    { value: "PROCESSING", label: "Đang xử lý", color: "cyan" },
-    { value: "SHIPPING", label: "Đang giao hàng", color: "purple" },
-    { value: "DELIVERED", label: "Đã giao hàng", color: "green" },
-    { value: "CANCELLED", label: "Đã hủy", color: "red" },
-    { value: "RETURNED", label: "Đã trả hàng", color: "gray" },
+    { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
+    { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
+    { value: 'PROCESSING', label: 'Đang xử lý', color: 'cyan' },
+    { value: 'SHIPPING', label: 'Đang giao hàng', color: 'purple' },
+    { value: 'DELIVERED', label: 'Đã giao hàng', color: 'green' },
+    { value: 'CANCELLED', label: 'Đã hủy', color: 'red' },
+    { value: 'RETURNED', label: 'Đã trả hàng', color: 'gray' },
   ];
 
   const paymentStatusOptions = [
-    { value: "PENDING", label: "Đang chờ thanh toán", color: "orange" },
-    { value: "SUCCESS", label: "Đã thanh toán", color: "green" },
-    { value: "FAILED", label: "Thanh toán thất bại", color: "red" },
-    { value: "CANCELLED", label: "Đã hủy", color: "gray" },
-    { value: "REFUNDED", label: "Đã hoàn tiền", color: "blue" },
+    { value: 'PENDING', label: 'Đang chờ thanh toán', color: 'orange' },
+    { value: 'SUCCESS', label: 'Đã thanh toán', color: 'green' },
+    { value: 'FAILED', label: 'Thanh toán thất bại', color: 'red' },
+    { value: 'CANCELLED', label: 'Đã hủy', color: 'gray' },
+    { value: 'REFUNDED', label: 'Đã hoàn tiền', color: 'blue' },
   ];
 
   const paymentMethods = [
-    { value: "COD", label: "Thanh toán khi nhận hàng" },
+    { value: 'COD', label: 'Thanh toán khi nhận hàng' },
     // { value: "bank_transfer", label: "Chuyển khoản ngân hàng" },
-    { value: "credit_card", label: "Thẻ tín dụng" },
-    { value: "e_wallet", label: "Ví điện tử" },
+    { value: 'credit_card', label: 'Thẻ tín dụng' },
+    { value: 'e_wallet', label: 'Ví điện tử' },
   ];
 
   const fetchBranches = async () => {
@@ -99,7 +95,7 @@ const OrderManagement = () => {
       console.log(res.data.data);
       setBranches(res.data.data);
     } catch (error) {
-      console.error("Failed to fetch branches:", error);
+      console.error('Failed to fetch branches:', error);
     }
   };
 
@@ -107,9 +103,7 @@ const OrderManagement = () => {
     let filtered = [...orders];
 
     if (filters.branch) {
-      filtered = filtered.filter(
-        (order) => order.branch._id === filters.branch
-      );
+      filtered = filtered.filter((order) => order.branch._id === filters.branch);
     }
 
     if (filters.searchText) {
@@ -119,7 +113,7 @@ const OrderManagement = () => {
           order._id.toLowerCase().includes(searchLower) ||
           order.createdBy.email.toLowerCase().includes(searchLower) ||
           order.createdBy.name?.toLowerCase().includes(searchLower) ||
-          order.shippingAddress.toLowerCase().includes(searchLower)
+          order.shippingAddress.toLowerCase().includes(searchLower),
       );
     }
 
@@ -136,16 +130,9 @@ const OrderManagement = () => {
 
   const getStatistics = () => {
     const totalOrders = orders.length;
-    const totalRevenue = orders.reduce(
-      (sum, order) => sum + order.totalPrice,
-      0
-    );
-    const pendingOrders = orders.filter(
-      (order) => order.status === "PENDING"
-    ).length;
-    const unpaidOrders = orders.filter(
-      (order) => order.paymentStatus === "PENDING"
-    ).length;
+    const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+    const pendingOrders = orders.filter((order) => order.status === 'PENDING').length;
+    const unpaidOrders = orders.filter((order) => order.paymentStatus === 'PENDING').length;
 
     return { totalOrders, totalRevenue, pendingOrders, unpaidOrders };
   };
@@ -158,17 +145,17 @@ const OrderManagement = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
     }).format(amount);
   };
 
   const columns = [
     {
-      title: "Mã đơn hàng",
-      dataIndex: "_id",
-      key: "_id",
+      title: 'Mã đơn hàng',
+      dataIndex: '_id',
+      key: '_id',
       width: 140,
       render: (text) => (
         <Text code copyable={{ text }}>
@@ -177,37 +164,32 @@ const OrderManagement = () => {
       ),
     },
     {
-      title: "Khách hàng",
-      key: "customer",
+      title: 'Khách hàng',
+      key: 'customer',
       width: 180,
       render: (_, record) => (
         <div>
-          <div>{record.createdBy.name || "Không có"}</div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            {record.createdBy.email}
-          </div>
+          <div>{record.createdBy.name || 'Không có'}</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>{record.createdBy.email}</div>
         </div>
       ),
     },
     {
-      title: "Chi nhánh",
-      key: "branch",
+      title: 'Chi nhánh',
+      key: 'branch',
       width: 120,
-      render: (_, record) => <div>{record.branch.name || "Không có"}</div>,
+      render: (_, record) => <div>{record.branch.name || 'Không có'}</div>,
     },
     {
-      title: "Sản phẩm",
-      key: "items",
+      title: 'Sản phẩm',
+      key: 'items',
       width: 200,
       render: (_, record) => (
         <div>
           {record.items.map((item, index) => (
-            <div
-              key={index}
-              style={{ marginBottom: index < record.items.length - 1 ? 4 : 0 }}
-            >
-              <div style={{ fontSize: "13px" }}>{item.product.name}</div>
-              <div style={{ fontSize: "11px", color: "#666" }}>
+            <div key={index} style={{ marginBottom: index < record.items.length - 1 ? 4 : 0 }}>
+              <div style={{ fontSize: '13px' }}>{item.product.name}</div>
+              <div style={{ fontSize: '11px', color: '#666' }}>
                 {item.variant.name} x {item.quantity}
               </div>
             </div>
@@ -216,32 +198,30 @@ const OrderManagement = () => {
       ),
     },
     {
-      title: "Tổng tiền",
-      dataIndex: "totalPrice",
-      key: "totalPrice",
+      title: 'Tổng tiền',
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
       width: 120,
       render: (price) => (
-        <Text strong style={{ color: "#1890ff" }}>
+        <Text strong style={{ color: '#1890ff' }}>
           {formatCurrency(price)}
         </Text>
       ),
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
       width: 120,
       render: (status) => {
-        const statusLabel =
-          statusOptions.find((opt) => opt.value === status)?.label || status;
-        const statusColor =
-          statusOptions.find((opt) => opt.value === status)?.color || "default";
+        const statusLabel = statusOptions.find((opt) => opt.value === status)?.label || status;
+        const statusColor = statusOptions.find((opt) => opt.value === status)?.color || 'default';
         return <Tag color={statusColor}>{statusLabel}</Tag>;
       },
     },
     {
-      title: "Hành động",
-      key: "actions",
+      title: 'Hành động',
+      key: 'actions',
       width: 50,
       render: (_, record) => (
         <Space>
@@ -264,7 +244,7 @@ const OrderManagement = () => {
         fetchOrders();
       });
     } catch (error) {
-      console.error("Failed to update order:", error);
+      console.error('Failed to update order:', error);
     }
   };
   useEffect(() => {
@@ -272,7 +252,7 @@ const OrderManagement = () => {
     fetchBranches();
   }, []);
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: '24px' }}>
       <Title level={2}>Quản lý đơn hàng</Title>
 
       {/* Statistics */}
@@ -301,7 +281,7 @@ const OrderManagement = () => {
             <Statistic
               title="Đơn chờ xử lý"
               value={stats.pendingOrders}
-              valueStyle={{ color: "#faad14" }}
+              valueStyle={{ color: '#faad14' }}
               prefix={<Badge status="warning" />}
             />
           </Card>
@@ -311,7 +291,7 @@ const OrderManagement = () => {
             <Statistic
               title="Chưa thanh toán"
               value={stats.unpaidOrders}
-              valueStyle={{ color: "#ff4d4f" }}
+              valueStyle={{ color: '#ff4d4f' }}
               prefix={<Badge status="error" />}
             />
           </Card>
@@ -326,16 +306,14 @@ const OrderManagement = () => {
               placeholder="Tìm kiếm..."
               prefix={<SearchOutlined />}
               value={filters.searchText}
-              onChange={(e) =>
-                setFilters({ ...filters, searchText: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
             />
           </Col>
 
           <Col span={6}>
             <Select
               placeholder="Chi nhánh"
-              style={{ width: "100%" }}
+              style={{ width: '100%' }}
               value={filters.branch}
               onChange={(value) => setFilters({ ...filters, branch: value })}
               allowClear
@@ -350,8 +328,8 @@ const OrderManagement = () => {
           </Col>
           <Col span={5}>
             <RangePicker
-              style={{ width: "100%" }}
-              placeholder={["Từ ngày", "Đến ngày"]}
+              style={{ width: '100%' }}
+              placeholder={['Từ ngày', 'Đến ngày']}
               value={filters.dateRange}
               onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
             />
@@ -361,11 +339,11 @@ const OrderManagement = () => {
               icon={<ReloadOutlined />}
               onClick={() =>
                 setFilters({
-                  status: "",
-                  paymentStatus: "",
-                  paymentMethod: "",
-                  branch: "",
-                  searchText: "",
+                  status: '',
+                  paymentStatus: '',
+                  paymentMethod: '',
+                  branch: '',
+                  searchText: '',
                   dateRange: null,
                 })
               }
@@ -407,7 +385,7 @@ const OrderManagement = () => {
                 branch: selectedOrder.branch._id,
               });
 
-              message.success("Cập nhật đơn hàng thành công!");
+              message.success('Cập nhật đơn hàng thành công!');
               setIsModalVisible(false);
             }}
           >
@@ -427,21 +405,17 @@ const OrderManagement = () => {
               <Descriptions.Item label="Khách hàng" span={1}>
                 <div>
                   <div>{selectedOrder.createdBy.name}</div>
-                  <div style={{ color: "#666" }}>
-                    {selectedOrder.createdBy.email}
-                  </div>
+                  <div style={{ color: '#666' }}>{selectedOrder.createdBy.email}</div>
                 </div>
               </Descriptions.Item>
               <Descriptions.Item label="Số điện thoại" span={1}>
                 {selectedOrder.phone}
               </Descriptions.Item>
-              <Descriptions.Item label="Chi nhánh">
-                {selectedOrder.branch.name}
-              </Descriptions.Item>
+              <Descriptions.Item label="Chi nhánh">{selectedOrder.branch.name}</Descriptions.Item>
               <Descriptions.Item label="Phương thức thanh toán" span={2}>
                 <Select
                   value={selectedOrder.paymentMethod}
-                  style={{ width: "100%", border: "none", minWidth: "230px" }}
+                  style={{ width: '100%', border: 'none', minWidth: '230px' }}
                   onChange={(value) => {
                     setSelectedOrder({
                       ...selectedOrder,
@@ -459,7 +433,7 @@ const OrderManagement = () => {
               <Descriptions.Item label="Trạng thái đơn hàng">
                 <Select
                   value={selectedOrder.status}
-                  style={{ width: "100%", border: "none", minWidth: "150px" }}
+                  style={{ width: '100%', border: 'none', minWidth: '150px' }}
                   onChange={(value) => {
                     setSelectedOrder({ ...selectedOrder, status: value });
                   }}
@@ -474,7 +448,7 @@ const OrderManagement = () => {
               <Descriptions.Item label="Trạng thái thanh toán">
                 <Select
                   value={selectedOrder.paymentStatus}
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                   onChange={(value) => {
                     setSelectedOrder({
                       ...selectedOrder,
@@ -504,10 +478,10 @@ const OrderManagement = () => {
                 />
               </Descriptions.Item>
               <Descriptions.Item label="Ngày tạo">
-                {new Date(selectedOrder.createdAt).toLocaleString("vi-VN")}
+                {new Date(selectedOrder.createdAt).toLocaleString('vi-VN')}
               </Descriptions.Item>
               <Descriptions.Item label="Cập nhật lần cuối">
-                {new Date(selectedOrder.updatedAt).toLocaleString("vi-VN")}
+                {new Date(selectedOrder.updatedAt).toLocaleString('vi-VN')}
               </Descriptions.Item>
             </Descriptions>
 
@@ -519,38 +493,35 @@ const OrderManagement = () => {
               size="small"
               columns={[
                 {
-                  title: "Sản phẩm",
+                  title: 'Sản phẩm',
                   render: (_, item) => (
                     <div>
                       <div>{item.product.name}</div>
-                      <div style={{ fontSize: "12px", color: "#666" }}>
-                        {item.variant.name}
-                      </div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>{item.variant.name}</div>
                     </div>
                   ),
                 },
                 {
-                  title: "Số lượng",
-                  dataIndex: "quantity",
-                  align: "center",
+                  title: 'Số lượng',
+                  dataIndex: 'quantity',
+                  align: 'center',
                 },
                 {
-                  title: "Đơn giá",
-                  dataIndex: "price",
+                  title: 'Đơn giá',
+                  dataIndex: 'price',
                   render: (price) => formatCurrency(price),
-                  align: "right",
+                  align: 'right',
                 },
                 {
-                  title: "Thành tiền",
-                  render: (_, item) =>
-                    formatCurrency(item.price * item.quantity),
-                  align: "right",
+                  title: 'Thành tiền',
+                  render: (_, item) => formatCurrency(item.price * item.quantity),
+                  align: 'right',
                 },
               ]}
             />
 
-            <div style={{ marginTop: 16, textAlign: "right" }}>
-              <Text strong style={{ fontSize: "16px" }}>
+            <div style={{ marginTop: 16, textAlign: 'right' }}>
+              <Text strong style={{ fontSize: '16px' }}>
                 Tổng cộng: {formatCurrency(selectedOrder.totalPrice)}
               </Text>
             </div>

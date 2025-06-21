@@ -1,6 +1,6 @@
-import { useRef, useEffect } from "react";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import { useRef, useEffect } from 'react';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function ProductDescription({ className, product, loading }) {
   const descriptionRef = useRef(null);
@@ -13,7 +13,7 @@ function ProductDescription({ className, product, loading }) {
             <Skeleton className="h-40" />
           </div>
         ) : (
-          "Mô tả sản phẩm"
+          'Mô tả sản phẩm'
         )}
       </span>
       <p

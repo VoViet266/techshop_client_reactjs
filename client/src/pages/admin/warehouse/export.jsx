@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import useMessage from "@/hooks/useMessage";
+import React, { useState, useEffect } from 'react';
+import useMessage from '@/hooks/useMessage';
 import {
   Card,
   Form,
@@ -24,7 +24,7 @@ import {
   Spin,
   Drawer,
   Descriptions,
-} from "antd";
+} from 'antd';
 import {
   PlusOutlined,
   DeleteOutlined,
@@ -44,7 +44,7 @@ import {
   SearchOutlined,
   CloseOutlined,
   WarningOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import {
   callExportInventory,
   callFetchBranches,
@@ -55,13 +55,13 @@ import {
   callFetchOutboundHistory,
   callFetchProducts,
   callImportInventory,
-} from "@/services/apis";
-import Search from "antd/es/transfer/search";
-import ModalSearchProduct from "../../../components/admin/warehouse/modalSearchProduct";
-import InboundConfirmModal from "@/components/admin/warehouse/InboundConfirmModal";
-import InboundForm from "@/components/admin/warehouse/InboundForm";
-import InboundSummary from "@/components/admin/warehouse/InboundSummary";
-import InboundDetailDrawer from "@/components/admin/warehouse/InboundDetailDrawer";
+} from '@/services/apis';
+import Search from 'antd/es/transfer/search';
+import ModalSearchProduct from '../../../components/admin/warehouse/modalSearchProduct';
+import InboundConfirmModal from '@/components/admin/warehouse/InboundConfirmModal';
+import InboundForm from '@/components/admin/warehouse/InboundForm';
+import InboundSummary from '@/components/admin/warehouse/InboundSummary';
+import InboundDetailDrawer from '@/components/admin/warehouse/InboundDetailDrawer';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -84,7 +84,7 @@ const WarehouseOutbound = () => {
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [productSearchVisible, setProductSearchVisible] = useState(false);
   const [selectedOutboundDetail, setSelectedOutboundDetail] = useState(null);
-  const [productSearchText, setProductSearchText] = useState("");
+  const [productSearchText, setProductSearchText] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(null);
@@ -93,10 +93,10 @@ const WarehouseOutbound = () => {
     try {
       const response = await callFetchInventories();
       setInventories(response.data.data);
-      success("Lấy danh sách tồn kho");
+      success('Lấy danh sách tồn kho');
     } catch (err) {
-      console.error("Error fetching inventories:", err);
-      error("Không thể tải danh sách tồn kho");
+      console.error('Error fetching inventories:', err);
+      error('Không thể tải danh sách tồn kho');
     }
   };
 
@@ -105,8 +105,8 @@ const WarehouseOutbound = () => {
       const response = await callFetchBranches();
       setBranches(response.data.data);
     } catch (err) {
-      console.error("Error fetching branches:", err);
-      error("Không thể tải danh sách chi nhánh");
+      console.error('Error fetching branches:', err);
+      error('Không thể tải danh sách chi nhánh');
     }
   };
 
@@ -115,8 +115,8 @@ const WarehouseOutbound = () => {
       const response = await callFetchOutboundHistory();
       setOutboundHistory(response.data.data);
     } catch (error) {
-      console.error("Error fetching outbound history:", error);
-      error("Không thể tải lịch sử xuất kho");
+      console.error('Error fetching outbound history:', error);
+      error('Không thể tải lịch sử xuất kho');
     }
   };
 
@@ -127,8 +127,8 @@ const WarehouseOutbound = () => {
       setSelectedOutboundDetail(response.data.data);
       setDetailDrawerVisible(true);
     } catch (error) {
-      console.error("Error fetching outbound detail:", error);
-      error("Không thể tải chi tiết phiếu xuất");
+      console.error('Error fetching outbound detail:', error);
+      error('Không thể tải chi tiết phiếu xuất');
     } finally {
       setDetailLoading(false);
     }
@@ -138,13 +138,9 @@ const WarehouseOutbound = () => {
     const loadAllData = async () => {
       setPageLoading(true);
       try {
-        await Promise.all([
-          fetchInventories(),
-          fetchBranches(),
-          fetchOutboundHistory(),
-        ]);
+        await Promise.all([fetchInventories(), fetchBranches(), fetchOutboundHistory()]);
       } catch (error) {
-        error("Có lỗi xảy ra khi tải dữ liệu");
+        error('Có lỗi xảy ra khi tải dữ liệu');
       } finally {
         setPageLoading(false);
       }
@@ -167,9 +163,7 @@ const WarehouseOutbound = () => {
   };
 
   const handleProductChange = (productId) => {
-    const inventory = getFilteredInventories().find(
-      (inv) => inv.product._id === productId
-    );
+    const inventory = getFilteredInventories().find((inv) => inv.product._id === productId);
     setSelectedInventory(inventory);
     setSelectedProduct(inventory?.product);
     form.setFieldsValue({
@@ -179,9 +173,7 @@ const WarehouseOutbound = () => {
 
   const getVariantInfo = (variantId) => {
     if (!selectedInventory) return null;
-    return selectedInventory.variants.find(
-      (v) => v.variantId._id === variantId
-    );
+    return selectedInventory.variants.find((v) => v.variantId._id === variantId);
   };
 
   const checkStockAvailability = (variantId, requestedQuantity) => {
@@ -192,26 +184,22 @@ const WarehouseOutbound = () => {
 
   const handleAddItem = () => {
     form
-      .validateFields(["branchId", "productId", "variantId", "quantity"])
+      .validateFields(['branchId', 'productId', 'variantId', 'quantity'])
       .then((values) => {
         const variantInfo = getVariantInfo(values.variantId);
 
         if (!variantInfo) {
-          error("Không tìm thấy thông tin variant");
+          error('Không tìm thấy thông tin variant');
           return;
         }
 
         if (!checkStockAvailability(values.variantId, values.quantity)) {
-          warning(
-            `Số lượng tồn kho không đủ. Tồn kho hiện tại: ${variantInfo.stock}`
-          );
+          warning(`Số lượng tồn kho không đủ. Tồn kho hiện tại: ${variantInfo.stock}`);
           return;
         }
 
         const existingItem = outboundItems.find(
-          (item) =>
-            item.productId === values.productId &&
-            item.variantId === values.variantId
+          (item) => item.productId === values.productId && item.variantId === values.variantId,
         );
 
         if (existingItem) {
@@ -219,26 +207,25 @@ const WarehouseOutbound = () => {
           const totalQuantity = existingItem.quantity + values.quantity;
           if (!checkStockAvailability(values.variantId, totalQuantity)) {
             warning(
-              `Tổng số lượng vượt quá tồn kho. Tồn kho hiện tại: ${variantInfo.stock}, Đã chọn: ${existingItem.quantity}`
+              `Tổng số lượng vượt quá tồn kho. Tồn kho hiện tại: ${variantInfo.stock}, Đã chọn: ${existingItem.quantity}`,
             );
 
-            console.log("Số lượng vượt quá tồn kho");
+            console.log('Số lượng vượt quá tồn kho');
             return;
           }
 
           setOutboundItems(
             outboundItems.map((item) =>
-              item.productId === values.productId &&
-              item.variantId === values.variantId
+              item.productId === values.productId && item.variantId === values.variantId
                 ? {
                     ...item,
                     quantity: totalQuantity,
                     total: totalQuantity * item.cost,
                   }
-                : item
-            )
+                : item,
+            ),
           );
-          success("Đã cập nhật số lượng sản phẩm");
+          success('Đã cập nhật số lượng sản phẩm');
         } else {
           const newItem = {
             id: Date.now(),
@@ -256,7 +243,7 @@ const WarehouseOutbound = () => {
           };
 
           setOutboundItems([...outboundItems, newItem]);
-          success("Đã thêm sản phẩm vào danh sách xuất kho");
+          success('Đã thêm sản phẩm vào danh sách xuất kho');
         }
 
         form.setFieldsValue({
@@ -268,13 +255,13 @@ const WarehouseOutbound = () => {
         setSelectedInventory(null);
       })
       .catch((errorInfo) => {
-        error("Vui lòng điền đầy đủ thông tin");
+        error('Vui lòng điền đầy đủ thông tin');
       });
   };
 
   const handleRemoveItem = (id) => {
     setOutboundItems(outboundItems.filter((item) => item.id !== id));
-    success("Đã xóa sản phẩm khỏi danh sách");
+    success('Đã xóa sản phẩm khỏi danh sách');
   };
 
   const handleUpdateQuantity = (id, quantity) => {
@@ -282,45 +269,38 @@ const WarehouseOutbound = () => {
     if (!item) return;
 
     if (!checkStockAvailability(item.variantId, quantity)) {
-      warning(
-        `Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.availableStock}`
-      );
+      warning(`Số lượng vượt quá tồn kho. Tồn kho hiện tại: ${item.availableStock}`);
       return;
     }
 
     setOutboundItems(
       outboundItems.map((item) =>
-        item.id === id
-          ? { ...item, quantity, total: quantity * item.cost }
-          : item
-      )
+        item.id === id ? { ...item, quantity, total: quantity * item.cost } : item,
+      ),
     );
   };
 
   const handleUpdateCost = (id, cost) => {
     setOutboundItems(
       outboundItems.map((item) =>
-        item.id === id ? { ...item, cost, total: item.quantity * cost } : item
-      )
+        item.id === id ? { ...item, cost, total: item.quantity * cost } : item,
+      ),
     );
   };
 
   const handleSubmitOutbound = () => {
     form
-      .validateFields(["branchId"])
+      .validateFields(['branchId'])
       .then((values) => {
         if (outboundItems.length === 0) {
-          error("Vui lòng thêm ít nhất một sản phẩm");
+          error('Vui lòng thêm ít nhất một sản phẩm');
           return;
         }
 
         const outboundData = {
           ...values,
           items: outboundItems,
-          totalItems: outboundItems.reduce(
-            (sum, item) => sum + item.quantity,
-            0
-          ),
+          totalItems: outboundItems.reduce((sum, item) => sum + item.quantity, 0),
           totalValue: outboundItems.reduce((sum, item) => sum + item.total, 0),
         };
 
@@ -328,7 +308,7 @@ const WarehouseOutbound = () => {
         setIsModalVisible(true);
       })
       .catch(() => {
-        error("Vui lòng chọn chi nhánh");
+        error('Vui lòng chọn chi nhánh');
       });
   };
 
@@ -352,11 +332,9 @@ const WarehouseOutbound = () => {
         });
       });
 
-      await Promise.all(
-        Object.values(exportRequests).map((data) => callExportInventory(data))
-      );
+      await Promise.all(Object.values(exportRequests).map((data) => callExportInventory(data)));
 
-      success("Xuất kho thành công!");
+      success('Xuất kho thành công!');
       setOutboundItems([]);
       form.resetFields();
       setSelectedBranch(null);
@@ -365,7 +343,7 @@ const WarehouseOutbound = () => {
       setIsModalVisible(false);
       await Promise.all([fetchInventories(), fetchOutboundHistory()]); // Refresh cả inventory và history
     } catch (error) {
-      error(error.message || "Có lỗi xảy ra khi xuất kho");
+      error(error.message || 'Có lỗi xảy ra khi xuất kho');
     } finally {
       setLoading(false);
     }
@@ -373,19 +351,16 @@ const WarehouseOutbound = () => {
 
   const itemColumns = [
     {
-      title: "Sản phẩm",
-      key: "product",
+      title: 'Sản phẩm',
+      key: 'product',
       width: 300,
       render: (_, record) => (
         <Space>
-          <Avatar
-            icon={<ProductOutlined />}
-            style={{ backgroundColor: "#1890ff" }}
-          />
+          <Avatar icon={<ProductOutlined />} style={{ backgroundColor: '#1890ff' }} />
           <div>
             <Text strong>{record.productName}</Text>
             <br />
-            <Text type="secondary" style={{ fontSize: "12px" }}>
+            <Text type="secondary" style={{ fontSize: '12px' }}>
               {record.productCode}
             </Text>
           </div>
@@ -393,26 +368,26 @@ const WarehouseOutbound = () => {
       ),
     },
     {
-      title: "Biến thể",
-      key: "variant",
+      title: 'Biến thể',
+      key: 'variant',
       width: 200,
       render: (_, record) => (
         <div>
           <Tag color="blue">{record.variantName}</Tag>
           <br />
-          <Text type="secondary" style={{ fontSize: "11px" }}>
+          <Text type="secondary" style={{ fontSize: '11px' }}>
             SKU: {record.variantSku}
           </Text>
           <br />
-          <Text type="success" style={{ fontSize: "10px" }}>
+          <Text type="success" style={{ fontSize: '10px' }}>
             Tồn kho: {record.availableStock}
           </Text>
         </div>
       ),
     },
     {
-      title: "Số lượng",
-      key: "quantity",
+      title: 'Số lượng',
+      key: 'quantity',
       width: 120,
       render: (_, record) => (
         <div>
@@ -421,10 +396,10 @@ const WarehouseOutbound = () => {
             max={record.availableStock}
             value={record.quantity}
             onChange={(value) => handleUpdateQuantity(record.id, value)}
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
           />
           {record.quantity > record.availableStock && (
-            <Text type="danger" style={{ fontSize: "10px" }}>
+            <Text type="danger" style={{ fontSize: '10px' }}>
               <WarningOutlined /> Vượt tồn kho
             </Text>
           )}
@@ -432,36 +407,34 @@ const WarehouseOutbound = () => {
       ),
     },
     {
-      title: "Giá vốn",
-      key: "cost",
+      title: 'Giá vốn',
+      key: 'cost',
       width: 150,
       render: (_, record) => (
         <InputNumber
           min={0}
           value={record.cost}
           onChange={(value) => handleUpdateCost(record.id, value)}
-          formatter={(value) =>
-            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-          }
-          parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
           addonAfter="₫"
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         />
       ),
     },
     {
-      title: "Thành tiền",
-      key: "total",
+      title: 'Thành tiền',
+      key: 'total',
       width: 150,
       render: (_, record) => (
-        <Text strong style={{ color: "#fa8c16" }}>
-          {record.total.toLocaleString("vi-VN")} ₫
+        <Text strong style={{ color: '#fa8c16' }}>
+          {record.total.toLocaleString('vi-VN')} ₫
         </Text>
       ),
     },
     {
-      title: "Thao tác",
-      key: "actions",
+      title: 'Thao tác',
+      key: 'actions',
       width: 80,
       render: (_, record) => (
         <Popconfirm
@@ -478,9 +451,9 @@ const WarehouseOutbound = () => {
 
   const historyColumns = [
     {
-      title: "Mã phiếu xuất",
-      dataIndex: "_id",
-      key: "code",
+      title: 'Mã phiếu xuất',
+      dataIndex: '_id',
+      key: 'code',
       width: 150,
       render: (text) => (
         <Tooltip title={text}>
@@ -491,53 +464,52 @@ const WarehouseOutbound = () => {
       ),
     },
     {
-      title: "Sản phẩm",
-      key: "product",
+      title: 'Sản phẩm',
+      key: 'product',
       width: 200,
       render: (_, record) => (
         <Space>
-          <ProductOutlined style={{ color: "#1890ff" }} />
+          <ProductOutlined style={{ color: '#1890ff' }} />
           <Text ellipsis>{record.productId?.name}</Text>
         </Space>
       ),
     },
     {
-      title: "Chi nhánh",
-      key: "branch",
+      title: 'Chi nhánh',
+      key: 'branch',
       width: 200,
       render: (_, record) => (
         <Space>
-          <ShopOutlined style={{ color: "#52c41a" }} />
+          <ShopOutlined style={{ color: '#52c41a' }} />
           <Text ellipsis>{record.branchId?.name}</Text>
         </Space>
       ),
     },
     {
-      title: "Số lượng xuất",
-      key: "totalItems",
+      title: 'Số lượng xuất',
+      key: 'totalItems',
       width: 100,
-      align: "center",
+      align: 'center',
       render: (_, record) => {
-        const total =
-          record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
-        return <Badge count={total} style={{ backgroundColor: "#f5222d" }} />;
+        const total = record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
+        return <Badge count={total} style={{ backgroundColor: '#f5222d' }} />;
       },
     },
     {
-      title: "Ngày xuất",
-      dataIndex: "createdAt",
-      key: "date",
+      title: 'Ngày xuất',
+      dataIndex: 'createdAt',
+      key: 'date',
       width: 150,
       render: (date) => (
         <Space>
           <CalendarOutlined />
-          <Text ellipsis>{new Date(date).toLocaleDateString("vi-VN")}</Text>
+          <Text ellipsis>{new Date(date).toLocaleDateString('vi-VN')}</Text>
         </Space>
       ),
     },
     {
-      title: "Người tạo",
-      key: "createdBy",
+      title: 'Người tạo',
+      key: 'createdBy',
       width: 150,
       render: (_, record) => (
         <Space>
@@ -547,8 +519,8 @@ const WarehouseOutbound = () => {
       ),
     },
     {
-      title: "Thao tác",
-      key: "actions",
+      title: 'Thao tác',
+      key: 'actions',
       width: 100,
       render: (_, record) => (
         <Space>
@@ -565,20 +537,17 @@ const WarehouseOutbound = () => {
     },
   ];
 
-  const totalQuantity = outboundItems.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const totalQuantity = outboundItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalValue = outboundItems.reduce((sum, item) => sum + item.total, 0);
 
   if (pageLoading) {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '60vh',
         }}
       >
         <Spin size="large" />
@@ -589,22 +558,18 @@ const WarehouseOutbound = () => {
   return (
     <div
       style={{
-        padding: "24px",
+        padding: '24px',
 
-        minHeight: "100vh",
-        borderRadius: "8px",
+        minHeight: '100vh',
+        borderRadius: '8px',
       }}
     >
       {contextHolder}
-      <div style={{ marginBottom: "24px" }}>
+      <div style={{ marginBottom: '24px' }}>
         <Row justify="space-between" align="middle">
           <Col></Col>
           <Col>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={loadAllData}
-              loading={pageLoading}
-            >
+            <Button icon={<ReloadOutlined />} onClick={loadAllData} loading={pageLoading}>
               Làm mới
             </Button>
           </Col>
@@ -614,7 +579,7 @@ const WarehouseOutbound = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={14}>
           <Card
-            style={{ boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)" }}
+            style={{ boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)' }}
             title="Tạo phiếu xuất kho"
             extra={
               <Space>
@@ -623,7 +588,7 @@ const WarehouseOutbound = () => {
                   maxCount={1}
                   accept=".xlsx"
                   showUploadList={false}
-                  onChange={() => console.log("Export Excel")}
+                  onChange={() => console.log('Export Excel')}
                   disabled={loading}
                 >
                   <Button icon={<UploadOutlined />}>Export Excel</Button>
@@ -637,15 +602,9 @@ const WarehouseOutbound = () => {
                   <Form.Item
                     label="Chi nhánh"
                     name="branchId"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn chi nhánh" },
-                    ]}
+                    rules={[{ required: true, message: 'Vui lòng chọn chi nhánh' }]}
                   >
-                    <Select
-                      placeholder="Chọn chi nhánh"
-                      onChange={handleBranchChange}
-                      size="large"
-                    >
+                    <Select placeholder="Chọn chi nhánh" onChange={handleBranchChange} size="large">
                       {branches.map((branch) => (
                         <Option key={branch._id} value={branch._id}>
                           <Space>
@@ -665,9 +624,7 @@ const WarehouseOutbound = () => {
                     <Form.Item
                       label="Sản phẩm"
                       name="productId"
-                      rules={[
-                        { required: true, message: "Vui lòng chọn sản phẩm" },
-                      ]}
+                      rules={[{ required: true, message: 'Vui lòng chọn sản phẩm' }]}
                     >
                       <Select
                         placeholder="Chọn sản phẩm"
@@ -676,16 +633,11 @@ const WarehouseOutbound = () => {
                         showSearch
                         optionFilterProp="children"
                         filterOption={(input, option) =>
-                          option.children
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
+                          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }
                       >
                         {getFilteredInventories().map((inventory) => (
-                          <Option
-                            key={inventory.product._id}
-                            value={inventory.product._id}
-                          >
+                          <Option key={inventory.product._id} value={inventory.product._id}>
                             <Space>
                               <ProductOutlined />
                               {inventory.product.name}
@@ -700,9 +652,7 @@ const WarehouseOutbound = () => {
                     <Form.Item
                       label="Biến thể"
                       name="variantId"
-                      rules={[
-                        { required: true, message: "Vui lòng chọn biến thể" },
-                      ]}
+                      rules={[{ required: true, message: 'Vui lòng chọn biến thể' }]}
                     >
                       <Select
                         placeholder="Chọn biến thể"
@@ -712,10 +662,7 @@ const WarehouseOutbound = () => {
                         {selectedInventory?.variants
                           ?.filter((v) => !v.isDeleted && v.stock > 0)
                           .map((variant) => (
-                            <Option
-                              key={variant.variantId._id}
-                              value={variant.variantId._id}
-                            >
+                            <Option key={variant.variantId._id} value={variant.variantId._id}>
                               <div>
                                 <Tooltip
                                   title={`${variant.variantId.name} - Tồn kho: ${variant.stock}`}
@@ -736,11 +683,11 @@ const WarehouseOutbound = () => {
                       label="Số lượng xuất"
                       name="quantity"
                       rules={[
-                        { required: true, message: "Vui lòng nhập số lượng" },
+                        { required: true, message: 'Vui lòng nhập số lượng' },
                         {
-                          type: "number",
+                          type: 'number',
                           min: 1,
-                          message: "Số lượng phải lớn hơn 0",
+                          message: 'Số lượng phải lớn hơn 0',
                         },
                       ]}
                     >
@@ -748,13 +695,11 @@ const WarehouseOutbound = () => {
                         min={1}
                         max={
                           selectedInventory?.variants?.find(
-                            (v) =>
-                              v.variantId._id ===
-                              form.getFieldValue("variantId")
+                            (v) => v.variantId._id === form.getFieldValue('variantId'),
                           )?.stock
                         }
                         placeholder="Nhập số lượng"
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                         size="large"
                       />
                     </Form.Item>
@@ -793,43 +738,43 @@ const WarehouseOutbound = () => {
           <Card
             title="Danh sách sản phẩm xuất"
             style={{
-              marginTop: "16px",
-              boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+              marginTop: '16px',
+              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
             }}
           >
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
               {outboundItems.map((item) => (
                 <div
                   key={item.id}
                   style={{
-                    padding: "12px",
-                    border: "1px solid #f0f0f0",
-                    borderRadius: "8px",
-                    marginBottom: "8px",
-                    backgroundColor: "#fafafa",
+                    padding: '12px',
+                    border: '1px solid #f0f0f0',
+                    borderRadius: '8px',
+                    marginBottom: '8px',
+                    backgroundColor: '#fafafa',
                   }}
                 >
                   <Row justify="space-between" align="middle">
                     <Col span={18}>
-                      <Text strong style={{ fontSize: "13px" }}>
+                      <Text strong style={{ fontSize: '13px' }}>
                         {item.productName}
                       </Text>
                       <br />
-                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>
                         {item.variantName} × {item.quantity}
                       </Text>
                       <br />
-                      <Text type="secondary" style={{ fontSize: "11px" }}>
+                      <Text type="secondary" style={{ fontSize: '11px' }}>
                         SKU: {item.variantSku}
                       </Text>
                       <br />
-                      <Text type="success" style={{ fontSize: "10px" }}>
+                      <Text type="success" style={{ fontSize: '10px' }}>
                         Tồn kho: {item.availableStock}
                       </Text>
                     </Col>
-                    <Col span={6} style={{ textAlign: "right" }}>
-                      <Text style={{ fontSize: "12px", color: "#fa8c16" }}>
-                        {item.total.toLocaleString("vi-VN")}₫
+                    <Col span={6} style={{ textAlign: 'right' }}>
+                      <Text style={{ fontSize: '12px', color: '#fa8c16' }}>
+                        {item.total.toLocaleString('vi-VN')}₫
                       </Text>
                       <br />
                       <Button
@@ -852,8 +797,8 @@ const WarehouseOutbound = () => {
         <Card
           title="Chi tiết sản phẩm xuất kho"
           style={{
-            marginTop: "24px",
-            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+            marginTop: '24px',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Table
@@ -871,8 +816,8 @@ const WarehouseOutbound = () => {
       <Card
         title="Lịch sử xuất kho"
         style={{
-          marginTop: "24px",
-          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+          marginTop: '24px',
+          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
         }}
       >
         <Table

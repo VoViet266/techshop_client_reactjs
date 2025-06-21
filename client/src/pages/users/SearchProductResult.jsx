@@ -1,8 +1,8 @@
-import { Flex, Result, Button, Typography } from "antd";
-import Products from "@services/products";
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { PreviewListProducts } from "@/components/products";
+import { Flex, Result, Button, Typography } from 'antd';
+import Products from '@services/products';
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { PreviewListProducts } from '@/components/products';
 
 function SearchProductResult() {
   const { query } = useParams();
@@ -36,11 +36,7 @@ function SearchProductResult() {
       ) : (
         <Result
           status="404"
-          subTitle={
-            <Typography.Text className="font-roboto! text-lg!">
-              {result}
-            </Typography.Text>
-          }
+          subTitle={<Typography.Text className="font-roboto! text-lg!">{result}</Typography.Text>}
           extra={
             <Link to="/">
               <Button

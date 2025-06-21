@@ -1,5 +1,5 @@
-import { Form, Input, Switch, Divider, Row, Col } from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import { Form, Input, Switch, Divider, Row, Col } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
 
 function ConnectionInformation({ product, setProduct }) {
   const { connectivity } = product || {};
@@ -7,9 +7,7 @@ function ConnectionInformation({ product, setProduct }) {
   return (
     <Form layout="vertical" initialValues={connectivity}>
       <div className="flex gap-12 items-center">
-        <span className="text-sm text-primary font-medium">
-          Thông tin kết nối
-        </span>
+        <span className="text-sm text-primary font-medium">Thông tin kết nối</span>
         <div className="flex-1 border-t border-t-gray-300"></div>
       </div>
 
@@ -41,9 +39,7 @@ function ConnectionInformation({ product, setProduct }) {
               checkedChildren="Có"
               unCheckedChildren="Không"
               style={{
-                backgroundColor: product?.connectivity?.nfc
-                  ? "#52c41a"
-                  : "#d9d9d9",
+                backgroundColor: product?.connectivity?.nfc ? '#52c41a' : '#d9d9d9',
               }}
             />
           </Form.Item>
@@ -74,9 +70,7 @@ function ConnectionInformation({ product, setProduct }) {
                 })
               }
               style={{
-                backgroundColor: product?.connectivity?.gps
-                  ? "#52c41a"
-                  : "#d9d9d9",
+                backgroundColor: product?.connectivity?.gps ? '#52c41a' : '#d9d9d9',
               }}
             />
           </Form.Item>

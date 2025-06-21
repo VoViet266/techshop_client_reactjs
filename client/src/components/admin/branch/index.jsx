@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Input, Select, message, Row, Col } from 'antd';
-import {
-  callCreateBranch,
-  callFetchBranches,
-  callUpdateBranch,
-} from '@/services/apis';
+import { callCreateBranch, callFetchBranches, callUpdateBranch } from '@/services/apis';
 
 const ModalBranch = (props) => {
   const { setOpenModal, reloadTable, dataInit, setDataInit, visible } = props;
@@ -55,9 +51,7 @@ const ModalBranch = (props) => {
       : await callCreateBranch(branchData);
     if (res.data) {
       message.success(
-        dataInit?._id
-          ? 'Branch updated successfully.'
-          : 'Branch created successfully.',
+        dataInit?._id ? 'Branch updated successfully.' : 'Branch created successfully.',
       );
       setOpenModal(false);
       reloadTable();
@@ -74,12 +68,7 @@ const ModalBranch = (props) => {
       onOk={form.submit}
       destroyOnClose={true}
     >
-      <Form
-        form={form}
-        onFinish={submitBranch}
-        layout="vertical"
-        name="form_in_modal"
-      >
+      <Form form={form} onFinish={submitBranch} layout="vertical" name="form_in_modal">
         <Form.Item
           name="name"
           label="Branch Name"
@@ -136,9 +125,7 @@ const ModalBranch = (props) => {
         <Form.Item
           name="manager"
           label="Manager"
-          rules={[
-            { required: true, message: 'Please input the manager name!' },
-          ]}
+          rules={[{ required: true, message: 'Please input the manager name!' }]}
         >
           <Input />
         </Form.Item>

@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
-const token = localStorage.getItem("access_token");
+const token = localStorage.getItem('access_token');
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
   },
 });
@@ -45,54 +45,51 @@ const axiosInstance = axios.create({
 export const callLogin = async (email, password) => {
   const response = await axiosInstance.post(`/api/v1/auth/login`, {
     username: email,
-    password: password
-  }
-  );
+    password: password,
+  });
   return response.data;
-}
+};
 
 export const callRegister = async (value) => {
   const response = await axiosInstance.post(`/api/v1/auth/register`, {
-    ...value
+    ...value,
   });
   return response.data;
-}
+};
 
 export const callFetchAccount = () => {
   return axiosInstance.get(`/api/v1/auth/account`);
-}
+};
 
 export const callFreshToken = () => {
   return axiosInstance.get(`/api/v1/auth/refresh`);
-}
+};
 
 export const callLogout = () => {
   return axiosInstance.get(`/api/v1/auth/logout`);
-}
+};
 
 export const callFetchUsers = () => {
   return axiosInstance.get(`/api/v1/users`);
-}
+};
 
 export const callDeleteUser = (id) => {
   return axiosInstance.delete(`/api/v1/users/${id}`);
-}
+};
 export const callUpdateUser = (value) => {
   return axiosInstance.patch(`/api/v1/users/${value._id}`, {
-    ...value
+    ...value,
   });
-}
+};
 export const callCreateProduct = (value) => {
-
   return axiosInstance.post(`/api/v1/products`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callSearchProduct = (query) => {
-
   return axiosInstance.get(`/api/v1/products/search?q=${query}`);
-}
+};
 
 export const callFetchProducts = (page, limit, category, brand) => {
   const params = { page, limit };
@@ -103,145 +100,138 @@ export const callFetchProducts = (page, limit, category, brand) => {
     params.brand = brand;
   }
   return axiosInstance.get(`/api/v1/products`, { params });
-}
+};
 
 export const callFetchProductDetail = (id) => {
-
   return axiosInstance.get(`/api/v1/products/${id}`);
-}
+};
 
 export const callUpdateProduct = (value) => {
   return axiosInstance.patch(`/api/v1/products/${value._id}`, {
-    ...value
+    ...value,
   });
-}
+};
 export const callDeleteProduct = (id) => {
   return axiosInstance.delete(`/api/v1/products/${id}`);
-}
+};
 export const callFetchBranches = () => {
   return axiosInstance.get(`/api/v1/branchs`);
-}
+};
 
 export const callCreateBranch = (value) => {
-
   return axiosInstance.post(`/api/v1/branchs`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callDeleteBranch = (id) => {
   return axiosInstance.delete(`/api/v1/branchs/${id}`);
-}
+};
 
 export const callUpdateBranch = (value) => {
   return axiosInstance.patch(`/api/v1/branchs/${value._id}`, {
-    ...value
+    ...value,
   });
-}
+};
 export const callFetchInventories = () => {
   return axiosInstance.get(`/api/v1/inventories`);
-}
+};
 
 export const callImportInventory = (value) => {
   return axiosInstance.post(`/api/v1/inventories/import`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callExportInventory = (value) => {
   return axiosInstance.post(`/api/v1/inventories/export`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callFetchInboundHistory = () => {
   return axiosInstance.get(`/api/v1/inventories/getImport`);
-}
+};
 
 export const callFetchDetailInbound = (id) => {
   return axiosInstance.get(`/api/v1/inventories/getImport/${id}`);
-}
-
+};
 
 export const callFetchOutboundHistory = () => {
   return axiosInstance.get(`/api/v1/inventories/getExport`);
-}
+};
 
 export const callFetchDetailOutbound = (id) => {
   console.log(id);
   return axiosInstance.get(`/api/v1/inventories/getExport/${id}`);
-}
-
+};
 
 export const callFetchCategories = () => {
   return axiosInstance.get(`/api/v1/categories`);
-}
-
+};
 
 export const callCreateCategory = (value) => {
   return axiosInstance.post(`/api/v1/categories`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callUpdateCategory = (value) => {
   return axiosInstance.patch(`/api/v1/categories/${value._id}`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callDeleteCategory = (id) => {
   return axiosInstance.delete(`/api/v1/categories/${id}`);
-}
+};
 
 export const callCreateBrand = (value) => {
   return axiosInstance.post(`/api/v1/brands`, {
-    ...value
+    ...value,
   });
-}
+};
 
-export const callUpdateBrand = (
-  value
-) => {
+export const callUpdateBrand = (value) => {
   return axiosInstance.patch(`/api/v1/brands/${value._id}`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callDeleteBrand = (id) => {
   return axiosInstance.delete(`/api/v1/brands/${id}`);
-}
+};
 
 export const callFetchBrands = () => {
   return axiosInstance.get(`/api/v1/brands`);
-}
+};
 
 export const callFetchOrders = () => {
   return axiosInstance.get(`/api/v1/orders`);
-}
+};
 export const callFetchOrderByUserId = (userId) => {
   return axiosInstance.get(`/api/v1/orders/user/${userId}`);
-}
+};
 export const callCreateOrder = (value) => {
   console.log(value);
   return axiosInstance.post(`/api/v1/orders`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callUpdateOrder = (id, value) => {
   return axiosInstance.patch(`/api/v1/orders/${id}`, {
-    ...value
+    ...value,
   });
-}
+};
 
 export const callDeleteOrder = (id) => {
   return axiosInstance.delete(`/api/v1/orders/${id}`);
-}
+};
 
 export const callFetchCart = () => {
   return axiosInstance.get(`/api/v1/carts`);
-}
+};
 
 export const callCreateCart = (value) => {
   return axiosInstance.post(`/api/v1/carts`, {
@@ -249,36 +239,36 @@ export const callCreateCart = (value) => {
       {
         productId: value.productId,
         variant: value.variant,
-        quantity: value.quantity
-      }
-    ]
+        quantity: value.quantity,
+      },
+    ],
   });
-}
+};
 
 export const callUpdateCart = (id, products) => {
   return axiosInstance.patch(`/api/v1/carts/${id}`, {
-    ...products
+    ...products,
   });
-}
+};
 
 export const callDeleteCart = (id) => {
   return axiosInstance.delete(`/api/v1/carts/${id}`);
-}
+};
 
 export const callFetchRole = () => {
   return axiosInstance.get(`/api/v1/roles`);
-}
+};
 export const callUploadSingleImage = (file) => {
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append('file', file);
   return axiosInstance.post(`/api/v1/upload`, formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   });
-}
+};
 
 export const callDeleteFile = (fileName) => {
   return axiosInstance.delete(`/api/v1/delete/${fileName}`);
-}
+};
 export default axiosInstance;

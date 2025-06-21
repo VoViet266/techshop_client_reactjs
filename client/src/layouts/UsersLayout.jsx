@@ -1,22 +1,17 @@
-import { useEffect } from "react";
-import { Login, Signup } from "@pages/app";
-import { useAppContext } from "@contexts";
-import { Outlet, Link } from "react-router-dom";
-import { UserInformation } from "@components/users";
-import { Layout, Typography, Button, Flex } from "antd";
-
-import {
-  SearchBox,
-  ErrorToast,
-  LoadingToast,
-  SuccessToast,
-} from "@/components/app";
+import { SearchBox, ErrorToast, LoadingToast, SuccessToast } from '@/components/app';
+import { useEffect } from 'react';
+import { useAppContext } from '@contexts';
+import useMessage from '@/hooks/useMessage';
+import { Login, Signup } from '@pages/app';
+import { Outlet, Link } from 'react-router-dom';
+import { UserInformation } from '@components/users';
+import { Layout, Typography, Button, Flex } from 'antd';
 
 function Header() {
   const { setShowLogin, setShowSignup } = useAppContext();
 
   useEffect(() => {
-    document.title = "TechShop | Mua sắm thả ga";
+    document.title = 'TechShop | Mua sắm thả ga';
   }, []);
 
   return (
@@ -32,7 +27,7 @@ function Header() {
 
       <SearchBox />
 
-      {localStorage.getItem("access_token") ? (
+      {localStorage.getItem('access_token') ? (
         <UserInformation />
       ) : (
         <Flex gap={8}>
@@ -60,11 +55,12 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, toastLoading, loadingError, loadingSuccess } =
-    useAppContext();
+  const { showLogin, showSignup, toastLoading, loadingError, loadingSuccess } = useAppContext();
+  const { contextHolder } = useMessage();
 
   return (
     <Layout className="font-roboto! relative! flex! flex-col! items-center!">
+      {contextHolder}
       <Header />
       <Layout.Content className="w-full! bg-white! mt-60! flex! flex-col! items-center!">
         <Outlet />

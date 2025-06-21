@@ -1,7 +1,7 @@
-import Products from "@services/products";
-import { useState, useEffect } from "react";
-import Categories from "@services/categories";
-import { PreviewListProducts } from "@components/products";
+import Products from '@services/products';
+import { useState, useEffect } from 'react';
+import Categories from '@services/categories';
+import { PreviewListProducts } from '@components/products';
 
 function Home() {
   const [products, setProducts] = useState([]);

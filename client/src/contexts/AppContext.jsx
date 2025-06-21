@@ -1,13 +1,13 @@
 // import { callFetchAccount } from "@/services/apis";
-import { callFetchAccount, callLogout } from "@/services/apis";
-import { useContext, createContext, useState, useEffect } from "react";
+import { callFetchAccount, callLogout } from '@/services/apis';
+import { useContext, createContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
 function AppProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [query, setQuery] = useState("");
-  const [message, setMessage] = useState("");
+  const [query, setQuery] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
@@ -17,7 +17,7 @@ function AppProvider({ children }) {
   const [sideBarSelectedTab, setSideBarSelectedTab] = useState();
   useEffect(() => {
     const verifyToken = async () => {
-      const accessToken = localStorage.getItem("access_token");
+      const accessToken = localStorage.getItem('access_token');
 
       if (!accessToken) {
         setLoading(false);
@@ -42,15 +42,15 @@ function AppProvider({ children }) {
   const login = async (username, password) => {
     setIsSubmit(true);
     const res = await callLogin(username, password);
-    const redirect = localStorage.getItem("redirectUrl");
+    const redirect = localStorage.getItem('redirectUrl');
     if (res?.data) {
       const { access_token } = res.data;
-      localStorage.setItem("access_token", access_token);
-      message.success("Đăng nhập thành công!");
-      window.location.href = redirect || "/";
-      localStorage.removeItem("redirectUrl");
+      localStorage.setItem('access_token', access_token);
+      message.success('Đăng nhập thành công!');
+      window.location.href = redirect || '/';
+      localStorage.removeItem('redirectUrl');
     } else {
-      throw new Error(res?.message || "Đăng nhập thất bại");
+      throw new Error(res?.message || 'Đăng nhập thất bại');
     }
   };
 
@@ -59,31 +59,32 @@ function AppProvider({ children }) {
     try {
       await callLogout();
 
-      localStorage.removeItem("access_token");
+      localStorage.removeItem('access_token');
       // Reset state
       setUser(null);
-      success("Đăng xuất thành công!");
+      success('Đăng xuất thành công!');
 
       // Chuyển về trang đăng nhập
       setTimeout(() => {
-        window.location.href = "/login";
+        window.location.href = '/login';
       }, 500);
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error('Logout error:', error);
       // Xóa token dù có lỗi hay không
-      localStorage.removeItem("access_token");
+      localStorage.removeItem('access_token');
       setUser(null);
     }
   };
   // Kiểm tra xem người dùng có đăng nhập không
   const isAuthenticated = () => {
-    return !!user && !!localStorage.getItem("access_token");
+    return !!user && !!localStorage.getItem('access_token');
   };
 
   // Hàm kiểm tra quyền admin
   const isAdmin = () => {
     return user && user?.role?.permission.length > 0;
   };
+
   const data = {
     query,
     loading,

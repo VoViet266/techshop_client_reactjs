@@ -1,10 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Button, Form, Input, message } from "antd";
-import {
-  callCreateCategory,
-  callFetchCategories,
-  callUpdateCategory,
-} from "@/services/apis";
+import React, { useEffect, useState } from 'react';
+import { Modal, Button, Form, Input, message } from 'antd';
+import { callCreateCategory, callFetchCategories, callUpdateCategory } from '@/services/apis';
 
 const ModalCategory = (props) => {
   const { setOpenModal, reloadTable, dataInit, setDataInit, visible } = props;
@@ -16,7 +12,7 @@ const ModalCategory = (props) => {
         const response = await callFetchCategories();
         setCategories(response.data.data.result);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error('Error fetching categories:', error);
       }
     };
     fetchCategories();
@@ -52,19 +48,17 @@ const ModalCategory = (props) => {
       : await callCreateCategory(categoryData);
     if (res.data) {
       message.success(
-        dataInit?._id
-          ? "Category updated successfully."
-          : "Category created successfully."
+        dataInit?._id ? 'Category updated successfully.' : 'Category created successfully.',
       );
       setOpenModal(false);
       reloadTable();
     } else {
-      message.error("Failed to create category.");
+      message.error('Failed to create category.');
     }
   };
   return (
     <Modal
-      title={dataInit?._id ? "Update Category" : "Create Category"}
+      title={dataInit?._id ? 'Update Category' : 'Create Category'}
       visible={visible}
       onCancel={() => handleReset()}
       onOk={form.submit}
@@ -75,7 +69,7 @@ const ModalCategory = (props) => {
         onFinish={submitCategory}
         layout="vertical"
         name="form_in_modal"
-        initialValues={{ modifier: "public" }}
+        initialValues={{ modifier: 'public' }}
       >
         <Form.Item
           name="name"
@@ -83,7 +77,7 @@ const ModalCategory = (props) => {
           rules={[
             {
               required: true,
-              message: "Please input the name of the category!",
+              message: 'Please input the name of the category!',
             },
           ]}
         >
@@ -95,7 +89,7 @@ const ModalCategory = (props) => {
           rules={[
             {
               required: true,
-              message: "Please input the description of the category!",
+              message: 'Please input the description of the category!',
             },
           ]}
         >

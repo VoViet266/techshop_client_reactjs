@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   Form,
@@ -17,7 +17,7 @@ import {
   Badge,
   Popconfirm,
   Spin,
-} from "antd";
+} from 'antd';
 import {
   DeleteOutlined,
   ProductOutlined,
@@ -27,20 +27,20 @@ import {
   EyeOutlined,
   UploadOutlined,
   ReloadOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import {
   callFetchBranches,
   callFetchDetailInbound,
   callFetchInboundHistory,
   callFetchProducts,
   callImportInventory,
-} from "@/services/apis";
+} from '@/services/apis';
 
-import ModalSearchProduct from "../../../components/admin/warehouse/modalSearchProduct";
-import InboundConfirmModal from "@/components/admin/warehouse/InboundConfirmModal";
-import InboundForm from "@/components/admin/warehouse/InboundForm";
-import InboundSummary from "@/components/admin/warehouse/InboundSummary";
-import InboundDetailDrawer from "@/components/admin/warehouse/InboundDetailDrawer";
+import ModalSearchProduct from '../../../components/admin/warehouse/modalSearchProduct';
+import InboundConfirmModal from '@/components/admin/warehouse/InboundConfirmModal';
+import InboundForm from '@/components/admin/warehouse/InboundForm';
+import InboundSummary from '@/components/admin/warehouse/InboundSummary';
+import InboundDetailDrawer from '@/components/admin/warehouse/InboundDetailDrawer';
 
 const { Text } = Typography;
 
@@ -58,7 +58,7 @@ const WarehouseInbound = () => {
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [productSearchVisible, setProductSearchVisible] = useState(false);
   const [selectedInboundDetail, setSelectedInboundDetail] = useState(null);
-  const [productSearchText, setProductSearchText] = useState("");
+  const [productSearchText, setProductSearchText] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const inbound = useState(true);
@@ -70,8 +70,8 @@ const WarehouseInbound = () => {
       setProducts(productsData);
       setFilteredProducts(productsData);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      message.error("Không thể tải danh sách sản phẩm");
+      console.error('Error fetching products:', error);
+      message.error('Không thể tải danh sách sản phẩm');
     }
   };
 
@@ -80,8 +80,8 @@ const WarehouseInbound = () => {
       const response = await callFetchBranches();
       setBranches(response.data.data);
     } catch (error) {
-      console.error("Error fetching branches:", error);
-      message.error("Không thể tải danh sách chi nhánh");
+      console.error('Error fetching branches:', error);
+      message.error('Không thể tải danh sách chi nhánh');
     }
   };
 
@@ -90,8 +90,8 @@ const WarehouseInbound = () => {
       const response = await callFetchInboundHistory();
       setInboundHistory(response.data.data);
     } catch (error) {
-      console.error("Error fetching inbound history:", error);
-      message.error("Không thể tải lịch sử nhập kho");
+      console.error('Error fetching inbound history:', error);
+      message.error('Không thể tải lịch sử nhập kho');
     }
   };
 
@@ -102,8 +102,8 @@ const WarehouseInbound = () => {
       setSelectedInboundDetail(response.data.data);
       setDetailDrawerVisible(true);
     } catch (error) {
-      console.error("Error fetching inbound detail:", error);
-      message.error("Không thể tải chi tiết phiếu nhập");
+      console.error('Error fetching inbound detail:', error);
+      message.error('Không thể tải chi tiết phiếu nhập');
     } finally {
       setDetailLoading(false);
     }
@@ -112,13 +112,9 @@ const WarehouseInbound = () => {
   const loadAllData = async () => {
     setPageLoading(true);
     try {
-      await Promise.all([
-        fetchProducts(),
-        fetchBranches(),
-        fetchInboundHistory(),
-      ]);
+      await Promise.all([fetchProducts(), fetchBranches(), fetchInboundHistory()]);
     } catch (error) {
-      message.error("Có lỗi xảy ra khi tải dữ liệu");
+      message.error('Có lỗi xảy ra khi tải dữ liệu');
     } finally {
       setPageLoading(false);
     }
@@ -130,7 +126,7 @@ const WarehouseInbound = () => {
 
   const handleSelectProduct = (product) => {
     setSelectedProduct(product);
-    console.log("Selected product:", product);
+    console.log('Selected product:', product);
     form.setFieldsValue({
       productId: product._id,
       variantId: undefined,
@@ -141,22 +137,16 @@ const WarehouseInbound = () => {
 
   const handleAddItem = () => {
     form
-      .validateFields(["productId", "variantId", "quantity", "cost"])
+      .validateFields(['productId', 'variantId', 'quantity', 'cost'])
       .then((values) => {
         const product = products.find((p) => p._id === values.productId);
-        const variant = product.variants.find(
-          (v) => v._id === values.variantId
-        );
+        const variant = product.variants.find((v) => v._id === values.variantId);
         const existingItem = inboundItems.find(
-          (item) =>
-            item.productId === values.productId &&
-            item.variantId === values.variantId
+          (item) => item.productId === values.productId && item.variantId === values.variantId,
         );
 
         if (existingItem) {
-          message.warning(
-            "Sản phẩm này đã có trong danh sách. Vui lòng chỉnh sửa số lượng."
-          );
+          message.warning('Sản phẩm này đã có trong danh sách. Vui lòng chỉnh sửa số lượng.');
           return;
         }
 
@@ -182,52 +172,47 @@ const WarehouseInbound = () => {
           cost: undefined,
         });
         setSelectedProduct(null);
-        message.success("Đã thêm sản phẩm vào danh sách nhập kho");
+        message.success('Đã thêm sản phẩm vào danh sách nhập kho');
       })
       .catch((errorInfo) => {
-        message.error("Vui lòng điền đầy đủ thông tin");
+        message.error('Vui lòng điền đầy đủ thông tin');
       });
   };
 
   const handleRemoveItem = (id) => {
     setInboundItems(inboundItems.filter((item) => item.id !== id));
-    message.success("Đã xóa sản phẩm khỏi danh sách");
+    message.success('Đã xóa sản phẩm khỏi danh sách');
   };
 
   const handleUpdateQuantity = (id, quantity) => {
     setInboundItems(
       inboundItems.map((item) =>
-        item.id === id
-          ? { ...item, quantity, total: quantity * item.cost }
-          : item
-      )
+        item.id === id ? { ...item, quantity, total: quantity * item.cost } : item,
+      ),
     );
   };
 
   const handleUpdateCost = (id, cost) => {
     setInboundItems(
       inboundItems.map((item) =>
-        item.id === id ? { ...item, cost, total: item.quantity * cost } : item
-      )
+        item.id === id ? { ...item, cost, total: item.quantity * cost } : item,
+      ),
     );
   };
 
   const handleSubmitInbound = () => {
     form
-      .validateFields(["branchId"])
+      .validateFields(['branchId'])
       .then((values) => {
         if (inboundItems.length === 0) {
-          message.error("Vui lòng thêm ít nhất một sản phẩm");
+          message.error('Vui lòng thêm ít nhất một sản phẩm');
           return;
         }
 
         const inboundData = {
           ...values,
           items: inboundItems,
-          totalItems: inboundItems.reduce(
-            (sum, item) => sum + item.quantity,
-            0
-          ),
+          totalItems: inboundItems.reduce((sum, item) => sum + item.quantity, 0),
           totalValue: inboundItems.reduce((sum, item) => sum + item.total, 0),
         };
 
@@ -235,7 +220,7 @@ const WarehouseInbound = () => {
         setIsModalVisible(true);
       })
       .catch(() => {
-        message.error("Vui lòng chọn chi nhánh");
+        message.error('Vui lòng chọn chi nhánh');
       });
   };
 
@@ -259,17 +244,15 @@ const WarehouseInbound = () => {
         });
       });
 
-      await Promise.all(
-        Object.values(importRequests).map((data) => callImportInventory(data))
-      );
+      await Promise.all(Object.values(importRequests).map((data) => callImportInventory(data)));
 
-      message.success("Nhập kho thành công!");
+      message.success('Nhập kho thành công!');
       setInboundItems([]);
       form.resetFields();
       setIsModalVisible(false);
       await fetchInboundHistory();
     } catch (error) {
-      message.error(error.message || "Có lỗi xảy ra khi nhập kho");
+      message.error(error.message || 'Có lỗi xảy ra khi nhập kho');
     } finally {
       setLoading(false);
     }
@@ -277,19 +260,16 @@ const WarehouseInbound = () => {
 
   const itemColumns = [
     {
-      title: "Sản phẩm",
-      key: "product",
+      title: 'Sản phẩm',
+      key: 'product',
       width: 300,
       render: (_, record) => (
         <Space>
-          <Avatar
-            icon={<ProductOutlined />}
-            style={{ backgroundColor: "#1890ff" }}
-          />
+          <Avatar icon={<ProductOutlined />} style={{ backgroundColor: '#1890ff' }} />
           <div>
             <Text strong>{record.productName}</Text>
             <br />
-            <Text type="secondary" style={{ fontSize: "12px" }}>
+            <Text type="secondary" style={{ fontSize: '12px' }}>
               {record.productCode}
             </Text>
           </div>
@@ -297,63 +277,61 @@ const WarehouseInbound = () => {
       ),
     },
     {
-      title: "Biến thể",
-      key: "variant",
+      title: 'Biến thể',
+      key: 'variant',
       width: 200,
       render: (_, record) => (
         <div>
           <Tag color="blue">{record.variantName}</Tag>
           <br />
-          <Text type="secondary" style={{ fontSize: "11px" }}>
+          <Text type="secondary" style={{ fontSize: '11px' }}>
             SKU: {record.variantSku}
           </Text>
         </div>
       ),
     },
     {
-      title: "Số lượng",
-      key: "quantity",
+      title: 'Số lượng',
+      key: 'quantity',
       width: 120,
       render: (_, record) => (
         <InputNumber
           min={1}
           value={record.quantity}
           onChange={(value) => handleUpdateQuantity(record.id, value)}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         />
       ),
     },
     {
-      title: "Giá vốn",
-      key: "cost",
+      title: 'Giá vốn',
+      key: 'cost',
       width: 150,
       render: (_, record) => (
         <InputNumber
           min={0}
           value={record.cost}
           onChange={(value) => handleUpdateCost(record.id, value)}
-          formatter={(value) =>
-            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-          }
-          parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
           addonAfter="₫"
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         />
       ),
     },
     {
-      title: "Thành tiền",
-      key: "total",
+      title: 'Thành tiền',
+      key: 'total',
       width: 150,
       render: (_, record) => (
-        <Text strong style={{ color: "#fa8c16" }}>
-          {record.total.toLocaleString("vi-VN")} ₫
+        <Text strong style={{ color: '#fa8c16' }}>
+          {record.total.toLocaleString('vi-VN')} ₫
         </Text>
       ),
     },
     {
-      title: "Thao tác",
-      key: "actions",
+      title: 'Thao tác',
+      key: 'actions',
       width: 80,
       render: (_, record) => (
         <Popconfirm
@@ -370,9 +348,9 @@ const WarehouseInbound = () => {
 
   const historyColumns = [
     {
-      title: "Mã phiếu xuất",
-      dataIndex: "_id",
-      key: "code",
+      title: 'Mã phiếu xuất',
+      dataIndex: '_id',
+      key: 'code',
       width: 150,
       render: (text) => (
         <Tooltip title={text}>
@@ -383,54 +361,53 @@ const WarehouseInbound = () => {
       ),
     },
     {
-      title: "Sản phẩm",
-      key: "product",
+      title: 'Sản phẩm',
+      key: 'product',
       width: 200,
       render: (_, record) => (
         <Space>
-          <ProductOutlined style={{ color: "#1890ff" }} />
+          <ProductOutlined style={{ color: '#1890ff' }} />
           <Text ellipsis>{record.productId?.name}</Text>
         </Space>
       ),
     },
     {
-      title: "Chi nhánh",
-      key: "branch",
+      title: 'Chi nhánh',
+      key: 'branch',
       width: 200,
-      fixed: "left",
+      fixed: 'left',
       render: (_, record) => (
         <Space>
-          <ShopOutlined style={{ color: "#52c41a" }} />
+          <ShopOutlined style={{ color: '#52c41a' }} />
           <Text ellipsis>{record.branchId?.name}</Text>
         </Space>
       ),
     },
     {
-      title: "Số lượng",
-      key: "totalItems",
+      title: 'Số lượng',
+      key: 'totalItems',
       width: 100,
-      align: "center",
+      align: 'center',
       render: (_, record) => {
-        const total =
-          record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
-        return <Badge count={total} style={{ backgroundColor: "#52c41a" }} />;
+        const total = record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
+        return <Badge count={total} style={{ backgroundColor: '#52c41a' }} />;
       },
     },
     {
-      title: "Ngày xuất",
-      dataIndex: "createdAt",
-      key: "date",
+      title: 'Ngày xuất',
+      dataIndex: 'createdAt',
+      key: 'date',
       width: 150,
       render: (date) => (
         <Space>
           <CalendarOutlined />
-          <Text ellipsis>{new Date(date).toLocaleDateString("vi-VN")}</Text>
+          <Text ellipsis>{new Date(date).toLocaleDateString('vi-VN')}</Text>
         </Space>
       ),
     },
     {
-      title: "Người tạo",
-      key: "createdBy",
+      title: 'Người tạo',
+      key: 'createdBy',
       width: 150,
       render: (_, record) => (
         <Space>
@@ -440,8 +417,8 @@ const WarehouseInbound = () => {
       ),
     },
     {
-      title: "Thao tác",
-      key: "actions",
+      title: 'Thao tác',
+      key: 'actions',
       width: 100,
       render: (_, record) => (
         <Space>
@@ -458,20 +435,17 @@ const WarehouseInbound = () => {
     },
   ];
 
-  const totalQuantity = inboundItems.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const totalQuantity = inboundItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalValue = inboundItems.reduce((sum, item) => sum + item.total, 0);
 
   if (pageLoading) {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '60vh',
         }}
       >
         <Spin size="large" />
@@ -482,12 +456,12 @@ const WarehouseInbound = () => {
   return (
     <div
       style={{
-        padding: "24px",
-        minHeight: "100vh",
-        borderRadius: "8px",
+        padding: '24px',
+        minHeight: '100vh',
+        borderRadius: '8px',
       }}
     >
-      <div style={{ marginBottom: "24px" }}>
+      <div style={{ marginBottom: '24px' }}>
         <Row justify="space-between" align="middle">
           <div></div>
           <Col>
@@ -496,8 +470,8 @@ const WarehouseInbound = () => {
               onClick={loadAllData}
               loading={pageLoading}
               style={{
-                marginRight: "8px",
-                boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+                marginRight: '8px',
+                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
               }}
             >
               Làm mới
@@ -509,7 +483,7 @@ const WarehouseInbound = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={14}>
           <Card
-            style={{ boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)" }}
+            style={{ boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)' }}
             title="Tạo phiếu nhập kho"
             extra={
               <Space>
@@ -518,7 +492,7 @@ const WarehouseInbound = () => {
                   maxCount={1}
                   accept=".xlsx"
                   showUploadList={false}
-                  onChange={() => console.log("Import Excel")}
+                  onChange={() => console.log('Import Excel')}
                   disabled={loading}
                 >
                   <Button icon={<UploadOutlined />}>Import Excel</Button>
@@ -536,7 +510,7 @@ const WarehouseInbound = () => {
           </Card>
         </Col>
 
-        <Col xs={24} lg={10} style={{ marginBottom: "24px" }}>
+        <Col xs={24} lg={10} style={{ marginBottom: '24px' }}>
           <InboundSummary
             inbound={inbound}
             inboundItems={inboundItems}
@@ -546,36 +520,36 @@ const WarehouseInbound = () => {
             loading={loading}
           />
 
-          <Card title="Danh sách sản phẩm" style={{ marginTop: "16px" }}>
-            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+          <Card title="Danh sách sản phẩm" style={{ marginTop: '16px' }}>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
               {inboundItems.map((item) => (
                 <div
                   key={item.id}
                   style={{
-                    padding: "8px",
-                    border: "1px solid #f0f0f0",
-                    borderRadius: "4px",
-                    marginBottom: "8px",
-                    backgroundColor: "#fafafa",
+                    padding: '8px',
+                    border: '1px solid #f0f0f0',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    backgroundColor: '#fafafa',
                   }}
                 >
                   <Row justify="space-between" align="middle">
                     <Col span={18}>
-                      <Text strong style={{ fontSize: "12px" }}>
+                      <Text strong style={{ fontSize: '12px' }}>
                         {item.productName}
                       </Text>
                       <br />
-                      <Text type="secondary" style={{ fontSize: "11px" }}>
+                      <Text type="secondary" style={{ fontSize: '11px' }}>
                         {item.variantName} × {item.quantity}
                       </Text>
                       <br />
-                      <Text type="secondary" style={{ fontSize: "10px" }}>
+                      <Text type="secondary" style={{ fontSize: '10px' }}>
                         SKU: {item.variantSku}
                       </Text>
                     </Col>
-                    <Col span={6} style={{ textAlign: "right" }}>
-                      <Text style={{ fontSize: "11px", color: "#fa8c16" }}>
-                        {item.total.toLocaleString("vi-VN")}₫
+                    <Col span={6} style={{ textAlign: 'right' }}>
+                      <Text style={{ fontSize: '11px', color: '#fa8c16' }}>
+                        {item.total.toLocaleString('vi-VN')}₫
                       </Text>
                       <br />
                       <Button
@@ -595,7 +569,7 @@ const WarehouseInbound = () => {
       </Row>
 
       {inboundItems.length > 0 && (
-        <Card title="Chi tiết sản phẩm nhập kho" style={{ marginTop: "24px" }}>
+        <Card title="Chi tiết sản phẩm nhập kho" style={{ marginTop: '24px' }}>
           <Table
             columns={itemColumns}
             dataSource={inboundItems}
@@ -608,7 +582,7 @@ const WarehouseInbound = () => {
         </Card>
       )}
 
-      <Card title="Lịch sử nhập kho" style={{ marginTop: "24px" }}>
+      <Card title="Lịch sử nhập kho" style={{ marginTop: '24px' }}>
         <Table
           columns={historyColumns}
           dataSource={inboundHistory}
