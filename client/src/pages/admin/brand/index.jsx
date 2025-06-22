@@ -15,6 +15,9 @@ import {
   Modal,
   Avatar,
   Empty,
+  Form,
+  Upload,
+  Image,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -27,11 +30,21 @@ import {
   EyeOutlined,
 } from '@ant-design/icons';
 import ModalBrand from '../../../components/admin/brand/modal_brand';
-import { callFetchBrands, callDeleteBrand } from '@/services/apis';
+import {
+  callFetchBrands,
+  callDeleteBrand,
+  callUploadSingleImage,
+  callUpdateBrand,
+  callCreateBrand,
+} from '@/services/apis';
+import useMessage from '@/hooks/useMessage';
+import TextArea from 'antd/es/input/TextArea';
+import Files from '@/services/files';
 
 const { Title, Text, Paragraph } = Typography;
 
 const BrandManagement = () => {
+  const [form] = Form.useForm();
   const [brands, setBrands] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [dataInit, setDataInit] = useState(null);
@@ -42,6 +55,11 @@ const BrandManagement = () => {
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
+  const { success, error, warning, contextHolder } = useMessage();
+  const [fileList, setFileList] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [logoImage, setLogoImage] = useState([]);
 
   useEffect(() => {
     fetchBrands();
@@ -54,7 +72,7 @@ const BrandManagement = () => {
       setBrands(response.data.data);
     } catch (error) {
       console.error('Error fetching brands:', error);
-      message.error('Failed to load brands');
+      error('Failed to load brands');
     } finally {
       setLoading(false);
     }
@@ -72,7 +90,7 @@ const BrandManagement = () => {
       fetchBrands();
     } catch (error) {
       console.error('Failed to delete brands:', error);
-      message.error('Xóa thất bại');
+      error('Xóa thất bại');
     }
   };
 
@@ -84,11 +102,26 @@ const BrandManagement = () => {
       message.success('Brands refreshed successfully');
     } catch (error) {
       console.error('Failed to reload brands:', error);
-      message.error('Failed to refresh brands');
+      error('Failed to refresh brands');
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (dataInit?._id) {
+      form.setFieldsValue({
+        _id: dataInit._id,
+        name: dataInit.name,
+        description: dataInit.description,
+      });
+      if (dataInit?.logo && typeof dataInit?.logo === 'string') {
+        setLogoImage([{ uid: '-1', url: dataInit.logo }]);
+      }
+    } else {
+      form.resetFields();
+      setLogoImage([]);
+    }
+  }, [dataInit]);
 
   const filteredBrands = brands.filter(
     (brand) =>
@@ -101,13 +134,12 @@ const BrandManagement = () => {
       title: 'Logo',
       dataIndex: 'logo',
       key: 'logo',
-
       render: (text, record) => (
         <Avatar
           src={text}
           alt={record.name}
           shape="square"
-          size={50}
+          size={80}
           style={{ cursor: 'pointer' }}
           onClick={() => {
             setSelectedBrand(record);
@@ -142,7 +174,7 @@ const BrandManagement = () => {
     },
     {
       title: 'Trạng thái',
-      key: 'status',
+      key: 'isActive',
       align: 'center',
       render: (record) => (
         <Tooltip title="Đang hoạt động">
@@ -176,9 +208,109 @@ const BrandManagement = () => {
       setSelectedRows(selectedRows);
     },
   };
+  const uploadFile = async (file) => {
+    try {
+      const response = await Files.upload(file);
+      return response;
+    } catch (error) {
+      // error('Error uploading file:', error);
+      throw error;
+    }
+  };
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      let logoUrl = '';
+      if (fileList.length > 0) {
+        const file = fileList[0];
+
+        if (file.originFileObj) {
+          logoUrl = await uploadFile(file.originFileObj);
+        } else if (file.url) {
+          logoUrl = file.url;
+        }
+      }
+
+      if (dataInit) {
+        await callUpdateBrand({
+          _id: dataInit._id,
+          name: values.name,
+          description: values.description,
+          logo: logoUrl,
+        });
+        success('Cập nhật thương hiệu thành công');
+      } else {
+        await callCreateBrand({
+          name: values.name,
+          description: values.description,
+          logo: logoUrl,
+        });
+        success('Tạo thương hiệu mới thành công');
+      }
+
+      handleCancel();
+      reloadTable();
+    } catch (error) {
+      console.error('Failed to save brand:', message.error);
+      error('Lưu thương hiệu thất bại');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+  };
+
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handleChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList.slice(-1));
+  };
+
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      message.error('Chỉ có thể upload file hình ảnh!');
+      return Upload.LIST_IGNORE;
+    }
+
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Kích thước file phải nhỏ hơn 2MB!');
+      return Upload.LIST_IGNORE;
+    }
+    return false;
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    setFileList([]);
+    setPreviewOpen(false);
+    setPreviewImage('');
+    setOpenModal(false);
+    setDataInit(null);
+  };
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
   return (
     <>
+      {contextHolder}
       <Modal
         title="Xóa thương hiệu"
         open={openModalDelete}
@@ -335,15 +467,6 @@ const BrandManagement = () => {
             ),
           }}
         />
-
-        <ModalBrand
-          openModal={openModal}
-          setOpenModal={setOpenModal}
-          reloadTable={reloadTable}
-          dataInit={dataInit}
-          setDataInit={setDataInit}
-          visible={openModal}
-        />
       </Card>
 
       <Modal
@@ -393,6 +516,87 @@ const BrandManagement = () => {
           </div>
         )}
       </Modal>
+      <Modal
+        title={dataInit ? 'Cập nhật thương hiệu' : 'Tạo thương hiệu mới'}
+        open={openModal}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="cancel" onClick={handleCancel}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={() => form.submit()}
+          >
+            {dataInit ? 'Cập nhật' : 'Tạo mới'}
+          </Button>,
+        ]}
+        width={600}
+        destroyOnClose
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          autoComplete="off"
+        >
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                label="Tên thương hiệu"
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng nhập tên thương hiệu!',
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập tên thương hiệu" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Mô tả" name="description">
+                <TextArea rows={4} placeholder="Nhập mô tả thương hiệu" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Logo thương hiệu">
+                <Upload
+                  listType="picture-card"
+                  fileList={fileList}
+                  onPreview={handlePreview}
+                  onChange={handleChange}
+                  beforeUpload={beforeUpload}
+                  maxCount={1}
+                >
+                  {fileList.length >= 1 ? null : uploadButton}
+                </Upload>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
+
+      <Image
+        // wrapperStyle={{
+        //   display: 'none',
+        // }}
+        preview={{
+          visible: previewOpen,
+          onVisibleChange: (visible) => setPreviewOpen(visible),
+          afterOpenChange: (visible) => !visible && setPreviewImage(''),
+        }}
+        src={previewImage}
+      />
     </>
   );
 };
