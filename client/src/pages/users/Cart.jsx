@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAppContext } from '@/contexts';
 import {
   Table,
   Button,
@@ -6,7 +7,7 @@ import {
   Card,
   Typography,
   Space,
-  message,
+  Empty,
   Skeleton,
 } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -15,6 +16,7 @@ const { Title, Text } = Typography;
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
+  const { message } = useAppContext();
   const [loading, setLoading] = useState(true);
 
   // Giả lập tải dữ liệu
@@ -190,7 +192,7 @@ function Cart() {
             dataSource={cartItems}
             rowKey="id"
             pagination={false}
-            locale={{ emptyText: 'Giỏ hàng trống' }}
+            locale={<Empty description={<Text>Giỏ hàng trống</Text>} />}
           />
           <Card className="mt-24! text-right!">
             <Space direction="vertical">
