@@ -1,4 +1,5 @@
 import { UsersLayout, AdminLayout } from '@layouts';
+import { Cart } from '@pages/users';
 import BranchManagement from '@/pages/admin/branch';
 import Dashboard from '@/pages/admin/dashboard/Dashboard';
 import CategoryPage from '@/pages/admin/category/category';
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: 'cart',
+        element: <Cart />,
       },
       {
         path: 'product/:id',
