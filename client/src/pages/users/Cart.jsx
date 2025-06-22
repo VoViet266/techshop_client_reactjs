@@ -52,16 +52,19 @@ function Cart() {
       title: 'Sản phẩm',
       dataIndex: 'name',
       key: 'name',
+      align: 'center',
     },
     {
       title: 'Đơn giá',
       dataIndex: 'price',
       key: 'price',
+      align: 'center',
       render: (price) => `${price.toLocaleString()}₫`,
     },
     {
       title: 'Số lượng',
       key: 'quantity',
+      align: 'center',
       render: (_, item) => (
         <InputNumber
           min={1}
@@ -73,11 +76,13 @@ function Cart() {
     {
       title: 'Thành tiền',
       key: 'total',
+      align: 'center',
       render: (_, item) => `${(item.price * item.quantity).toLocaleString()}₫`,
     },
     {
-      title: '',
+      title: 'Xóa',
       key: 'action',
+      align: 'center',
       render: (_, item) => (
         <Button
           icon={<DeleteOutlined />}
@@ -89,8 +94,8 @@ function Cart() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={2}>🛒 Giỏ hàng của bạn</Title>
+    <div className="w-full px-50 py-20">
+      <Title level={3}>Giỏ hàng của bạn</Title>
       <Table
         columns={columns}
         dataSource={cartItems}
@@ -98,13 +103,18 @@ function Cart() {
         pagination={false}
         locale={{ emptyText: 'Giỏ hàng trống' }}
       />
-      <Card style={{ marginTop: 24, textAlign: 'right' }}>
+      <Card className="mt-24! text-right!">
         <Space direction="vertical">
           <Text strong>Tổng tiền:</Text>
-          <Title level={3} style={{ margin: 0, color: '#1677ff' }}>
+          <Title level={3} className="m-0!">
             {total.toLocaleString()}₫
           </Title>
-          <Button type="primary" size="large" disabled={cartItems.length === 0}>
+          <Button
+            type="primary"
+            size="large"
+            disabled={cartItems.length === 0}
+            className="rounded-md!"
+          >
             Tiến hành thanh toán
           </Button>
         </Space>
