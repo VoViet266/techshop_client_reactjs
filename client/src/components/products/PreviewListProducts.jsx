@@ -26,7 +26,7 @@ function PreviewListProducts({
         ) : (
           <Typography.Title
             level={3}
-            className="text-2xl! font-roboto! font-bold! text-primary! mb-6!"
+            className="text-2xl! font-roboto! text-primary! font-bold! uppercase! mb-6!"
           >
             {title}
           </Typography.Title>

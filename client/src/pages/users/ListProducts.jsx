@@ -61,7 +61,7 @@ function ProductListPage() {
             <Skeleton.Input active className="h-32" />
           </div>
         ) : (
-          <Typography.Title level={3} className="text-2xl! font-roboto! mb-6!">
+          <Typography.Title level={3} className="text-2xl! uppercase! font-roboto! text-primary! font-bold! mb-6!">
             {category.name}
           </Typography.Title>
         )}
