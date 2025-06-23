@@ -14,7 +14,6 @@ function PreviewListProducts({
   showListBrands = true,
 }) {
   const navigate = useNavigate();
-  const { setCurrentCategory } = useAppContext();
   const brands = [...new Set(products.map((product) => product.brand.name))];
 
   return (
@@ -41,8 +40,8 @@ function PreviewListProducts({
         {!loading && canViewAll && products.length > 0 && (
           <span
             onClick={() => {
-              setCurrentCategory(category);
-              navigate("/product/all");
+              const id = category._id;
+              navigate(`/product/all/${id}`);
             }}
             className="cursor-pointer font-medium text-primary"
           >
@@ -124,8 +123,12 @@ function PreviewListProducts({
 
         {products.map((product, index) => {
           return (
-            <Col key={index}>
-              <CardProduct key={index} product={product} loading={loading} />
+            <Col span={5} key={index}>
+              <CardProduct
+                product={product}
+                loading={loading}
+                className="w-full!"
+              />
             </Col>
           );
         })}

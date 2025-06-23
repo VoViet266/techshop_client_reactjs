@@ -24,7 +24,7 @@ function CardProduct({ product = {}, className, loading = false }) {
                 }
               />
             }
-            className={`w-280 rounded-lg! overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[rgb(245,239,239)] ${className}`}
+            className={`rounded-lg! overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[rgb(245,239,239)] ${className}`}
           >
             <Divider className="mt-10!" />
             <Typography.Title

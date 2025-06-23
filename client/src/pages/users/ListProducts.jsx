@@ -1,15 +1,19 @@
 import { useAppContext } from '@contexts';
 import { Card } from '@components/products';
+import { useParams } from 'react-router-dom';
+import Categories from '@services/categories';
 import { useEffect, useState } from 'react';
 import { callFetchProducts } from '@services/apis';
-import { Typography, Flex, Tag, Skeleton } from 'antd';
+import { Typography, Row, Col, Tag, Skeleton } from 'antd';
 
 function ProductListPage() {
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
+  const { id } = useParams();
+  const { message } = useAppContext();
   const [brands, setBrands] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState(null);
   const [currentBrand, setCurrentBrand] = useState('');
-  const { message, currentCategory } = useAppContext();
 
   useEffect(() => {
     if (products.length > 0) {
@@ -20,13 +24,23 @@ function ProductListPage() {
     }
   }, [products]);
 
-  console.log('Brands:', brands);
+  useEffect(() => {
+    const categoriesService = new Categories();
+
+    categoriesService
+      .findOne(id)
+      .then((response) => {
+        setCategory(response.data.data);
+      })
+      .catch(() => {
+        message.error('Không thể lấy thể loại');
+      });
+  }, []);
 
   useEffect(() => {
-    if (currentCategory) {
-      callFetchProducts(1, 10, currentCategory?.name, currentBrand)
+    if (category) {
+      callFetchProducts(1, 10, category.name, currentBrand)
         .then((response) => {
-          setLoading(true);
           message.success('Lấy danh sách sản phẩm thành công');
           setProducts(response.data.data.result);
         })
@@ -37,7 +51,7 @@ function ProductListPage() {
           setLoading(false);
         });
     }
-  }, [currentCategory, currentBrand]);
+  }, [category, currentBrand]);
 
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 my-20">
@@ -48,7 +62,7 @@ function ProductListPage() {
           </div>
         ) : (
           <Typography.Title level={3} className="text-2xl! font-roboto! mb-6!">
-            {currentCategory.name}
+            {category.name}
           </Typography.Title>
         )}
       </div>
@@ -65,7 +79,7 @@ function ProductListPage() {
           </Tag>
         </div>
       ))}
-      <Flex gap={8} justify="center" wrap>
+      <Row gutter={10} justify="start">
         {loading && (
           <>
             <div className="w-275">
@@ -88,17 +102,16 @@ function ProductListPage() {
         {!loading &&
           products.map((product, index) => {
             return (
-              <div className="w-1/5" key={index}>
+              <Col span={5} key={index}>
                 <Card
-                  key={index}
                   product={product}
-                  className="mb-8!"
                   loading={loading}
+                  className="mb-8! w-full!"
                 />
-              </div>
+              </Col>
             );
           })}
-      </Flex>
+      </Row>
     </div>
   );
 }
