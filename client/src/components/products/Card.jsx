@@ -1,85 +1,87 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, Space, Typography, Divider, Image } from 'antd';
 
-function CardProduct({ product }) {
+function CardProduct({ product = {}, className, loading = false }) {
   const navigate = useNavigate();
-
-  return (
-    <Badge.Ribbon
-      text="Mới"
-      color="red"
-      className="top-10! font-roboto! -right-6!"
-    >
-      <Link to={`/product/${product._id}`}>
-        <Card
-          hoverable
-          cover={
-            <Image
-              preview={false}
-              alt="iPhone 16 Pro Max"
-              className="object-fill! aspect-square! mx-auto! mt-20! w-[80%]! rounded-xl!"
-              src={
-                product.variants?.[0]?.images?.[0] ||
-                'https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg'
-              }
-            />
-          }
-          className="w-280 rounded-lg! overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[rgb(245,239,239)]"
-        >
-          <Divider className="mt-10!" />
-          <Typography.Title
-            level={4}
-            className="mb-8! line-clamp-1! font-roboto! text-[16px]! leading-1.4!"
+  if (!loading)
+    return (
+      <Badge.Ribbon
+        text="Mới"
+        color="red"
+        className="top-10! font-roboto! -right-6!"
+      >
+        <Link to={`/product/${product._id}`}>
+          <Card
+            hoverable
+            cover={
+              <Image
+                preview={false}
+                alt="iPhone 16 Pro Max"
+                className="object-fill! aspect-square! mx-auto! mt-20! w-[80%]! rounded-xl!"
+                src={
+                  product?.variants?.[0]?.images?.[0] ||
+                  'https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg'
+                }
+              />
+            }
+            className={`w-280 rounded-lg! overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[rgb(245,239,239)] ${className}`}
           >
-            {product.name || 'iPhone 16 Pro Max 256GB | Chính hãng VN/A'}
-          </Typography.Title>
-          <div className="mb-16">
-            <Space direction="vertical" size={4}>
-              <div className="flex items-center gap-8">
-                <Typography.Text className="text-xs! font-roboto! text-[#52c41a]!">
-                  Miễn phí vận chuyển
-                </Typography.Text>
-              </div>
-              <div className="flex items-center gap-8">
-                <Typography.Text className="text-xs! font-roboto! text-[#1890ff]!">
-                  Trả góp 0% qua thẻ tín dụng
-                </Typography.Text>
-              </div>
-            </Space>
-          </div>
-          <div className="mb-10">
-            <div className="line-clamp-1">
-              <Typography.Text className="text-xl! font-bold! font-roboto! text-[#d32f2f]! mr-8!">
-                {product?.variants[0]?.price * product?.discount ||
-                  '30.000.000 VNĐ'}
-              </Typography.Text>
-              <Typography.Text
-                delete
-                type="secondary"
-                className="text-sm! font-roboto!"
-              >
-                {product?.variants[0]?.price || '35.290.000 VNĐ'}
-              </Typography.Text>
-            </div>
-          </div>
-          <Divider className="my-12!" />
-          <Space direction="vertical" size={8} className="w-full!">
-            <Button
-              block
-              size="large"
-              type="primary"
-              onClick={() => {
-                navigate(`/product/${product._id}`);
-              }}
-              className="h-[44]! rounded-md! font-roboto! font-medium! bg-primary!"
+            <Divider className="mt-10!" />
+            <Typography.Title
+              level={4}
+              className="mb-8! line-clamp-1! font-roboto! text-[16px]! leading-1.4!"
             >
-              Mua ngay
-            </Button>
-          </Space>
-        </Card>
-      </Link>
-    </Badge.Ribbon>
-  );
+              {product.name || 'iPhone 16 Pro Max 256GB | Chính hãng VN/A'}
+            </Typography.Title>
+            <div className="mb-16">
+              <Space direction="vertical" size={4}>
+                <div className="flex items-center gap-8">
+                  <Typography.Text className="text-xs! font-roboto! text-[#52c41a]!">
+                    Miễn phí vận chuyển
+                  </Typography.Text>
+                </div>
+                <div className="flex items-center gap-8">
+                  <Typography.Text className="text-xs! font-roboto! text-[#1890ff]!">
+                    Trả góp 0% qua thẻ tín dụng
+                  </Typography.Text>
+                </div>
+              </Space>
+            </div>
+            <div className="mb-10">
+              <div className="line-clamp-1">
+                <Typography.Text className="text-xl! font-bold! font-roboto! text-[#d32f2f]! mr-8!">
+                  {
+                    product?.variants?.[0]?.price * product?.discount ||
+                    '30.000.000 VNĐ'
+                  }
+                </Typography.Text>
+                <Typography.Text
+                  delete
+                  type="secondary"
+                  className="text-sm! font-roboto!"
+                >
+                  {product?.variants?.[0]?.price || '35.290.000 VNĐ'}
+                </Typography.Text>
+              </div>
+            </div>
+            <Divider className="my-12!" />
+            <Space direction="vertical" size={8} className="w-full!">
+              <Button
+                block
+                size="large"
+                type="primary"
+                onClick={() => {
+                  navigate(`/product/${product._id}`);
+                }}
+                className="h-[44]! rounded-md! font-roboto! font-medium! bg-primary!"
+              >
+                Mua ngay
+              </Button>
+            </Space>
+          </Card>
+        </Link>
+      </Badge.Ribbon>
+    );
 }
 
 export default CardProduct;

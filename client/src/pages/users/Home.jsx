@@ -47,6 +47,7 @@ function Home() {
             <PreviewListProducts
               key={index}
               loading={loading}
+              category={category}
               products={products.filter((product) => {
                 return product.category.name === category.name;
               })}

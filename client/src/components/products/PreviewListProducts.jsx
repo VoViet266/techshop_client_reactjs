@@ -1,15 +1,20 @@
 import { Tag, Typography, Empty, Row, Col } from 'antd';
 import CardProduct from './Card';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '@/contexts';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 function PreviewListProducts({
   title,
   loading,
+  category = {},
   products = [],
   canViewAll = true,
   showListBrands = true,
 }) {
+  const navigate = useNavigate();
+  const { setCurrentCategory } = useAppContext();
   const brands = [...new Set(products.map((product) => product.brand.name))];
 
   return (
@@ -34,7 +39,13 @@ function PreviewListProducts({
           </div>
         )}
         {!loading && canViewAll && products.length > 0 && (
-          <span className="cursor-pointer font-medium text-primary">
+          <span
+            onClick={() => {
+              setCurrentCategory(category);
+              navigate("/product/all");
+            }}
+            className="cursor-pointer font-medium text-primary"
+          >
             Xem tất cả
           </span>
         )}

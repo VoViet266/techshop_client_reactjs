@@ -1,182 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Typography,
-  Row,
-  Col,
-  Card,
-  Select,
-  Skeleton,
-  Image,
-  Button,
-  Space,
-} from 'antd';
-
-const { Title, Text } = Typography;
-const { Option } = Select;
+import { useAppContext } from '@contexts';
+import { Card } from '@components/products';
+import { useEffect, useState } from 'react';
+import { callFetchProducts } from '@services/apis';
+import { Typography, Flex, Tag, Skeleton } from 'antd';
 
 function ProductListPage() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-
-  const [selectedPriceRange, setSelectedPriceRange] = useState(null);
-  const [selectedMemory, setSelectedMemory] = useState(null);
-
-  const memoryOptions = ['8GB / 256GB', '16GB / 512GB', '32GB / 1TB'];
-  const priceOptions = [
-    { label: 'Dưới $1000', value: 'under1000' },
-    { label: '$1000 - $2000', value: '1000to2000' },
-    { label: 'Trên $2000', value: 'above2000' },
-  ];
+  const [brands, setBrands] = useState([]);
+  const [currentBrand, setCurrentBrand] = useState('');
+  const { message, currentCategory } = useAppContext();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const data = [
-        {
-          id: '1',
-          name: 'Laptop A 8GB/256GB',
-          price: 900,
-          memory: '8GB / 256GB',
-          color: 'Space Gray',
-          image:
-            'https://res.cloudinary.com/dbglvjsap/image/upload/v1750297727/uploads/jb9xdmharfrag7eg9s5w.webp',
-        },
-        {
-          id: '2',
-          name: 'Laptop B 16GB/512GB',
-          price: 1500,
-          memory: '16GB / 512GB',
-          color: 'Moonlight White',
-          image:
-            'https://res.cloudinary.com/dbglvjsap/image/upload/v1750297727/uploads/jb9xdmharfrag7eg9s5w.webp',
-        },
-        {
-          id: '3',
-          name: 'Laptop C 32GB/1TB',
-          price: 2500,
-          memory: '32GB / 1TB',
-          color: 'Midnight Blue',
-          image:
-            'https://res.cloudinary.com/dbglvjsap/image/upload/v1750297727/uploads/jb9xdmharfrag7eg9s5w.webp',
-        },
+    if (products.length > 0) {
+      const brands = [
+        ...new Set(products.map((product) => product.brand.name)),
       ];
-      setProducts(data);
-      setFiltered(data);
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+      setBrands(brands);
+    }
+  }, [products]);
 
-  const applyFilters = (priceRange, memory) => {
-    const filteredData = products.filter((p) => {
-      let priceOk = true;
-      if (priceRange === 'under1000') priceOk = p.price < 1000;
-      else if (priceRange === '1000to2000') priceOk = p.price >= 1000 && p.price <= 2000;
-      else if (priceRange === 'above2000') priceOk = p.price > 2000;
+  console.log('Brands:', brands);
 
-      const memoryOk = !memory || p.memory === memory;
-      return priceOk && memoryOk;
-    });
-    setFiltered(filteredData);
-  };
-
-  const handlePriceChange = (value) => {
-    setSelectedPriceRange(value);
-    applyFilters(value, selectedMemory);
-  };
-
-  const handleMemoryChange = (value) => {
-    setSelectedMemory(value);
-    applyFilters(selectedPriceRange, value);
-  };
+  useEffect(() => {
+    if (currentCategory) {
+      callFetchProducts(1, 10, currentCategory?.name, currentBrand)
+        .then((response) => {
+          setLoading(true);
+          message.success('Lấy danh sách sản phẩm thành công');
+          setProducts(response.data.data.result);
+        })
+        .catch(() => {
+          message.error('Không thể lấy danh sách sản phẩm');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [currentCategory, currentBrand]);
 
   return (
-    <div className='w-full px-50 py-20'>
-      {/* Tiêu đề + lọc cùng 1 hàng */}
-      <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col>
-          <Title level={2} style={{ margin: 0 }}>Danh sách sản phẩm</Title>
-        </Col>
-        <Col flex="auto">
-          <Row gutter={12} justify="end">
-            <Col>
-              <Select
-                placeholder="Chọn khoảng giá"
-                onChange={handlePriceChange}
-                allowClear
-                style={{ minWidth: 150 }}
-              >
-                {priceOptions.map((opt) => (
-                  <Option key={opt.value} value={opt.value}>{opt.label}</Option>
-                ))}
-              </Select>
-            </Col>
-            <Col>
-              <Select
-                placeholder="Chọn bộ nhớ"
-                onChange={handleMemoryChange}
-                allowClear
-                style={{ minWidth: 180 }}
-              >
-                {memoryOptions.map((mem) => (
-                  <Option key={mem} value={mem}>{mem}</Option>
-                ))}
-              </Select>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-
-      {/* Danh sách sản phẩm */}
-      {loading ? (
-        <Row gutter={[16, 16]}>
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <Col xs={24} sm={12} md={8} key={idx}>
-              <Card>
-                <Skeleton.Image active style={{ width: '100%', height: 200 }} />
-                <Skeleton active paragraph={{ rows: 2 }} />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {filtered.length === 0 ? (
-            <Col span={24}>
-              <Text type="secondary">Không có sản phẩm nào phù hợp.</Text>
-            </Col>
-          ) : (
-            filtered.map((product) => (
-              <Col xs={24} sm={12} md={8} key={product.id}>
+    <div className="w-full xl:px-50 lg:px-30 md:px-20 my-20">
+      <div className="flex items-center justify-between mt-10 mb-5">
+        {loading ? (
+          <div className="w-200 mb-20">
+            <Skeleton.Input active className="h-32" />
+          </div>
+        ) : (
+          <Typography.Title level={3} className="text-2xl! font-roboto! mb-6!">
+            {currentCategory.name}
+          </Typography.Title>
+        )}
+      </div>
+      {brands.map((brand, index) => (
+        <div key={index}>
+          <Tag
+            key={index}
+            onClick={() => {
+              setCurrentBrand(brand);
+            }}
+            className={`font-roboto! text-sm! px-8! border-none! rounded-md! cursor-pointer! ${currentBrand === brand && 'bg-gray-200!'}  min-w-80! text-center! bg-gray-100! py-4! mb-12!`}
+          >
+            {brand}
+          </Tag>
+        </div>
+      ))}
+      <Flex gap={8} justify="center" wrap>
+        {loading && (
+          <>
+            <div className="w-275">
+              <Skeleton.Input active className="w-275! h-450!" />
+            </div>
+            <div className="w-275">
+              <Skeleton.Input active className="w-275! h-450!" />
+            </div>
+            <div className="w-275">
+              <Skeleton.Input active className="w-275! h-450!" />
+            </div>
+            <div className="w-275">
+              <Skeleton.Input active className="w-275! h-450!" />
+            </div>
+            <div className="w-275">
+              <Skeleton.Input active className="w-275! h-450!" />
+            </div>
+          </>
+        )}
+        {!loading &&
+          products.map((product, index) => {
+            return (
+              <div className="w-1/5" key={index}>
                 <Card
-                  hoverable
-                  cover={
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      height={200}
-                      style={{ objectFit: 'cover' }}
-                      preview={false}
-                    />
-                  }
-                >
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    <Title level={5}>{product.name}</Title>
-                    <Text strong style={{ fontSize: 16 }}>
-                      ${product.price.toLocaleString()}
-                    </Text>
-                    <Text type="secondary">{product.memory}</Text>
-                    <Text type="secondary">Màu: {product.color}</Text>
-                    <Button type="primary" block>
-                      Xem chi tiết
-                    </Button>
-                  </Space>
-                </Card>
-              </Col>
-            ))
-          )}
-        </Row>
-      )}
+                  key={index}
+                  product={product}
+                  className="mb-8!"
+                  loading={loading}
+                />
+              </div>
+            );
+          })}
+      </Flex>
     </div>
   );
 }

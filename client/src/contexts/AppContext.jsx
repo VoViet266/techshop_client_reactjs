@@ -14,6 +14,7 @@ function AppProvider({ children }) {
   const [toastLoading, setToastLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [loadingSuccess, setLoadingSuccess] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState(null); 
   const [sideBarSelectedTab, setSideBarSelectedTab] = useState();
 
   useEffect(() => {
@@ -88,6 +89,7 @@ function AppProvider({ children }) {
     loadingError,
     toastLoading,
     loadingSuccess,
+    currentCategory,
     sideBarSelectedTab,
 
     login,
@@ -102,6 +104,7 @@ function AppProvider({ children }) {
     isAuthenticated,
     setToastLoading,
     setLoadingSuccess,
+    setCurrentCategory,
     setSideBarSelectedTab,
   };
 
