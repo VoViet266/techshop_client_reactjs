@@ -59,7 +59,6 @@ const OrderManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [createForm] = Form.useForm();
   const { success, error, warning, contextHolder } = useMessage();
   const [filters, setFilters] = useState({
     branch: '',
@@ -318,9 +317,11 @@ const OrderManagement = () => {
         phone: '',
         items: [],
         paymentMethod: 'cash',
-        branch: user.branch,
+        branch: user?.branch,
       });
+
       success('Tạo đơn hàng thành công!');
+      setLoading(false);
       callFetchOrders();
     } catch (err) {
       if (err.response.status === 404) {
@@ -375,9 +376,9 @@ const OrderManagement = () => {
               key={index}
               style={{ marginBottom: index < record.items.length - 1 ? 4 : 0 }}
             >
-              <div style={{ fontSize: '13px' }}>{item.product.name}</div>
+              <div style={{ fontSize: '13px' }}>{item.product?.name}</div>
               <div style={{ fontSize: '11px', color: '#666' }}>
-                {item.variant.name} x {item.quantity}
+                {item.variant?.name} x {item.quantity}
               </div>
             </div>
           ))}
@@ -639,7 +640,7 @@ const OrderManagement = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái đơn hàng">
                 <Select
-                  value={selectedOrder.status}
+                  value={selectedOrder?.status}
                   style={{ width: '100%', border: 'none', minWidth: '150px' }}
                   onChange={(value) => {
                     setSelectedOrder({ ...selectedOrder, status: value });
@@ -762,7 +763,7 @@ const OrderManagement = () => {
                 phone: '',
                 items: [],
                 paymentMethod: 'cash',
-                branch: '665ab123456789abcdef0001',
+                branch: '',
               });
               setSelectedProduct(null);
               setSelectedVariant(null);
@@ -841,7 +842,7 @@ const OrderManagement = () => {
                   style={{ width: '100%' }}
                   value={selectedProduct?._id}
                   onChange={(value) => {
-                    const product = products.find((p) => p._id === value);
+                    const product = products?.find((p) => p._id === value);
                     setSelectedProduct(product);
                     setSelectedVariant(null); // Reset variant khi đổi sản phẩm
                   }}
@@ -852,8 +853,8 @@ const OrderManagement = () => {
                   }
                 >
                   {products.map((product) => (
-                    <Option key={product._id} value={product._id}>
-                      {product.name}
+                    <Option key={product?._id} value={product?._id}>
+                      {product?.name}
                     </Option>
                   ))}
                 </Select>

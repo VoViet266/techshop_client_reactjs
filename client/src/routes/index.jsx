@@ -18,7 +18,7 @@ import BrandManagement from '@/pages/admin/brand';
 import CategoryManagement from '@/pages/admin/category/category';
 
 import PermissionsManagement from '@/pages/admin/permission/permission';
-import RoleManagement from '@/pages/admin/role';
+import RoleManagement from '@/pages/admin/role/role';
 import UserRoleManagement from '@/pages/admin/role/userRole';
 
 const router = createBrowserRouter([

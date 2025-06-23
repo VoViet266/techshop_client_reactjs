@@ -32,6 +32,7 @@ import {
   UserOutlined,
   CaretRightOutlined,
   CloseOutlined,
+  CheckOutlined,
 } from '@ant-design/icons';
 import {
   callFetchRoles,
@@ -67,7 +68,6 @@ const RoleManagement = () => {
   useEffect(() => {
     fetchRoles();
     fetchPermissions();
-    fetchUsers();
   }, []);
 
   const fetchRoles = async () => {
@@ -92,16 +92,6 @@ const RoleManagement = () => {
     }
   };
 
-  const fetchUsers = async () => {
-    try {
-      const response = await callFetchUsers();
-      setUsers(response.data.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
-
-  // Nhóm permissions theo module
   const groupPermissionsByModule = () => {
     const grouped = {};
 
@@ -160,7 +150,6 @@ const RoleManagement = () => {
     }
   };
 
-  // FIX: Updated useEffect to properly handle permission data
   useEffect(() => {
     if (dataInit?._id) {
       form.setFieldsValue({
@@ -172,7 +161,7 @@ const RoleManagement = () => {
     } else {
       form.resetFields();
     }
-  }, [dataInit, permissions, form]); // Added permissions and form to dependencies
+  }, [dataInit, permissions, form]);
 
   const filteredRoles = roles.filter(
     (role) =>
@@ -185,10 +174,6 @@ const RoleManagement = () => {
     return permissions
       .filter((p) => permissionIds.includes(p._id))
       .map((p) => p.name);
-  };
-
-  const getUserCount = (roleId) => {
-    return users.filter((user) => user.roleId === roleId).length;
   };
 
   const columns = [
@@ -217,46 +202,31 @@ const RoleManagement = () => {
         ),
     },
     {
-      title: 'Số lượng User',
-      key: 'userCount',
-      align: 'center',
-      render: (record) => {
-        const count = getUserCount(record._id);
-        return (
-          <Tag color={count > 0 ? 'blue' : 'default'} icon={<UserOutlined />}>
-            {count} users
-          </Tag>
-        );
-      },
-    },
-    {
       title: 'Số lượng quyền',
       dataIndex: 'permissions',
       key: 'permissionCount',
       align: 'center',
       render: (permissionIds) => (
-        <Tooltip title={getPermissionNames(permissionIds).join(', ')}>
-          {permissionIds.length}
+        <Tooltip
+          placement="topLeft"
+          title={getPermissionNames(permissionIds).join(', ')}
+        >
+          {permissionIds?.length || 0}
         </Tooltip>
       ),
     },
-
-    // {
-    //   title: 'Trạng thái',
-    //   key: 'isActive',
-    //   align: 'center',
-    //   render: (record) => {
-    //     record.isActive ? (
-    //       <Tag color="green" icon={<CheckOutlined />}>
-    //         Còn hoạt động
-    //       </Tag>
-    //     ) : (
-    //       <Tag color="red" icon={<CloseOutlined />}>
-    //         Ngưng hoạt động
-    //       </Tag>
-    //     );
-    //   },
-    // },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      align: 'center',
+      render: (isActive) =>
+        isActive ? (
+          <Tag icon={<CheckOutlined />}>Còn hoạt động</Tag>
+        ) : (
+          <Tag icon={<CloseOutlined />}>Ngưng hoạt động</Tag>
+        ),
+    },
     {
       title: 'Hành động',
       key: 'action',

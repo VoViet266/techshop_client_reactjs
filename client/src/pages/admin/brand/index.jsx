@@ -28,6 +28,7 @@ import {
   SearchOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
+  TagsOutlined,
 } from '@ant-design/icons';
 import ModalBrand from '../../../components/admin/brand/modal_brand';
 import {
@@ -59,7 +60,6 @@ const BrandManagement = () => {
   const [fileList, setFileList] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
-  const [logoImage, setLogoImage] = useState([]);
 
   useEffect(() => {
     fetchBrands();
@@ -81,12 +81,11 @@ const BrandManagement = () => {
   const handleBulkDelete = async () => {
     try {
       await Promise.all(selectedRowKeys.map((id) => callDeleteBrand(id)));
-      message.success(
-        `Đã xóa ${selectedRowKeys.length} thương hiệu thành công`,
-      );
+      success(`Đã xóa ${selectedRowKeys.length} thương hiệu thành công`);
       setSelectedRowKeys([]);
       setSelectedRows([]);
       setOpenModalDelete(false);
+
       fetchBrands();
     } catch (error) {
       console.error('Failed to delete brands:', error);
@@ -108,20 +107,22 @@ const BrandManagement = () => {
     }
   };
   useEffect(() => {
+    console.log(dataInit);
     if (dataInit?._id) {
       form.setFieldsValue({
         _id: dataInit._id,
         name: dataInit.name,
         description: dataInit.description,
+        logo: dataInit.logo,
       });
       if (dataInit?.logo && typeof dataInit?.logo === 'string') {
-        setLogoImage([{ uid: '-1', url: dataInit.logo }]);
+        setFileList([{ uid: '-1', url: dataInit.logo, status: 'done' }]);
       }
     } else {
       form.resetFields();
-      setLogoImage([]);
+      setFileList([]);
     }
-  }, [dataInit]);
+  }, [dataInit, form]);
 
   const filteredBrands = brands.filter(
     (brand) =>
@@ -134,13 +135,19 @@ const BrandManagement = () => {
       title: 'Logo',
       dataIndex: 'logo',
       key: 'logo',
+      width: 110,
+      align: 'center',
       render: (text, record) => (
-        <Avatar
-          src={text}
+        <Image
+          src={record.logo}
           alt={record.name}
-          shape="square"
-          size={80}
-          style={{ cursor: 'pointer' }}
+          width={80}
+          height={80}
+          style={{
+            cursor: 'pointer',
+            objectFit: 'contain',
+          }}
+          preview={false}
           onClick={() => {
             setSelectedBrand(record);
             setPreviewVisible(true);
@@ -176,6 +183,7 @@ const BrandManagement = () => {
       title: 'Trạng thái',
       key: 'isActive',
       align: 'center',
+      width: 120,
       render: (record) => (
         <Tooltip title="Đang hoạt động">
           {record.isActive ? ' Còn hoạt động' : 'Ngưng hoạt động'}
@@ -186,6 +194,7 @@ const BrandManagement = () => {
       title: 'Hành động',
       key: 'action',
       align: 'center',
+      width: 100,
       render: (_, record) => (
         <Button
           type="link"
@@ -213,12 +222,13 @@ const BrandManagement = () => {
       const response = await Files.upload(file);
       return response;
     } catch (error) {
-      // error('Error uploading file:', error);
+      error('Có lỗi khi upload hình ảnh', error);
       throw error;
     }
   };
   const handleSubmit = async (values) => {
     setLoading(true);
+
     try {
       let logoUrl = '';
       if (fileList.length > 0) {
@@ -236,7 +246,7 @@ const BrandManagement = () => {
           _id: dataInit._id,
           name: values.name,
           description: values.description,
-          logo: logoUrl,
+          logo: dataInit.logo,
         });
         success('Cập nhật thương hiệu thành công');
       } else {

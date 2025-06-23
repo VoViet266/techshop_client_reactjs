@@ -52,6 +52,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const { contextHolder } = useMessage();
   const location = useLocation();
+  const { user } = useAppContext();
 
   const navItems = [
     {
@@ -230,27 +231,17 @@ function AdminLayout() {
   return (
     <Layout className="w-full!">
       {contextHolder}
-      <Header
-        className="font-roboto! xl:px-50! lg:px-30! md:px-20! w-full! fixed! top-0! left-0! right-0! z-10! bg-white! border-b! border-b-gray-300! h-60! flex! items-center! justify-between!"
-        // style={{
-        //   background: `linear-gradient(135deg, rgba(183, 183, 195, 0.95) 0%, rgba(99, 102, 241, 0.95) 50%, rgba(6, 182, 212, 0.95) 100%)`,
-        //   borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
-        //   boxShadow:
-        //     "0 4px 24px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
-        // }}
-      >
+      <Header className="font-roboto! xl:px-50! lg:px-30! md:px-20! w-full! fixed! top-0! left-0! right-0! z-10! bg-white! border-b! border-b-gray-300! h-60! flex! items-center! justify-between!">
         <div className="flex items-center space-x-4">
           <Button
-            type="text"
+            type="default"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
-            className='text-primary! border! border-primary! mr-8!'
             style={{
-              fontSize: '16px',
-              width: 40,
-              height: 40,
-              color: '#FFFFFF',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              fontSize: '20px',
+              width: 50,
+              height: 50,
+              // backgroundColor: 'rgba(255, 255, 255, 0.15)',
               border: `1px solid rgba(255, 255, 255, 0.25)`,
               borderRadius: '12px',
               display: 'flex',
@@ -259,17 +250,11 @@ function AdminLayout() {
             }}
           />
 
-          <Link to="/dashboard">
+          <Link to="/admin/dashboard">
             <div className="flex items-end space-x-3 cursor-pointer">
               <Title
                 level={1}
                 className="font-bold! mb-0! font-roboto! xl:text-3xl! lg:text-2xl! md:text-2xl! text-primary!"
-                // style={{
-                //   fontWeight: 800,
-                //   color: '#FFFFFF',
-                //   textShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                //   background: 'transparent',
-                // }}
               >
                 TechShop
               </Title>
@@ -282,6 +267,14 @@ function AdminLayout() {
               >
                 Trang quản lý
               </span> */}
+              <Text
+                type="secondary"
+                style={{
+                  textShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                }}
+              >
+                trang quản lý
+              </Text>{' '}
             </div>
           </Link>
         </div>
@@ -304,7 +297,7 @@ function AdminLayout() {
             bottom: 0,
             background: '#F1F5F9',
             borderRight: `1px solid #E2E8F0"`,
-            // zIndex: 999,
+            transition: 'all 0.3s ease',
             boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
           }}
         >
@@ -325,31 +318,13 @@ function AdminLayout() {
           >
             {collapsed ? (
               <Tooltip title="Admin User" placement="right">
-                <Avatar
-                  size={48}
-                  style={{
-                    background: `linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(99, 102, 241, 0.95) 50%, rgba(6, 182, 212, 0.95) 100%)`,
-
-                    border: `3px solid ${'#FEFEFE'}`,
-                    boxShadow: '0 4px 16px rgba(79, 70, 229, 0.2)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <UserOutlined style={{ color: '#FEFEFE' }} />
+                <Avatar src={user?.avatar} size={48}>
+                  {/* <UserOutlined style={{ color: '#FEFEFE' }} /> */}
                 </Avatar>
               </Tooltip>
             ) : (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                <Avatar
-                  size={64}
-                  style={{
-                    background: `linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(99, 102, 241, 0.95) 50%, rgba(6, 182, 212, 0.95) 100%)`,
-                    border: `3px solid ${'#FEFEFE'}`,
-                    boxShadow: '0 6px 20px rgba(79, 70, 229, 0.25)',
-                  }}
-                >
+                <Avatar src={user?.avatar} size={64}>
                   <UserOutlined style={{ color: '#FEFEFE' }} />
                 </Avatar>
                 <div>
@@ -361,8 +336,9 @@ function AdminLayout() {
                       color: '#0F172A',
                     }}
                   >
-                    Admin
+                    {user?.name}
                   </Text>
+
                   <Text
                     type="secondary"
                     style={{
@@ -370,7 +346,7 @@ function AdminLayout() {
                       color: '#475569',
                     }}
                   >
-                    Quản trị viên
+                    {user?.email}
                   </Text>
                 </div>
               </Space>
@@ -443,7 +419,7 @@ function AdminLayout() {
                 icon={<UserOutlined />}
                 tooltip="Trang người dùng"
                 type="default"
-                onClick={() => navigate('/admin/user')}
+                onClick={() => navigate('/')}
               />
               <FloatButton
                 shape="circle"

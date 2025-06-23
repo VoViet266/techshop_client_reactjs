@@ -265,7 +265,7 @@ function AddProduct() {
         if (addProduct) {
           message.success('Thêm sản phẩm thành công');
           setToastLoading(false);
-          navigate('/product');
+          navigate('/admin/product');
           setLoadingSuccess(true);
         }
       } catch (error) {

@@ -181,7 +181,6 @@ function ListProduct() {
               objectFit: 'cover',
               borderRadius: 12,
               border: `2px solid #E2E8F0"`,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
             }}
             fallback="/fallback.jpg"
             preview={false}
@@ -225,18 +224,7 @@ function ListProduct() {
       sorter: (a, b) => (a.discount || 0) - (b.discount || 0),
       render: (discount) =>
         discount ? (
-          <Tag
-            style={{
-              margin: 0,
-              fontWeight: 600,
-              backgroundColor: '#EF4444',
-              color: '#FEFEFE',
-              border: 'none',
-              borderRadius: 6,
-            }}
-          >
-            -{discount}%
-          </Tag>
+          <Text strong>-{discount}%</Text>
         ) : (
           <Text type="secondary" style={{ fontSize: 12, color: '#94A3B8' }}>
             —
@@ -249,10 +237,9 @@ function ListProduct() {
       width: 100,
       align: 'center',
       render: (_, record) => (
-        <Badge
-          count={record.variants?.length || 0}
-          style={{ backgroundColor: '#8B5CF6' }}
-        />
+        <Text type="secondary" style={{ fontSize: 12, color: '#94A3B8' }}>
+          {record.variants?.length}
+        </Text>
       ),
     },
     {
@@ -496,7 +483,6 @@ function ListProduct() {
       <div
         style={{
           padding: '24px',
-
           minHeight: '100vh',
           borderRadius: '8px',
         }}
@@ -569,7 +555,6 @@ function ListProduct() {
             marginBottom: 24,
             borderRadius: 16,
             border: `1px solid #E2E8F0"`,
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Row gutter={[10, 16]} align="middle">
@@ -696,7 +681,6 @@ function ListProduct() {
           style={{
             borderRadius: 16,
             border: `1px solid #E2E8F0"`,
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Spin spinning={loading} size="large">
@@ -733,7 +717,6 @@ function ListProduct() {
                 pagination={{
                   pageSize: 10,
                 }}
-                scroll={{ x: 1000 }}
                 size="middle"
                 style={{
                   backgroundColor: '#FEFEFE',
