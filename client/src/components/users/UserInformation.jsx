@@ -29,8 +29,8 @@ function UserInformation() {
     return (
       <>
         <Avatar
-          src={user.avatar}
-          icon={!user.avatar && <UserOutlined />}
+          src={user?.avatar}
+          icon={<UserOutlined />}
           className="w-34! h-34!"
         />
         <Typography.Text className="text-base! font-normal!">

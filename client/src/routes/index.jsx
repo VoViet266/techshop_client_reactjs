@@ -9,17 +9,20 @@ import { createBrowserRouter } from 'react-router-dom';
 import WarehouseManagement from '@/pages/admin/warehouse';
 import WarehouseInbound from '@/pages/admin/warehouse/import';
 import WarehouseOutbound from '@/pages/admin/warehouse/export';
-// import WarehouseTransfer from "@/pages/admin/warehouse/transfer"; // Tạo component riêng cho transfer
-import Order from '@/pages/admin/order'; // Tạo component cho order management
+
 import NotExist from '@/components/error/notExist';
-import OrderList from '@/pages/admin/order';
+
 import OrderManagement from '@/pages/admin/order';
 import ProtectedRoute from './ProtectedRoute';
 import BrandManagement from '@/pages/admin/brand';
 import CategoryManagement from '@/pages/admin/category/category';
 
+import PermissionsManagement from '@/pages/admin/permission/permission';
+import RoleManagement from '@/pages/admin/role';
+import UserRoleManagement from '@/pages/admin/role/userRole';
+
 const router = createBrowserRouter([
-  // User routes
+
   {
     path: '/',
     element: <UsersLayout />,
@@ -145,7 +148,6 @@ const router = createBrowserRouter([
         ],
       },
 
-      // Order management
       {
         path: 'order',
         children: [
@@ -153,6 +155,23 @@ const router = createBrowserRouter([
             index: true,
             element: <OrderManagement />,
           },
+        ],
+      },
+      {
+        path: 'authorization',
+        children: [
+          {
+            path: 'permission/management',
+            element: <PermissionsManagement />,
+          },
+          {
+            path: 'role/management',
+            element: <RoleManagement />,
+          },
+          {
+            path: 'roleuser/management',
+            element: <UserRoleManagement />,
+          }
         ],
       },
 

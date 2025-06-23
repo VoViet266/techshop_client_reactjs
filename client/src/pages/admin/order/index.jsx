@@ -109,8 +109,6 @@ const OrderManagement = () => {
     { value: 'RETURNED', label: 'Đã trả hàng', color: 'gray' },
   ];
 
-  const paymentMethodOptions = [];
-
   const paymentStatusOptions = [
     { value: 'PENDING', label: 'Đang chờ thanh toán', color: 'orange' },
     { value: 'SUCCESS', label: 'Đã thanh toán', color: 'green' },

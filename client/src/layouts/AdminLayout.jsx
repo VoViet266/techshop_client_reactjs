@@ -162,7 +162,7 @@ function AdminLayout() {
         {
           key: 'user-role',
           label: 'Vai trò người dùng',
-          onClick: () => navigate('/admin/user-role/management'),
+          onClick: () => navigate('/admin/authorization/roleuser/management'),
         },
       ],
     },
@@ -417,7 +417,7 @@ function AdminLayout() {
             <Outlet />
             <FloatButton.Group
               trigger="click"
-              size="large"
+              size="medium"
               style={{
                 insetInlineEnd: 24,
                 insetBlockEnd: 24,
@@ -439,9 +439,15 @@ function AdminLayout() {
               />
               <FloatButton
                 shape="circle"
+                icon={<UserOutlined />}
+                tooltip="Trang người dùng"
+                type="default"
+                onClick={() => navigate('/admin/user')}
+              />
+              <FloatButton
+                shape="circle"
                 icon={<LogoutOutlined />}
                 tooltip="Đăng xuất"
-                type="primary"
                 onClick={handleLogout}
               />
             </FloatButton.Group>

@@ -81,6 +81,12 @@ export const callUpdateUser = (value) => {
     ...value,
   });
 };
+export const callUpdateRoleUser = (value) => {
+  console.log(value);
+  return axiosInstance.patch(`/api/v1/users/${value.userId}`, {
+    ...value,
+  });
+}
 export const callCreateProduct = (value) => {
   return axiosInstance.post(`/api/v1/products`, {
     ...value,
@@ -255,9 +261,41 @@ export const callDeleteCart = (id) => {
   return axiosInstance.delete(`/api/v1/carts/${id}`);
 };
 
-export const callFetchRole = () => {
+export const callFetchRoles = () => {
   return axiosInstance.get(`/api/v1/roles`);
 };
+export const callCreateRole = (value) => {
+  return axiosInstance.post(`/api/v1/roles`, {
+    ...value,
+  });
+}
+
+
+export const callUpdateRole = (value) => {
+  console.log(value);
+  return axiosInstance.patch(`/api/v1/roles/${value._id}`, {
+    ...value,
+  });
+}
+export const callDeleteRole = (id) => {
+  return axiosInstance.delete(`/api/v1/roles/${id}`);
+}
+export const callCreatePermission = (value) => {
+  return axiosInstance.post(`/api/v1/permissions`, {
+    ...value,
+  });
+}
+export const callUpdatePermission = (value) => {
+  return axiosInstance.patch(`/api/v1/permissions/${value._id}`, {
+    ...value,
+  });
+}
+export const callDeletePermission = (id) => {
+  return axiosInstance.delete(`/api/v1/permissions/${id}`);
+}
+export const callFetchPermission = () => {
+  return axiosInstance.get(`/api/v1/permissions`);
+}
 export const callUploadSingleImage = (file) => {
   const formData = new FormData();
   formData.append('file', file);
