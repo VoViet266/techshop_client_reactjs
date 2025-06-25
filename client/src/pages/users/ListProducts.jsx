@@ -5,30 +5,33 @@ import { useParams } from 'react-router-dom';
 import Categories from '@services/categories';
 import { callFetchProducts } from '@services/apis';
 import { ReloadOutlined } from '@ant-design/icons';
+
 import {
-  Typography,
-  Flex,
-  Row,
   Col,
+  Row,
   Tag,
-  Space,
-  Skeleton,
-  Select,
+  Flex,
   Empty,
+  Space,
+  Select,
   Button,
+  Skeleton,
+  Typography,
+  Pagination,
 } from 'antd';
 
 function ProductsList() {
   const { id } = useParams();
   const { message } = useAppContext();
-  const [colors, setColors] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [rams, setRams] = useState([]);
-  const [storages, setStorages] = useState([]);
+  const [sort, setSort] = useState(null);
+  const [colors, setColors] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [storages, setStorages] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState(null);
-  const [sort, setSort] = useState(null);
   const [currentBrand, setCurrentBrand] = useState('');
   const [filter, setFilter] = useState({
     price: null,
@@ -119,7 +122,7 @@ function ProductsList() {
 
   useEffect(() => {
     if (category) {
-      callFetchProducts(1, 10, category.name, currentBrand)
+      callFetchProducts(currentPage, 10, category.name, currentBrand)
         .then((response) => {
           setProducts(response.data.data.result);
         })
@@ -130,7 +133,7 @@ function ProductsList() {
           setLoading(false);
         });
     }
-  }, [category, currentBrand]);
+  }, [category, currentBrand, currentPage]);
 
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 my-20">
@@ -294,6 +297,7 @@ function ProductsList() {
           </>
         )}
         {!loading &&
+          filteredProducts.length > 0 &&
           filteredProducts.map((product, index) => {
             return (
               <Col span={5} key={index}>
@@ -318,6 +322,11 @@ function ProductsList() {
           </Col>
         )}
       </Row>
+      {!loading && filteredProducts.length > 0 && (
+        <Flex justify="center" className="mt-20!">
+          <Pagination defaultCurrent={currentPage} total={products.length} />
+        </Flex>
+      )}
     </div>
   );
 }
