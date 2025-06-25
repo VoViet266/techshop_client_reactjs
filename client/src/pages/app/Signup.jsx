@@ -12,9 +12,6 @@ import {
   Space,
   message,
   InputNumber,
-  Switch,
-  Card,
-  Upload,
 } from 'antd';
 import {
   EyeInvisibleOutlined,
@@ -26,14 +23,11 @@ import {
   MailOutlined,
   PhoneOutlined,
   HomeOutlined,
-  PlusOutlined,
-  DeleteOutlined,
-  UploadOutlined,
-  UserAddOutlined,
 } from '@ant-design/icons';
 import Users from '@services/users';
 import Address from '@services/address';
 import { useAppContext } from '@contexts';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Link, Text } = Typography;
 const { Option } = Select;
@@ -41,27 +35,22 @@ const { TextArea } = Input;
 
 function Signup() {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const [user, setUser] = useState({});
+  const [wards, setWards] = useState([]);
+  const addressDropdownRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
-  const [wards, setWards] = useState([]);
-  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState('Tỉnh/Thành phố');
+  const [addressValue, setAddressValue] = useState('');
+  const [selectedWard, setSelectedWard] = useState({});
   const [selectedProvince, setSelectedProvince] = useState({});
   const [selectedDistrict, setSelectedDistrict] = useState({});
-  const [selectedWard, setSelectedWard] = useState({});
-  const [addressValue, setAddressValue] = useState('');
-  const addressDropdownRef = useRef(null);
+  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState('Tỉnh/Thành phố');
 
   const places = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Xã/Phường'];
-  const {
-    setMessage,
-    setShowLogin,
-    setShowSignup,
-    setToastLoading,
-    setLoadingError,
-    setLoadingSuccess,
-  } = useAppContext();
+  const { setShowLogin, setShowSignup, message } = useAppContext();
 
   useEffect(() => {
     document.title = 'TechShop | Đăng ký';
@@ -97,17 +86,16 @@ function Signup() {
     }
   };
 
-  const handleSignup = async (values) => {
+  const handleSignup = async (user) => {
     setLoading(true);
     try {
       const userData = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        phone: values.phone,
-        gender: values.gender,
-        age: values.age,
-        avatar: values.avatar,
+        age: user.age,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        gender: user.gender,
+        password: user.password,
         // role: ['user'], // Default role
         address: addressValue
           ? [
@@ -118,24 +106,15 @@ function Signup() {
             ]
           : [],
       };
-      console.log(userData);
-      await Users.signup(
-        userData,
-        {},
-        setMessage,
-        {},
-        () => {},
-        setShowLogin,
-        setShowSignup,
-        () => {},
-        setToastLoading,
-        setLoadingError,
-        setLoadingSuccess,
-      );
-
+      const userServices = new Users();
+      await userServices.signup(userData);
       message.success('Đăng ký thành công!');
+      navigate('/');
+      setShowSignup(false);
+      setShowLogin(true);
     } catch (error) {
       message.error('Đăng ký thất bại. Vui lòng thử lại!');
+      console.error('Lỗi:', error.message);
     } finally {
       setLoading(false);
     }
@@ -224,6 +203,9 @@ function Signup() {
           form={form}
           layout="vertical"
           onFinish={handleSignup}
+          onValuesChange={(_, values) => {
+            setUser(values);
+          }}
           autoComplete="off"
           size="large"
         >
