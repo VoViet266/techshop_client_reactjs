@@ -4,21 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Categories from '@services/categories';
 import { callFetchProducts } from '@services/apis';
-import { ReloadOutlined } from '@ant-design/icons';
-
-import {
-  Col,
-  Row,
-  Tag,
-  Flex,
-  Empty,
-  Space,
-  Select,
-  Button,
-  Skeleton,
-  Typography,
-  Pagination,
-} from 'antd';
 
 function ProductsList() {
   const { id } = useParams();
