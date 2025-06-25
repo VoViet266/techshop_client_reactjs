@@ -19,9 +19,10 @@ import Dragger from 'antd/es/upload/Dragger';
 import { callDeleteFile } from '@/services/apis';
 import { useAppContext } from '@/contexts';
 
-function Variants({ product, setProduct, form }) {
+function Variants({ product, setProduct, form, setImagesToDelete }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
+
   const { message } = useAppContext();
 
   useEffect(() => {
@@ -60,10 +61,7 @@ function Variants({ product, setProduct, form }) {
     try {
       const imageToRemove = product.variants[variantIndex].images[imageIndex];
       if (!(imageToRemove instanceof File) && imageToRemove) {
-        message.loading('Đang xóa ảnh...');
-        await callDeleteFile(imageToRemove);
-        message.destroy();
-        message.success('Đã xóa ảnh khỏi sản phẩm');
+        setImagesToDelete((prev) => [...prev, imageToRemove]);
       }
       setProduct((currentProduct) => {
         const newProduct = {
@@ -73,12 +71,10 @@ function Variants({ product, setProduct, form }) {
               const newImages = [...variant.images];
               const removedImage = newImages[imageIndex];
 
-              // Revoke URL nếu là File object
               if (removedImage instanceof File) {
                 URL.revokeObjectURL(URL.createObjectURL(removedImage));
               }
 
-              // Xóa ảnh khỏi mảng
               newImages.splice(imageIndex, 1);
 
               return {

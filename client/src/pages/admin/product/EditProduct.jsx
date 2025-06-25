@@ -16,7 +16,11 @@ import {
   CameraInformations,
   Variants,
 } from '@pages/admin/product';
-import { callFetchProductDetail, callUpdateProduct } from '@/services/apis';
+import {
+  callDeleteFile,
+  callFetchProductDetail,
+  callUpdateProduct,
+} from '@/services/apis';
 
 function EditProduct() {
   const { id } = useParams();
@@ -30,10 +34,11 @@ function EditProduct() {
   const [product, setProduct] = useState(null);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [showBrandDropdown, setShowBrandDropdown] = useState(false);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
   const [productError, setProductError] = useState({});
   const [productMessage, setProductMessage] = useState({});
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+
   const [form] = Form.useForm();
   useEffect(() => {
     async function fetchData() {
@@ -62,7 +67,11 @@ function EditProduct() {
   const onSubmit = async () => {
     try {
       setToastLoading(true);
-      message.loading('Đang cập nhật sản phẩm...');
+      message.destroy();
+      message.loading({ content: 'Đang cập nhật sản phẩm...', key: 'update' });
+
+      // Xoá ảnh cũ trước (chỉ ảnh là URL)
+      await Promise.all(imagesToDelete.map((imgUrl) => callDeleteFile(imgUrl)));
       const formValues = form.getFieldsValue();
       const prodSub = { ...product, ...formValues };
       for (let v of prodSub.variants) {
@@ -127,10 +136,8 @@ function EditProduct() {
           />
           <Variants
             setProduct={setProduct}
+            setImagesToDelete={setImagesToDelete}
             product={product}
-            productError={productError}
-            productMessage={productMessage}
-            setProductError={setProductError}
             form={form}
           />
         </div>
