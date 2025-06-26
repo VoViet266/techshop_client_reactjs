@@ -1,19 +1,59 @@
 import { useAppContext } from '@contexts';
-import { Card } from '@components/products';
+import { ListProducts } from '@components/products';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Categories from '@services/categories';
 import { callFetchProducts } from '@services/apis';
-import { Typography, Row, Col, Tag, Space, Skeleton, Select } from 'antd';
 
-function ProductListPage() {
+function ProductsList() {
   const { id } = useParams();
   const { message } = useAppContext();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rams, setRams] = useState([]);
+  const [sort, setSort] = useState(null);
+  const [colors, setColors] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [storages, setStorages] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState(null);
   const [currentBrand, setCurrentBrand] = useState('');
+  const [filter, setFilter] = useState({
+    price: null,
+    color: null,
+    ram: null,
+    storage: null,
+  });
+
+  const filteredProducts = products.filter((product) => {
+    // Lọc theo giá
+    let matchPrice = true;
+    const realPrice =
+      product?.variants?.[0]?.price -
+      product?.variants?.[0]?.price * (product?.discount / 100);
+    if (filter.price === 1) {
+      matchPrice = realPrice < 10000000;
+    } else if (filter.price === 2) {
+      matchPrice = realPrice >= 10000000 && realPrice <= 20000000;
+    } else if (filter.price === 3) {
+      matchPrice = realPrice > 20000000;
+    }
+
+    // Lọc theo màu
+    let matchColor = filter.color
+      ? product.variants?.some((v) => v.color.name === filter.color)
+      : true;
+    // Lọc theo RAM
+    let matchRam = filter.ram
+      ? product.variants?.some((v) => v.memory.ram === filter.ram)
+      : true;
+    // Lọc theo bộ nhớ trong
+    let matchStorage = filter.storage
+      ? product.variants?.some((v) => v.memory.storage === filter.storage)
+      : true;
+
+    return matchPrice && matchColor && matchRam && matchStorage;
+  });
 
   useEffect(() => {
     if (products.length > 0 && brands.length === 0) {
@@ -22,6 +62,33 @@ function ProductListPage() {
         ...new Set(products.map((product) => product.brand.name)),
       ];
       setBrands(brands);
+
+      const colors = [
+        ...new Set(
+          products
+            .flatMap((p) => p.variants?.map((v) => v.color))
+            .filter(Boolean),
+        ),
+      ];
+      setColors(colors);
+
+      const rams = [
+        ...new Set(
+          products
+            .flatMap((p) => p.variants?.map((v) => v.memory.ram))
+            .filter(Boolean),
+        ),
+      ];
+      setRams(rams);
+
+      const storages = [
+        ...new Set(
+          products
+            .flatMap((p) => p.variants?.map((v) => v.memory.storage))
+            .filter(Boolean),
+        ),
+      ];
+      setStorages(storages);
     }
   }, [products]);
 
@@ -40,7 +107,7 @@ function ProductListPage() {
 
   useEffect(() => {
     if (category) {
-      callFetchProducts(1, 10, category.name, currentBrand)
+      callFetchProducts(currentPage, 10, category.name, currentBrand)
         .then((response) => {
           setProducts(response.data.data.result);
         })
@@ -51,105 +118,31 @@ function ProductListPage() {
           setLoading(false);
         });
     }
-  }, [category, currentBrand]);
+  }, [category, currentBrand, currentPage]);
 
   return (
-    <div className="w-full xl:px-50 lg:px-30 md:px-20 my-20">
-      <div className="flex items-center justify-between mt-10 mb-5">
-        {loading ? (
-          <div className="w-200 mb-20">
-            <Skeleton.Input active className="h-32" />
-          </div>
-        ) : (
-          <Typography.Title
-            level={3}
-            className="text-2xl! uppercase! font-roboto! text-primary! font-bold! mb-6!"
-          >
-            {category.name}
-          </Typography.Title>
-        )}
-        <Space>
-          <Typography.Text className="font-medium!">
-            Lọc theo giá
-          </Typography.Text>
-          <Select
-            showSearch
-            placeholder="Sắp xếp theo giá"
-            className="cursor-pointer! min-w-200!"
-            options={[
-              { value: 1, label: 'Tăng dần' },
-              { value: 2, label: 'Giảm dần' },
-            ]}
-            onChange={(value) => {
-              if (value === 1) {
-                const priceAscending = [...products].sort(
-                  (a, b) => a.variants[0].price - b.variants[0].price,
-                );
-                setProducts(priceAscending);
-              }
-              if (value === 2) {
-                const priceDescending = [...products].sort(
-                  (a, b) => b.variants[0].price - a.variants[0].price,
-                );
-                setProducts(priceDescending);
-              }
-            }}
-          />
-        </Space>
-      </div>
-      <div>
-        {brands.map((brand, index) => (
-          <Tag
-            key={index}
-            onClick={(event) => {
-              const tag = event.target.textContent;
-              if (tag === 'Tất cả') {
-                setCurrentBrand('');
-                return;
-              }
-              setCurrentBrand(brand);
-            }}
-            className={`font-roboto! text-sm! px-8! border-none! rounded-md! cursor-pointer! ${currentBrand === brand && 'bg-gray-200!'}  min-w-80! text-center! bg-gray-100! py-4! mb-12!`}
-          >
-            {brand}
-          </Tag>
-        ))}
-      </div>
-      <Row gutter={10} justify="start">
-        {loading && (
-          <>
-            <div className="w-275">
-              <Skeleton.Input active className="w-275! h-450!" />
-            </div>
-            <div className="w-275">
-              <Skeleton.Input active className="w-275! h-450!" />
-            </div>
-            <div className="w-275">
-              <Skeleton.Input active className="w-275! h-450!" />
-            </div>
-            <div className="w-275">
-              <Skeleton.Input active className="w-275! h-450!" />
-            </div>
-            <div className="w-275">
-              <Skeleton.Input active className="w-275! h-450!" />
-            </div>
-          </>
-        )}
-        {!loading &&
-          products.map((product, index) => {
-            return (
-              <Col span={5} key={index}>
-                <Card
-                  product={product}
-                  loading={loading}
-                  className="mb-8! w-full!"
-                />
-              </Col>
-            );
-          })}
-      </Row>
+    <div className="w-full xl:px-50 lg:px-30 md:px-20 my-10">
+      <ListProducts
+        rams={rams}
+        sort={sort}
+        brands={brands}
+        colors={colors}
+        filter={filter}
+        setSort={setSort}
+        loading={loading}
+        storages={storages}
+        products={products}
+        setFilter={setFilter}
+        title={category?.name}
+        setProducts={setProducts}
+        currentPage={currentPage}
+        currentBrand={currentBrand}
+        setCurrentPage={setCurrentPage}
+        setCurrentBrand={setCurrentBrand}
+        filteredProducts={filteredProducts}
+      />
     </div>
   );
 }
 
-export default ProductListPage;
+export default ProductsList;

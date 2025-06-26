@@ -2,11 +2,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, Space, Typography, Divider, Image } from 'antd';
 
 function CardProduct({ product = {}, className, loading = false }) {
+  function formatCurrency(amount, locale = 'vi-VN', currency = 'VND') {
+    return new Intl.NumberFormat(locale, {
+      style: 'decimal', // hoặc 'currency' nếu bạn muốn hiển thị ký hiệu tiền tệ
+      // currency: currency, // Chỉ dùng nếu style là 'currency'
+      minimumFractionDigits: 0, // Đảm bảo không có số lẻ sau dấu phẩy
+      maximumFractionDigits: 0, // Đảm bảo không có số lẻ sau dấu phẩy
+    }).format(amount);
+  }
+
   const navigate = useNavigate();
   if (!loading)
     return (
       <Badge.Ribbon
-        text="Mới"
+        text={`${product.discount}%` || 'Mới'}
         color="red"
         className="top-10! font-roboto! -right-6!"
       >
@@ -50,17 +59,16 @@ function CardProduct({ product = {}, className, loading = false }) {
             <div className="mb-10">
               <div className="line-clamp-1">
                 <Typography.Text className="text-xl! font-bold! font-roboto! text-[#d32f2f]! mr-8!">
-                  {
-                    product?.variants?.[0]?.price * product?.discount ||
-                    '30.000.000 VNĐ'
-                  }
+                  {`${formatCurrency(product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100))}đ` ||
+                    '30.000.000 VNĐ'}
                 </Typography.Text>
                 <Typography.Text
                   delete
                   type="secondary"
                   className="text-sm! font-roboto!"
                 >
-                  {product?.variants?.[0]?.price || '35.290.000 VNĐ'}
+                  {`${formatCurrency(product?.variants?.[0]?.price)}đ` ||
+                    '35.290.000 VNĐ'}
                 </Typography.Text>
               </div>
             </div>
