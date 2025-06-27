@@ -508,7 +508,7 @@ const OrderManagement = () => {
             />
           </Col>
 
-          <Col span={4}>
+          <Col span={5}>
             <Select
               placeholder="Chi nhánh"
               style={{ width: '100%' }}
@@ -549,7 +549,7 @@ const OrderManagement = () => {
               Làm mới
             </Button>
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Button
               type="primary"
               icon={<PlusOutlined />}

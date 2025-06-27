@@ -24,9 +24,9 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
   const [previewImage, setPreviewImage] = useState('');
 
   const { message } = useAppContext();
-  console.log(product);
+  
   useEffect(() => {
-    console.log('evwed', product);
+    
     if (product) {
       form?.setFieldsValue({ variants: product.variants });
     }

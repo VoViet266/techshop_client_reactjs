@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Table,
   Button,
@@ -21,6 +21,7 @@ import {
   Divider,
   Switch,
   Popconfirm,
+  Checkbox,
 } from 'antd';
 import {
   UserOutlined,
@@ -31,6 +32,7 @@ import {
   MailOutlined,
   PlusOutlined,
   DeleteOutlined,
+  HomeOutlined,
   UserAddOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
@@ -40,8 +42,9 @@ import {
   callFetchBranches,
   callUpdateUser,
 } from '@/services/apis';
-import useMessage from '@/hooks/useMessage';
+
 import { useAppContext } from '@/contexts';
+import Address from '@/services/address';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -61,6 +64,18 @@ const UserManagement = () => {
   const [searchText, setSearchText] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewUser, setPreviewUser] = useState(null);
+  const [addressValues, setAddressValues] = useState({});
+  const addressDropdownRef = useRef(null);
+  const [selectedWard, setSelectedWard] = useState({});
+  const [selectedProvince, setSelectedProvince] = useState({});
+  const [selectedDistrict, setSelectedDistrict] = useState({});
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState('Tỉnh/Thành phố');
+
+  const places = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Xã/Phường'];
   const [filters, setFilters] = useState({
     role: '',
     status: '',
@@ -73,6 +88,9 @@ const UserManagement = () => {
     fetchUsers();
     fetchRoles();
     fetchBranches();
+    fetchProvinces();
+    fetchDistricts();
+    fetchWards();
   }, []);
 
   const fetchUsers = async () => {
@@ -107,7 +125,94 @@ const UserManagement = () => {
       console.error('Error fetching branches:', error);
     }
   };
+  const fetchProvinces = async () => {
+    try {
+      const provincesData = await Address.getAllProvinces();
+      setProvinces(provincesData);
+    } catch (error) {
+      message.error('Không thể tải danh sách tỉnh/thành phố');
+    }
+  };
 
+  const fetchDistricts = async (provinceCode) => {
+    try {
+      const districtsData = await Address.getDistricts(provinceCode);
+      setDistricts(districtsData);
+    } catch (error) {
+      message.error('Không thể tải danh sách quận/huyện');
+    }
+  };
+
+  const fetchWards = async (districtCode) => {
+    try {
+      const wardsData = await Address.getWards(districtCode);
+      setWards(wardsData);
+    } catch (error) {
+      message.error('Không thể tải danh sách xã/phường');
+    }
+  };
+  const handleProvinceSelect = async (province, event, key) => {
+    const newAddress = event.target.textContent;
+
+    // Cập nhật addressValues cho item cụ thể
+    setAddressValues((prev) => ({
+      ...prev,
+      [key]: newAddress,
+    }));
+
+    setSelectedProvince(province);
+    setSelectedPlace('Quận/Huyện');
+    setSelectedDistrict({});
+    setSelectedWard({});
+
+    await fetchDistricts(province.code);
+  };
+
+  const handleDistrictSelect = async (district, event, key) => {
+    const districtName = event.target.textContent;
+    const currentAddress = addressValues[key] || '';
+
+    const newAddress =
+      selectedDistrict.name === district.name
+        ? selectedProvince.name + ', ' + districtName
+        : currentAddress + ', ' + districtName;
+
+    // Cập nhật addressValues cho item cụ thể
+    setAddressValues((prev) => ({
+      ...prev,
+      [key]: newAddress,
+    }));
+
+    setSelectedDistrict(district);
+    setSelectedPlace('Xã/Phường');
+    setSelectedWard({});
+
+    await fetchWards(district.code);
+  };
+
+  const handleWardSelect = (ward, event, key) => {
+    const wardName = event.target.textContent;
+    const newAddress =
+      selectedWard.name === ward.name
+        ? selectedProvince.name + ', ' + selectedDistrict.name + ', ' + wardName
+        : selectedProvince.name +
+          ', ' +
+          selectedDistrict.name +
+          ', ' +
+          wardName;
+
+    setAddressValues((prev) => ({
+      ...prev,
+      [key]: newAddress,
+    }));
+
+    setSelectedWard(ward);
+
+    setShowAddressDropdown((prev) => ({
+      ...prev,
+      [key]: false,
+    }));
+  };
   const reloadTable = async () => {
     setLoading(true);
     try {
@@ -131,11 +236,17 @@ const UserManagement = () => {
         userType: selectedUser.userType,
         branch: selectedUser.branch?._id || selectedUser.branch,
         isActive: selectedUser.isActive,
-        addresses: selectedUser.address || [],
+        addresses: selectedUser.address.map((address) => {
+          return {
+            addressDetail: address.addressDetail,
+            default: address.default,
+          };
+        }),
       });
     } else {
       form.resetFields();
     }
+    console.log('selectedUser', form.getFieldValue());
   }, [selectedUser, modalType, form]);
 
   const filteredUsers = users.filter((user) => {
@@ -335,54 +446,40 @@ const UserManagement = () => {
     }
   };
 
-  //   const handleDeleteUser = async (userId) => {
-  //     setLoading(true);
-  //     try {
-  //       await callDeleteUser(userId);
-  //       setUsers(users.filter((user) => user._id !== userId));
-  //       message.success('Xóa người dùng thành công');
-  //     } catch (error) {
-  //       console.error('Failed to delete user:', error);
-  //       message.error('Xóa người dùng thất bại');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  // const handleBulkDelete = async () => {
+  //   if (selectedRowKeys.length === 0) {
+  //     message.warning('Vui lòng chọn ít nhất một người dùng');
+  //     return;
+  //   }
 
-  const handleBulkDelete = async () => {
-    if (selectedRowKeys.length === 0) {
-      message.warning('Vui lòng chọn ít nhất một người dùng');
-      return;
-    }
-
-    Modal.confirm({
-      title: 'Xóa nhiều người dùng',
-      content: `Bạn có chắc chắn muốn xóa ${selectedRowKeys.length} người dùng được chọn?`,
-      icon: <ExclamationCircleOutlined />,
-      okText: 'Xóa',
-      cancelText: 'Hủy',
-      okButtonProps: { danger: true },
-      onOk: async () => {
-        setLoading(true);
-        try {
-          await Promise.all(
-            selectedRowKeys.map((userId) => callDeleteUser(userId)),
-          );
-          setUsers(users.filter((user) => !selectedRowKeys.includes(user._id)));
-          message.success(
-            `Đã xóa ${selectedRowKeys.length} người dùng thành công`,
-          );
-          setSelectedRowKeys([]);
-          setSelectedRows([]);
-        } catch (error) {
-          console.error('Failed to bulk delete users:', error);
-          message.error('Xóa hàng loạt thất bại');
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
-  };
+  //   Modal.confirm({
+  //     title: 'Xóa nhiều người dùng',
+  //     content: `Bạn có chắc chắn muốn xóa ${selectedRowKeys.length} người dùng được chọn?`,
+  //     icon: <ExclamationCircleOutlined />,
+  //     okText: 'Xóa',
+  //     cancelText: 'Hủy',
+  //     okButtonProps: { danger: true },
+  //     onOk: async () => {
+  //       setLoading(true);
+  //       try {
+  //         await Promise.all(
+  //           selectedRowKeys.map((userId) => callDeleteUser(userId)),
+  //         );
+  //         setUsers(users.filter((user) => !selectedRowKeys.includes(user._id)));
+  //         message.success(
+  //           `Đã xóa ${selectedRowKeys.length} người dùng thành công`,
+  //         );
+  //         setSelectedRowKeys([]);
+  //         setSelectedRows([]);
+  //       } catch (error) {
+  //         console.error('Failed to bulk delete users:', error);
+  //         message.error('Xóa hàng loạt thất bại');
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     },
+  //   });
+  // };
 
   const handleCancel = () => {
     form.resetFields();
@@ -508,8 +605,6 @@ const UserManagement = () => {
           }}
         />
       </Card>
-
-      {/* Preview Modal */}
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -646,7 +741,6 @@ const UserManagement = () => {
         )}
       </Modal>
 
-      {/* Create/Edit Modal */}
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -817,40 +911,194 @@ const UserManagement = () => {
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <Row key={key} gutter={16} align="middle">
-                    <Col span={16}>
+                  <Row gutter={16} key={key}>
+                    <Col span={18}>
                       <Form.Item
                         {...restField}
                         name={[name, 'addressDetail']}
-                        label={`Địa chỉ ${key + 1}`}
+                        label="Địa chỉ"
                         rules={[
-                          {
-                            required: true,
-                            message: 'Vui lòng nhập địa chỉ chi tiết!',
-                          },
+                          { required: true, message: 'Vui lòng chọn địa chỉ!' },
                         ]}
                       >
-                        <Input placeholder="Nhập địa chỉ chi tiết" />
+                        <div style={{ position: 'relative' }}>
+                          <Input
+                            readOnly
+                            placeholder="Chọn địa chỉ"
+                            onClick={() =>
+                              setShowAddressDropdown((prev) => ({
+                                ...prev,
+                                [key]: !prev[key],
+                              }))
+                            }
+                            prefix={
+                              <HomeOutlined style={{ color: '#8c8c8c' }} />
+                            }
+                            style={{
+                              borderRadius: 8,
+                              padding: '10px 12px',
+                              cursor: 'pointer',
+                              backgroundColor: '#fff',
+                            }}
+                          />
+
+                          {showAddressDropdown[key] && (
+                            <div
+                              ref={addressDropdownRef}
+                              style={{
+                                backgroundColor: 'white',
+                                position: 'absolute',
+                                zIndex: 1000,
+                                top: '100%',
+                                marginTop: 8,
+                                left: 0,
+                                right: 0,
+                                borderRadius: 8,
+                                border: '1px solid #d9d9d9',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'center',
+                                  borderBottom: '1px solid #f0f0f0',
+                                }}
+                              >
+                                {places.map((place, index) => (
+                                  <div
+                                    key={index}
+                                    onClick={() => setSelectedPlace(place)}
+                                    style={{
+                                      width: '33.33%',
+                                      cursor: 'pointer',
+                                      padding: '12px 8px',
+                                      textAlign: 'center',
+                                      fontSize: 14,
+                                      borderBottom:
+                                        selectedPlace === place
+                                          ? '2px solid #667eea'
+                                          : '2px solid transparent',
+                                      color:
+                                        selectedPlace === place
+                                          ? '#667eea'
+                                          : '#262626',
+                                      fontWeight:
+                                        selectedPlace === place ? 500 : 400,
+                                    }}
+                                  >
+                                    {place}
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div
+                                style={{
+                                  overflowY: 'auto',
+                                  maxHeight: 200,
+                                  padding: 8,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {selectedPlace === 'Tỉnh/Thành phố' &&
+                                  provinces.map((province, index) => (
+                                    <div
+                                      key={index}
+                                      onClick={(event) =>
+                                        handleProvinceSelect(
+                                          province,
+                                          event,
+                                          key,
+                                        )
+                                      }
+                                      style={{
+                                        padding: '8px 12px',
+                                        margin: '4px 0',
+                                        borderRadius: 6,
+                                        fontSize: 14,
+                                        backgroundColor:
+                                          selectedProvince.name ===
+                                          province.name
+                                            ? '#f6f6f6'
+                                            : 'transparent',
+                                      }}
+                                    >
+                                      {province.name}
+                                    </div>
+                                  ))}
+
+                                {selectedPlace === 'Quận/Huyện' &&
+                                  districts.map((district, index) => (
+                                    <div
+                                      key={index}
+                                      onClick={(event) =>
+                                        handleDistrictSelect(
+                                          district,
+                                          event,
+                                          key,
+                                        )
+                                      }
+                                      style={{
+                                        padding: '8px 12px',
+                                        margin: '4px 0',
+                                        borderRadius: 6,
+                                        fontSize: 14,
+                                        backgroundColor:
+                                          selectedDistrict.name ===
+                                          district.name
+                                            ? '#f6f6f6'
+                                            : 'transparent',
+                                      }}
+                                    >
+                                      {district.name}
+                                    </div>
+                                  ))}
+
+                                {selectedPlace === 'Xã/Phường' &&
+                                  wards.map((ward, index) => (
+                                    <div
+                                      key={index}
+                                      onClick={(event) =>
+                                        handleWardSelect(ward, event, key)
+                                      }
+                                      style={{
+                                        padding: '8px 12px',
+                                        margin: '4px 0',
+                                        borderRadius: 6,
+                                        fontSize: 14,
+                                        backgroundColor:
+                                          selectedWard.name === ward.name
+                                            ? '#f6f6f6'
+                                            : 'transparent',
+                                      }}
+                                    >
+                                      {ward.name}
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={4}>
                       <Form.Item
-                        {...restField}
                         name={[name, 'default']}
                         valuePropName="checked"
-                        label="Mặc định"
                       >
-                        <Switch size="small" />
+                        <Checkbox>Địa chỉ mặc định</Checkbox>
                       </Form.Item>
                     </Col>
                     <Col span={2}>
-                      <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => remove(name)}
-                        style={{ marginTop: 8 }}
-                      />
+                      <Form.Item>
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => remove(name)}
+                          style={{ marginTop: '30px' }}
+                        />
+                      </Form.Item>
                     </Col>
                   </Row>
                 ))}

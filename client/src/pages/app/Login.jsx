@@ -14,9 +14,8 @@ import { useAppContext } from '@contexts';
 const { Title, Link, Text } = Typography;
 
 function Login() {
-  const [form] = Form.useForm();
   const [user, setUser] = useState({ email: '', password: '' });
-  const { setShowLogin, setShowSignup, message} = useAppContext();
+  const { setShowLogin, setShowSignup, message } = useAppContext();
   const { handleLogin } = useLogin(message);
 
   return (
@@ -57,7 +56,6 @@ function Login() {
 
       <div style={{ padding: '32px 24px' }}>
         <Form
-          form={form}
           layout="vertical"
           onValuesChange={(_, allValues) => {
             setUser(allValues);

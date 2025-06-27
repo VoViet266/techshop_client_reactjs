@@ -200,7 +200,6 @@ function Signup() {
         }}
       >
         <Form
-          form={form}
           layout="vertical"
           onFinish={handleSignup}
           onValuesChange={(_, values) => {

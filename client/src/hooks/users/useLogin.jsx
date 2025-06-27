@@ -23,11 +23,11 @@ function useLogin(message) {
           const accessToken = response.data.data.access_token;
           localStorage.setItem('access_token', accessToken);
           if (response.data.data.role === 'admin') {
+            message.success('Đăng nhập thành công');
             navigate('/admin/dashboard');
           }
           window.location.reload();
         }
-        message.success('Đăng nhập thành công');
       })
       .catch((error) => {
         message.destroy();

@@ -92,7 +92,6 @@ const UserRoleManagement = () => {
     setLoading(true);
     try {
       await Promise.all([fetchUsers(), fetchRoles()]);
-      message.success('Dữ liệu tải lại thành công!');
     } catch (error) {
       console.error('Failed to reload data:', error);
       message.error('Failed to refresh data');
@@ -124,7 +123,7 @@ const UserRoleManagement = () => {
       user.email?.toLowerCase().includes(search) ||
       user.role?.name?.toLowerCase().includes(search);
 
-    return matchRole && matchSearch 
+    return matchRole && matchSearch;
   });
 
   const columns = [
@@ -239,11 +238,12 @@ const UserRoleManagement = () => {
         ),
       );
 
-      message.success('Gán role cho user thành công');
+      message.success('Gán vai trò cho người dùng thành công');
+      reloadTable();
       handleCancel();
     } catch (error) {
       console.error('Failed to update user role:', error);
-      message.error('Gán role thất bại');
+      message.error('Gán vai trò thất bại');
     } finally {
       setLoading(false);
     }
