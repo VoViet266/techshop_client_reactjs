@@ -77,6 +77,7 @@ export const callDeleteUser = (id) => {
   return axiosInstance.delete(`/api/v1/users/${id}`);
 };
 export const callUpdateUser = (value) => {
+  console.log('sca', value);
   return axiosInstance.patch(`/api/v1/users/${value._id}`, {
     ...value,
   });

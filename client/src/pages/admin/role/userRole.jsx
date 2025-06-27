@@ -92,7 +92,6 @@ const UserRoleManagement = () => {
     setLoading(true);
     try {
       await Promise.all([fetchUsers(), fetchRoles()]);
-      message.success('Dữ liệu tải lại thành công!');
     } catch (error) {
       console.error('Failed to reload data:', error);
       message.error('Failed to refresh data');
@@ -113,6 +112,9 @@ const UserRoleManagement = () => {
   }, [selectedUser, form]);
 
   const filteredUsers = users.filter((user) => {
+    // Chỉ lấy user có role là nhân viên cửa hàng
+    const staff = user.role?.permissions.length > 0;
+
     const matchRole =
       !filters.role || filters.role === '' || user.role?._id === filters.role;
     const search = searchText.toLowerCase();
@@ -123,10 +125,6 @@ const UserRoleManagement = () => {
 
     return matchRole && matchSearch;
   });
-  console.log(filteredUsers);
-  // const getRoleInfo = (roleId) => {
-  //   return roles.find((r) => r._id === roleId);
-  // };
 
   const columns = [
     {
@@ -138,6 +136,7 @@ const UserRoleManagement = () => {
           <Avatar
             size={40}
             icon={<UserOutlined />}
+            src={record?.avatar}
             style={{ backgroundColor: '#1890ff' }}
           >
             {text?.charAt(0)?.toUpperCase()}
@@ -239,11 +238,12 @@ const UserRoleManagement = () => {
         ),
       );
 
-      message.success('Gán role cho user thành công');
+      message.success('Gán vai trò cho người dùng thành công');
+      reloadTable();
       handleCancel();
     } catch (error) {
       console.error('Failed to update user role:', error);
-      message.error('Gán role thất bại');
+      message.error('Gán vai trò thất bại');
     } finally {
       setLoading(false);
     }
@@ -535,11 +535,7 @@ const UserRoleManagement = () => {
             </span>
           </Divider>
 
-          <Form.Item
-            name="roleId"
-            label="Vai trò"
-            rules={[{ required: true, message: 'Vui lòng chọn role!' }]}
-          >
+          <Form.Item name="roleId" label="Vai trò">
             <Select
               placeholder="Chọn role cho user"
               size="large"

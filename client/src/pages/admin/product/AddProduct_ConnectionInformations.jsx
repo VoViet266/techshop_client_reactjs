@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 function ConnectionInformation({ product, form }) {
   useEffect(() => {
     if (product) {
-      form.setFieldsValue({
+      form?.setFieldsValue({
         connectivity: {
           ...product.connectivity,
           ports: Array.isArray(product.connectivity?.ports)

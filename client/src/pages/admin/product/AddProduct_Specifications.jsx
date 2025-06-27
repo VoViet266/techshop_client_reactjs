@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 
 function Specifications({ product, form }) {
   useEffect(() => {
-    if (product?.specifications) {
-      form.setFieldsValue({
+    if (product) {
+      form?.setFieldsValue({
         specifications: product.specifications,
       });
     }
@@ -13,7 +13,9 @@ function Specifications({ product, form }) {
   return (
     <>
       <div className="flex gap-12 items-center mb-2">
-        <span className="text-sm text-primary font-medium">Thông số kỹ thuật</span>
+        <span className="text-sm text-primary font-medium">
+          Thông số kỹ thuật
+        </span>
         <div className="flex-1 border-t border-t-gray-300"></div>
       </div>
 
@@ -25,19 +27,28 @@ function Specifications({ product, form }) {
         </Col>
 
         <Col span={8}>
-          <Form.Item label="Loại màn hình" name={['specifications', 'displayType']}>
+          <Form.Item
+            label="Loại màn hình"
+            name={['specifications', 'displayType']}
+          >
             <Input placeholder="Nhập loại màn hình" size="large" />
           </Form.Item>
         </Col>
 
         <Col span={8}>
-          <Form.Item label="Hệ điều hành" name={['specifications', 'operatingSystem']}>
+          <Form.Item
+            label="Hệ điều hành"
+            name={['specifications', 'operatingSystem']}
+          >
             <Input placeholder="Nhập hệ điều hành" size="large" />
           </Form.Item>
         </Col>
 
         <Col span={8}>
-          <Form.Item label="Kích thước màn hình" name={['specifications', 'displaySize']}>
+          <Form.Item
+            label="Kích thước màn hình"
+            name={['specifications', 'displaySize']}
+          >
             <Input placeholder="Nhập kích thước màn hình" size="large" />
           </Form.Item>
         </Col>

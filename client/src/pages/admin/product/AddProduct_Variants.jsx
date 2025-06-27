@@ -24,10 +24,11 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
   const [previewImage, setPreviewImage] = useState('');
 
   const { message } = useAppContext();
-
+  
   useEffect(() => {
+    
     if (product) {
-      form.setFieldsValue({ variants: product.variants });
+      form?.setFieldsValue({ variants: product.variants });
     }
   }, [product, form]);
 
@@ -181,7 +182,7 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
       </div>
 
       <div className="space-y-6">
-        {product.variants.map((variant, index) => (
+        {product.variants?.map((variant, index) => (
           <Card
             key={index}
             className={`relative ${index !== 0 ? 'pt-12' : ''}`}

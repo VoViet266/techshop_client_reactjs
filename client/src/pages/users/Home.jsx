@@ -2,6 +2,7 @@ import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import Categories from '@services/categories';
 import { PreviewListProducts } from '@components/products';
+import { Skeleton } from 'antd';
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -34,13 +35,14 @@ function Home() {
 
   return (
     <>
-      {/* <div className="relative w-[60%] mt-20">
+      <div className="relative w-[60%] mt-20">
         {loading ? (
           <Skeleton className="h-500" />
         ) : (
-          <ImagesSlider images={[]} />
+          // <ImagesSlider images={[]} />
+          null
         )}
-      </div> */}
+      </div>
       <div className="mb-50 w-full">
         {categories.map((category, index) => {
           return (

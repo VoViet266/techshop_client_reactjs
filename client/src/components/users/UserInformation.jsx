@@ -25,7 +25,7 @@ function UserInformation() {
         </>
       );
     }
-    console.log(user);
+
     return (
       <>
         <Avatar
@@ -34,7 +34,7 @@ function UserInformation() {
           className="w-34! h-34!"
         />
         <Typography.Text className="text-base! font-normal!">
-          {user.name}
+          {user?.name}
         </Typography.Text>
       </>
     );

@@ -236,7 +236,7 @@ function AdminLayout() {
               fontSize: '20px',
               width: 50,
               height: 50,
-              // backgroundColor: 'rgba(255, 255, 255, 0.15)',
+
               border: `1px solid rgba(255, 255, 255, 0.25)`,
               borderRadius: '12px',
               display: 'flex',
@@ -253,15 +253,6 @@ function AdminLayout() {
               >
                 TechShop
               </Title>
-              {/* <span
-                className="text-xs pb-1 font-medium"
-                style={{
-                  color: 'rgba(255, 255, 255, 0.85)',
-                  textShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                }}
-              >
-                Trang quản lý
-              </span> */}
               <Text
                 type="secondary"
                 style={{
@@ -285,10 +276,10 @@ function AdminLayout() {
           style={{
             overflow: 'auto',
             height: '100vh',
-            maxHeight: '90vh',
+            maxHeight: '100vh',
             position: 'fixed',
             left: 0,
-            top: 64,
+            top: 50,
             bottom: 0,
             background: '#F1F5F9',
             borderRight: `1px solid #E2E8F0"`,

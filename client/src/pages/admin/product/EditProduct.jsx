@@ -35,8 +35,7 @@ function EditProduct() {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const [productError, setProductError] = useState({});
-  const [productMessage, setProductMessage] = useState({});
+  
   const [imagesToDelete, setImagesToDelete] = useState([]);
 
   const [form] = Form.useForm();
@@ -113,8 +112,6 @@ function EditProduct() {
             brands={brands}
             categories={categories}
             product={product}
-            productError={productError}
-            productMessage={productMessage}
             form={form}
           />
           <Specifications

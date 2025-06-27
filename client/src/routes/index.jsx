@@ -20,9 +20,9 @@ import CategoryManagement from '@/pages/admin/category/category';
 import PermissionsManagement from '@/pages/admin/permission/permission';
 import RoleManagement from '@/pages/admin/role/role';
 import UserRoleManagement from '@/pages/admin/role/userRole';
+import UserManagement from '@/pages/admin/user';
 
 const router = createBrowserRouter([
-
   {
     path: '/',
     element: <UsersLayout />,
@@ -147,6 +147,19 @@ const router = createBrowserRouter([
           // },
         ],
       },
+      {
+        path: 'user',
+        children: [
+          {
+            index: true,
+            element: <UserManagement/>,
+          },
+          {
+            path: 'management',
+            element: <UserManagement/>,
+          },
+        ],
+      },
 
       {
         path: 'order',
@@ -171,7 +184,7 @@ const router = createBrowserRouter([
           {
             path: 'roleuser/management',
             element: <UserRoleManagement />,
-          }
+          },
         ],
       },
 

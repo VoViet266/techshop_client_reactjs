@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 
 function CameraInformations({ product, form }) {
   useEffect(() => {
-    if (product?.camera) {
-      form.setFieldsValue({
+    if (product) {
+      form?.setFieldsValue({
         camera: product.camera,
       });
     }
