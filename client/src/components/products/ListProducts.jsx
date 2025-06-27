@@ -27,11 +27,11 @@ function ListProducts(properties) {
     storages,
     setFilter,
     setProducts,
-    currentPage,
     currentBrand,
-    setCurrentPage,
     setCurrentBrand,
     filteredProducts,
+    currentPage = null,
+    setCurrentPage = {},
   } = properties;
 
   return (
@@ -207,7 +207,7 @@ function ListProducts(properties) {
           </Col>
         )}
       </Row>
-      {!loading && filteredProducts.length > 0 && (
+      {!loading && filteredProducts.length > 0 && currentPage && (
         <Flex justify="center" className="mt-20!">
           <Pagination
             total={products.length}
