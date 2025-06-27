@@ -17,12 +17,14 @@ import { ReloadOutlined } from '@ant-design/icons';
 function ListProducts(properties) {
   const {
     sort,
+    rams,
     title,
     brands,
     filter,
     setSort,
     loading,
     products,
+    storages,
     setFilter,
     setProducts,
     currentPage,
@@ -90,14 +92,10 @@ function ListProducts(properties) {
               placeholder="RAM"
               className="min-w-120!"
               allowClear
-              options={[
-                { value: 1, label: '4GB' },
-                { value: 2, label: '8GB' },
-                { value: 3, label: '12GB' },
-                { value: 4, label: '16GB' },
-                { value: 5, label: '64GB' },
-              ]}
-              onChange={(value, label) => setFilter((f) => ({ ...f, ram: label }))}
+              options={rams.map((ram, index) => ({ value: index, label: ram }))}
+              onChange={(_, label) =>
+                setFilter((filter) => ({ ...filter, ram: label }))
+              }
             />
           </Space>
           <Space>
@@ -109,16 +107,13 @@ function ListProducts(properties) {
               placeholder="Bộ nhớ trong"
               className="min-w-120!"
               allowClear
-              options={[
-                { value: 1, label: '32GB' },
-                { value: 2, label: '64GB' },
-                { value: 3, label: '128GB' },
-                { value: 4, label: '256GB' },
-                { value: 5, label: '512GB' },
-                { value: 6, label: '1TB' },
-                { value: 7, label: '2TB' },
-              ]}
-              onChange={(value, label) => setFilter((f) => ({ ...f, storage: label }))}
+              options={storages.map((storage, index) => ({
+                value: index,
+                label: storage,
+              }))}
+              onChange={(_, label) =>
+                setFilter((filter) => ({ ...filter, storage: label }))
+              }
             />
           </Space>
           <Button
