@@ -6,7 +6,6 @@ import { PreviewListProducts } from '@components/products';
 
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
-
 function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +64,6 @@ function Home() {
 
   return (
     <>
-
       <div className="relative w-[60%] h-300 mt-20 mb-250">
         <Carousel
           arrows
@@ -76,16 +74,15 @@ function Home() {
           autoplay={{ dotDuration: true }}
         >
           {banners.map((banner, index) => (
-            <Imagekey={index}
+            <Image
               key={index}
               src={banner}
               preview={false}
               className="object-cover! rounded-md! w-full! h-full!"
             />
-
-      </Carousel>
-    </div>
-  
+          ))}
+        </Carousel>
+      </div>
 
       <div className="mb-50 w-full">
         {categories.map((category, index) => {
