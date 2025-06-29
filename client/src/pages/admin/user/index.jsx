@@ -34,6 +34,7 @@ import {
   DeleteOutlined,
   HomeOutlined,
   UserAddOutlined,
+  PhoneOutlined,
 } from '@ant-design/icons';
 import {
   callFetchUsers,
@@ -231,7 +232,7 @@ const UserManagement = () => {
   };
 
   useEffect(() => {
-    if (selectedUser && modalType === 'edit') {
+    if (selectedUser) {
       form.setFieldsValue({
         _id: selectedUser._id,
         name: selectedUser.name,
@@ -239,7 +240,8 @@ const UserManagement = () => {
         gender: selectedUser.gender,
         age: selectedUser.age,
         userType: selectedUser.userType,
-        branch: selectedUser.branch?._id || selectedUser.branch,
+        phone: selectedUser.phone,
+
         isActive: selectedUser.isActive,
         addresses: selectedUser.addresses.map((address) => ({
           specificAddress: address.specificAddress,
@@ -267,7 +269,7 @@ const UserManagement = () => {
       setDistricts([]);
       setWards([]);
     }
-  }, [selectedUser, modalType, form]);
+  }, [selectedUser, form]);
 
   const filteredUsers = users.filter((user) => {
     const matchRole =
@@ -397,7 +399,7 @@ const UserManagement = () => {
               size="small"
               onClick={() => {
                 setSelectedUser(record);
-                setModalType('edit');
+
                 setOpenModal(true);
               }}
             >
@@ -426,15 +428,13 @@ const UserManagement = () => {
 
   const handleCreateUser = () => {
     setSelectedUser(null);
-    setModalType('create');
     setOpenModal(true);
   };
 
   const handleSubmit = async (values) => {
-    console.log('Form values:', values);
     setSubmitLoading(true);
     try {
-      if (modalType === 'create') {
+      if (!selectedUser) {
         const response = await callCreateUser(values);
         setUsers([...users, response.data.data]);
         message.success('Tạo người dùng thành công');
@@ -452,9 +452,9 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Failed to save user:', error);
       message.error(
-        modalType === 'create'
-          ? 'Tạo người dùng thất bại'
-          : 'Cập nhật người dùng thất bại',
+        selectedUser
+          ? 'Cập nhật người dùng thất bại'
+          : ' Tạo người dùng thất bại',
       );
     } finally {
       setSubmitLoading(false);
@@ -685,11 +685,11 @@ const UserManagement = () => {
                   {previewUser.userType || 'GUEST'}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Chi nhánh">
-                {previewUser.branch ? (
-                  <Tag color="cyan">{previewUser.branch.name}</Tag>
+              <Descriptions.Item label="Số điện thoại">
+                {previewUser.phone ? (
+                  <Text>{previewUser.phone}</Text>
                 ) : (
-                  <Tag color="default">Chưa có chi nhánh</Tag>
+                  <Text>Chưa cập nhật</Text>
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="Tuổi">
@@ -772,9 +772,7 @@ const UserManagement = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <UserAddOutlined style={{ color: '#1890ff' }} />
             <span>
-              {modalType === 'create'
-                ? 'Thêm người dùng mới'
-                : 'Chỉnh sửa người dùng'}
+              {selectedUser ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'}
             </span>
           </div>
         }
@@ -790,7 +788,7 @@ const UserManagement = () => {
             loading={submitLoading}
             onClick={() => form.submit()}
           >
-            {modalType === 'create' ? 'Tạo người dùng' : 'Cập nhật'}
+            {selectedUser ? 'Cập nhật người dùng' : 'Thêm người dùng'}
           </Button>,
         ]}
         width={700}
@@ -878,19 +876,17 @@ const UserManagement = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="branch" label="Chi nhánh">
-                <Select size="large" placeholder="Chọn chi nhánh" allowClear>
-                  {branches.map((branch) => (
-                    <Option key={branch._id} value={branch._id}>
-                      {branch.name}
-                    </Option>
-                  ))}
-                </Select>
+              <Form.Item name="phone" label="Số điện thoại">
+                <Input
+                  size="large"
+                  placeholder="Nhập số điện thoại"
+                  prefix={<PhoneOutlined style={{ color: '#94A3B8' }} />}
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          {modalType === 'create' && (
+          {!selectedUser && (
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
@@ -898,7 +894,6 @@ const UserManagement = () => {
                   label="Mật khẩu"
                   rules={[
                     { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                    { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' },
                   ]}
                 >
                   <Input.Password size="large" placeholder="Nhập mật khẩu" />
@@ -942,6 +937,16 @@ const UserManagement = () => {
                 {fields.map(({ key, name, ...restField }) => (
                   <Row gutter={16} key={key} align="middle">
                     <Col span={24}>
+                      <Form.Item style={{ marginBottom: 0 }}>
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => remove(name)}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
                       <Form.Item
                         {...restField}
                         name={[name, 'specificAddress']}
@@ -954,8 +959,8 @@ const UserManagement = () => {
                         ]}
                       >
                         <Input.TextArea
-                          placeholder="Ví dụ: 255, đường Thái Thị Thạnh, khu vực Thới Xứng 2"
-                          autoSize={{ minRows: 2, maxRows: 4 }}
+                          placeholder="Ví dụ: số nhà, tên đường, thôn, xóm, ..."
+                          autoSize={{ minRows: 1, maxRows: 4 }}
                         />
                       </Form.Item>
                       <Form.Item
@@ -1142,20 +1147,9 @@ const UserManagement = () => {
                         {...restField}
                         name={[name, 'default']}
                         valuePropName="checked"
-                        style={{ marginBottom: 24 }}
+                        style={{ marginBottom: 10 }}
                       >
                         <Checkbox>Địa chỉ mặc định</Checkbox>
-                      </Form.Item>
-                    </Col>
-                    <Col span={2}>
-                      <Form.Item style={{ marginBottom: 0 }}>
-                        <Button
-                          type="text"
-                          danger
-                          icon={<DeleteOutlined />}
-                          onClick={() => remove(name)}
-                          style={{ marginTop: '30px' }}
-                        />
                       </Form.Item>
                     </Col>
                   </Row>

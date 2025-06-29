@@ -72,7 +72,11 @@ export const callLogout = () => {
 export const callFetchUsers = () => {
   return axiosInstance.get(`/api/v1/users`);
 };
-
+export const callCreateUser = (value) => {
+  return axiosInstance.post(`/api/v1/users`, {
+    ...value,
+  });
+}
 export const callDeleteUser = (id) => {
   return axiosInstance.delete(`/api/v1/users/${id}`);
 };
