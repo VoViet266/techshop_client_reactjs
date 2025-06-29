@@ -4,6 +4,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Button, Typography, Tag, Image, Flex } from 'antd';
 
 function ProductInformation({ className, product, loading }) {
+  const [currentVariant, setCurrentVariant] = useState(0);
+
   function formatCurrency(amount, locale = 'vi-VN', currency = 'VND') {
     return new Intl.NumberFormat(locale, {
       style: 'decimal',
@@ -11,7 +13,7 @@ function ProductInformation({ className, product, loading }) {
       maximumFractionDigits: 0,
     }).format(amount);
   }
-
+  
   return (
     <div className={className}>
       <Typography.Title level={3} className="text-2xl! mb-0! font-medium!">
@@ -25,7 +27,7 @@ function ProductInformation({ className, product, loading }) {
       </Typography.Title>
       <Flex gap={8} align="center">
         <Typography.Text className="text-lg! font-bold! text-primary!">
-          {`${formatCurrency(price - price * (product?.discount / 100))}đ` || (
+          {`${formatCurrency(product.variants[currentVariant].price - product.variants[currentVariant].price * (product?.discount / 100))}đ` || (
             <Skeleton className="h-40" />
           )}
         </Typography.Text>
@@ -34,7 +36,9 @@ function ProductInformation({ className, product, loading }) {
           type="secondary"
           className="text-lg! font-roboto!"
         >
-          {`${formatCurrency(price)}đ` || <Skeleton className="h-40" />}
+          {`${formatCurrency(product.variants[currentVariant].price)}đ` || (
+            <Skeleton className="h-40" />
+          )}
         </Typography.Text>
       </Flex>
 
@@ -50,7 +54,7 @@ function ProductInformation({ className, product, loading }) {
                 className={`flex cursor-pointer h-auto! w-150! hover:border-primary hover:border-2 flex-col gap-4 py-8 px-10 border border-[#e5e7eb] rounded-sm`}
               >
                 <Typography.Text className="font-medium">
-                  {variant.name}
+                  {variant?.name}
                 </Typography.Text>
               </div>
             ))}
@@ -75,7 +79,7 @@ function ProductInformation({ className, product, loading }) {
                   <Flex className="w-[30%]">
                     <Image
                       preview={false}
-                      src={variant.images[0]}
+                      src={variant?.images?.[0]}
                       className="aspect-square!"
                     />
                   </Flex>

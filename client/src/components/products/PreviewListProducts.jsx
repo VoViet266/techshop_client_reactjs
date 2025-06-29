@@ -1,8 +1,9 @@
-import CardProduct from './Card';
+import { Card } from '@components/products';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Tag, Typography, Empty, Row, Col } from 'antd';
+import { Tag, Typography, Empty, Flex, Row, Col, Carousel } from 'antd';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 function PreviewListProducts({
   title,
@@ -14,6 +15,43 @@ function PreviewListProducts({
 }) {
   const navigate = useNavigate();
   const brands = [...new Set(products.map((product) => product.brand.name))];
+
+  const chunkArray = (array) => {
+    const itemsPerRow = 4;
+    const chunks = [];
+    for (let i = 0; i < array.length; i += itemsPerRow) {
+      chunks.push(array.slice(i, i + itemsPerRow));
+    }
+    return chunks;
+  };
+
+  const productsChunks = chunkArray(products);
+
+  console.log('Products chunk:', productsChunks);
+
+  function CustomNextArrow(properties) {
+    return (
+      <button
+        type="button"
+        onClick={properties.onClick}
+        className="absolute right-4 hover:opacity-80 top-1/2 -translate-y-1/2 z-10 hover:text-white text-white! cursor-pointer shadow-lg p-3 transition-all text-2xl!"
+      >
+        <RightOutlined />
+      </button>
+    );
+  }
+
+  function CustomPrevArrow(properties) {
+    return (
+      <button
+        type="button"
+        onClick={properties.onClick}
+        className="absolute left-4 hover:opacity-80 top-1/2 -translate-y-1/2 z-10 hover:text-white text-white! cursor-pointer shadow-lg p-3 transition-all text-2xl!"
+      >
+        <LeftOutlined />
+      </button>
+    );
+  }
 
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 mt-20">
@@ -83,32 +121,29 @@ function PreviewListProducts({
         </div>
       )}
 
-      <Row
-        gutter={10}
-        justify={loading ? 'start' : products.length > 0 ? 'start' : 'center'}
-      >
+      <Row>
         {loading && (
           <>
-            <Col className="w-275">
+            <div className="w-275">
               <Skeleton className="h-500" />
-            </Col>
-            <Col className="w-275">
+            </div>
+            <div className="w-275">
               <Skeleton className="h-500" />
-            </Col>
-            <Col className="w-275">
+            </div>
+            <div className="w-275">
               <Skeleton className="h-500" />
-            </Col>
-            <Col className="w-275">
+            </div>
+            <div className="w-275">
               <Skeleton className="h-500" />
-            </Col>
-            <Col className="w-275">
+            </div>
+            <div className="w-275">
               <Skeleton className="h-500" />
-            </Col>
+            </div>
           </>
         )}
 
         {products.length === 0 && !loading && (
-          <Col span={24}>
+          <div className="w-full">
             <Empty
               className="mx-auto!"
               description={
@@ -117,20 +152,10 @@ function PreviewListProducts({
                 </Typography.Text>
               }
             />
-          </Col>
+          </div>
         )}
 
-        {products.map((product, index) => {
-          return (
-            <Col span={5} key={index}>
-              <CardProduct
-                product={product}
-                loading={loading}
-                className="w-full!"
-              />
-            </Col>
-          );
-        })}
+        
       </Row>
     </div>
   );
