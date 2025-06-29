@@ -25,7 +25,7 @@ function ProductDetail() {
     }
   }, [product.variants]);
 
-  console.log(images);
+  console.log('Product:', product);
 
   useEffect(() => {
     const fetchProductDetail = async () => {
