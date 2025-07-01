@@ -1,9 +1,8 @@
 import { useAppContext } from '@/contexts';
 import { useState, useEffect } from 'react';
-import Skeleton from 'react-loading-skeleton';
 import CartServices from '@services/carts';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Button, Typography, Tag, Image, Flex } from 'antd';
+import { Button, Typography, Tag, Image, Flex, Skeleton } from 'antd';
 
 function ProductInformation({ className, product, loading }) {
   const { user, message } = useAppContext();
@@ -39,7 +38,7 @@ function ProductInformation({ className, product, loading }) {
     <div className={className}>
       <Typography.Title level={3} className="text-2xl! mb-0! font-medium!">
         <Flex gap={10} align="center">
-          {product.name || <Skeleton className="h-40" />}
+          {product.name || <Skeleton.Input className="h-40!" />}
           <Tag color="red" className="py-2! px-12! rounded-sm!">
             {' '}
             -{product.discount}%
@@ -48,8 +47,10 @@ function ProductInformation({ className, product, loading }) {
       </Typography.Title>
       <Flex gap={8} align="center">
         <Typography.Text className="text-lg! font-bold! text-primary!">
-          {`${formatCurrency(product?.variants?.[currentVariant]?.price - product?.variants?.[currentVariant]?.price * (product?.discount / 100))}đ` || (
-            <Skeleton className="h-40" />
+          {!loading ? (
+            `${formatCurrency(product?.variants?.[currentVariant]?.price - product?.variants?.[currentVariant]?.price * (product?.discount / 100))}đ`
+          ) : (
+            <Skeleton.Input className="h-40!" />
           )}
         </Typography.Text>
         <Typography.Text
@@ -57,8 +58,10 @@ function ProductInformation({ className, product, loading }) {
           type="secondary"
           className="text-lg! font-roboto!"
         >
-          {`${formatCurrency(product?.variants?.[currentVariant]?.price)}đ` || (
-            <Skeleton className="h-40" />
+          {!loading ? (
+            `${formatCurrency(product?.variants?.[currentVariant]?.price)}đ`
+          ) : (
+            <Skeleton.Input className="h-40!" />
           )}
         </Typography.Text>
       </Flex>
@@ -68,7 +71,7 @@ function ProductInformation({ className, product, loading }) {
           <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
             Phiên bản
           </div>
-          <div className="p-8">
+          <div className="p-8 flex gap-12">
             {product.variants.map((variant, index) => (
               <div
                 key={index}
@@ -83,7 +86,7 @@ function ProductInformation({ className, product, loading }) {
           </div>
         </div>
       ) : (
-        <Skeleton className="h-100" />
+        <Skeleton.Input className="h-100! w-full!" />
       )}
 
       {product.variants?.length > 0 ? (
@@ -117,13 +120,13 @@ function ProductInformation({ className, product, loading }) {
           </div>
         </div>
       ) : (
-        <Skeleton className="h-100" />
+        <Skeleton.Input className="h-100! w-full!" />
       )}
 
       <div className="flex gap-10 mt-16">
         {loading ? (
           <div className="w-[50%]">
-            <Skeleton className="h-40" />
+            <Skeleton.Input className="h-40! w-full!" />
           </div>
         ) : (
           <Button
@@ -150,7 +153,7 @@ function ProductInformation({ className, product, loading }) {
 
         {loading ? (
           <div className="w-[50%]">
-            <Skeleton className="h-40" />
+            <Skeleton.Input className="h-40! w-full!" />
           </div>
         ) : (
           <Button
