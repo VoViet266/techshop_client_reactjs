@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import CartServices from '@services/carts';
 import { useAppContext } from '@/contexts';
 import {
   Table,
@@ -19,39 +20,42 @@ function Cart() {
   const { message } = useAppContext();
   const [loading, setLoading] = useState(true);
 
-  // Giả lập tải dữ liệu
+  const getCart = async () => {
+    try {
+      const cartServices = new CartServices();
+      const response = await cartServices.get();
+      if (response.status === 200) {
+        setCartItems(response.data.data[0].items);
+        setLoading(false);
+        message.success('Lấy giỏ hàng thành công');
+      }
+    } catch (error) {
+      message.error('Không thể lấy giỏ hàng');
+      console.error('Lỗi khi lấy giỏ hàng:', error);
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCartItems([
-        {
-          id: 1,
-          name: 'Sản phẩm A',
-          price: 200000,
-          quantity: 2,
-        },
-        {
-          id: 2,
-          name: 'Sản phẩm B',
-          price: 150000,
-          quantity: 1,
-        },
-      ]);
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    getCart();
   }, []);
+
+  // useEffect(() => {
+  //   if (cartItems.length > 0) {
+  //     console.log(cartItems);
+  //   }
+  // }, [cartItems]);
 
   const updateQuantity = (id, value) => {
     if (value < 1) return;
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, quantity: value } : item,
+        item.product._id === id ? { ...item, quantity: value } : item,
       ),
     );
   };
 
   const removeItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    setCartItems((prev) => prev.filter((item) => item.product._id !== id));
     message.success('Đã xóa sản phẩm khỏi giỏ hàng');
   };
 
@@ -66,13 +70,14 @@ function Cart() {
       dataIndex: 'name',
       key: 'name',
       align: 'center',
+      render: (_, item) => `${item?.variant?.name}`,
     },
     {
       title: 'Đơn giá',
       dataIndex: 'price',
       key: 'price',
       align: 'center',
-      render: (price) => `${price.toLocaleString()}₫`,
+      render: (_, item) => `${item?.variant?.price.toLocaleString()}₫`,
     },
     {
       title: 'Số lượng',
@@ -82,7 +87,7 @@ function Cart() {
         <InputNumber
           min={1}
           value={item.quantity}
-          onChange={(value) => updateQuantity(item.id, value)}
+          onChange={(value) => updateQuantity(item.product._id, value)}
         />
       ),
     },
@@ -90,7 +95,8 @@ function Cart() {
       title: 'Thành tiền',
       key: 'total',
       align: 'center',
-      render: (_, item) => `${(item.price * item.quantity).toLocaleString()}₫`,
+      render: (_, item) =>
+        `${(item?.variant?.price * item.quantity).toLocaleString()}₫`,
     },
     {
       title: 'Xóa',
@@ -100,7 +106,7 @@ function Cart() {
         <Button
           icon={<DeleteOutlined />}
           danger
-          onClick={() => removeItem(item.id)}
+          onClick={() => removeItem(item.product._id)}
         />
       ),
     },

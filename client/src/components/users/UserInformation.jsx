@@ -51,7 +51,7 @@ function UserInformation() {
     },
     {
       key: '4',
-      label: <Link to="/admin/dashboard">Giỏ hàng</Link>,
+      label: <Link to="/cart">Giỏ hàng</Link>,
     },
     {
       key: '5',
