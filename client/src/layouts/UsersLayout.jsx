@@ -6,14 +6,14 @@ import {
 } from '@/components/app';
 import { useEffect } from 'react';
 import { useAppContext } from '@contexts';
-import useMessage from '@/hooks/useMessage';
 import { Login, Signup } from '@pages/app';
 import { Outlet, Link } from 'react-router-dom';
 import { UserInformation } from '@components/users';
-import { Layout, Typography, Button, Flex } from 'antd';
+import { CustomerServiceOutlined } from '@ant-design/icons';
+import { Layout, Typography, Button, Flex, FloatButton } from 'antd';
 
 function Header() {
-  const { setShowLogin, setShowSignup, message } = useAppContext();
+  const { setShowLogin, setShowSignup } = useAppContext();
 
   useEffect(() => {
     document.title = 'TechShop | Mua sắm thả ga';
@@ -77,6 +77,11 @@ function UsersLayout() {
         <Outlet />
         {showLogin && <Login />}
         {showSignup && <Signup />}
+        <FloatButton
+          type="primary"
+          shape="circle"
+          icon={<CustomerServiceOutlined />}
+        />
       </Layout.Content>
       {loadingError && <ErrorToast />}
       {toastLoading && <LoadingToast />}
