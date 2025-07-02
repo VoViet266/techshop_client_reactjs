@@ -1,3 +1,4 @@
+import { Spin } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -50,16 +51,20 @@ function ProductDetail() {
     window.scroll(0, 0);
   }, []);
 
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] px-50 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full xl:px-50 mt-30">
       <div className="flex">
         <div className="w-[60%] relative">
           <div className="py-20 px-40">
-            {images.length > 0 ? (
-              <ImagesSlider images={images} />
-            ) : (
-              <Skeleton className="h-500" />
-            )}
+            <ImagesSlider images={images} />
           </div>
         </div>
         <ProductInformation

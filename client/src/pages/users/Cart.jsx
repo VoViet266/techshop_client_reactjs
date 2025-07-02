@@ -14,6 +14,7 @@ import {
   Divider,
   Spin,
 } from 'antd';
+import { Link } from 'react-router-dom';
 import { DeleteOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -140,7 +141,9 @@ function Cart() {
 
   return (
     <div className="w-full px-50 py-20">
-      <Title level={3} className='text-primary! font-bold!'>Giỏ hàng của bạn</Title>
+      <Title level={3} className="text-primary! font-bold!">
+        Giỏ hàng của bạn
+      </Title>
 
       {loading ? (
         renderSkeletonTable()
@@ -177,14 +180,16 @@ function Cart() {
                 </Typography.Text>
               </Flex>
               <Divider className="my-0!" />
-              <Button
-                type="primary"
-                size="large"
-                disabled={cartItems.length === 0}
-                className="rounded-md!"
-              >
-                Tiến hành thanh toán
-              </Button>
+              <Link to="/order">
+                <Button
+                  type="primary"
+                  size="large"
+                  className="rounded-md! w-full!"
+                  disabled={cartItems.length === 0}
+                >
+                  Tiến hành thanh toán
+                </Button>
+              </Link>
             </div>
           </div>
         </Flex>

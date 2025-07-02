@@ -1,8 +1,7 @@
 import { UsersLayout, AdminLayout } from '@layouts';
-import { Cart, ListProducts } from '@pages/users';
+import { Cart, Order, ListProducts } from '@pages/users';
 import BranchManagement from '@/pages/admin/branch';
 import Dashboard from '@/pages/admin/dashboard/Dashboard';
-import CategoryPage from '@/pages/admin/category/category';
 import { Home, ProductDetail, SearchProductResult } from '@/pages/users';
 import { AddProduct, EditProduct, ListProduct } from '@/pages/admin/product';
 import { createBrowserRouter } from 'react-router-dom';
@@ -12,15 +11,15 @@ import WarehouseOutbound from '@/pages/admin/warehouse/export';
 
 import NotExist from '@/components/error/notExist';
 
-import OrderManagement from '@/pages/admin/order';
 import ProtectedRoute from './ProtectedRoute';
+import OrderManagement from '@/pages/admin/order';
 import BrandManagement from '@/pages/admin/brand';
 import CategoryManagement from '@/pages/admin/category/category';
 
-import PermissionsManagement from '@/pages/admin/permission/permission';
+import UserManagement from '@/pages/admin/user';
 import RoleManagement from '@/pages/admin/role/role';
 import UserRoleManagement from '@/pages/admin/role/userRole';
-import UserManagement from '@/pages/admin/user';
+import PermissionsManagement from '@/pages/admin/permission/permission';
 
 const router = createBrowserRouter([
   {
@@ -30,6 +29,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: 'order',
+        element: <Order />,
       },
       {
         path: 'cart',
@@ -152,11 +155,11 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <UserManagement/>,
+            element: <UserManagement />,
           },
           {
             path: 'management',
-            element: <UserManagement/>,
+            element: <UserManagement />,
           },
         ],
       },
