@@ -5,6 +5,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Tag, Typography, Empty, Flex, Row, Col, Carousel } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import CardProduct from './Card';
+import Slider from 'react-slick';
 
 function PreviewListProducts({
   title,
@@ -15,7 +16,10 @@ function PreviewListProducts({
   showListBrands = true,
 }) {
   const navigate = useNavigate();
-  const brands = [...new Set(products.map((product) => product.brand.name))];
+  const brands = [
+    'Tất cả',
+    ...new Set(products.map((product) => product.brand.name)),
+  ];
 
   const chunkArray = (array) => {
     const itemsPerRow = 4;
@@ -28,14 +32,12 @@ function PreviewListProducts({
 
   const productsChunks = chunkArray(products);
 
-  console.log('Products chunk:', productsChunks);
-
   function CustomNextArrow(properties) {
     return (
       <button
         type="button"
         onClick={properties.onClick}
-        className="absolute right-4 hover:opacity-80 top-1/2 -translate-y-1/2 z-10 hover:text-white text-white! cursor-pointer shadow-lg p-3 transition-all text-2xl!"
+        className="absolute -right-30 rounded-full! flex items-center justify-center hover:opacity-80 top-1/2 -translate-y-1/2 z-10 text-black! cursor-pointer shadow-lg p-6 transition-all text-xl!"
       >
         <RightOutlined />
       </button>
@@ -47,12 +49,22 @@ function PreviewListProducts({
       <button
         type="button"
         onClick={properties.onClick}
-        className="absolute left-4 hover:opacity-80 top-1/2 -translate-y-1/2 z-10 hover:text-white text-white! cursor-pointer shadow-lg p-3 transition-all text-2xl!"
+        className="absolute -left-30 rounded-full! flex items-center justify-center hover:opacity-80 top-1/2 -translate-y-1/2 z-10 text-black! cursor-pointer shadow-lg p-6 transition-all text-xl!"
       >
         <LeftOutlined />
       </button>
     );
   }
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 5,
+    slidesToScroll: 5,
+    nextArrow: <CustomNextArrow />,
+    prevArrow: <CustomPrevArrow />,
+  };
 
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 mt-20">
@@ -155,17 +167,20 @@ function PreviewListProducts({
             />
           </div>
         )}
-        {products.map((product, index) => {
-          return (
-            <Col span={5} key={index}>
-              <CardProduct
-                product={product}
-                loading={loading}
-                className="w-full!"
-              />
-            </Col>
-          );
-        })}
+
+        <Slider {...settings} className="flex! items-center! w-full!">
+          {products.map((product, index) => {
+            return (
+              <div key={index} className="px-10">
+                <CardProduct
+                  product={product}
+                  loading={loading}
+                  className="w-full!"
+                />
+              </div>
+            );
+          })}
+        </Slider>
       </Row>
     </div>
   );
