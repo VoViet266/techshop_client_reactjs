@@ -77,6 +77,10 @@ function ProductsList() {
   }, [products]);
 
   useEffect(() => {
+    window.scroll(0, 0);
+  }, []);
+
+  useEffect(() => {
     const categoriesService = new Categories();
 
     categoriesService

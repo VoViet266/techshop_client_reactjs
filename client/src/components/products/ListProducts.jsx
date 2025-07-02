@@ -3,6 +3,7 @@ import {
   Row,
   Tag,
   Flex,
+  Spin,
   Empty,
   Space,
   Select,
@@ -34,6 +35,14 @@ function ListProducts(properties) {
     setCurrentPage = {},
   } = properties;
 
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] px-50 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex items-center justify-between mt-10 mb-5">
@@ -42,7 +51,9 @@ function ListProducts(properties) {
             <Skeleton.Input active className="h-32" />
           </div>
         ) : (
-          <Typography.Title level={3}>{title}</Typography.Title>
+          <Typography.Title level={3} className="text-primary! font-bold!">
+            {title}
+          </Typography.Title>
         )}
       </div>
 

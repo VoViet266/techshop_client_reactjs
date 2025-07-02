@@ -50,19 +50,6 @@ function ProductDetail() {
     window.scroll(0, 0);
   }, []);
 
-  useEffect(() => {
-    // console.log('User:', user);
-    // if(user) {
-    //   consosle.log
-    // }
-  }, [user]);
-
-  // useEffect(() => {
-  //   if (Object.keys(product).length > 0) {
-  //     console.log('Product:', product);
-  //   }
-  // }, [product]);
-
   return (
     <div className="w-full xl:px-50 mt-30">
       <div className="flex">
