@@ -27,9 +27,7 @@ function Home() {
     try {
       const products = await Products.getAll();
       setProducts(products);
-      setTimeout(() => {
-        setLoading(false);
-      }, 3000);
+      setLoading(false);
     } catch (error) {
       console.error(error.message);
     }
