@@ -5,12 +5,10 @@ import {
   Table,
   Button,
   InputNumber,
-  Card,
   Typography,
-  Space,
   Empty,
-  Skeleton,
   Flex,
+  Modal,
   Divider,
   Spin,
 } from 'antd';
@@ -20,9 +18,12 @@ import { DeleteOutlined } from '@ant-design/icons';
 const { Title, Text } = Typography;
 
 function Cart() {
-  const [cartItems, setCartItems] = useState([]);
   const { message } = useAppContext();
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [cartItems, setCartItems] = useState([]);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const getCart = async () => {
     try {
@@ -43,6 +44,15 @@ function Cart() {
     getCart();
   }, []);
 
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      console.log('Cart items:', cartItems);
+    }
+    if (deleteItem) {
+      console.log('Delete item:', deleteItem);
+    }
+  }, [cartItems, deleteItem]);
+
   const updateQuantity = (id, value) => {
     if (value < 1) return;
     setCartItems((prev) =>
@@ -52,16 +62,37 @@ function Cart() {
     );
   };
 
-  const removeItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.product._id !== id));
-    message.success('Đã xóa sản phẩm khỏi giỏ hàng');
+  const handleRemoveItems = async (productId, variantId) => {
+    try {
+      setConfirmLoading(true);
+      const cartServices = new CartServices();
+      const response = await cartServices.deleteOne(productId, variantId);
+      if (response.status === 200) {
+        await getCart();
+        message.destroy();
+        message.success('Xóa sản phẩm khỏi giỏ hàng thành công');
+        setOpen(false);
+        setConfirmLoading(false);
+        return;
+      }
+      throw new Error('Xóa sản phẩm khỏi giỏ hàng thất bại');
+    } catch (error) {
+      message.destroy();
+      message.error('Xóa sản phẩm khỏi giỏ hàng thất bại');
+      console.error('Lỗi khi xóa sản phẩm khỏi giỏ hàng:', error);
+    }
   };
 
-  const handleRemoveItems = async (id) => {
-    try {
-      const cartServices = new CartServices();
-      const response = await cartServices.deleteOne(id);
-    } catch (error) {}
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const handleOk = () => {
+    handleRemoveItems(deleteItem.product._id, deleteItem.variant._id);
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
   };
 
   const total = cartItems.reduce(
@@ -111,7 +142,10 @@ function Cart() {
         <Button
           icon={<DeleteOutlined />}
           danger
-          onClick={() => removeItem(item.product._id)}
+          onClick={() => {
+            showModal();
+            setDeleteItem(item);
+          }}
         />
       ),
     },
@@ -145,55 +179,62 @@ function Cart() {
         Giỏ hàng của bạn
       </Title>
 
-      {loading ? (
-        renderSkeletonTable()
-      ) : (
-        <Flex className="w-full" gap={12}>
-          <Table
-            rowKey="id"
-            columns={columns}
-            pagination={false}
-            dataSource={cartItems}
-            className="w-2/3 border border-[#e5e7eb] rounded-lg! overflow-hidden!"
-            rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}
-            locale={{
-              emptyText: <Empty description={<Text>Giỏ hàng trống</Text>} />,
-            }}
-          />
+      <Modal
+        centered
+        open={open}
+        okText="Xóa"
+        title="Xác nhận"
+        cancelText="Hủy"
+        onOk={handleOk}
+        onCancel={handleCancel}
+        confirmLoading={confirmLoading}
+      >
+        <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+      </Modal>
 
-          <div className="border flex-1 rounded-md border-[#e5e7eb]">
-            <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
-              <Typography.Title level={5} className="m-0!">
-                Thông tin đơn hàng
-              </Typography.Title>
-            </div>
-            <div className="p-12 flex flex-col gap-10">
-              <Flex justify="space-between">
-                <Typography.Text className="text-lg!">
-                  Tổng tiền
-                </Typography.Text>
-                <Typography.Text
-                  level={3}
-                  className="m-0! text-primary! text-lg! font-medium!"
-                >
-                  {total.toLocaleString()}đ
-                </Typography.Text>
-              </Flex>
-              <Divider className="my-0!" />
-              <Link to="/order">
-                <Button
-                  type="primary"
-                  size="large"
-                  className="rounded-md! w-full!"
-                  disabled={cartItems.length === 0}
-                >
-                  Tiến hành thanh toán
-                </Button>
-              </Link>
-            </div>
+      <Flex className="w-full" gap={12}>
+        <Table
+          rowKey="id"
+          columns={columns}
+          pagination={false}
+          dataSource={cartItems}
+          className="w-2/3 border border-[#e5e7eb] rounded-lg! overflow-hidden!"
+          rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}
+          locale={{
+            emptyText: <Empty description={<Text>Giỏ hàng trống</Text>} />,
+          }}
+        />
+
+        <div className="border flex-1 rounded-md border-[#e5e7eb]">
+          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
+            <Typography.Title level={5} className="m-0!">
+              Thông tin đơn hàng
+            </Typography.Title>
           </div>
-        </Flex>
-      )}
+          <div className="p-12 flex flex-col gap-10">
+            <Flex justify="space-between">
+              <Typography.Text className="text-lg!">Tổng tiền</Typography.Text>
+              <Typography.Text
+                level={3}
+                className="m-0! text-primary! text-lg! font-medium!"
+              >
+                {total.toLocaleString()}đ
+              </Typography.Text>
+            </Flex>
+            <Divider className="my-0!" />
+            <Link to="/order">
+              <Button
+                type="primary"
+                size="large"
+                className="rounded-md! w-full!"
+                disabled={cartItems.length === 0}
+              >
+                Tiến hành thanh toán
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Flex>
     </div>
   );
 }
