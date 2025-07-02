@@ -1,4 +1,4 @@
-import { Carousel, Image } from 'antd';
+import { Carousel, Image, Spin } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import Categories from '@services/categories';
@@ -59,6 +59,14 @@ function Home() {
       >
         <LeftOutlined />
       </button>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] px-50 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
     );
   }
 
