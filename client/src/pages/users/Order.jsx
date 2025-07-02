@@ -3,7 +3,7 @@ import { formatCurrency } from '@helpers';
 import { useAppContext } from '@contexts';
 import CartServices from '@services/carts';
 import { useState, useEffect } from 'react';
-import { Typography, Flex, Card, Tag, Image, Space, Input } from 'antd';
+import { Typography, Flex, Card, Tag, Image, Spin, Input } from 'antd';
 
 function Order() {
   const { message, user } = useAppContext();
@@ -36,6 +36,14 @@ function Order() {
       console.log('Thông tin người dùng:', user);
     }
   }, [cartItems, user]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] px-50 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <Flex className="w-full! h-screen! px-50! py-20!">
@@ -109,7 +117,7 @@ function Order() {
               className="w-full!"
             >
               <Typography.Text strong>Số điện thoại</Typography.Text>
-              <Input value={"0393266713"} className="w-full! flex-1 py-8!" />
+              <Input value={'0393266713'} className="w-full! flex-1 py-8!" />
             </Flex>
             <Flex
               gap={4}
@@ -119,7 +127,10 @@ function Order() {
               className="w-full!"
             >
               <Typography.Text strong>Địa chỉ</Typography.Text>
-              <Input value={"Tổ 1, Ấp Mỹ Hòa ..."} className="w-full! flex-1 py-8!" />
+              <Input
+                value={'Tổ 1, Ấp Mỹ Hòa ...'}
+                className="w-full! flex-1 py-8!"
+              />
             </Flex>
           </div>
         </div>
