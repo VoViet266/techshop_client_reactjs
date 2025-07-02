@@ -12,7 +12,6 @@ const InboundConfirmModal = ({
   previewData,
   branches = [],
 }) => {
-  console.log(previewData);
   return (
     <Modal
       title={inbound ? 'Xác nhận nhập kho' : 'Xác nhận xuất kho'}

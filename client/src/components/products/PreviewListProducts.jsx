@@ -2,7 +2,7 @@ import { Card } from '@components/products';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Tag, Typography, Empty, Flex, Row, Col, Carousel } from 'antd';
+import { Tag, Typography, Empty, Flex, Row, Col, Carousel, Spin } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import CardProduct from './Card';
 
@@ -27,8 +27,6 @@ function PreviewListProducts({
   };
 
   const productsChunks = chunkArray(products);
-
-  console.log('Products chunk:', productsChunks);
 
   function CustomNextArrow(properties) {
     return (
@@ -57,7 +55,7 @@ function PreviewListProducts({
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 mt-20">
       <div className="flex items-center justify-between mt-10 mb-5">
-        {loading ? (
+        {/* {loading ? (
           <div className="w-200">
             <Skeleton className="h-32" />
           </div>
@@ -68,13 +66,8 @@ function PreviewListProducts({
           >
             {title}
           </Typography.Title>
-        )}
+        )} */}
 
-        {loading && (
-          <div className="w-76">
-            <Skeleton className="h-24" />
-          </div>
-        )}
         {!loading && canViewAll && products.length > 0 && (
           <span
             onClick={() => {
@@ -90,25 +83,6 @@ function PreviewListProducts({
 
       {showListBrands && (
         <div className="mb-15 flex gap-2">
-          {loading && (
-            <>
-              <div className="w-80">
-                <Skeleton className="h-25" />
-              </div>
-              <div className="w-80">
-                <Skeleton className="h-25" />
-              </div>
-              <div className="w-80">
-                <Skeleton className="h-25" />
-              </div>
-              <div className="w-80">
-                <Skeleton className="h-25" />
-              </div>
-              <div className="w-80">
-                <Skeleton className="h-25" />
-              </div>
-            </>
-          )}
           {brands.map((brand, index) => (
             <div key={index}>
               <Tag
@@ -123,26 +97,6 @@ function PreviewListProducts({
       )}
 
       <Row>
-        {loading && (
-          <>
-            <div className="w-275">
-              <Skeleton className="h-500" />
-            </div>
-            <div className="w-275">
-              <Skeleton className="h-500" />
-            </div>
-            <div className="w-275">
-              <Skeleton className="h-500" />
-            </div>
-            <div className="w-275">
-              <Skeleton className="h-500" />
-            </div>
-            <div className="w-275">
-              <Skeleton className="h-500" />
-            </div>
-          </>
-        )}
-
         {products.length === 0 && !loading && (
           <div className="w-full">
             <Empty

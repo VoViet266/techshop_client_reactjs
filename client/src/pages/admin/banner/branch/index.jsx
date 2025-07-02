@@ -49,7 +49,7 @@ const BranchManagement = () => {
   const [dataInit, setDataInit] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm();
+
   const FetchBranchs = async () => {
     setLoading(true);
     try {

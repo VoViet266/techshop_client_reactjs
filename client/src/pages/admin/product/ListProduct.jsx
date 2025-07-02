@@ -45,8 +45,6 @@ import {
   callFetchCategories,
 } from '@/services/apis';
 import { useNavigate } from 'react-router-dom';
-import useMessage from '@/hooks/useMessage';
-import AppContext from 'antd/es/app/context';
 import { useAppContext } from '@/contexts';
 
 const { Text } = Typography;

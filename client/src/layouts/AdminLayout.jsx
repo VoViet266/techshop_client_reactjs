@@ -36,7 +36,7 @@ import {
   PlaySquareOutlined,
   SlidersOutlined,
 } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { callLogout } from '@/services/apis';
 import useMessage from '@/hooks/useMessage';
 
@@ -52,129 +52,124 @@ function AdminLayout() {
   const location = useLocation();
   const { user, message } = useAppContext();
 
-  const navItems = [
-    {
-      key: 'dashboard',
-      label: 'Tổng quan',
-      icon: <DashboardOutlined />,
-      onClick: () => navigate('/admin/dashboard'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'product',
-      label: 'Sản phẩm',
-      icon: <ProductOutlined />,
-      children: [
-        {
-          key: 'allproducts',
-          label: 'Danh sách sản phẩm',
-          onClick: () => navigate('/admin/product'),
-        },
-        {
-          key: 'addproduct',
-          label: 'Thêm sản phẩm',
-          onClick: () => navigate('/admin/product/add'),
-        },
-      ],
-    },
-    {
-      key: 'inventory',
-      label: 'Kho hàng',
-      icon: <ContainerOutlined />,
-      children: [
-        {
-          key: 'allinventory',
-          label: 'Danh sách kho hàng',
-          onClick: () => navigate('/admin/warehouse'),
-        },
-        {
-          key: 'importinventory',
-          label: 'Nhập hàng',
-          onClick: () => navigate('/admin/warehouse/import'),
-        },
-        {
-          key: 'exportinventory',
-          label: 'Xuất hàng',
-          onClick: () => navigate('/admin/warehouse/export'),
-        },
-        {
-          key: 'transferinventory',
-          label: 'Chuyển kho',
-          onClick: () => navigate('/admin/warehouse/transfer'),
-        },
-      ],
-    },
-    {
-      key: 'order',
-      label: 'Đơn hàng',
-      icon: <ShoppingOutlined />,
-      onClick: () => navigate('/admin/order'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'branch',
-      label: 'Chi nhánh',
-      icon: <HomeOutlined />,
-      onClick: () => navigate('/admin/branch/management'),
-    },
-    {
-      key: 'category',
-      label: 'Danh mục',
-      icon: <ShoppingOutlined />,
-      onClick: () => navigate('/admin/category/management'),
-    },
-    {
-      key: 'brand',
-      label: 'Thương hiệu',
-      icon: <TagsOutlined />,
-      onClick: () => navigate('/admin/brand/management'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'user',
-      label: 'Người dùng',
-      icon: <UserOutlined />,
-      onClick: () => navigate('/admin/user/management'),
-    },
-    {
-      key: 'permission',
-      label: 'Phân quyền',
-      icon: <SafetyOutlined />,
-
-      children: [
-        {
-          key: 'role',
-          label: 'Vai trò',
-          onClick: () => navigate('/admin/authorization/role/management'),
-        },
-        {
-          key: 'permission',
-          label: 'Phân quyền hạn',
-          onClick: () => navigate('/admin/authorization/permission/management'),
-        },
-        {
-          key: 'user-role',
-          label: 'Vai trò người dùng',
-          onClick: () => navigate('/admin/authorization/roleuser/management'),
-        },
-      ],
-    },
-    {
-      type: 'divider',
-    },
-
-    {
-      key: 'banner',
-      label: 'BANNER',
-      icon: <SlidersOutlined />,
-    },
-  ];
+  const navItems = useMemo(
+    () => [
+      {
+        key: 'dashboard',
+        label: 'Tổng quan',
+        icon: <DashboardOutlined />,
+        onClick: () => navigate('/admin/dashboard'),
+      },
+      { type: 'divider' },
+      {
+        key: 'product',
+        label: 'Sản phẩm',
+        icon: <ProductOutlined />,
+        children: [
+          {
+            key: 'allproducts',
+            label: 'Danh sách sản phẩm',
+            onClick: () => navigate('/admin/product'),
+          },
+          {
+            key: 'addproduct',
+            label: 'Thêm sản phẩm',
+            onClick: () => navigate('/admin/product/add'),
+          },
+        ],
+      },
+      {
+        key: 'inventory',
+        label: 'Kho hàng',
+        icon: <ContainerOutlined />,
+        children: [
+          {
+            key: 'allinventory',
+            label: 'Danh sách kho hàng',
+            onClick: () => navigate('/admin/warehouse'),
+          },
+          {
+            key: 'importinventory',
+            label: 'Nhập hàng',
+            onClick: () => navigate('/admin/warehouse/import'),
+          },
+          {
+            key: 'exportinventory',
+            label: 'Xuất hàng',
+            onClick: () => navigate('/admin/warehouse/export'),
+          },
+          {
+            key: 'transferinventory',
+            label: 'Chuyển kho',
+            onClick: () => navigate('/admin/warehouse/transfer'),
+          },
+        ],
+      },
+      {
+        key: 'order',
+        label: 'Đơn hàng',
+        icon: <ShoppingOutlined />,
+        onClick: () => navigate('/admin/order'),
+      },
+      { type: 'divider' },
+      {
+        key: 'branch',
+        label: 'Chi nhánh',
+        icon: <HomeOutlined />,
+        onClick: () => navigate('/admin/branch/management'),
+      },
+      {
+        key: 'category',
+        label: 'Danh mục',
+        icon: <ShoppingOutlined />,
+        onClick: () => navigate('/admin/category/management'),
+      },
+      {
+        key: 'brand',
+        label: 'Thương hiệu',
+        icon: <TagsOutlined />,
+        onClick: () => navigate('/admin/brand/management'),
+      },
+      { type: 'divider' },
+      {
+        key: 'user',
+        label: 'Người dùng',
+        icon: <UserOutlined />,
+        onClick: () => navigate('/admin/user/management'),
+      },
+      {
+        key: 'permission',
+        label: 'Phân quyền',
+        icon: <SafetyOutlined />,
+        children: [
+          {
+            key: 'role',
+            label: 'Vai trò',
+            onClick: () => navigate('/admin/authorization/role/management'),
+          },
+          {
+            key: 'permission',
+            label: 'Phân quyền hạn',
+            onClick: () =>
+              navigate('/admin/authorization/permission/management'),
+          },
+          {
+            key: 'user-role',
+            label: 'Vai trò người dùng',
+            onClick: () => navigate('/admin/authorization/roleuser/management'),
+          },
+        ],
+      },
+      { type: 'divider' },
+      {
+        key: 'banner',
+        label: 'Banner',
+        icon: <SlidersOutlined />,
+        onClick: () => navigate('/admin/banner/management'),
+      },
+    ],
+    [navigate],
+  );
 
   const getBreadcrumbItems = () => {
     const pathSnippets = location.pathname.split('/').filter((i) => i);

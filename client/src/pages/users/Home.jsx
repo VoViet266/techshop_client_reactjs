@@ -1,4 +1,4 @@
-import { Carousel, Image } from 'antd';
+import { Carousel, Image, Spin } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import Categories from '@services/categories';
@@ -27,7 +27,9 @@ function Home() {
     try {
       const products = await Products.getAll();
       setProducts(products);
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
     } catch (error) {
       console.error(error.message);
     }
@@ -64,6 +66,18 @@ function Home() {
 
   return (
     <>
+      {loading && (
+        <div className="w-full h-screen flex justify-center items-center">
+          <Spin
+            size="large"
+            fullscreen
+            tip="Loading..."
+            style={{
+              color: '#ff5900',
+            }}
+          />
+        </div>
+      )}
       <div className="relative w-[60%] h-300 mt-20 mb-250">
         <Carousel
           arrows
@@ -72,6 +86,9 @@ function Home() {
           nextArrow={<CustomPrevArrow />}
           prevArrow={<CustomNextArrow />}
           autoplay={{ dotDuration: true }}
+          dotPosition="bottom"
+          dotStyle={{ background: '#ff5900' }} // orange dots
+          activeDotStyle={{ background: '#ff5900' }} // orange active dot
         >
           {banners.map((banner, index) => (
             <Image

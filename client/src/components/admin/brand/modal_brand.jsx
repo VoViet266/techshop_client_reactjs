@@ -34,7 +34,6 @@ const ModalBrand = (props) => {
   };
 
   useEffect(() => {
-    console.log(dataInit);
     if (dataInit?._id) {
       form.setFieldsValue({
         _id: dataInit._id,

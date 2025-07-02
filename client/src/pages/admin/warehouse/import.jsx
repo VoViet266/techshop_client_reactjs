@@ -16,6 +16,9 @@ import {
   Badge,
   Popconfirm,
   Spin,
+  DatePicker,
+  Input,
+  Select,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -26,6 +29,8 @@ import {
   EyeOutlined,
   UploadOutlined,
   ReloadOutlined,
+  PlusOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import {
   callFetchBranches,
@@ -60,9 +65,16 @@ const WarehouseInbound = () => {
   const [selectedInboundDetail, setSelectedInboundDetail] = useState(null);
 
   const [filteredProducts, setFilteredProducts] = useState([]);
+
   const [detailLoading, setDetailLoading] = useState(false);
   const inbound = useState(true);
+  const [filters, setFilters] = useState({
+    branch: '',
+    searchText: '',
+    dateRange: null,
+  });
   const { message } = useAppContext();
+  const { RangePicker } = DatePicker;
 
   const fetchProducts = async () => {
     try {
@@ -130,9 +142,38 @@ const WarehouseInbound = () => {
     loadAllData();
   }, []);
 
+  const filteredInbound = inboundHistory.filter((inbound) => {
+    let isMatch = true;
+
+    if (filters.branch) {
+      isMatch = isMatch && inbound.branchId._id === filters.branch;
+    }
+
+    if (filters.searchText) {
+      const searchLower = filters.searchText.toLowerCase();
+      console.log(inbound.productId?.name);
+      isMatch =
+        isMatch &&
+        (inbound.productId?.name.toLowerCase().includes(searchLower) ||
+          inbound.branchId?.name.toLowerCase().includes(searchLower) ||
+          inbound.createdBy?.name.toLowerCase().includes(searchLower) ||
+          inbound.createdBy?.email.toLowerCase().includes(searchLower));
+    }
+
+    if (filters.dateRange && filters.dateRange.length === 2) {
+      const createdAt = new Date(inbound.createdAt).getTime();
+      const from = new Date(filters.dateRange[0]).getTime();
+      const to = new Date(filters.dateRange[1]).getTime();
+      isMatch = isMatch && createdAt >= from && createdAt <= to;
+    }
+
+    return isMatch;
+  });
+
+  console.log(filteredInbound);
   const handleSelectProduct = (product) => {
     setSelectedProduct(product);
-    console.log('Selected product:', product);
+
     form.setFieldsValue({
       productId: product._id,
       variantId: undefined,
@@ -282,6 +323,7 @@ const WarehouseInbound = () => {
       title: 'Sản phẩm',
       key: 'product',
       width: 300,
+
       render: (_, record) => (
         <Space>
           <Avatar
@@ -349,7 +391,7 @@ const WarehouseInbound = () => {
       width: 150,
       render: (_, record) => (
         <Text strong style={{ color: '#fa8c16' }}>
-          {record.total.toLocaleString('vi-VN')} ₫
+          {record.total?.toLocaleString('vi-VN')} ₫
         </Text>
       ),
     },
@@ -388,6 +430,7 @@ const WarehouseInbound = () => {
       title: 'Sản phẩm',
       key: 'product',
       width: 200,
+      sorter: (a, b) => a.productId?.name.localeCompare(b.productId?.name),
       render: (_, record) => (
         <Space>
           <ProductOutlined style={{ color: '#1890ff' }} />
@@ -400,6 +443,7 @@ const WarehouseInbound = () => {
       key: 'branch',
       width: 200,
       fixed: 'left',
+      sorter: (a, b) => a.branchId?.name.localeCompare(b.branchId?.name),
       render: (_, record) => (
         <Space>
           <ShopOutlined style={{ color: '#52c41a' }} />
@@ -412,6 +456,7 @@ const WarehouseInbound = () => {
       key: 'totalItems',
       width: 100,
       align: 'center',
+      sorter: (a, b) => a.totalItems - b.totalItems,
       render: (_, record) => {
         const total =
           record.variants?.reduce((sum, v) => sum + v.quantity, 0) || 0;
@@ -423,6 +468,7 @@ const WarehouseInbound = () => {
       dataIndex: 'createdAt',
       key: 'date',
       width: 150,
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       render: (date) => (
         <Space>
           <CalendarOutlined />
@@ -442,7 +488,6 @@ const WarehouseInbound = () => {
       ),
     },
     {
-      title: 'Thao tác',
       key: 'actions',
       width: 100,
       render: (_, record) => (
@@ -489,25 +534,6 @@ const WarehouseInbound = () => {
         borderRadius: '8px',
       }}
     >
-      <div style={{ marginBottom: '24px' }}>
-        <Row justify="space-between" align="middle">
-          <div></div>
-          <Col>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={loadAllData}
-              loading={pageLoading}
-              style={{
-                marginRight: '8px',
-                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
-              }}
-            >
-              Làm mới
-            </Button>
-          </Col>
-        </Row>
-      </div>
-
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={14}>
           <Card
@@ -600,7 +626,7 @@ const WarehouseInbound = () => {
         <Card title="Chi tiết sản phẩm nhập kho" style={{ marginTop: '24px' }}>
           <Table
             columns={itemColumns}
-            dataSource={inboundItems}
+            dataSource={filteredInbound}
             bordered
             rowKey="id"
             pagination={false}
@@ -609,11 +635,63 @@ const WarehouseInbound = () => {
           />
         </Card>
       )}
+      <Card style={{ marginTop: '24px' }}>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Input
+              placeholder="Tìm kiếm..."
+              prefix={<SearchOutlined />}
+              value={filters.searchText}
+              onChange={(e) =>
+                setFilters({ ...filters, searchText: e.target.value })
+              }
+            />
+          </Col>
 
+          <Col span={5}>
+            <Select
+              placeholder="Chi nhánh"
+              style={{ width: '100%' }}
+              value={filters.branch}
+              onChange={(value) => setFilters({ ...filters, branch: value })}
+              allowClear
+            >
+              <Option value="">All</Option>
+              {branches.map((branch) => (
+                <Option key={branch._id} value={branch._id}>
+                  {branch.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+          <Col span={8}>
+            <RangePicker
+              style={{ width: '100%' }}
+              placeholder={['Từ ngày', 'Đến ngày']}
+              value={filters.dateRange}
+              onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
+            />
+          </Col>
+          <Col span={3}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() =>
+                setFilters({
+                  branch: '',
+                  searchText: '',
+                  dateRange: null,
+                })
+              }
+            >
+              Làm mới lọc
+            </Button>
+          </Col>
+        </Row>
+      </Card>
       <Card title="Lịch sử nhập kho" style={{ marginTop: '24px' }}>
         <Table
           columns={historyColumns}
-          dataSource={inboundHistory}
+          dataSource={filteredInbound}
           rowKey="_id"
           pagination={{
             pageSize: 10,

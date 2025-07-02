@@ -33,7 +33,6 @@ const InboundSummary = ({
         </Row>
 
         <Divider />
-
         <Button
           type="primary"
           size="large"
@@ -43,7 +42,7 @@ const InboundSummary = ({
           style={{ width: '100%' }}
           loading={loading}
         >
-          {inbound ? 'Xây dựng phieu nhap kho' : 'Xây dựng phieu xuat kho'}
+          {inbound ? 'Xây dựng phiếu nhập kho' : 'Xây dựng xuất kho'}
         </Button>
       </Space>
     </Card>

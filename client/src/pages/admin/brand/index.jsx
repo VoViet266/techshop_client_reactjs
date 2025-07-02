@@ -586,6 +586,7 @@ const BrandManagement = () => {
                   onPreview={handlePreview}
                   onChange={handleChange}
                   beforeUpload={beforeUpload}
+                  onRemove={() => setFileList([])}
                   maxCount={1}
                 >
                   {fileList.length >= 1 ? null : uploadButton}

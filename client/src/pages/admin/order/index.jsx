@@ -42,7 +42,6 @@ import {
   Table,
   Typography,
   Popconfirm,
-  message,
   Empty,
 } from 'antd';
 import { useEffect, useState } from 'react';
@@ -60,7 +59,7 @@ const OrderManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { success, error, warning, contextHolder } = useMessage();
+  const { message } = useAppContext();
   const [filters, setFilters] = useState({
     branch: '',
     searchText: '',
@@ -77,27 +76,6 @@ const OrderManagement = () => {
     paymentMethod: 'cash',
     branch: user.branch,
   });
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const res = await callFetchOrders();
-      setOrders(res.data.data);
-      setFilteredOrders(res.data.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-      setLoading(false);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const res = await callFetchProducts();
-      setProducts(res.data.data.result);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    }
-  };
 
   const statusOptions = [
     { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
@@ -137,7 +115,27 @@ const OrderManagement = () => {
       ),
     },
   ];
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const res = await callFetchOrders();
+      setOrders(res.data.data);
+      setFilteredOrders(res.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
+      setLoading(false);
+    }
+  };
 
+  const fetchProducts = async () => {
+    try {
+      const res = await callFetchProducts();
+      setProducts(res.data.data.result);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
   const fetchBranches = async () => {
     try {
       const res = await callFetchBranches();
@@ -149,21 +147,18 @@ const OrderManagement = () => {
 
   useEffect(() => {
     let filtered = [...orders];
-
     if (filters.branch) {
       filtered = filtered.filter(
         (order) => order.branch._id === filters.branch,
       );
     }
-
     if (filters.searchText) {
-      const searchLower = filters.searchText.toLowerCase();
+      const searchLower = filters?.searchText.toLowerCase();
       filtered = filtered.filter(
         (order) =>
-          order._id?.toLowerCase().includes(searchLower) ||
+          order.items.product?.name?.toLowerCase().includes(searchLower) ||
           order.createdBy.email?.toLowerCase().includes(searchLower) ||
-          order.createdBy.name?.toLowerCase().includes(searchLower) ||
-          order.shippingAddress.toLowerCase().includes(searchLower),
+          order.createdBy.name?.toLowerCase().includes(searchLower),
       );
     }
 
@@ -277,6 +272,16 @@ const OrderManagement = () => {
     }, 0);
   };
 
+  const reloadTable = async () => {
+    setLoading(true);
+    try {
+      const res = await callFetchOrders();
+      setOrders(res.data.data);
+      setFilteredOrders(res.data.data);
+      setLoading(false);
+    } catch (error) {}
+  };
+
   const handleCreateOrderSubmit = async () => {
     if (!createOrderData.phone) {
       message.error('Vui lòng nhập số điện thoại khách hàng');
@@ -313,7 +318,6 @@ const OrderManagement = () => {
     try {
       await callCreateOrder(orderData);
       setIsCreateModalVisible(false);
-
       setCreateOrderData({
         phone: '',
         items: [],
@@ -321,17 +325,22 @@ const OrderManagement = () => {
         branch: user?.branch,
       });
 
-      success('Tạo đơn hàng thành công!');
+      message.success('Tạo đơn hàng thành công!');
+
+      reloadTable();
       setLoading(false);
-      callFetchOrders();
     } catch (err) {
       if (err.response.status === 404) {
-        error(
+        message.error(
           'Số lượng tồn kho hiện tại của sản phẩm không đủ, vui lòng kiểm tra lại kho hàng!',
         );
+        setLoading(false);
+        return;
       } else {
-        error(err.response.data.message);
+        message.error(err.response.data.message);
       }
+      message.error(err.response.data.message);
+      console.error(err);
       setLoading(false);
       return;
     }
@@ -430,14 +439,12 @@ const OrderManagement = () => {
     },
   ];
 
-  const handleUpdateOrder = (orderId, data) => {
+  const handleUpdateOrder = async (orderId, data) => {
     try {
       setLoading(true);
-
-      callUpdateOrder(orderId, data).then((res) => {
-        setLoading(false);
-        fetchOrders();
-      });
+      await callUpdateOrder(orderId, data);
+      message.success('Cập nhật đơn hàng thành công!');
+      setLoading(false);
     } catch (error) {
       console.error('Failed to update order:', error);
     }
@@ -451,7 +458,6 @@ const OrderManagement = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      {contextHolder}
       <Title level={2}>Quản lý đơn hàng</Title>
 
       <Row gutter={16} style={{ marginBottom: 24 }}>

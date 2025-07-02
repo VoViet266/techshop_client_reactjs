@@ -48,28 +48,26 @@ import {
 import {
   callExportInventory,
   callFetchBranches,
-  callFetchDetailInbound,
   callFetchDetailOutbound,
-  callFetchInboundHistory,
   callFetchInventories,
   callFetchOutboundHistory,
-  callFetchProducts,
-  callImportInventory,
 } from '@/services/apis';
-import Search from 'antd/es/transfer/search';
-import ModalSearchProduct from '../../../components/admin/warehouse/modalSearchProduct';
-import InboundConfirmModal from '@/components/admin/warehouse/InboundConfirmModal';
-import InboundForm from '@/components/admin/warehouse/InboundForm';
-import InboundSummary from '@/components/admin/warehouse/InboundSummary';
-import InboundDetailDrawer from '@/components/admin/warehouse/InboundDetailDrawer';
+
 import { useAppContext } from '@/contexts';
+import InboundDetailDrawer from '@/components/admin/warehouse/InboundDetailDrawer';
+import InboundSummary from '@/components/admin/warehouse/InboundSummary';
+import InboundConfirmModal from '@/components/admin/warehouse/InboundConfirmModal';
 
 const { Text } = Typography;
 const { Option } = Select;
 
 const WarehouseOutbound = () => {
   const [form] = Form.useForm();
-
+  const [filters, setFilters] = useState({
+    branch: '',
+    searchText: '',
+    dateRange: null,
+  });
   const { message } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
@@ -90,6 +88,7 @@ const WarehouseOutbound = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(null);
 
+  const { RangePicker } = DatePicker;
   const fetchInventories = async () => {
     try {
       const response = await callFetchInventories();
@@ -306,7 +305,33 @@ const WarehouseOutbound = () => {
       ),
     );
   };
+  const filteredOutbound = outboundHistory.filter((outbound) => {
+    let isMatch = true;
 
+    if (filters.branch) {
+      isMatch = isMatch && outbound.branchId._id === filters.branch;
+    }
+
+    if (filters.searchText) {
+      const searchLower = filters.searchText.toLowerCase();
+      console.log(outbound.productId?.name);
+      isMatch =
+        isMatch &&
+        (outbound.productId?.name.toLowerCase().includes(searchLower) ||
+          outbound.branchId?.name.toLowerCase().includes(searchLower) ||
+          outbound.createdBy?.name.toLowerCase().includes(searchLower) ||
+          outbound.createdBy?.email.toLowerCase().includes(searchLower));
+    }
+
+    if (filters.dateRange && filters.dateRange.length === 2) {
+      const createdAt = new Date(outbound.createdAt).getTime();
+      const from = new Date(filters.dateRange[0]).getTime();
+      const to = new Date(filters.dateRange[1]).getTime();
+      isMatch = isMatch && createdAt >= from && createdAt <= to;
+    }
+
+    return isMatch;
+  });
   const handleSubmitOutbound = () => {
     form
       .validateFields(['branchId'])
@@ -592,22 +617,10 @@ const WarehouseOutbound = () => {
     <div
       style={{
         padding: '24px',
-
         minHeight: '100vh',
         borderRadius: '8px',
       }}
     >
-      {/* <div style={{ marginBottom: '24px' }}>
-        <Row justify="space-between" align="middle">
-          <Col></Col>
-          <Col>
-            <Button icon={<ReloadOutlined />} loading={pageLoading}>
-              Làm mới
-            </Button>
-          </Col>
-        </Row>
-      </div> */}
-
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={14}>
           <Card
@@ -864,7 +877,59 @@ const WarehouseOutbound = () => {
           />
         </Card>
       )}
+      <Card style={{ marginTop: '24px' }}>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Input
+              placeholder="Tìm kiếm..."
+              prefix={<SearchOutlined />}
+              value={filters.searchText}
+              onChange={(e) =>
+                setFilters({ ...filters, searchText: e.target.value })
+              }
+            />
+          </Col>
 
+          <Col span={5}>
+            <Select
+              placeholder="Chi nhánh"
+              style={{ width: '100%' }}
+              value={filters.branch}
+              onChange={(value) => setFilters({ ...filters, branch: value })}
+              allowClear
+            >
+              <Option value="">All</Option>
+              {branches.map((branch) => (
+                <Option key={branch._id} value={branch._id}>
+                  {branch.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+          <Col span={8}>
+            <RangePicker
+              style={{ width: '100%' }}
+              placeholder={['Từ ngày', 'Đến ngày']}
+              value={filters.dateRange}
+              onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
+            />
+          </Col>
+          <Col span={3}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() =>
+                setFilters({
+                  branch: '',
+                  searchText: '',
+                  dateRange: null,
+                })
+              }
+            >
+              Làm mới lọc
+            </Button>
+          </Col>
+        </Row>
+      </Card>
       <Card
         title="Lịch sử xuất kho"
         style={{
@@ -874,7 +939,7 @@ const WarehouseOutbound = () => {
       >
         <Table
           columns={historyColumns}
-          dataSource={outboundHistory}
+          dataSource={filteredOutbound}
           rowKey="_id"
           pagination={{
             pageSize: 10,
@@ -886,7 +951,7 @@ const WarehouseOutbound = () => {
       <InboundDetailDrawer
         open={detailDrawerVisible}
         onClose={() => setDetailDrawerVisible(false)}
-        selectedInboundDetail={selectedOutboundDetail}
+        selectedoutboundDetail={selectedOutboundDetail}
         title="Chi tiết phiếu xuất"
       />
 

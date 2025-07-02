@@ -176,6 +176,19 @@ export const callFetchDetailOutbound = (id) => {
   return axiosInstance.get(`/api/v1/inventories/getExport/${id}`);
 };
 
+export const callTransferInventory = (value) => {
+  return axiosInstance.post(`/api/v1/inventories/transfer`, {
+    ...value,
+  });
+}
+export const callFetchTransferHistory = () => {
+  return axiosInstance.get(`/api/v1/inventories/transfer`);
+};
+export const callFetchDetailTransfer = (id) => {
+  return axiosInstance.get(`/api/v1/inventories/get_transfer/${id}`);
+}
+
+
 export const callFetchCategories = () => {
   return axiosInstance.get(`/api/v1/categories`);
 };
@@ -300,6 +313,24 @@ export const callDeletePermission = (id) => {
 export const callFetchPermission = () => {
   return axiosInstance.get(`/api/v1/permissions`);
 }
+
+export const callFetchBanners = () => {
+  return axiosInstance.get(`/api/v1/banners`);
+};
+export const callCreateBanners = (value) => {
+  return axiosInstance.post(`/api/v1/banners`, {
+    ...value,
+  });
+}
+export const callUpdateBanners = (value) => {
+  return axiosInstance.patch(`/api/v1/banners/${value._id}`, {
+    ...value,
+  });
+}
+export const callDeleteBanners = (id) => {
+  return axiosInstance.delete(`/api/v1/banners/${id}`);
+}
+
 export const callUploadSingleImage = (file) => {
   const formData = new FormData();
   formData.append('file', file);
