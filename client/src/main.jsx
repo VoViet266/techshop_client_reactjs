@@ -11,13 +11,16 @@ createRoot(document.getElementById('root')).render(
       theme={{
         token: {
           fontFamily: 'Roboto, sans-serif',
-          colorPrimary: '#e53935',
+          colorPrimary: '#dc2626',
         },
         components: {
           Input: {
-            activeBorderColor: '#ee4d2d',
-            hoverBorderColor: '#ee4d2d',
+            activeBorderColor: '#dc2626',
+            hoverBorderColor: '#dc2626',
             activeShadow: '0',
+          },
+          Card: {
+            padding: 0,
           },
         },
         message: {

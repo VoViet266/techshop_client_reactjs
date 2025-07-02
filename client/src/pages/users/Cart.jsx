@@ -10,6 +10,8 @@ import {
   Space,
   Empty,
   Skeleton,
+  Flex,
+  Divider,
 } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
@@ -39,12 +41,6 @@ function Cart() {
     getCart();
   }, []);
 
-  // useEffect(() => {
-  //   if (cartItems.length > 0) {
-  //     console.log(cartItems);
-  //   }
-  // }, [cartItems]);
-
   const updateQuantity = (id, value) => {
     if (value < 1) return;
     setCartItems((prev) =>
@@ -63,9 +59,7 @@ function Cart() {
     try {
       const cartServices = new CartServices();
       const response = await cartServices.deleteOne(id);
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   };
 
   const total = cartItems.reduce(
@@ -121,6 +115,20 @@ function Cart() {
     },
   ];
 
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        'selectedRows: ',
+        selectedRows,
+      );
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User', // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
+
   const renderSkeletonTable = () => {
     const skeletonRows = Array.from({ length: 4 });
     const cellStyle = {
@@ -130,8 +138,7 @@ function Cart() {
     };
 
     return (
-      <div className="border-none! p-0!">
-        {/* Header giả */}
+      <div className="border-none! flex gap-12 p-0!">
         <div className="bg-[#fafafa] rounded-t-md py-12 px-16 border-b border-b-[#f0f0f0] font-medium flex items-center justify-between text-center">
           <div style={{ width: '25%', ...cellStyle }}>Sản phẩm</div>
           <div style={{ width: '15%', ...cellStyle }}>Đơn giá</div>
@@ -140,10 +147,10 @@ function Cart() {
           <div style={{ width: '10%', ...cellStyle }}>Xóa</div>
         </div>
 
-        {/* Dòng skeleton */}
         {skeletonRows.map((_, idx) => (
           <div
             key={idx}
+            className="w-2/3"
             style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -201,20 +208,36 @@ function Cart() {
       {loading ? (
         renderSkeletonTable()
       ) : (
-        <>
+        <Flex className="w-full" gap={12}>
           <Table
-            columns={columns}
-            dataSource={cartItems}
             rowKey="id"
+            columns={columns}
             pagination={false}
+            className="w-2/3"
+            dataSource={cartItems}
             locale={<Empty description={<Text>Giỏ hàng trống</Text>} />}
+            rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}
           />
-          <Card className="mt-24! text-right!">
-            <Space direction="vertical">
-              <Text strong>Tổng tiền:</Text>
-              <Title level={3} className="m-0!">
-                {total.toLocaleString()}₫
-              </Title>
+
+          <div className="border flex-1 rounded-md border-[#e5e7eb]">
+            <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
+              <Typography.Title level={5} className="m-0!">
+                Thông tin đơn hàng
+              </Typography.Title>
+            </div>
+            <div className="p-12 flex flex-col gap-10">
+              <Flex justify='space-between'>
+                <Typography.Text className="text-lg!">
+                  Tổng tiền
+                </Typography.Text>
+                <Typography.Text
+                  level={3}
+                  className="m-0! text-lg! font-medium!"
+                >
+                  {total.toLocaleString()}₫
+                </Typography.Text>
+              </Flex>
+              <Divider className="my-0!" />
               <Button
                 type="primary"
                 size="large"
@@ -223,9 +246,9 @@ function Cart() {
               >
                 Tiến hành thanh toán
               </Button>
-            </Space>
-          </Card>
-        </>
+            </div>
+          </div>
+        </Flex>
       )}
     </div>
   );
