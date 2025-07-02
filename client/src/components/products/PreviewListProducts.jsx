@@ -1,17 +1,9 @@
-<<<<<<< HEAD
-import { Card } from '@components/products';
-import Skeleton from 'react-loading-skeleton';
-import { useNavigate } from 'react-router-dom';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Tag, Typography, Empty, Flex, Row, Col, Carousel, Spin } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-=======
->>>>>>> 031c98fb9a39f1b14687dd8fbb146f790f271705
 import CardProduct from './Card';
 import Slider from 'react-slick';
 import { useNavigate } from 'react-router-dom';
-import { Tag, Typography, Empty, Flex } from 'antd';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 function PreviewListProducts({ title, loading, products = [], category = {} }) {
   const navigate = useNavigate();
@@ -30,11 +22,8 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
     prevArrow: <CustomPrevArrow />,
   };
 
-<<<<<<< HEAD
   const productsChunks = chunkArray(products);
 
-=======
->>>>>>> 031c98fb9a39f1b14687dd8fbb146f790f271705
   function CustomNextArrow(properties) {
     return (
       <button
@@ -62,7 +51,6 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
   return (
     <div className="w-full xl:px-50 lg:px-30 md:px-20 mt-20">
       <div className="flex items-center justify-between mt-10 mb-5">
-<<<<<<< HEAD
         {/* {loading ? (
           <div className="w-200">
             <Skeleton className="h-32" />
@@ -106,70 +94,59 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
 
       <Row>
         {products.length === 0 && !loading && (
-=======
-        <Typography.Title
-          level={3}
-          className="font-roboto! text-primary! font-bold! mb-6!"
-        >
-          {title}
-        </Typography.Title>
+        <><Typography.Title
+            level={3}
+            className="font-roboto! text-primary! font-bold! mb-6!"
+          >
+            {title}
+          </Typography.Title><span
+            onClick={() => {
+              const id = category._id;
+              navigate(`/product/all/${id}`);
+            } }
+            className="cursor-pointer font-medium text-primary"
+          >
+              Xem tất cả
+            </span><div className="mb-15 flex gap-2">
+              {brands.map((brand, index) => (
+                <div key={index}>
+                  <Tag
+                    key={index}
+                    className="font-roboto! text-sm! px-8! rounded-md! cursor-pointer! min-w-80! text-center! bg-gray-100! border-none! py-4!"
+                  >
+                    {brand}
+                  </Tag>
+                </div>
+              ))}
+            </div><Flex justify="center">
+              {products.length === 0 && (
+                <div className="w-full">
+                  <Empty
+                    className="mx-auto!"
+                    description={<Typography.Text className="font-roboto! text-gray-400!">
+                      Không tìm thấy sản phẩm
+                    </Typography.Text>} />
+                </div>
+              )}
 
-        <span
-          onClick={() => {
-            const id = category._id;
-            navigate(`/product/all/${id}`);
-          }}
-          className="cursor-pointer font-medium text-primary"
-        >
-          Xem tất cả
-        </span>
-      </div>
-
-      <div className="mb-15 flex gap-2">
-        {brands.map((brand, index) => (
-          <div key={index}>
-            <Tag
-              key={index}
-              className="font-roboto! text-sm! px-8! rounded-md! cursor-pointer! min-w-80! text-center! bg-gray-100! border-none! py-4!"
-            >
-              {brand}
-            </Tag>
-          </div>
-        ))}
-      </div>
-
-      <Flex justify="center">
-        {products.length === 0 && (
->>>>>>> 031c98fb9a39f1b14687dd8fbb146f790f271705
-          <div className="w-full">
-            <Empty
-              className="mx-auto!"
-              description={
-                <Typography.Text className="font-roboto! text-gray-400!">
-                  Không tìm thấy sản phẩm
-                </Typography.Text>
-              }
-            />
-          </div>
+              <Slider
+                {...settings}
+                className="flex! bg-white! items-center! justify-center! w-full!"
+              >
+                {products.map((product, index) => {
+                  return (
+                    <div key={index} className="px-8">
+                      <CardProduct
+                        product={product}
+                        loading={loading}
+                        className="w-full!" />
+                    </div>
+                  );
+                })}
+              </Slider>
+            </Flex></>
         )}
-
-        <Slider
-          {...settings}
-          className="flex! bg-white! items-center! justify-center! w-full!"
-        >
-          {products.map((product, index) => {
-            return (
-              <div key={index} className="px-8">
-                <CardProduct
-                  product={product}
-                  loading={loading}
-                  className="w-full!"
-                />
-              </div>
-            );
-          })}
-        </Slider>
-      </Flex>
+      </Row>
     </div>
   );
 }
