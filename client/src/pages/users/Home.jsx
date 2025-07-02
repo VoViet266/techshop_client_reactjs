@@ -74,18 +74,6 @@ function Home() {
 
   return (
     <>
-      {loading && (
-        <div className="w-full h-screen flex justify-center items-center">
-          <Spin
-            size="large"
-            fullscreen
-            tip="Loading..."
-            style={{
-              color: '#ff5900',
-            }}
-          />
-        </div>
-      )}
       <div className="relative w-[60%] h-300 mt-20 mb-250">
         <Carousel
           arrows
