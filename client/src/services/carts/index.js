@@ -9,6 +9,10 @@ class CartServices {
     return axiosInstance.get('/api/v1/carts');
   }
 
+  delete(id) {
+    return axiosInstance.delete(`/api/v1/carts/remove-all?id=${id}`);
+  }
+
   deleteOne(productId, variantId) {
     const params = new URLSearchParams();
     params.append('productId', productId);

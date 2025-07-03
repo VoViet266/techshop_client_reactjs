@@ -14,15 +14,19 @@ import {
 } from 'antd';
 import { Link } from 'react-router-dom';
 import { DeleteOutlined } from '@ant-design/icons';
+import { set } from 'react-hook-form';
 
 const { Title, Text } = Typography;
 
 function Cart() {
-  const { message } = useAppContext();
+  const { message, user } = useAppContext();
   const [open, setOpen] = useState(false);
+  const [modalText, setModalText] = useState();
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [deleteItem, setDeleteItem] = useState(null);
+  const [deleteType, setDeleteType] = useState('item');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   const getCart = async () => {
@@ -68,8 +72,8 @@ function Cart() {
       const cartServices = new CartServices();
       const response = await cartServices.deleteOne(productId, variantId);
       if (response.status === 200) {
+        message.destroy();
         await getCart();
-
         message.success('Xóa sản phẩm khỏi giỏ hàng thành công');
         setOpen(false);
         setConfirmLoading(false);
@@ -82,12 +86,47 @@ function Cart() {
     }
   };
 
+  const handleRemoveAllItems = async (userId) => {
+    try {
+      setConfirmLoading(true);
+      const cartServices = new CartServices();
+      const response = await cartServices.delete(userId);
+      if (response.status === 200) {
+        await getCart();
+        message.destroy();
+        message.success('Xóa tất cả sản phẩm khỏi giỏ hàng thành công');
+        setCartItems([]);
+        setSelectedRowKeys([]);
+        setOpen(false);
+        setConfirmLoading(false);
+        return;
+      }
+      throw new Error('Xóa tất cả sản phẩm khỏi giỏ hàng thất bại');
+    } catch (error) {
+      message.destroy();
+      message.error('Xóa tất cả sản phẩm khỏi giỏ hàng thất bại');
+      console.error('Lỗi khi xóa tất cả sản phẩm khỏi giỏ hàng:', error);
+    }
+  };
+
   const showModal = () => {
     setOpen(true);
+    if (deleteType === 'item')
+      setModalText('Bạn có chắc chắn muốn xóa sản phẩm này không?');
+
+    if (deleteType === 'all')
+      setModalText(
+        'Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng không?',
+      );
   };
 
   const handleOk = () => {
-    handleRemoveItems(deleteItem.product._id, deleteItem.variant._id);
+    if (deleteType === 'item')
+      handleRemoveItems(deleteItem.product._id, deleteItem.variant._id);
+
+    if (deleteType === 'all') {
+      handleRemoveAllItems(user._id);
+    }
   };
 
   const handleCancel = () => {
@@ -142,6 +181,7 @@ function Cart() {
           icon={<DeleteOutlined />}
           danger
           onClick={() => {
+            setDeleteType('item');
             showModal();
             setDeleteItem(item);
           }}
@@ -151,12 +191,8 @@ function Cart() {
   ];
 
   const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        'selectedRows: ',
-        selectedRows,
-      );
+    onChange: (newSelectedRowKeys) => {
+      setSelectedRowKeys(newSelectedRowKeys);
     },
     getCheckboxProps: (record) => ({
       disabled: record.name === 'Disabled User', // Column configuration not to be checked
@@ -188,10 +224,29 @@ function Cart() {
         onCancel={handleCancel}
         confirmLoading={confirmLoading}
       >
-        <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+        <p>{modalText}</p>
       </Modal>
 
-      <Flex className="w-full" gap={12}>
+      <Flex className="w-full relative!" gap={12}>
+        <Button
+          icon={<DeleteOutlined />}
+          onClick={() => {
+            setModalText(
+              'Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng không?',
+            );
+            setOpen(true);
+            setDeleteType('all');
+          }}
+          disabled={
+            !(
+              selectedRowKeys.length === cartItems.length &&
+              cartItems.length > 0
+            )
+          }
+          className="absolute! z-10 left-840! -top-40"
+        >
+          Xóa tất cả
+        </Button>
         <Table
           rowKey="id"
           columns={columns}
