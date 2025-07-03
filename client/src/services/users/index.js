@@ -1,6 +1,6 @@
 import axiosInstance from '@services/apis';
 
-class Users {
+class UserService {
   login(user) {
     return axiosInstance.post('/api/v1/auth/login', {
       username: user.email,
@@ -8,8 +8,8 @@ class Users {
     });
   }
 
-  get() {
-    return axiosInstance.get('/api/v1/auth/account');
+  get(id) {
+    return axiosInstance.get(`/api/v1/users/${id}`);
   }
 
   signup(user) {
@@ -35,4 +35,4 @@ class Users {
   }
 }
 
-export default Users;
+export default UserService;

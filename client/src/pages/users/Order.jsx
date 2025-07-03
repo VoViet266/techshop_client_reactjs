@@ -2,13 +2,32 @@ import { Link } from 'react-router-dom';
 import { formatCurrency } from '@helpers';
 import { useAppContext } from '@contexts';
 import CartServices from '@services/carts';
+import UserService from '@services/users';
 import { useState, useEffect } from 'react';
-import { Typography, Flex, Card, Tag, Image, Spin, Input } from 'antd';
+import {
+  Tag,
+  Card,
+  Flex,
+  Spin,
+  Image,
+  Input,
+  Radio,
+  Select,
+  Typography,
+} from 'antd';
 
 function Order() {
   const { message, user } = useAppContext();
+  const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
+
+  const onChange = (value) => {
+    console.log(`selected ${value}`);
+  };
+  const onSearch = (value) => {
+    console.log('search:', value);
+  };
 
   const getCart = async () => {
     try {
@@ -16,7 +35,6 @@ function Order() {
       const response = await cartServices.get();
       if (response.status === 200) {
         setCartItems(response.data.data.items);
-        setLoading(false);
       }
     } catch (error) {
       message.error('Không thể lấy giỏ hàng');
@@ -24,18 +42,27 @@ function Order() {
     }
   };
 
-  useEffect(() => {
-    getCart();
-  }, []);
+  const getUser = async () => {
+    try {
+      const userService = new UserService();
+      const response = await userService.get(user._id);
+      if (response.status === 200) {
+        setUserInfo(response.data.data);
+        setLoading(false);
+        return;
+      }
+      throw new Error('Lỗi khi lấy thông tin người dùng.');
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin người dùng:', error);
+    }
+  };
 
   useEffect(() => {
-    if (cartItems.length > 0) {
-      console.log('Giỏ hàng:', cartItems);
+    getCart();
+    if (user && user._id) {
+      getUser();
     }
-    if (user) {
-      console.log('Thông tin người dùng:', user);
-    }
-  }, [cartItems, user]);
+  }, [user]);
 
   if (loading) {
     return (
@@ -46,9 +73,9 @@ function Order() {
   }
 
   return (
-    <Flex className="w-full! h-screen! px-50! py-20!">
+    <Flex className="w-full! h-screen! px-50! py-20! mb-1000!">
       <Flex vertical gap={12} className="w-[50%]!">
-        <div className="border min-h-185 w-full! h-185 rounded-md border-[#e5e7eb]">
+        <div className="border w-full! rounded-md border-[#e5e7eb]">
           <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
             <Typography.Title level={5} className="m-0!">
               Sản phẩm trong đơn
@@ -92,7 +119,7 @@ function Order() {
           </div>
         </div>
 
-        <div className="border min-h-185 w-full! rounded-md border-[#e5e7eb]">
+        <div className="border w-full! rounded-md border-[#e5e7eb]">
           <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
             <Typography.Title level={5} className="m-0!">
               Thông tin người đặt hàng
@@ -117,7 +144,34 @@ function Order() {
               className="w-full!"
             >
               <Typography.Text strong>Số điện thoại</Typography.Text>
-              <Input value={'0393266713'} className="w-full! flex-1 py-8!" />
+              <Input value={userInfo.phone} className="w-full! flex-1 py-8!" />
+            </Flex>
+          </div>
+        </div>
+
+        <div className="border w-full! rounded-md border-[#e5e7eb]">
+          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
+            <Typography.Title level={5} className="m-0!">
+              Thông tin nhận hàng
+            </Typography.Title>
+          </div>
+          <div className="p-12 flex flex-col gap-10">
+            <Flex
+              gap={4}
+              vertical
+              align="start"
+              justify="center"
+              className="w-full!"
+            >
+              <Typography.Text strong>Hình thức nhận hàng</Typography.Text>
+              <Radio.Group
+                name="radiogroup"
+                defaultValue={1}
+                options={[
+                  { value: 1, label: 'Giao hàng tận nơi' },
+                  { value: 2, label: 'Nhận tại cửa hàng' },
+                ]}
+              />
             </Flex>
             <Flex
               gap={4}
@@ -127,9 +181,80 @@ function Order() {
               className="w-full!"
             >
               <Typography.Text strong>Địa chỉ</Typography.Text>
-              <Input
-                value={'Tổ 1, Ấp Mỹ Hòa ...'}
+              {/* <Input
+                value={
+                  userInfo?.addresses?.filter(
+                    (address) => address.default === true,
+                  )[0]?.addressDetail
+                }
                 className="w-full! flex-1 py-8!"
+              /> */}
+              <Select
+                showSearch
+                className="w-full! flex-1!"
+                placeholder="Select a person"
+                optionFilterProp="label"
+                onChange={onChange}
+                defaultValue={
+                  userInfo?.addresses?.filter(
+                    (address) => address.default === true,
+                  )[0]?.addressDetail
+                }
+                onSearch={onSearch}
+                options={userInfo?.addresses?.map((address) => {
+                  return {
+                    value: address.addressDetail,
+                    label: address.addressDetail,
+                  };
+                })}
+              />
+            </Flex>
+            <Flex
+              gap={4}
+              vertical
+              align="start"
+              justify="center"
+              className="w-full!"
+            >
+              <Typography.Text strong>Chọn cửa hàng</Typography.Text>
+              <Select
+                showSearch
+                className="w-full! flex-1!"
+                placeholder="Select a person"
+                optionFilterProp="label"
+                onChange={onChange}
+                onSearch={onSearch}
+                options={[
+                  {
+                    value: 'jack',
+                    label: 'Jack',
+                  },
+                  {
+                    value: 'lucy',
+                    label: 'Lucy',
+                  },
+                  {
+                    value: 'tom',
+                    label: 'Tom',
+                  },
+                ]}
+              />
+            </Flex>
+            <Flex
+              gap={4}
+              vertical
+              align="start"
+              justify="center"
+              className="w-full!"
+            >
+              <Typography.Text strong>Phương thức thanh toán</Typography.Text>
+              <Radio.Group
+                name="radiogroup"
+                defaultValue={1}
+                options={[
+                  { value: 1, label: 'Thanh toán khi nhận hàng' },
+                  { value: 2, label: 'Thanh toán qua Momo' },
+                ]}
               />
             </Flex>
           </div>

@@ -19,6 +19,9 @@ createRoot(document.getElementById('root')).render(
             hoverBorderColor: '#dc2626',
             activeShadow: '0',
           },
+          Select: {
+            controlHeight: 40,
+          },
           Card: {
             padding: 0,
           },
