@@ -44,14 +44,18 @@ import {
   callFetchBrands,
   callFetchCategories,
 } from '@/services/apis';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppContext } from '@/contexts';
 
 const { Text } = Typography;
 const { Option } = Select;
+const searchParams = new URLSearchParams(window.location.search);
 
 function ListProduct() {
   const [open, setOpen] = useState(false);
+  const [total, setTotal] = useState(0);
+
+  const [searchParams, setSearchParams] = useSearchParams();
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState('Bạn có chắc chắn muốn xóa?');
   const [loading, setLoading] = useState(true);
@@ -63,6 +67,8 @@ function ListProduct() {
   const [searchText, setSearchText] = useState('');
   const { message } = useAppContext();
   const navigate = useNavigate();
+  const _page = searchParams.get('_page') || 1;
+  const _limit = searchParams.get('_limit') || 10;
 
   const [filters, setFilters] = useState({
     category: null,
@@ -71,8 +77,10 @@ function ListProduct() {
 
   const fetchProducts = async () => {
     try {
-      const fetchedProducts = await Products.getAll();
-      setProducts(fetchedProducts);
+      const fetchedProducts = await Products.getAll(_page, _limit);
+      setLoading(false);
+      setTotal(fetchedProducts.meta.total);
+      setProducts(fetchedProducts.result);
       message.success('Lấy danh sách sản phẩm thành công');
     } catch (error) {
       console.error('Failed to fetch products:', error.message);
@@ -110,7 +118,7 @@ function ListProduct() {
       }
     };
     fetchAll();
-  }, []);
+  }, [_page, _limit]);
 
   const handleDeleteProducts = async () => {
     setModalText('The modal will be closed after two seconds');
@@ -711,7 +719,16 @@ function ListProduct() {
                   rowExpandable: (record) => record._id,
                 }}
                 pagination={{
-                  pageSize: 10,
+                  current: Number(_page),
+                  pageSize: Number(_limit),
+                  total: total,
+                  showSizeChanger: false,
+                  onChange: (page) => {
+                    console.log(page);
+                    setSearchParams({
+                      _page: page.toString(),
+                    });
+                  },
                 }}
                 size="middle"
                 style={{
