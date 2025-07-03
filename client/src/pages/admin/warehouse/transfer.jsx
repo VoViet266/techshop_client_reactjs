@@ -353,7 +353,7 @@ const TransferManagement = () => {
         onCancel={() => setIsModalVisible(false)}
         footer={null}
         width={800}
-        destroyOnClose
+        OnClose
       >
         <Form
           form={form}

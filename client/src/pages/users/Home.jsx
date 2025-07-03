@@ -26,7 +26,8 @@ function Home() {
   async function fetchProducts() {
     try {
       const products = await Products.getAll();
-      setProducts(products);
+      setProducts(products.result);
+
       setLoading(false);
     } catch (error) {
       console.error(error.message);

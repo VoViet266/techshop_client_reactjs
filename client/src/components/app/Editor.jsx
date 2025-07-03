@@ -110,7 +110,7 @@ function Editor({ setProduct, product, ...properties }) {
           videoUploadSizeLimit: 10485760,
           previewTemplate: true,
         }}
-        setDefaultStyle="font-family: 'Roboto', sans-serif; font-size: 16px; line-height: 1.5;"
+        setDefaultStyle="font-family: 'Roboto', sans-serif; font-size: 16px; line-height: 1.5; border-radius: 8px;"
       />
     </div>
   );

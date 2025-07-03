@@ -12,9 +12,15 @@ function CameraInformations({ product, form }) {
 
   return (
     <>
-      <div className="flex gap-12 items-center mb-2">
-        <span className="text-sm text-primary font-medium">Camera Trước</span>
-        <div className="flex-1 border-t border-t-gray-300"></div>
+      <div className="flex gap-4 items-center mb-10 relative">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-primary font-semibold tracking-wide uppercase letter-spacing-0.5 relative">
+            Camera Trước
+          </span>
+        </div>
+        <div className="flex-1 relative">
+          <div className="border-t border-r-300 opacity-60 text-primary"></div>
+        </div>
       </div>
 
       <Row gutter={[10, 0]}>

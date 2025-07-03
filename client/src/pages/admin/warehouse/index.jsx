@@ -308,7 +308,6 @@ const WarehouseManagement = () => {
       <Card
         style={{
           marginBottom: '24px',
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
         }}
       >
         <Row gutter={[16, 16]} align="middle">
@@ -352,7 +351,6 @@ const WarehouseManagement = () => {
 
       <Card
         style={{
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           minHeight: '90vh',
         }}
       >

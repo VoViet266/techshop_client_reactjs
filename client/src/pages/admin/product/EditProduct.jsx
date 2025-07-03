@@ -27,7 +27,6 @@ function EditProduct() {
   const navigate = useNavigate();
   const { setToastLoading, setLoadingSuccess, setLoadingError } =
     useAppContext();
-
   const { message } = useAppContext();
 
   const [loading, setLoading] = useState(true);
@@ -35,7 +34,6 @@ function EditProduct() {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  
   const [imagesToDelete, setImagesToDelete] = useState([]);
 
   const [form] = Form.useForm();
@@ -66,7 +64,7 @@ function EditProduct() {
   const onSubmit = async () => {
     try {
       setToastLoading(true);
-      message.destroy();
+
       message.loading({ content: 'Đang cập nhật sản phẩm...', key: 'update' });
       await Promise.all(imagesToDelete.map((imgUrl) => callDeleteFile(imgUrl)));
       const formValues = form.getFieldsValue();
@@ -103,39 +101,36 @@ function EditProduct() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-semibold mb-6">Chỉnh sửa sản phẩm</h1>
-
+    <div className="min-h-screen p-4 sm:p-6">
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+          Thêm sản phẩm mới
+        </h1>
+      </div>
       <Form form={form} layout="vertical" autoComplete="off">
-        <div className="bg-white rounded-lg p-6 shadow-sm space-y-6">
-          <CommonInformation
-            brands={brands}
-            categories={categories}
-            product={product}
-            form={form}
-          />
-          <Specifications
-            setProduct={setProduct}
-            product={product}
-            form={form}
-          />
-          <ConnectionInformation
-            setProduct={setProduct}
-            product={product}
-            form={form}
-          />
-          <CameraInformations
-            setProduct={setProduct}
-            product={product}
-            form={form}
-          />
-          <Variants
-            setProduct={setProduct}
-            setImagesToDelete={setImagesToDelete}
-            product={product}
-            form={form}
-          />
-        </div>
+        <CommonInformation
+          brands={brands}
+          categories={categories}
+          product={product}
+          form={form}
+        />
+        <Specifications setProduct={setProduct} product={product} form={form} />
+        <ConnectionInformation
+          setProduct={setProduct}
+          product={product}
+          form={form}
+        />
+        <CameraInformations
+          setProduct={setProduct}
+          product={product}
+          form={form}
+        />
+        <Variants
+          setProduct={setProduct}
+          setImagesToDelete={setImagesToDelete}
+          product={product}
+          form={form}
+        />
 
         <div className="px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-end">

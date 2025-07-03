@@ -18,7 +18,7 @@ function useLogin(message) {
     usersService
       .login(value)
       .then((response) => {
-        message.destroy();
+  
         if (response.status === 201) {
           const accessToken = response.data.data.access_token;
           localStorage.setItem('access_token', accessToken);
@@ -30,7 +30,7 @@ function useLogin(message) {
         }
       })
       .catch((error) => {
-        message.destroy();
+        
         message.error(`Lỗi: ${error.message}`);
       });
   }

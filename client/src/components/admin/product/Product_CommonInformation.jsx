@@ -35,11 +35,15 @@ function CommonInformation({ brands, product, categories, form }) {
 
   return (
     <>
-      <div className="flex gap-12 items-center">
-        <span className="text-sm text-primary font-medium">
-          Thông tin chung
-        </span>
-        <div className="flex-1 border-t border-t-gray-300"></div>
+      <div className="flex gap-4 items-center mb-10 relative">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-primary font-semibold tracking-wide uppercase letter-spacing-0.5 relative">
+            Thông tin kết nối
+          </span>
+        </div>
+        <div className="flex-1 relative">
+          <div className="border-t border-r-300 opacity-60 text-primary"></div>
+        </div>
       </div>
 
       <Row gutter={[10, 0]}>
@@ -83,7 +87,7 @@ function CommonInformation({ brands, product, categories, form }) {
           </Form.Item>
         </Col>
 
-        <Col span={4} >
+        <Col span={4}>
           <Form.Item name="isActive" label="Trạng thái" valuePropName="checked">
             <Switch />
           </Form.Item>

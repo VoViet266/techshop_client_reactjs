@@ -24,9 +24,8 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
   const [previewImage, setPreviewImage] = useState('');
 
   const { message } = useAppContext();
-  
+
   useEffect(() => {
-    
     if (product) {
       form?.setFieldsValue({ variants: product.variants });
     }
@@ -112,6 +111,7 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
   };
 
   const handleAddVariant = () => {
+    console.log('các', product);
     setProduct((currentProduct) => ({
       ...currentProduct,
       variants: [
@@ -138,15 +138,6 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
           variants: newVariants,
         };
       });
-
-      setProductError((currentError) => {
-        const newVariants = [...currentError.variants];
-        newVariants.splice(index, 1);
-        return {
-          ...currentError,
-          variants: newVariants,
-        };
-      });
     }
   };
 
@@ -168,9 +159,15 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
 
   return (
     <div className="flex flex-col gap-6 mt-8">
-      <div className="flex gap-12 items-center">
-        <span className="text-sm text-primary font-medium">Biến thể</span>
-        <div className="flex-1 border-t border-t-gray-300" />
+      <div className="flex gap-4 items-center mb-10 relative">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-primary font-semibold tracking-wide uppercase letter-spacing-0.5 relative">
+            Thông tin biến thể
+          </span>
+        </div>
+        <div className="flex-1 relative">
+          <div className="border-t border-r-300 opacity-60 text-primary"></div>
+        </div>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -182,11 +179,8 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
       </div>
 
       <div className="space-y-6">
-        {product.variants?.map((variant, index) => (
-          <Card
-            key={index}
-            className={`relative ${index !== 0 ? 'pt-12' : ''}`}
-          >
+        {product.variants.map((variant, index) => (
+          <div key={index} className={`relative ${index !== 0 ? 'pt-12' : ''}`}>
             {index !== 0 && (
               <Button
                 type="text"
@@ -262,17 +256,24 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
             </Row>
 
             <Row>
-              <Col span={24}>
+              <Col
+                span={24}
+                style={{
+                  height: 300,
+                }}
+              >
                 <Form.Item
                   label="Hình ảnh"
                   name={['variants', index, 'images']}
+                  // style={{
+                  //   height: 250,
+                  // }}
                 >
                   <Dragger
                     name="files"
                     accept="image/*"
-                    // maxCount={1}
                     listType="picture"
-                    className="w-full min-h-[200px] focus:border-gray-400 rounded-md p-6 border-dashed border border-gray-300 hover:border-gray-400"
+                    // className="min-h-[300px] h-auto py-8 px-6 border-dashed border-2 border-gray-300 hover:border-gray-400 rounded-md"
                     onPreview={(file) => handlePreview(file)}
                     onRemove={(file) => handleDraggerRemove(file, index)}
                     beforeUpload={(file) => {
@@ -300,7 +301,12 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
                     }
                     onChange={(event) => handleFileChange(event, index)}
                   >
-                    <div className="flex flex-col items-center justify-center">
+                    <div
+                      className="flex flex-col items-center justify-center "
+                      style={{
+                        height: '150px ',
+                      }}
+                    >
                       <UploadOutlined className="text-5xl text-gray-400 mb-4" />
                       <span className="text-gray-600 text-base">
                         Kéo hoặc chọn ảnh
@@ -322,7 +328,7 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
                 </Form.Item>
               </Col>
             </Row>
-          </Card>
+          </div>
         ))}
       </div>
     </div>

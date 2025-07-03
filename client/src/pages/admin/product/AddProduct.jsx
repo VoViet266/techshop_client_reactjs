@@ -8,29 +8,22 @@ import {
 
 import Files from '@services/files';
 import Brands from '@services/brands';
+import Categories from '@services/categories';
+import Products from '@/services/products';
 
 import { useAppContext } from '@contexts';
-
-import Categories from '@services/categories';
 import { useNavigate } from 'react-router-dom';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useState, useRef, useEffect } from 'react';
-import { Button, Form, message } from 'antd';
-import Products from '@/services/products';
+import { useState, useEffect } from 'react';
+import { Button, Form } from 'antd';
 
 function AddProduct() {
   const { message } = useAppContext();
-
   const navigate = useNavigate();
-
-  const categoryDropdownRef = useRef(null);
-  const [brands, setBrands] = useState([]);
+  const [form] = Form.useForm();
 
   const [loading, setLoading] = useState(false);
+  const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [showBrandDropdown, setShowBrandDropdown] = useState(false);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-
   const [product, setProduct] = useState({
     name: '',
     description: '',
@@ -84,13 +77,32 @@ function AddProduct() {
       },
     ],
   });
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
 
-  function removeEmptyFields(obj) {
+  const fetchInitialData = async () => {
+    setLoading(true);
+    try {
+      const [fetchedCategories, fetchedBrands] = await Promise.all([
+        Categories.getAll(),
+        Brands.getAll(),
+      ]);
+      setCategories(fetchedCategories);
+      setBrands(fetchedBrands);
+    } catch (error) {
+      console.error(error);
+      message.error('Lỗi khi tải dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeEmptyFields = (obj) => {
     const filtered = {};
 
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
-
       if (value !== null && value !== undefined) {
         if (Array.isArray(value)) {
           if (value.length > 0) {
@@ -111,47 +123,19 @@ function AddProduct() {
           if (Object.values(nestedObj).length > 0) {
             filtered[key] = nestedObj;
           }
-        } else if (value !== '') {
-          filtered[key] = value;
         }
       }
     });
 
     return filtered;
-  }
-  async function fetchCategories() {
-    try {
-      setLoading(true);
-      const categories = await Categories.getAll();
-      setCategories(categories);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchBrands() {
-    try {
-      setLoading(true);
-      const brands = await Brands.getAll();
-      setBrands(brands);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchCategories();
-    fetchBrands();
-  }, []);
-
+  };
   const onSubmit = async () => {
     try {
+      setProduct(form.getFieldsValue());
+      console.log(product);
       message.loading('Đang thêm sản phẩm');
-      const productToSubmit = removeEmptyFields({ ...product });
+      const productToSubmit = product;
+      console.log(productToSubmit);
 
       for (let i = 0; i < productToSubmit.variants.length; i++) {
         const variant = productToSubmit.variants[i];
@@ -166,15 +150,15 @@ function AddProduct() {
       const addProduct = await Products.add(productToSubmit);
 
       if (addProduct) {
-        message.destroyLoading();
+      
         message.success('Thêm sản phẩm thành công');
         navigate('/admin/product');
       }
     } catch (error) {
+      console.error(error);
       message.error('Thêm sản phẩm thất bại');
     }
   };
-
   return (
     <div className="min-h-screen p-4 sm:p-6">
       <div className="mb-8">
@@ -182,21 +166,17 @@ function AddProduct() {
           Thêm sản phẩm mới
         </h1>
       </div>
-      <Form autoComplete="off" layout="vertical">
+
+      <Form form={form} layout="vertical" autoComplete="off">
         <CommonInformation
           brands={brands}
-          product={product}
           categories={categories}
-          setProduct={setProduct}
+          form={form}
         />
-
-        <Specifications setProduct={setProduct} product={product} />
-
-        <ConnectionInformation product={product} setProduct={setProduct} />
-
-        <CameraInformations setProduct={setProduct} product={product} />
-
-        <Variants product={product} setProduct={setProduct} />
+        <Specifications form={form} />
+        <ConnectionInformation form={form} />
+        <CameraInformations form={form} />
+        <Variants form={form} product={product} setProduct={setProduct} />
 
         <div className="px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-end">
@@ -204,8 +184,8 @@ function AddProduct() {
               <Button
                 size="large"
                 disabled={loading}
-                className="min-w-[120px] border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800 focus:border-blue-500 focus:text-blue-600"
                 onClick={() => navigate(-1)}
+                className="min-w-[120px] border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
               >
                 Hủy bỏ
               </Button>
@@ -214,7 +194,7 @@ function AddProduct() {
                 size="large"
                 loading={loading}
                 onClick={onSubmit}
-                className="min-w-[120px] bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 disabled:bg-gray-400"
+                className="min-w-[120px] bg-blue-600 hover:bg-blue-700"
               >
                 {loading ? 'Đang xử lý...' : 'Thêm sản phẩm'}
               </Button>

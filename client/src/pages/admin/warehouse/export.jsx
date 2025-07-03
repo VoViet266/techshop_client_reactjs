@@ -804,7 +804,6 @@ const WarehouseOutbound = () => {
             title="Danh sách sản phẩm xuất"
             style={{
               marginTop: '16px',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
             }}
           >
             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
@@ -863,7 +862,6 @@ const WarehouseOutbound = () => {
           title="Chi tiết sản phẩm xuất kho"
           style={{
             marginTop: '24px',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Table
@@ -934,7 +932,6 @@ const WarehouseOutbound = () => {
         title="Lịch sử xuất kho"
         style={{
           marginTop: '24px',
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
         }}
       >
         <Table

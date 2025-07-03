@@ -567,7 +567,7 @@ const PermissionsManagement = () => {
           </Button>,
         ]}
         width={600}
-        destroyOnClose
+        OnClose
       >
         <Form
           form={form}

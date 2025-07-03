@@ -477,7 +477,7 @@ const UserRoleManagement = () => {
           </Button>,
         ]}
         width={600}
-        destroyOnClose
+        OnClose
       >
         <Form
           form={form}

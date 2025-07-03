@@ -594,7 +594,7 @@ const RoleManagement = () => {
           </Button>,
         ]}
         width={900}
-        destroyOnClose
+        OnClose
         style={{ top: 20 }}
       >
         <Form

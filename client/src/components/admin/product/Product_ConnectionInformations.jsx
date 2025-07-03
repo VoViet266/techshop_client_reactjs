@@ -1,5 +1,7 @@
-import { Form, Input, Switch, Row, Col } from 'antd';
+import { Form, Input, Switch, Row, Col, Select } from 'antd';
 import { useEffect } from 'react';
+
+const { Option } = Select;
 
 function ConnectionInformation({ product, form }) {
   useEffect(() => {
@@ -10,6 +12,8 @@ function ConnectionInformation({ product, form }) {
           ports: Array.isArray(product.connectivity?.ports)
             ? product.connectivity.ports.join(', ')
             : '',
+          nfc: product.connectivity?.nfc?.toString(),
+          gps: product.connectivity?.gps?.toString(),
         },
       });
     }
@@ -17,11 +21,15 @@ function ConnectionInformation({ product, form }) {
 
   return (
     <>
-      <div className="flex gap-12 items-center mb-2">
-        <span className="text-sm text-primary font-medium">
-          Thông tin kết nối
-        </span>
-        <div className="flex-1 border-t border-t-gray-300"></div>
+      <div className="flex gap-4 items-center mb-10 relative">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-primary font-semibold tracking-wide uppercase letter-spacing-0.5 relative">
+            Thông tin kết nối
+          </span>
+        </div>
+        <div className="flex-1 relative">
+          <div className="border-t border-r-300 opacity-60 text-primary"></div>
+        </div>
       </div>
 
       <Row gutter={[10, 0]}>
@@ -38,12 +46,11 @@ function ConnectionInformation({ product, form }) {
         </Col>
 
         <Col span={8}>
-          <Form.Item
-            name={['connectivity', 'nfc']}
-            label="NFC"
-            valuePropName="checked"
-          >
-            <Switch checkedChildren="Có" unCheckedChildren="Không" />
+          <Form.Item name={['connectivity', 'nfc']} label="NFC">
+            <Select placeholder="Chọn NFC">
+              <Option value="true">Có</Option>
+              <Option value="false">Không</Option>
+            </Select>
           </Form.Item>
         </Col>
 
@@ -63,12 +70,11 @@ function ConnectionInformation({ product, form }) {
         </Col>
 
         <Col span={8}>
-          <Form.Item
-            name={['connectivity', 'gps']}
-            label="GPS"
-            valuePropName="checked"
-          >
-            <Switch checkedChildren="Có" unCheckedChildren="Không" />
+          <Form.Item name={['connectivity', 'gps']} label="GPS">
+            <Select placeholder="Chọn GPS">
+              <Option value="true">Có</Option>
+              <Option value="false">Không</Option>
+            </Select>
           </Form.Item>
         </Col>
       </Row>

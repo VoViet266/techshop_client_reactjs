@@ -792,7 +792,7 @@ const UserManagement = () => {
           </Button>,
         ]}
         width={700}
-        destroyOnClose
+        OnClose
       >
         <Form
           form={form}
