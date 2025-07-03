@@ -36,7 +36,6 @@ function Cart() {
       if (response.status === 200) {
         setCartItems(response.data.data.items);
         setLoading(false);
-        message.success('Lấy giỏ hàng thành công');
       }
     } catch (error) {
       message.error('Không thể lấy giỏ hàng');
@@ -47,15 +46,6 @@ function Cart() {
   useEffect(() => {
     getCart();
   }, []);
-
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      console.log('Cart items:', cartItems);
-    }
-    if (deleteItem) {
-      console.log('Delete item:', deleteItem);
-    }
-  }, [cartItems, deleteItem]);
 
   const updateQuantity = (id, value) => {
     if (value < 1) return;
@@ -74,7 +64,6 @@ function Cart() {
       if (response.status === 200) {
         await getCart();
         message.destroy();
-        await getCart();
         message.success('Xóa sản phẩm khỏi giỏ hàng thành công');
         setOpen(false);
         setConfirmLoading(false);
@@ -191,6 +180,7 @@ function Cart() {
   ];
 
   const rowSelection = {
+    selectedRowKeys,
     onChange: (newSelectedRowKeys) => {
       setSelectedRowKeys(newSelectedRowKeys);
     },
@@ -238,18 +228,18 @@ function Cart() {
             setOpen(true);
             setDeleteType('all');
           }}
-          // disabled={
-          //   !(
-          //     selectedRowKeys.length === cartItems.length &&
-          //     cartItems.length > 0
-          //   )
-          // }
+          disabled={
+            !(
+              selectedRowKeys.length === cartItems.length &&
+              cartItems.length > 0
+            )
+          }
           className="absolute! z-10 left-840! -top-40"
         >
           Xóa tất cả
         </Button>
         <Table
-          rowKey="id"
+          rowKey={(record) => `${record.product._id}-${record.variant._id}`}
           columns={columns}
           pagination={false}
           dataSource={cartItems}
