@@ -20,7 +20,7 @@ createRoot(document.getElementById('root')).render(
             activeShadow: '0',
           },
           Select: {
-            controlHeight: 40,
+            // controlHeight: 40,
           },
           Card: {
             padding: 0,
