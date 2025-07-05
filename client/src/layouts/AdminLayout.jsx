@@ -42,7 +42,6 @@ import {
 } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { callLogout } from '@/services/apis';
-import useMessage from '@/hooks/useMessage';
 
 function AdminLayout() {
   const { Title, Text } = Typography;

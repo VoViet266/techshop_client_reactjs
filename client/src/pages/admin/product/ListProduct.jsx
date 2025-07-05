@@ -723,7 +723,6 @@ function ListProduct() {
                   total: total,
                   showSizeChanger: false,
                   onChange: (page) => {
-                    console.log(page);
                     setSearchParams({
                       _page: page.toString(),
                     });

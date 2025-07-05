@@ -15,6 +15,7 @@ import {
   Flex,
   Drawer,
 } from 'antd';
+import { BsShop, BsSignTurnRightFill, BsCartPlusFill } from 'react-icons/bs';
 import {
   ShoppingCartOutlined,
   HeartOutlined,
@@ -22,20 +23,26 @@ import {
   CheckCircleOutlined,
   GiftOutlined,
   CreditCardOutlined,
+  RightOutlined,
 } from '@ant-design/icons';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-import { ImagesSlider } from '@components/app';
+// import { ImagesSlider } from '@components/app';
 import { useAppContext } from '@contexts';
 import { Comments } from '@components/products';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ProductSpecification } from '@components/products';
 import { ProductInformation, ProductDescription } from '@components/products';
-import { callRecommentProduct } from '@/services/apis';
+import {
+  callFetchBranches,
+  callFetchStats,
+  callRecommentProduct,
+} from '@/services/apis';
 import { formatCurrency } from '@/helpers';
 import CartServices from '@/services/carts';
+import { FaStore } from 'react-icons/fa';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -45,15 +52,20 @@ function ProductDetail() {
   const { user } = useAppContext();
   const [comment, setComment] = useState('');
   const [product, setProduct] = useState({});
+  const [branchs, setBranchs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState({});
   const [selectedMemory, setSelectedMemory] = useState({});
-  const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
+  const [detailDrawerSpecsVisible, setDetailDrawerSpecsVisible] =
+    useState(false);
+  const [drawerAddressVisible, setDrawerAddessVisible] = useState(false);
   const [recommnentProducts, setRecommentProducts] = useState([]);
-  const { message } = useAppContext();
+  const { message, setShowLogin } = useAppContext();
+  const [stats, setStats] = useState({});
 
   useEffect(() => {
     document.title = 'TechShop | Chi tiết sản phẩm';
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -71,9 +83,17 @@ function ProductDetail() {
     };
     fetchProductDetail();
   }, [id]);
-
+  const fetchStats = async () => {
+    try {
+      const res = await callFetchStats(id);
+      setStats(res.data.data.data);
+    } catch (error) {
+      console.error('Đã có lỗi xảy ra:', error);
+    }
+  };
   const fetchRecommentProducts = async () => {
     try {
+      setLoading(true);
       const res = await callRecommentProduct(id);
       setRecommentProducts(res.data.data);
     } catch (error) {
@@ -85,6 +105,19 @@ function ProductDetail() {
 
   useEffect(() => {
     fetchRecommentProducts();
+  }, [id]);
+
+  const fetchBranchs = async () => {
+    try {
+      const res = await callFetchBranches();
+      setBranchs(res.data.data);
+      console.log(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchBranchs();
   }, []);
 
   const handleAddItemsToCart = async (items) => {
@@ -104,7 +137,7 @@ function ProductDetail() {
       message.error('Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
     }
   };
-  const selectedVariant = product.variants?.find(
+  const selectedVariant = product?.variants?.find(
     (v) =>
       v.memory?.ram === selectedMemory?.ram &&
       v.memory?.storage === selectedMemory?.storage &&
@@ -121,11 +154,11 @@ function ProductDetail() {
   const allImages = selectedVariant?.images || [];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <Row gutter={24}>
+    <div className=" min-h-screen rounded-[10px]">
+      <div className="max-w-7xl mx-auto rounded-[10px]">
+        <Row gutter={[10, 10]}>
           <Col span={14}>
-            <Card className="h-full">
+            <Card className="h-full" hoverable>
               <div
                 className="relative"
                 style={{
@@ -190,7 +223,7 @@ function ProductDetail() {
                 <Row
                   gutter={16}
                   onClick={() => {
-                    setDetailDrawerVisible(true);
+                    setDetailDrawerSpecsVisible(true);
                   }}
                   style={{ cursor: 'pointer', padding: 20 }}
                 >
@@ -227,19 +260,25 @@ function ProductDetail() {
           </Col>
 
           <Col span={10}>
-            <Card>
+            <Card hoverable>
               <div className="mb-4">
                 <Title level={3} className="mb-2">
                   {product.name}
                 </Title>
-                <div className="flex items-center gap-2 mb-2">
-                  <Rate disabled defaultValue={0} className="text-sm" />
-                  <Text type="secondary">0 đánh giá</Text>
+                <div className="flex items-center gap-20 mb-10">
+                  <Rate
+                    disabled
+                    defaultValue={stats?.averageRating}
+                    className="text-sm"
+                  />
+                  <Text type="secondary">
+                    {stats?.totalComments} Lượt đánh giá
+                  </Text>
                   <Button
                     type="link"
                     size="small"
                     className="p-0"
-                    onClick={() => setDetailDrawerVisible(true)}
+                    onClick={() => setDetailDrawerSpecsVisible(true)}
                   >
                     Thông số kỹ thuật
                   </Button>
@@ -394,25 +433,16 @@ function ProductDetail() {
                 </div>
               </div>
               <div className="space-y-3">
-                <Button
-                  type="primary"
-                  size="large"
-                  block
-                  className="bg-red-600 hover:bg-red-700 border-red-600 h-12 font-semibold"
-                  icon={<ShoppingCartOutlined />}
-                >
-                  CHỌN MUA
-                </Button>
-
-                <Row gutter={12}>
+                <Row gutter={[10, 10]}>
                   <Col span={12}>
                     <Button
+                      type="primary"
                       size="large"
                       block
-                      className="h-12"
-                      icon={<HeartOutlined />}
+                      className="bg-red-600 hover:bg-red-700 border-red-600  font-semibold"
+                      icon={<ShoppingCartOutlined />}
                     >
-                      Yêu thích
+                      Mua ngay
                     </Button>
                   </Col>
                   <Col span={12}>
@@ -420,7 +450,7 @@ function ProductDetail() {
                       size="large"
                       block
                       className="h-12"
-                      icon={<ShoppingCartOutlined />}
+                      icon={<BsCartPlusFill />}
                       onClick={async () => {
                         if (!user) {
                           message.warning(
@@ -440,10 +470,28 @@ function ProductDetail() {
                       Thêm vào giỏ hàng
                     </Button>
                   </Col>
+                  <Col span={24}>
+                    <Card
+                      hoverable
+                      style={{ borderRadius: 8 }}
+                      bodyStyle={{ padding: 16 }}
+                      onClick={() => setDrawerAddessVisible(true)}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <BsShop className="text-gray-500 text-xl" />
+                          <span className="font-medium text-gray-900">
+                            Dang sách cửa hàng
+                          </span>
+                        </div>
+                        <RightOutlined className="text-gray-400" />
+                      </div>
+                    </Card>
+                  </Col>
                 </Row>
               </div>
-              {/* Features */}
-              <div className="mt-6 pt-6 border-t">
+
+              <div className="mt-6 pt-6 ">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircleOutlined className="text-green-500" />
@@ -463,9 +511,10 @@ function ProductDetail() {
           </Col>
         </Row>
 
-        <Row gutter={24} className="mt-6">
+        <Row gutter={[10, 10]} className="mt-6">
           <Col span={14}>
             <Card
+              hoverable
               style={{
                 width: '100%',
                 maxWidth: '100%',
@@ -505,6 +554,7 @@ function ProductDetail() {
           </Col>
           <Col span={10}>
             <Card
+              hoverable
               className="recomment-product"
               style={{
                 borderRadius: '8px',
@@ -545,10 +595,8 @@ function ProductDetail() {
                             style={{
                               width: '100px',
                               height: '100px',
-                              flexShrink: 0,
+
                               borderRadius: '8px',
-                              overflow: 'hidden',
-                              padding: 10,
                             }}
                           >
                             {product.variants[0].images.length > 0 ? (
@@ -593,21 +641,7 @@ function ProductDetail() {
                               minWidth: 0,
                             }}
                           >
-                            <div
-                              style={{
-                                fontWeight: 500,
-                                color: '#111827',
-                                fontSize: '14px',
-                                lineHeight: '1.25',
-                                marginBottom: '4px',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              {product.name}
-                            </div>
+                            <Text strong>{product.name}</Text>
                             <div
                               style={{
                                 display: 'flex',
@@ -638,7 +672,7 @@ function ProductDetail() {
                                   >
                                     {product.originalPrice.toLocaleString(
                                       'vi-VN',
-                                    )}{' '}
+                                    )}
                                     ₫
                                   </span>
                                 )}
@@ -687,11 +721,47 @@ function ProductDetail() {
       </div>
 
       <Drawer
-        open={detailDrawerVisible}
+        open={detailDrawerSpecsVisible}
         placement="left"
-        onClose={() => setDetailDrawerVisible(false)}
+        onClose={() => setDetailDrawerSpecsVisible(false)}
       >
         <ProductSpecification product={product} />
+      </Drawer>
+
+      <Drawer
+        title={'Danh sách cửa hàng'}
+        open={drawerAddressVisible}
+        placement="right"
+        onClose={() => setDrawerAddessVisible(false)}
+        width={600}
+        style={{ background: '#f5f5f5' }}
+      >
+        <Row gutter={[10, 10]}>
+          {branchs.map((branch) => (
+            <Col span={24} key={branch.id}>
+              <Card title={branch.name} className="flex! flex-col! p-[10px]!">
+                <Text strong className="block! text-[16px]! my-[5px]!">
+                  {branch.address}
+                </Text>
+                <Button
+                  icon={<BsSignTurnRightFill />}
+                  className="flex! p-[20px]! w-[200px]! my-20! rounded-2xl! bg-primary! text-white! font-medium!"
+                  onClick={() => {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                      const origin = `${position.coords.latitude},${position.coords.longitude}`;
+                      const destination =
+                        '16.163951015563573,107.69555685335028';
+                      const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+                      window.open(url, '_blank');
+                    });
+                  }}
+                >
+                  Xem chỉ đường
+                </Button>
+              </Card>
+            </Col>
+          ))}
+        </Row>
       </Drawer>
     </div>
   );

@@ -1,9 +1,4 @@
-import {
-  SearchBox,
-  ErrorToast,
-  LoadingToast,
-  SuccessToast,
-} from '@/components/app';
+import { SearchBox } from '@/components/app';
 import { useEffect } from 'react';
 import { useAppContext } from '@contexts';
 import { Login, Signup } from '@pages/app';
@@ -60,13 +55,12 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, toastLoading, loadingError, loadingSuccess } =
-    useAppContext();
+  const { showLogin, showSignup, message } = useAppContext();
 
   return (
     <Layout className="font-roboto! relative! flex! flex-col! items-center!">
       <Header />
-      <Layout.Content className="w-5/6 bg-white mt-60 flex flex-col items-center">
+      <Layout.Content className="w-5/6 bg-[#f5f5f5] mt-60 flex flex-col items-center rounded-[10px]">
         <Outlet />
         {showLogin && <Login />}
         {showSignup && <Signup />}
@@ -76,9 +70,7 @@ function UsersLayout() {
           icon={<CustomerServiceOutlined />}
         />
       </Layout.Content>
-      {loadingError && <ErrorToast />}
-      {toastLoading && <LoadingToast />}
-      {loadingSuccess && <SuccessToast />}
+
       {/* <footer>Footer</footer> */}
     </Layout>
   );

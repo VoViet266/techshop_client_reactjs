@@ -350,5 +350,24 @@ export const callDeleteFile = (url) => {
 export const callRecommentProduct = (id) => {
   return axiosInstance.get(`api/v1/recommendation/${id}`)
 }
+export const callCreateReview = (value) => {
+
+  return axiosInstance.post(`api/v1/review`, {
+    ...value
+  })
+}
+export const callFetchReviewByProduct = (id, page, limit) => {
+
+  const params = { page, limit }
+
+  return axiosInstance.get(`api/v1/review/${id}`, { params })
+}
+export const callFetchStats = (id) => {
+  return axiosInstance.get(`api/v1/products/${id}/rating-stats`)
+}
+
+export const callReplyReview = (commentId, replyData) => {
+  return axiosInstance.post(`/api/v1/review/${commentId}/reply`, replyData);
+}
 
 export default axiosInstance; 
