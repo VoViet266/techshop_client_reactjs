@@ -56,15 +56,7 @@ const ChatBot = () => {
                 className={`${msg.sender === 'user' ? 'text-right' : 'text-left'} mb-8`}
               >
                 <Text
-                  style={{
-                    backgroundColor:
-                      msg.sender === 'user' ? '#d6f2ff' : '#f1f1f1',
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    display: 'inline-block',
-                    maxWidth: '80%',
-                    whiteSpace: 'pre-line',
-                  }}
+                  className={`py-8! px-12! rounded-lg! inline-block! max-w-[80%]! whitespace-pre-line! ${msg.sender === 'user' ? 'bg-[#d6f2ff]!' : 'bg-[#f1f1f1]!'}`}
                 >
                   {msg.sender === 'bot' ? (
                     <ReactMarkdown rehypePlugins={[rehypeRaw]}>
@@ -79,28 +71,22 @@ const ChatBot = () => {
           </div>
           <Input.Search
             value={input}
-            onChange={(e) => setInput(e.target.value)}
             onSearch={handleSend}
-            enterButton={<SendOutlined />}
             placeholder="Nhập câu hỏi..."
+            enterButton={<SendOutlined />}
+            onChange={(e) => setInput(e.target.value)}
           />
         </div>
       )}
 
       {!visible && (
         <Button
-          type="primary"
-          shape="circle"
-          icon={<MessageOutlined />}
           size="large"
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            zIndex: 1000,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          }}
+          shape="circle"
+          type="primary"
           onClick={toggleChat}
+          icon={<MessageOutlined />}
+          className="fixed! bottom-24! right-24! z-1000! shadow-[0_2px_8px_rgba(0,0,0,0.2)]!"
         />
       )}
     </>
