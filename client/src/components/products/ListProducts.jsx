@@ -42,7 +42,6 @@ function ListProducts(properties) {
     setCurrentPage = {},
   } = properties;
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -71,7 +70,6 @@ function ListProducts(properties) {
     setSort(null);
   };
 
-  // Sửa logic sắp xếp - không cần thay đổi products gốc
   const handleSortChange = (value) => {
     setSort(value);
   };
@@ -80,11 +78,10 @@ function ListProducts(properties) {
     setFilter((prev) => ({
       ...prev,
       priceRange: value,
-      price: null, // Reset fixed price range khi dùng slider
+      price: null,
     }));
   };
 
-  // Price ranges
   const priceRanges = [
     { label: 'Dưới 2 triệu', value: [0, 2000000] },
     { label: 'Từ 2 - 4 triệu', value: [2000000, 4000000] },

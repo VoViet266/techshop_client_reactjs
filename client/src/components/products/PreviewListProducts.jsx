@@ -100,11 +100,7 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
           {products.map((product, index) => {
             return (
               <div key={index} className="px-8">
-                <CardProduct
-                  product={product}
-                  loading={loading}
-                  className="w-full!"
-                />
+                <CardProduct product={product} />
               </div>
             );
           })}

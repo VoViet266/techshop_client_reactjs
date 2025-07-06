@@ -12,6 +12,7 @@ import {
   Carousel,
   Flex,
   Drawer,
+  Slider,
 } from 'antd';
 import { BsShop, BsSignTurnRightFill, BsCartPlusFill } from 'react-icons/bs';
 import {
@@ -37,7 +38,8 @@ import {
 } from '@/services/apis';
 import { formatCurrency } from '@/helpers';
 import CartServices from '@/services/carts';
-import { Content } from 'antd/es/layout/layout';
+
+import SliderProduct from '@/components/app/ImagesSlider';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -158,26 +160,26 @@ function ProductDetail() {
       <div className="max-w-7xl mx-auto rounded-[10px]">
         <Row gutter={[10, 10]}>
           <Col span={14}>
-            <Card className="h-full" hoverable>
-              <div
-                className="relative"
-                style={{
-                  border: '1px solid #d1d5db',
-                  borderRadius: '15px',
-                }}
-              >
-                <Carousel
-                  className="custom-carousel"
+            <Card className="h-full!">
+              <div className="relative border border-gray-200 rounded-[15px]">
+                {/* <Carousel
+                  className="custom-carousel rounded-[15px]! max-h-[400px]! min-h-[450px]!"
                   arrows
                   dots
                   slidesToShow={1}
                   slidesToScroll={1}
                   draggable
                   infinite
-                  style={{
-                    borderRadius: '15px',
-                    padding: '5px',
-                  }}
+                  responsive={[
+                    {
+                      breakpoint: 1024,
+                      settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        infinite: true,
+                      },
+                    },
+                  ]}
                 >
                   {allImages.length === 0 ? (
                     <div className="gallery-item">
@@ -191,30 +193,20 @@ function ProductDetail() {
                     </div>
                   ) : (
                     allImages.map((image, index) => (
-                      <div
-                        key={index}
-                        className="gallery-item"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          borderRadius: '15px',
-                          padding: '5px',
-                        }}
-                      >
+                      <div key={index} className="gallery-item">
                         <Image
+                          className="object-contain! w-full! h-full! rounded-lg!"
                           src={image}
-                          preview
-                          width={'100%'}
-                          height="400px"
-                          style={{
-                            objectFit: 'contain',
-                            borderRadius: '15px',
-                          }}
+                          preview={false}
+                          width="100%"
+                          height="450px"
                         />
                       </div>
                     ))
                   )}
-                </Carousel>
+                </Carousel> */}
+
+                <SliderProduct images={allImages} />
               </div>
               <div className="mt-10 p-5 border border-gray-300 rounded-lg">
                 <Title level={4} className="mb-4 mt-10">
@@ -260,7 +252,7 @@ function ProductDetail() {
           </Col>
 
           <Col span={10}>
-            <Card hoverable>
+            <Card>
               <div className="mb-4">
                 <Title level={3} className="mb-2">
                   {product.name}
@@ -363,14 +355,14 @@ function ProductDetail() {
                             }}
                             onClick={() => setSelectedColor(variant.color.name)}
                           >
-                            <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
+                            <div className="w-50 h-50 bg-gray-100 rounded overflow-hidden">
                               <Image
                                 preview={false}
                                 src={
                                   variant.images?.[0] ||
                                   'https://dummyimage.com/200x200/ccc/000&text=No+Image'
                                 }
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             </div>
                             <div>
@@ -439,7 +431,7 @@ function ProductDetail() {
                       type="primary"
                       size="large"
                       block
-                      className="bg-red-600 hover:bg-red-700 border-red-600  font-semibold"
+                      className="bg-red-600! hover:bg-red-700! border-red-600!  font-semibold! hover:shadow-md! shadow-md!"
                       icon={<ShoppingCartOutlined />}
                       onClick={async () => {
                         if (!user) {
@@ -464,7 +456,6 @@ function ProductDetail() {
                     <Button
                       size="large"
                       block
-                      className="h-12"
                       icon={<BsCartPlusFill />}
                       onClick={async () => {
                         if (!user) {
@@ -488,14 +479,14 @@ function ProductDetail() {
                   </Col>
                   <Col span={24}>
                     <Card
-                      hoverable
+                      className="shadow"
                       style={{ borderRadius: 8 }}
                       bodyStyle={{ padding: 16 }}
                       onClick={() => setDrawerAddessVisible(true)}
                     >
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <BsShop className="text-gray-500 text-xl" />
+                          <BsShop className="text-gray-500! text-xl!" />
                           <span className="font-medium text-gray-900">
                             Dang sách cửa hàng
                           </span>
@@ -530,7 +521,6 @@ function ProductDetail() {
         <Row gutter={[10, 10]} className="mt-6">
           <Col span={14}>
             <Card
-              hoverable
               style={{
                 width: '100%',
                 maxWidth: '100%',
@@ -570,7 +560,6 @@ function ProductDetail() {
           </Col>
           <Col span={10}>
             <Card
-              hoverable
               className="recomment-product"
               style={{
                 borderRadius: '8px',
