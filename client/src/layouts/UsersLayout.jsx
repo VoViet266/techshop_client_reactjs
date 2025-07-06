@@ -6,7 +6,7 @@ import { ChatBot } from '@components/users';
 import { Outlet, Link } from 'react-router-dom';
 import { UserInformation } from '@components/users';
 import { CustomerServiceOutlined } from '@ant-design/icons';
-import { Layout, Typography, Button, Flex, FloatButton } from 'antd';
+import { Layout, Typography, Button, Flex, FloatButton, Spin } from 'antd';
 
 function Header() {
   const { setShowLogin, setShowSignup } = useAppContext();
@@ -56,24 +56,21 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, message } = useAppContext();
+  const { showLogin, showSignup, loading } = useAppContext();
 
   return (
     <Layout className="font-roboto! relative! flex! flex-col! items-center!">
       <Header />
-      <Layout.Content className="w-5/6 bg-[#f5f5f5] mt-60 flex flex-col items-center rounded-[10px]">
-        <Outlet />
-        {showLogin && <Login />}
-        {showSignup && <Signup />}
-        <ChatBot />
-        {/* <FloatButton
-          type="primary"
-          shape="circle"
-          icon={<CustomerServiceOutlined />}
-        /> */}
-      </Layout.Content>
-
-      {/* <footer>Footer</footer> */}
+      {loading ? (
+        <Spin />
+      ) : (
+        <Layout.Content className="w-5/6 bg-[#f5f5f5] mt-60 flex flex-col items-center rounded-[10px]">
+          <Outlet />
+          {showLogin && <Login />}
+          {showSignup && <Signup />}
+          <ChatBot />
+        </Layout.Content>
+      )}
     </Layout>
   );
 }

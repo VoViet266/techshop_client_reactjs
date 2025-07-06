@@ -5,8 +5,6 @@ import {
   Typography,
   Button,
   Card,
-  Breadcrumb,
-  Tag,
   Rate,
   Space,
   Tabs,
@@ -18,8 +16,6 @@ import {
 import { BsShop, BsSignTurnRightFill, BsCartPlusFill } from 'react-icons/bs';
 import {
   ShoppingCartOutlined,
-  HeartOutlined,
-  StarFilled,
   CheckCircleOutlined,
   GiftOutlined,
   CreditCardOutlined,
@@ -27,14 +23,13 @@ import {
 } from '@ant-design/icons';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-// import { ImagesSlider } from '@components/app';
 import { useAppContext } from '@contexts';
 import { Comments } from '@components/products';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ProductSpecification } from '@components/products';
-import { ProductInformation, ProductDescription } from '@components/products';
+import { ProductDescription } from '@components/products';
 import {
   callFetchBranches,
   callFetchStats,
@@ -42,7 +37,7 @@ import {
 } from '@/services/apis';
 import { formatCurrency } from '@/helpers';
 import CartServices from '@/services/carts';
-import { FaStore } from 'react-icons/fa';
+import { Content } from 'antd/es/layout/layout';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -62,6 +57,7 @@ function ProductDetail() {
   const [recommnentProducts, setRecommentProducts] = useState([]);
   const { message, setShowLogin } = useAppContext();
   const [stats, setStats] = useState({});
+  const { navigate } = useNavigate();
 
   useEffect(() => {
     document.title = 'TechShop | Chi tiết sản phẩm';
@@ -123,16 +119,20 @@ function ProductDetail() {
   const handleAddItemsToCart = async (items) => {
     const cartServices = new CartServices();
     try {
-      message.loading('Đang thêm sản phẩm vào giỏ hàng...');
+      message.loading({
+        content: 'Đang thêm sản phẩm vào giỏ hàng...',
+        key: 'loading',
+      });
       const response = await cartServices.add(items);
       if (response.status === 201) {
-        message.destroy();
-        message.success('Thêm sản phẩm vào giỏ hàng thành công');
+        message.success({
+          content: 'Thêm sản phẩm vào giỏ hàng thành công',
+          key: 'loading',
+        });
         return;
       }
       throw new Error('Thêm sản phẩm vào giỏ hàng thất bại');
     } catch (error) {
-      message.destroy();
       console.error('Error adding items to cart:', error);
       message.error('Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
     }
@@ -441,6 +441,21 @@ function ProductDetail() {
                       block
                       className="bg-red-600 hover:bg-red-700 border-red-600  font-semibold"
                       icon={<ShoppingCartOutlined />}
+                      onClick={async () => {
+                        if (!user) {
+                          message.warning('Vui lòng đăng nhập để đặt hàng!!');
+                          setShowLogin(true);
+                          return;
+                        }
+                        await handleAddItemsToCart([
+                          {
+                            product: product._id,
+                            variant: selectedVariant._id,
+                            quantity: 1,
+                          },
+                        ]);
+                        navigate('/cart');
+                      }}
                     >
                       Mua ngay
                     </Button>
@@ -456,6 +471,7 @@ function ProductDetail() {
                           message.warning(
                             'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
                           );
+                          setShowLogin(true);
                           return;
                         }
                         await handleAddItemsToCart([
@@ -723,6 +739,7 @@ function ProductDetail() {
       <Drawer
         open={detailDrawerSpecsVisible}
         placement="left"
+        width={600}
         onClose={() => setDetailDrawerSpecsVisible(false)}
       >
         <ProductSpecification product={product} />

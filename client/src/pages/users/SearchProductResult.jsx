@@ -3,6 +3,8 @@ import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PreviewListProducts, ListProducts } from '@/components/products';
+import { useAppContext } from '@/contexts';
+import { Content } from 'antd/es/layout/layout';
 
 function SearchProductResult() {
   const { query } = useParams();
@@ -19,13 +21,21 @@ function SearchProductResult() {
   });
   const [brands, setBrands] = useState([]);
   const [storages, setStorages] = useState([]);
+  const { message } = useAppContext();
 
   async function fetchSearchResult() {
     try {
+      message.loading({
+        content: 'Đang tìm kiếm sản phẩm...',
+        key: 'search',
+      });
       const result = await Products.search(query);
+      message.success({ content: 'Tìm kiếm thành công', key: 'search' });
       setResult(result);
       setLoading(false);
     } catch (error) {
+      setLoading(false);
+      message.error({ content: 'Không tìm thấy sản phẩm nào', key: 'search' });
       console.error(error.message);
     }
   }

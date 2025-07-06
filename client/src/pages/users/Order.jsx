@@ -60,8 +60,6 @@ function Order() {
       paymentMethod === 'Thanh toán khi nhận hàng' ? 'cash' : 'momo',
   };
 
-  // console.log(JSON.stringify)
-
   const getCart = async () => {
     try {
       const cartServices = new CartServices();

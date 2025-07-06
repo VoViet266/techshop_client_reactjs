@@ -46,7 +46,6 @@ function AppProvider({ children }) {
     verifyToken();
   }, []);
 
-  // Hàm đăng xuất
   const logout = async () => {
     try {
       await callLogout();
@@ -64,7 +63,6 @@ function AppProvider({ children }) {
     return !!user && !!localStorage.getItem('access_token');
   };
 
-  // Hàm kiểm tra quyền admin
   const isAdmin = () => {
     return user && user?.permission.length > 0;
   };

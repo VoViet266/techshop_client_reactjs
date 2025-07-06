@@ -8,7 +8,12 @@ const renderDescriptions = (title, data) => (
     <Title level={4}>{title}</Title>
     <Descriptions column={1} bordered size="small">
       {data.map((item) => (
-        <Descriptions.Item label={item.label} key={item.label}>
+        <Descriptions.Item
+          label={item.label}
+          key={item.label}
+          labelStyle={{ width: 200, fontWeight: 'bold' }}
+          className="text-base font-medium"
+        >
           {item.value}
         </Descriptions.Item>
       ))}

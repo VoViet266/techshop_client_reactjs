@@ -3,9 +3,46 @@ import rehypeRaw from 'rehype-raw';
 import ReactMarkdown from 'react-markdown';
 import { useState, useRef, useEffect } from 'react';
 import { Button, Input, Flex, Typography, Spin } from 'antd';
-import { SendOutlined, MessageOutlined } from '@ant-design/icons';
+import {
+  SendOutlined,
+  MessageOutlined,
+  CloseOutlined,
+  RobotOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 
 const { Text } = Typography;
+
+// Component hiệu ứng typing
+const TypingEffect = ({ text, speed = 30 }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
+
+  useEffect(() => {
+    let index = 0;
+    setDisplayText('');
+    setIsTyping(true);
+
+    const timer = setInterval(() => {
+      if (index < text.length) {
+        setDisplayText((prev) => prev + text[index]);
+        index++;
+      } else {
+        setIsTyping(false);
+        clearInterval(timer);
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return (
+    <div className="typing-container">
+      <ReactMarkdown rehypePlugins={[rehypeRaw]}>{displayText}</ReactMarkdown>
+      {isTyping && <span className="typing-cursor animate-pulse">|</span>}
+    </div>
+  );
+};
 
 const ChatBot = () => {
   const chatBoxRef = useRef(null);
@@ -13,6 +50,7 @@ const ChatBot = () => {
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
+  const [latestBotMessageIndex, setLatestBotMessageIndex] = useState(-1);
 
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -34,21 +72,40 @@ const ChatBot = () => {
     ]);
     setInput('');
     setLoading(true);
+
     try {
       const response = await axios.post('http://localhost:8080/chat', {
         message: input,
       });
+
       if (response.status === 201) {
-        setChatHistory((prev) => [
-          ...prev.slice(0, -1), // Xóa phần tử loading cuối cùng
-          { sender: 'bot', text: response.data.data.reply },
-        ]);
+        setChatHistory((prev) => {
+          const newHistory = [
+            ...prev.slice(0, -1), // Xóa phần tử loading cuối cùng
+            { sender: 'bot', text: response.data.data.reply, typing: true },
+          ];
+          // Cập nhật index của tin nhắn bot mới nhất
+          setLatestBotMessageIndex(newHistory.length - 1);
+          return newHistory;
+        });
         setLoading(false);
         return;
       }
       throw new Error('Không tìm thấy câu trả lời.');
     } catch (error) {
-      setChatHistory((prev) => prev.slice(0, -1)); // Xóa phần tử loading cuối cùng
+      setChatHistory((prev) => {
+        const newHistory = [
+          ...prev.slice(0, -1), // Xóa phần tử loading cuối cùng
+          {
+            sender: 'bot',
+            text: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
+            typing: true,
+          },
+        ];
+        // Cập nhật index của tin nhắn bot mới nhất
+        setLatestBotMessageIndex(newHistory.length - 1);
+        return newHistory;
+      });
       setLoading(false);
       console.error('Lỗi:', error);
     }
@@ -57,53 +114,104 @@ const ChatBot = () => {
   return (
     <>
       {visible && (
-        <div className="fixed! h-450 bottom-20! right-24! w-350! z-1000 bg-white p-16 shadow-[0_0_10px_rgba(0,0,0,0.15)]! rounded-xl! flex! flex-col!">
-          <Flex justify="space-between" align="center">
-            <Text className="text-base! font-medium!">ChatBot</Text>
-            <Button onClick={toggleChat} className="h-30!">
-              Đóng
-            </Button>
-          </Flex>
+        <div className="fixed bottom-20 right-6 w-[400px] h-[500px] z-[1000] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="bg-gradient-to-r bg-primary text-white p-4 rounded-t-2xl">
+            <Flex justify="space-between" align="center">
+              <Flex align="center" gap={8}>
+                <RobotOutlined className="text-xl" />
+                <Text className="text-white! font-semibold! text-lg!">
+                  Chatbot hỗ trợ khách hàng
+                </Text>
+              </Flex>
+              <Button
+                onClick={toggleChat}
+                className="border-none! bg-transparent!"
+                size="small"
+              >
+                <CloseOutlined className="text-white!" />
+              </Button>
+            </Flex>
+          </div>
           <div
             ref={chatBoxRef}
-            className={`mt-10 ${chatHistory.length === 0 && !loading && 'flex items-center justify-center'} overflow-y-auto flex-1 mb-8 pr-4`}
+            className={`flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 ${
+              chatHistory.length === 0 && !loading
+                ? 'flex items-center justify-center'
+                : ''
+            }`}
           >
             {chatHistory.length === 0 && !loading && (
-              <Text className="text-center! text-gray-400!">
-                Chúng tôi có thể giúp gì cho bạn?
-              </Text>
+              <div className="text-center">
+                <RobotOutlined className="text-4xl text-gray-400 mb-2" />
+                <Text className="text-gray-500 block">
+                  Xin chào! Tôi có thể giúp gì cho bạn?
+                </Text>
+              </div>
             )}
+
             {chatHistory.map((msg, index) => (
               <div
                 key={index}
-                className={`${msg.sender === 'user' ? 'text-right' : 'text-left'} mb-8`}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in-0 slide-in-from-bottom-2 duration-300`}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <Text
-                  className={`py-8! px-12! text-justify! rounded-lg! inline-block! max-w-[80%]! whitespace-pre-line! ${msg.sender === 'user' ? 'bg-[#d6f2ff]!' : 'bg-[#f1f1f1]!'}`}
+                <div
+                  className={`flex items-start gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
                 >
-                  {msg.loading ? (
-                    <Spin size="small" />
-                  ) : msg.sender === 'bot' ? (
-                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                      {msg.text}
-                    </ReactMarkdown>
-                  ) : (
-                    msg.text
-                  )}
-                </Text>
+                  <div
+                    className={`px-15 py-10   rounded-2xl shadow-sm ${
+                      msg.sender === 'user'
+                        ? 'bg-blue-500 text-white rounded-tr-md'
+                        : 'bg-white text-gray-800 rounded-tl-md border border-gray-200'
+                    }`}
+                  >
+                    {msg.loading ? (
+                      <div className="flex items-center gap-2">
+                        <Spin size="small" />
+                        <span className="text-sm text-gray-500">
+                          Đang trả lời...
+                        </span>
+                      </div>
+                    ) : msg.sender === 'bot' &&
+                      msg.typing &&
+                      index === latestBotMessageIndex ? (
+                      <TypingEffect text={msg.text} speed={40} />
+                    ) : msg.sender === 'bot' ? (
+                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                        {msg.text}
+                      </ReactMarkdown>
+                    ) : (
+                      <span className="whitespace-pre-line">{msg.text}</span>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-          <Input.Search
-            value={input}
-            onSearch={handleSend}
-            placeholder="Nhập câu hỏi..."
-            enterButton={<SendOutlined />}
-            onChange={(e) => setInput(e.target.value)}
-          />
+
+          <div className="p-4 border-t border-gray-200 bg-white">
+            <Input.Search
+              value={input}
+              onSearch={handleSend}
+              placeholder="Nhập câu hỏi của bạn..."
+              enterButton={
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  className="bg-blue-500 hover:bg-blue-600"
+                  disabled={loading}
+                />
+              }
+              onChange={(e) => setInput(e.target.value)}
+              disabled={loading}
+              className="rounded-full"
+              size="large"
+            />
+          </div>
         </div>
       )}
 
+      {/* Floating Button */}
       {!visible && (
         <Button
           size="large"
@@ -111,9 +219,33 @@ const ChatBot = () => {
           type="primary"
           onClick={toggleChat}
           icon={<MessageOutlined />}
-          className="fixed! bottom-24! right-24! z-1000! shadow-[0_2px_8px_rgba(0,0,0,0.2)]!"
+          className="fixed! bottom-24! right-24! z-1000! shadow-[0_2px_8px_rgba(0,0,0,0.2)]! hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-500 to-purple-600 border-none hover:scale-110 animate-bounce"
         />
       )}
+
+      <style jsx>{`
+        .typing-cursor {
+          color: #3b82f6;
+          font-weight: bold;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 2px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
+        }
+      `}</style>
     </>
   );
 };
