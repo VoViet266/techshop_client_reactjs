@@ -240,13 +240,14 @@ const BrandManagement = () => {
           logoUrl = file.url;
         }
       }
+      console.log(logoUrl);
 
       if (dataInit) {
         await callUpdateBrand({
           _id: dataInit._id,
           name: values.name,
           description: values.description,
-          logo: dataInit.logo,
+          logo: logoUrl,
         });
         success('Cập nhật thương hiệu thành công');
       } else {
@@ -598,9 +599,6 @@ const BrandManagement = () => {
       </Modal>
 
       <Image
-        // wrapperStyle={{
-        //   display: 'none',
-        // }}
         preview={{
           visible: previewOpen,
           onVisibleChange: (visible) => setPreviewOpen(visible),

@@ -19,6 +19,8 @@ import {
 import { Card } from '@components/products';
 import { ReloadOutlined, FilterOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
+import { use, useEffect, useState } from 'react';
+import { callFetchBranches, callFetchBrands } from '@/services/apis';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -39,20 +41,27 @@ function ListProducts(properties) {
     currentBrand,
     setCurrentBrand,
     filteredProducts,
-    setCurrentPage = {},
   } = properties;
 
   const [searchParams, setSearchParams] = useSearchParams();
   const _page = parseInt(searchParams.get('_page') || '1');
   const _limit = parseInt(searchParams.get('_limit') || '8');
+  const [allBrands, setAllBrands] = useState([]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spin size="large" />
-      </div>
-    );
-  }
+  //
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const res = await callFetchBrands();
+        setAllBrands(res.data.data);
+        console.log(res.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   const startIndex = (_page - 1) * _limit;
   const endIndex = startIndex + _limit;
@@ -129,9 +138,62 @@ function ListProducts(properties) {
       maximumFractionDigits: 0,
     }).format(amount);
   };
-
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
+  console.log(brands);
   return (
     <div className="min-h-screen w-full">
+      <div className="flex items-center justify-between mb-6">
+        <Title level={3} className="mb-0! text-gray-800 font-extrabold!">
+          {title}
+        </Title>
+      </div>
+      <Row gutter={[10, 10]} className="mb-6">
+        <Button
+          size="large"
+          type="default"
+          className="ml-10! h-[50px]! w-[150px] "
+          onClick={() => handleBrandClick('Tất cả')}
+        >
+          Tất cả
+        </Button>
+        {brands.map((brand, index) => (
+          <Col xs={12} md={6} lg={4} key={index}>
+            <Button
+              size="large"
+              type="default"
+              onClick={() => handleBrandClick(brand)}
+              className={`
+          w-full h-[50px]! 
+          flex items-center justify-center 
+          transition-all duration-300 ease-in-out
+          hover:shadow-lg hover:scale-105
+          ${brand === currentBrand ? 'border-1! border-primary! ' : 'border border-gray-300'}
+         
+        `}
+            >
+              {brand?.logo ? (
+                <div className="flex items-center justify-center w-full h-full p-2">
+                  <img
+                    src={brand?.logo}
+                    alt={brand.name}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <span className="text-sm font-medium text-center px-2">
+                  {brand.name}
+                </span>
+              )}
+            </Button>
+          </Col>
+        ))}
+      </Row>
       <Row gutter={[10, 10]}>
         <Col xs={24} md={6} lg={6}>
           <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
@@ -160,7 +222,7 @@ function ListProducts(properties) {
                     onClick={() => handleBrandClick(brand)}
                     className="text-xs! p-18! rounded-[10px]!"
                   >
-                    {brand}
+                    {brand.name}
                   </Button>
                 ))}
               </div>

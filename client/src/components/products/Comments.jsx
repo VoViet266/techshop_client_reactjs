@@ -192,12 +192,14 @@ function Comments({ className, product, loading: initialLoading }) {
                 <div className="space-y-4">
                   <TextArea
                     value={comment}
+                    maxLength={1000}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Chia sẻ suy nghĩ của bạn về sản phẩm này..."
                     rows={4}
+                    autoSize={{ minRows: 2, maxRows: 4 }}
                     className="w-full border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-8">
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-gray-600">Đánh giá:</span>
                       <Rate
@@ -392,7 +394,6 @@ function Comments({ className, product, loading: initialLoading }) {
           )}
         </div>
 
-        {/* Pagination */}
         {!loading && total > 0 && (
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
             <div className="flex justify-center">

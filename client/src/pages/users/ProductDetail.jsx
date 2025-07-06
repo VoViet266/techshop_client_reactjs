@@ -588,22 +588,10 @@ function ProductDetail() {
                     <Link key={product._id} to={`/product/${product._id}`}>
                       <div
                         key={product._id}
-                        style={{
-                          borderRadius: '8px',
-                          padding: '12px',
-                          border: '1px solid #d1d5db',
-                          cursor: 'pointer',
-                        }}
+                        className="shadow p-[12px] border border-gray-200 rounded-lg cursor-pointer"
                       >
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                          <div
-                            style={{
-                              width: '100px',
-                              height: '100px',
-
-                              borderRadius: '8px',
-                            }}
-                          >
+                        <div className="flex items-center gap-12">
+                          <div className="w-[100px] h-[100px] overflow-hidden">
                             {product.variants[0].images.length > 0 ? (
                               <Image
                                 src={
@@ -611,24 +599,10 @@ function ProductDetail() {
                                     ? product.variants[0].images[0]
                                     : ''
                                 }
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                }}
+                                className="w-[100px] h-[100px] object-cover"
                               />
                             ) : (
-                              <div
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  backgroundColor: '#e5e7eb',
-                                  borderRadius: '8px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
+                              <div className="w-[100px] h-[100px] flex items-center justify-center">
                                 <span
                                   style={{
                                     color: '#9ca3af',
@@ -646,35 +620,18 @@ function ProductDetail() {
                               minWidth: 0,
                             }}
                           >
-                            <Text strong>{product.name}</Text>
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                marginBottom: '4px',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: '#dc2626',
-                                  fontWeight: 600,
-                                  fontSize: '14px',
-                                }}
-                              >
+                            <Text strong ellipsis>
+                              {product.name}
+                            </Text>
+                            <div className="flex items-center justify-between">
+                              <span className="text-red-500 font-semibold ">
                                 {product.variants[0].price
                                   ? `${product.variants[0].price.toLocaleString('vi-VN')} đ`
                                   : 'Liên hệ'}
                               </span>
                               {product.originalPrice &&
                                 product.originalPrice > product.price && (
-                                  <span
-                                    style={{
-                                      color: '#9ca3af',
-                                      textDecoration: 'line-through',
-                                      fontSize: '12px',
-                                    }}
-                                  >
+                                  <span>
                                     {product.originalPrice.toLocaleString(
                                       'vi-VN',
                                     )}
@@ -682,13 +639,7 @@ function ProductDetail() {
                                   </span>
                                 )}
                             </div>
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                              }}
-                            >
+                            <div>
                               <Rate
                                 disabled
                                 defaultValue={product.rating || 0}

@@ -68,7 +68,7 @@ const ModalBrand = (props) => {
     } else if (logoImage[0]?.url) {
       brandData.logo = logoImage[0]?.url;
     }
-
+    console.log(brandData);
     const res = dataInit?._id
       ? await callUpdateBrand(brandData)
       : await callCreateBrand(brandData);

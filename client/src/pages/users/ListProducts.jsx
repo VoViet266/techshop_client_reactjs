@@ -29,7 +29,7 @@ function ProductsList() {
   const filteredProducts = products.filter((product) => {
     // Lọc theo thương hiệu
     if (currentBrand && currentBrand !== 'Tất cả') {
-      if (product.brand.name !== currentBrand) {
+      if (product.brand.name !== currentBrand.name) {
         return false;
       }
     }
@@ -45,7 +45,7 @@ function ProductsList() {
       const [minPrice, maxPrice] = filter.price;
       matchPrice = realPrice >= minPrice && realPrice <= maxPrice;
     }
-    
+
     // Lọc theo khoảng giá tùy chỉnh (slider)
     if (filter.priceRange && Array.isArray(filter.priceRange)) {
       const [minPrice, maxPrice] = filter.priceRange;
@@ -66,7 +66,7 @@ function ProductsList() {
       matchStorage = product.variants?.some((v) => {
         const storageValue = v.memory.storage?.toLowerCase();
         const filterValue = filter.storage.label?.toLowerCase();
-        
+
         // Xử lý các trường hợp đặc biệt
         if (filterValue === '≤128 gb') {
           // Lọc các sản phẩm có dung lượng <= 128GB
@@ -74,7 +74,11 @@ function ProductsList() {
           return storageNumber <= 128;
         } else if (filterValue === '1 tb') {
           // Chuyển đổi TB sang GB để so sánh
-          return storageValue.includes('1tb') || storageValue.includes('1 tb') || storageValue.includes('1024gb');
+          return (
+            storageValue.includes('1tb') ||
+            storageValue.includes('1 tb') ||
+            storageValue.includes('1024gb')
+          );
         } else {
           return storageValue?.includes(filterValue);
         }
@@ -88,24 +92,33 @@ function ProductsList() {
   const sortedAndFilteredProducts = [...filteredProducts].sort((a, b) => {
     if (sort === 1) {
       // Giá tăng dần
-      const priceA = a.variants[0].price - a.variants[0].price * (a.discount / 100);
-      const priceB = b.variants[0].price - b.variants[0].price * (b.discount / 100);
+      const priceA =
+        a.variants[0].price - a.variants[0].price * (a.discount / 100);
+      const priceB =
+        b.variants[0].price - b.variants[0].price * (b.discount / 100);
       return priceA - priceB;
     } else if (sort === 2) {
       // Giá giảm dần
-      const priceA = a.variants[0].price - a.variants[0].price * (a.discount / 100);
-      const priceB = b.variants[0].price - b.variants[0].price * (b.discount / 100);
+      const priceA =
+        a.variants[0].price - a.variants[0].price * (a.discount / 100);
+      const priceB =
+        b.variants[0].price - b.variants[0].price * (b.discount / 100);
       return priceB - priceA;
     }
-    return 0; // Nổi bật (không sắp xếp)
+    return 0;
   });
 
   useEffect(() => {
     if (products.length > 0 && brands.length === 0) {
-      const uniqueBrands = [
-        'Tất cả',
-        ...new Set(products.map((product) => product.brand.name)),
-      ];
+      const uniqueBrands = Object.values(
+        products.reduce((acc, product) => {
+          if (product.brand && product.brand._id) {
+            acc[product.brand._id] = product.brand;
+          }
+          return acc;
+        }, {}),
+      );
+      console.log(uniqueBrands);
       setBrands(uniqueBrands);
 
       const allRams = products.flatMap(
