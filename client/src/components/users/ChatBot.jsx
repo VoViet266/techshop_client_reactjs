@@ -102,7 +102,7 @@ const ChatBot = () => {
             typing: true,
           },
         ];
-        // Cập nhật index của tin nhắn bot mới nhất
+
         setLatestBotMessageIndex(newHistory.length - 1);
         return newHistory;
       });
@@ -149,44 +149,47 @@ const ChatBot = () => {
               </div>
             )}
 
-            {chatHistory.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in-0 slide-in-from-bottom-2 duration-300`}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div
-                  className={`flex items-start gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
-                >
+            {chatHistory.map(
+              (msg, index) => (
+                console.log(msg),
+                (
                   <div
-                    className={`px-15 py-10   rounded-2xl shadow-sm ${
-                      msg.sender === 'user'
-                        ? 'bg-blue-500 text-white rounded-tr-md'
-                        : 'bg-white text-gray-800 rounded-tl-md border border-gray-200'
-                    }`}
+                    key={index}
+                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in-0 slide-in-from-bottom-2 duration-300`}
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    {msg.loading ? (
-                      <div className="flex items-center gap-2">
-                        <Spin size="small" />
-                        <span className="text-sm text-gray-500">
-                          Đang trả lời...
-                        </span>
+                    <div
+                      className={`flex items-start gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
+                    >
+                      <div
+                        className={`px-15 py-10   rounded-2xl shadow-sm ${
+                          msg.sender === 'user'
+                            ? 'bg-blue-500 text-white rounded-tr-md'
+                            : 'bg-white text-gray-800 rounded-tl-md border border-gray-200'
+                        }`}
+                      >
+                        {msg.loading ? (
+                          <div className="flex items-center gap-2">
+                            <Spin size="small" />
+                            <span className="text-sm text-gray-500">
+                              Đang trả lời...
+                            </span>
+                          </div>
+                        ) : msg.sender === 'bot' ? (
+                          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                            {msg.text}
+                          </ReactMarkdown>
+                        ) : (
+                          <span className="whitespace-pre-line">
+                            {msg.text}
+                          </span>
+                        )}
                       </div>
-                    ) : msg.sender === 'bot' &&
-                      msg.typing &&
-                      index === latestBotMessageIndex ? (
-                      <TypingEffect text={msg.text} speed={40} />
-                    ) : msg.sender === 'bot' ? (
-                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                        {msg.text}
-                      </ReactMarkdown>
-                    ) : (
-                      <span className="whitespace-pre-line">{msg.text}</span>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                )
+              ),
+            )}
           </div>
 
           <div className="p-4 border-t border-gray-200 bg-white">
@@ -211,7 +214,6 @@ const ChatBot = () => {
         </div>
       )}
 
-      {/* Floating Button */}
       {!visible && (
         <Button
           size="large"

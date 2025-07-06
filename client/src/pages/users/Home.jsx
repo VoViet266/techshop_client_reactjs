@@ -1,4 +1,4 @@
-import { Carousel, Image, Spin } from 'antd';
+import { Carousel, Image, Row, Spin } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import Categories from '@services/categories';
@@ -27,7 +27,7 @@ function Home() {
     try {
       const products = await Products.getAll();
       setProducts(products.result);
-      console.log(products.result);
+
       setLoading(false);
     } catch (error) {
       console.error(error.message);
@@ -73,7 +73,7 @@ function Home() {
 
   return (
     <>
-      <div className="relative w-[60%] h-300 mt-20 mb-250">
+      <div className="relative w-[60%] h-300 mt-20 mb-250 ">
         <Carousel
           arrows
           autoplaySpeed={5000}
@@ -96,7 +96,7 @@ function Home() {
         </Carousel>
       </div>
 
-      <div className="mb-50 w-full">
+      <div className="mb-50 w-full bg-white rounded-[10px] p-10">
         {categories.map((category, index) => {
           const filteredProducts = products.filter((product) => {
             return product.category.name === category.name;

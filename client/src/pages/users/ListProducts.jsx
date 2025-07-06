@@ -14,6 +14,7 @@ function ProductsList() {
     color: null,
     ram: null,
     storage: null,
+    priceRange: null,
   });
   const [rams, setRams] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -24,43 +25,88 @@ function ProductsList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentBrand, setCurrentBrand] = useState('');
 
+  // Cải thiện logic lọc sản phẩm
   const filteredProducts = products.filter((product) => {
+    // Lọc theo thương hiệu
+    if (currentBrand && currentBrand !== 'Tất cả') {
+      if (product.brand.name !== currentBrand) {
+        return false;
+      }
+    }
+
+    // Lọc theo giá
     let matchPrice = true;
     const realPrice =
       product?.variants?.[0]?.price -
       product?.variants?.[0]?.price * (product?.discount / 100);
-    if (filter.price === 1) {
-      matchPrice = realPrice < 10000000;
-    } else if (filter.price === 2) {
-      matchPrice = realPrice >= 10000000 && realPrice <= 20000000;
-    } else if (filter.price === 3) {
-      matchPrice = realPrice > 20000000;
+
+    // Lọc theo khoảng giá được chọn sẵn
+    if (filter.price && Array.isArray(filter.price)) {
+      const [minPrice, maxPrice] = filter.price;
+      matchPrice = realPrice >= minPrice && realPrice <= maxPrice;
+    }
+    
+    // Lọc theo khoảng giá tùy chỉnh (slider)
+    if (filter.priceRange && Array.isArray(filter.priceRange)) {
+      const [minPrice, maxPrice] = filter.priceRange;
+      matchPrice = realPrice >= minPrice && realPrice <= maxPrice;
     }
 
-    let matchRam = filter.ram
-      ? product.variants?.some((v) =>
-          v.memory.ram?.toLowerCase().includes(filter.ram.label?.toLowerCase()),
-        )
-      : true;
+    // Lọc theo RAM
+    let matchRam = true;
+    if (filter.ram) {
+      matchRam = product.variants?.some((v) =>
+        v.memory.ram?.toLowerCase().includes(filter.ram.label?.toLowerCase()),
+      );
+    }
 
-    let matchStorage = filter.storage
-      ? product.variants?.some((v) =>
-          v.memory.storage
-            ?.toLowerCase()
-            .includes(filter.storage.label?.toLowerCase()),
-        )
-      : true;
+    // Lọc theo dung lượng lưu trữ
+    let matchStorage = true;
+    if (filter.storage) {
+      matchStorage = product.variants?.some((v) => {
+        const storageValue = v.memory.storage?.toLowerCase();
+        const filterValue = filter.storage.label?.toLowerCase();
+        
+        // Xử lý các trường hợp đặc biệt
+        if (filterValue === '≤128 gb') {
+          // Lọc các sản phẩm có dung lượng <= 128GB
+          const storageNumber = parseInt(storageValue);
+          return storageNumber <= 128;
+        } else if (filterValue === '1 tb') {
+          // Chuyển đổi TB sang GB để so sánh
+          return storageValue.includes('1tb') || storageValue.includes('1 tb') || storageValue.includes('1024gb');
+        } else {
+          return storageValue?.includes(filterValue);
+        }
+      });
+    }
 
     return matchPrice && matchRam && matchStorage;
   });
 
+  // Sắp xếp sản phẩm đã lọc
+  const sortedAndFilteredProducts = [...filteredProducts].sort((a, b) => {
+    if (sort === 1) {
+      // Giá tăng dần
+      const priceA = a.variants[0].price - a.variants[0].price * (a.discount / 100);
+      const priceB = b.variants[0].price - b.variants[0].price * (b.discount / 100);
+      return priceA - priceB;
+    } else if (sort === 2) {
+      // Giá giảm dần
+      const priceA = a.variants[0].price - a.variants[0].price * (a.discount / 100);
+      const priceB = b.variants[0].price - b.variants[0].price * (b.discount / 100);
+      return priceB - priceA;
+    }
+    return 0; // Nổi bật (không sắp xếp)
+  });
+
   useEffect(() => {
     if (products.length > 0 && brands.length === 0) {
-      const brands = [
+      const uniqueBrands = [
         'Tất cả',
         ...new Set(products.map((product) => product.brand.name)),
       ];
-      setBrands(brands);
+      setBrands(uniqueBrands);
 
       const allRams = products.flatMap(
         (product) =>
@@ -95,6 +141,7 @@ function ProductsList() {
 
   useEffect(() => {
     if (category) {
+      setLoading(true);
       callFetchProducts(currentPage, 10, category.name, currentBrand)
         .then((response) => {
           setProducts(response.data.data.result);
@@ -109,7 +156,7 @@ function ProductsList() {
   }, [category, currentBrand, currentPage]);
 
   return (
-    <div className="w-full xl:px-50 lg:px-30 md:px-20 my-10">
+    <div className="w-full mt-10">
       <ListProducts
         rams={rams}
         sort={sort}
@@ -126,7 +173,7 @@ function ProductsList() {
         currentBrand={currentBrand}
         setCurrentPage={setCurrentPage}
         setCurrentBrand={setCurrentBrand}
-        filteredProducts={filteredProducts}
+        filteredProducts={sortedAndFilteredProducts}
       />
     </div>
   );

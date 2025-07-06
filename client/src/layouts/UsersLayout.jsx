@@ -56,7 +56,7 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, loading } = useAppContext();
+  const { showLogin, showSignup, loading, setLoading } = useAppContext();
 
   return (
     <Layout className="font-roboto! relative! flex! flex-col! items-center!">
@@ -64,7 +64,7 @@ function UsersLayout() {
       {loading ? (
         <Spin />
       ) : (
-        <Layout.Content className="w-5/6 bg-[#f5f5f5] mt-60 flex flex-col items-center rounded-[10px]">
+        <Layout.Content className="w-[90%] bg-[#f5f5f5]! mt-60 flex flex-col items-center rounded-[10px]">
           <Outlet />
           {showLogin && <Login />}
           {showSignup && <Signup />}
