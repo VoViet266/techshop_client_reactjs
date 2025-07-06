@@ -109,8 +109,8 @@ function Home() {
           prevArrow={<CustomNextArrow />}
           autoplay={{ dotDuration: true }}
           dotPosition="bottom"
-          dotStyle={{ background: '#ff5900' }} // orange dots
-          activeDotStyle={{ background: '#ff5900' }} // orange active dot
+          dotStyle={{ background: '#ff5900' }}
+          activeDotStyle={{ background: '#ff5900' }}
         >
           {banners.map((banner, index) => (
             <Image
