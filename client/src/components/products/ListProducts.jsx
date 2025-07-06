@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import { Card } from '@components/products';
 import { ReloadOutlined, FilterOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -38,9 +39,12 @@ function ListProducts(properties) {
     currentBrand,
     setCurrentBrand,
     filteredProducts,
-    currentPage = null,
     setCurrentPage = {},
   } = properties;
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const _page = parseInt(searchParams.get('_page') || '1');
+  const _limit = parseInt(searchParams.get('_limit') || '8');
 
   if (loading) {
     return (
@@ -50,12 +54,18 @@ function ListProducts(properties) {
     );
   }
 
+  const startIndex = (_page - 1) * _limit;
+  const endIndex = startIndex + _limit;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
   const handleBrandClick = (brand) => {
     if (brand === 'Tất cả') {
       setCurrentBrand('');
       return;
     }
     setCurrentBrand(brand);
+
+    setSearchParams({ _page: '1', _limit: _limit.toString() });
   };
 
   const handleFilterReset = () => {
@@ -68,10 +78,14 @@ function ListProducts(properties) {
     });
     setCurrentBrand('');
     setSort(null);
+
+    setSearchParams({ _page: '1', _limit: _limit.toString() });
   };
 
   const handleSortChange = (value) => {
     setSort(value);
+
+    setSearchParams({ _page: '1', _limit: _limit.toString() });
   };
 
   const handlePriceRangeChange = (value) => {
@@ -80,6 +94,15 @@ function ListProducts(properties) {
       priceRange: value,
       price: null,
     }));
+
+    setSearchParams({ _page: '1', _limit: _limit.toString() });
+  };
+
+  const handlePaginationChange = (page, pageSize) => {
+    setSearchParams({
+      _page: page.toString(),
+      _limit: pageSize.toString(),
+    });
   };
 
   const priceRanges = [
@@ -160,13 +183,17 @@ function ListProducts(properties) {
                       checked={
                         filter.price === null && filter.priceRange === null
                       }
-                      onChange={() =>
+                      onChange={() => {
                         setFilter((prev) => ({
                           ...prev,
                           price: null,
                           priceRange: null,
-                        }))
-                      }
+                        }));
+                        setSearchParams({
+                          _page: '1',
+                          _limit: _limit.toString(),
+                        });
+                      }}
                     >
                       <Text className="text-sm text-gray-600">Tất cả</Text>
                     </Checkbox>
@@ -178,7 +205,7 @@ function ListProducts(properties) {
                           JSON.stringify(filter.price) ===
                           JSON.stringify(range.value)
                         }
-                        onChange={() =>
+                        onChange={() => {
                           setFilter((prev) => ({
                             ...prev,
                             price:
@@ -186,9 +213,13 @@ function ListProducts(properties) {
                               JSON.stringify(range.value)
                                 ? null
                                 : range.value,
-                            priceRange: null, // Reset slider khi chọn fixed range
-                          }))
-                        }
+                            priceRange: null,
+                          }));
+                          setSearchParams({
+                            _page: '1',
+                            _limit: _limit.toString(),
+                          });
+                        }}
                       >
                         <Text className="text-sm text-gray-600">
                           {range.label}
@@ -281,6 +312,10 @@ function ListProducts(properties) {
                           } else {
                             setFilter((prev) => ({ ...prev, ram: null }));
                           }
+                          setSearchParams({
+                            _page: '1',
+                            _limit: _limit.toString(),
+                          });
                         }}
                       >
                         {ram}
@@ -305,6 +340,10 @@ function ListProducts(properties) {
                           } else {
                             setFilter((prev) => ({ ...prev, storage: null }));
                           }
+                          setSearchParams({
+                            _page: '1',
+                            _limit: _limit.toString(),
+                          });
                         }}
                       >
                         {capacity}
@@ -331,9 +370,10 @@ function ListProducts(properties) {
           <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
             <div className="flex justify-between items-center p-10">
               <Text className="text-sm text-gray-600">
-                Tìm thấy
-                <span className="font-semibold">{filteredProducts.length}</span>
-                kết quả
+                Tìm thấy{' '}
+                <span className="font-semibold">{filteredProducts.length}</span>{' '}
+                kết quả (Đang hiển thị {startIndex + 1}-
+                {Math.min(endIndex, filteredProducts.length)})
               </Text>
 
               <div className="flex items-center gap-4">
@@ -376,9 +416,9 @@ function ListProducts(properties) {
                   </Col>
                 ))}
               </Row>
-            ) : filteredProducts.length > 0 ? (
+            ) : paginatedProducts.length > 0 ? (
               <Row gutter={[16, 16]}>
-                {filteredProducts.map((product, index) => (
+                {paginatedProducts.map((product, index) => (
                   <Col key={index} xs={12} xl={6}>
                     <Card
                       product={product}
@@ -409,16 +449,15 @@ function ListProducts(properties) {
             )}
           </div>
 
-          {!loading && filteredProducts.length > 0 && currentPage && (
-            <div className="bg-white rounded-lg shadow-sm p-4 w-[50%] mx-auto ">
+          {!loading && filteredProducts.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm p-4 w-[50%] mx-auto">
               <Flex justify="center">
                 <Pagination
                   total={filteredProducts.length}
-                  current={currentPage}
-                  pageSize={10}
-                  onChange={setCurrentPage}
-                  showSizeChanger={false}
-                  showQuickJumper
+                  current={_page}
+                  pageSize={_limit}
+                  onChange={handlePaginationChange}
+                  onShowSizeChange={handlePaginationChange}
                   showTotal={(total, range) =>
                     `${range[0]}-${range[1]} của ${total} sản phẩm`
                   }
