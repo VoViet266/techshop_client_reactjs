@@ -13,6 +13,12 @@ class Products {
   order(order) {
     return axiosInstance.post('api/v1/orders', { ...order });
   }
+
+  payment(paymentInformation) {
+    return axiosInstance.post('/api/v1/payment/create-payment', {
+      ...paymentInformation,
+    });
+  }
 }
 
 export default Products;

@@ -145,16 +145,43 @@ function Order() {
     }
   }, [inventories]);
 
-  const handleOrder = async () => {
+  const handlePayment = async (paymentInformation) => {
     try {
-      message.loading('Đang đặt hàng');
+      message.loading('Đang xử lý');
+      const productService = new Products();
+      const response = await productService.payment(paymentInformation);
+      if (response.status === 201) {
+        window.location.href = response.data.data.payUrl;
+        return;
+      }
+    } catch (error) {
+      console.error('Đã có lỗi:', error);
+    }
+  };
+
+  const handleOrder = async (order) => {
+    let paymentInformation;
+    try {
+      message.loading('Đang xử lý');
       const productService = new Products();
       const response = await productService.order(order);
       if (response.status === 201) {
+        paymentInformation = {
+          order: response.data.data._id,
+          amount: response.data.data.totalPrice,
+          description: `Thanh toán đơn hàng ${response.data.data._id}`,
+        };
+        console.log('Order:', response.data.data);
         message.destroy();
-        message.success('Đặt hàng thành công');
-        navigate('/');
-        return;
+        if (paymentMethod === 'Thanh toán khi nhận hàng') {
+          message.success('Đặt hàng thành công');
+          navigate('/');
+          return;
+        } else {
+          console.log('Payment information:', paymentInformation);
+          await handlePayment(paymentInformation);
+          return;
+        }
       }
       throw new Error('Đặt hàng thất bại');
     } catch (error) {
