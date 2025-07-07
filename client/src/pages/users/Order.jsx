@@ -41,6 +41,10 @@ function Order() {
     return acc + item.price * item.quantity;
   }, 0);
 
+  const discount = cartItems.reduce((acc, item) => {
+    return acc + item.price * item.quantity * (item.product.discount / 100);
+  }, 0);
+
   const items = cartItems.map((item) => {
     return {
       product: item.product._id,
@@ -210,7 +214,7 @@ function Order() {
               Sản phẩm trong đơn
             </Typography.Title>
           </div>
-          <div className="p-12 flex flex-col gap-10">
+          <div className="p-12 flex max-h-500 overflow-y-auto flex-col gap-10">
             {cartItems.map((item, index) => {
               return (
                 <Card key={index} className="rounded-xl">
@@ -462,8 +466,9 @@ function Order() {
               <Typography.Text className="text-sm!" strong>
                 Giảm giá
               </Typography.Text>
-              <Typography.Text className="text-sm! text-primary! font-medium!">
-                <Tag color="blue">-10%</Tag>
+              <Typography.Text className="text-sm! flex! items-center! gap-8 text-primary! font-medium!">
+                {`-${formatCurrency(discount)}đ`}
+                <Tag color="blue">{-(discount / total) * 100}%</Tag>
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
