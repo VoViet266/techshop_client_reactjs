@@ -60,8 +60,6 @@ function Order() {
       paymentMethod === 'Thanh toán khi nhận hàng' ? 'cash' : 'momo',
   };
 
-  // console.log(JSON.stringify)
-
   const getCart = async () => {
     try {
       const cartServices = new CartServices();
@@ -226,10 +224,11 @@ function Order() {
                     />
 
                     <div className="flex-1">
-                      <div className="font-medium text-base leading-5">
+                      <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
                         {item.variant.name}
-                      </div>
-                      <Tag color="default" className="mt-10!">
+                        <Tag color="red">{`-${item.product.discount}%`}</Tag>
+                      </Typography.Text>
+                      <Tag color="default" className="mt-4!">
                         {`Màu: ${item.variant.color.name}`}
                       </Tag>
                     </div>
@@ -237,10 +236,10 @@ function Order() {
                     <div className="text-right">
                       <Typography.Text type="secondary">{`x${item.quantity}`}</Typography.Text>
                       <div className="text-red-600 font-semibold text-lg">
-                        {`${formatCurrency(item.price)}đ`}
+                        {`${formatCurrency(item.price - item.price * (item.product.discount / 100))}đ`}
                       </div>
                       <div className="line-through text-gray-400 text-sm">
-                        2.990.000 ₫
+                        {`${formatCurrency(item.price)}đ`}
                       </div>
                     </div>
                   </div>
