@@ -140,7 +140,9 @@ function Cart() {
       dataIndex: 'price',
       key: 'price',
       align: 'center',
-      render: (_, item) => `${item?.variant?.price.toLocaleString()}₫`,
+      render: (_, item) => (
+        <Typography.Text className="text-primary! font-medium! text-base!">{`${item?.variant?.price.toLocaleString()}₫`}</Typography.Text>
+      ),
     },
     {
       title: 'Số lượng',
@@ -158,8 +160,12 @@ function Cart() {
       title: 'Thành tiền',
       key: 'total',
       align: 'center',
-      render: (_, item) =>
-        `${(item?.variant?.price * item.quantity).toLocaleString()}₫`,
+      render: (_, item) => {
+        console.log('Item:', item);
+        return (
+          <Typography.Text className="text-primary! font-medium! text-base!">{`${(item?.variant?.price * item.quantity - item?.variant?.price * item.quantity * (item.product.discount / 100)).toLocaleString()}₫`}</Typography.Text>
+        );
+      },
     },
     {
       title: 'Xóa',
@@ -256,7 +262,7 @@ function Cart() {
               Thông tin đơn hàng
             </Typography.Title>
           </div>
-          <div className="p-12 flex flex-col gap-10">
+          <div className="p-12 relative h-full flex flex-col justify-between gap-10">
             <Flex justify="space-between">
               <Typography.Text className="text-lg!">Tổng tiền</Typography.Text>
               <Typography.Text
@@ -266,17 +272,19 @@ function Cart() {
                 {total.toLocaleString()}đ
               </Typography.Text>
             </Flex>
-            <Divider className="my-0!" />
-            <Link to="/order">
-              <Button
-                type="primary"
-                size="large"
-                className="rounded-md! w-full!"
-                disabled={cartItems.length === 0}
-              >
-                Tiến hành thanh toán
-              </Button>
-            </Link>
+            <div className="absolute bottom-52 left-12 right-12">
+              <Divider className="my-0! mb-10!" />
+              <Link to="/order">
+                <Button
+                  type="primary"
+                  size="large"
+                  className="rounded-md! w-full!"
+                  disabled={cartItems.length === 0}
+                >
+                  Tiến hành thanh toán
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </Flex>

@@ -41,6 +41,10 @@ function Order() {
     return acc + item.price * item.quantity;
   }, 0);
 
+  const discount = cartItems.reduce((acc, item) => {
+    return acc + item.price * item.quantity * (item.product.discount / 100);
+  }, 0);
+
   const items = cartItems.map((item) => {
     return {
       product: item.product._id,
@@ -141,16 +145,43 @@ function Order() {
     }
   }, [inventories]);
 
-  const handleOrder = async () => {
+  const handlePayment = async (paymentInformation) => {
     try {
-      message.loading('Đang đặt hàng');
+      message.loading('Đang xử lý');
+      const productService = new Products();
+      const response = await productService.payment(paymentInformation);
+      if (response.status === 201) {
+        window.location.href = response.data.data.payUrl;
+        return;
+      }
+    } catch (error) {
+      console.error('Đã có lỗi:', error);
+    }
+  };
+
+  const handleOrder = async (order) => {
+    let paymentInformation;
+    try {
+      message.loading('Đang xử lý');
       const productService = new Products();
       const response = await productService.order(order);
       if (response.status === 201) {
+        paymentInformation = {
+          order: response.data.data._id,
+          amount: response.data.data.totalPrice,
+          description: `Thanh toán đơn hàng ${response.data.data._id}`,
+        };
+        console.log('Order:', response.data.data);
         message.destroy();
-        message.success('Đặt hàng thành công');
-        navigate('/');
-        return;
+        if (paymentMethod === 'Thanh toán khi nhận hàng') {
+          message.success('Đặt hàng thành công');
+          navigate('/');
+          return;
+        } else {
+          console.log('Payment information:', paymentInformation);
+          await handlePayment(paymentInformation);
+          return;
+        }
       }
       throw new Error('Đặt hàng thất bại');
     } catch (error) {
@@ -210,7 +241,7 @@ function Order() {
               Sản phẩm trong đơn
             </Typography.Title>
           </div>
-          <div className="p-12 flex flex-col gap-10">
+          <div className="p-12 flex max-h-500 overflow-y-auto flex-col gap-10">
             {cartItems.map((item, index) => {
               return (
                 <Card key={index} className="rounded-xl">
@@ -224,10 +255,11 @@ function Order() {
                     />
 
                     <div className="flex-1">
-                      <div className="font-medium text-base leading-5">
+                      <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
                         {item.variant.name}
-                      </div>
-                      <Tag color="default" className="mt-10!">
+                        <Tag color="red">{`-${item.product.discount}%`}</Tag>
+                      </Typography.Text>
+                      <Tag color="default" className="mt-4!">
                         {`Màu: ${item.variant.color.name}`}
                       </Tag>
                     </div>
@@ -235,10 +267,10 @@ function Order() {
                     <div className="text-right">
                       <Typography.Text type="secondary">{`x${item.quantity}`}</Typography.Text>
                       <div className="text-red-600 font-semibold text-lg">
-                        {`${formatCurrency(item.price)}đ`}
+                        {`${formatCurrency(item.price - item.price * (item.product.discount / 100))}đ`}
                       </div>
                       <div className="line-through text-gray-400 text-sm">
-                        2.990.000 ₫
+                        {`${formatCurrency(item.price)}đ`}
                       </div>
                     </div>
                   </div>
@@ -461,8 +493,9 @@ function Order() {
               <Typography.Text className="text-sm!" strong>
                 Giảm giá
               </Typography.Text>
-              <Typography.Text className="text-sm! text-primary! font-medium!">
-                <Tag color="blue">-10%</Tag>
+              <Typography.Text className="text-sm! flex! items-center! gap-8 text-primary! font-medium!">
+                {`-${formatCurrency(discount)}đ`}
+                <Tag color="blue">{-(discount / total) * 100}%</Tag>
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
