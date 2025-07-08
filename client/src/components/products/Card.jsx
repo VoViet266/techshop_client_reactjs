@@ -17,7 +17,7 @@ function CardProduct({ product = {}, className, loading = false }) {
       <Badge.Ribbon
         text={`${product.discount}%` || 'Mới'}
         color="red"
-        className="top-10! font-roboto! -right-6!"
+        className={`top-10! font-roboto! -right-6!`}
       >
         <Link to={`/product/${product._id}`}>
           <Card
