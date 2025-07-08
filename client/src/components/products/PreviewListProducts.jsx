@@ -17,40 +17,39 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
   const settings = {
     speed: 500,
     infinite: products.length > 5, // chỉ infinite khi đủ sản phẩm
-    slidesToShow: Math.min(products.length, 5), // chỉ show đúng số sản phẩm nếu ít hơn 5
+    slidesToShow: Math.min(products.length, 5),
     slidesToScroll: 1,
     nextArrow: <CustomNextArrow isVisible={isHovered} />,
     prevArrow: <CustomPrevArrow isVisible={isHovered} />,
   };
 
-  function CustomNextArrow({ onClick, isVisible }) {
+  function CustomNextArrow(properties) {
     return (
       <button
         type="button"
-        onClick={onClick}
-        className={`absolute -right-35 rounded-full! flex items-center justify-center hover:opacity-80 bg-white top-1/2 -translate-y-1/2 z-10 text-black! cursor-pointer shadow-lg p-8! transition-all text-lg! ${
-          isVisible ? 'opacity-100' : 'opacity-0'
+        onClick={properties.onClick}
+        className={`absolute  lg:-right-19 h-[60px] w-[60px] rounded-l-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white   cursor-pointer shadow-lg p-7 lg:p-7 transition-all text-lg ${
+          isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <RightOutlined className="font-medium!" />
+        <RightOutlined className="font-bold! " />
       </button>
     );
   }
 
-  function CustomPrevArrow({ onClick, isVisible }) {
+  function CustomPrevArrow(properties) {
     return (
       <button
         type="button"
-        onClick={onClick}
-        className={`absolute -left-35 rounded-full! flex items-center justify-center hover:opacity-80 bg-white top-1/2 -translate-y-1/2 z-10 text-black! cursor-pointer shadow-lg p-8! transition-all text-lg! ${
-          isVisible ? 'opacity-100' : 'opacity-0'
+        onClick={properties.onClick}
+        className={`absolute  lg:-left-19 h-[60px] w-[60px] rounded-r-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-lg p-7 lg:p-7 transition-all text-lg ${
+          isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <LeftOutlined className="font-medium!" />
+        <LeftOutlined className="font-bold! " />
       </button>
     );
   }
-
   return (
     <div className="w-full bg-white p-20 rounded-xl mt-20">
       <div className="flex mb-10 items-center justify-between">

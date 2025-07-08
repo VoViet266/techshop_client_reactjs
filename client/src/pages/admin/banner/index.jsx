@@ -31,6 +31,21 @@ import { callDeleteBanners, callFetchBanners } from '@/services/apis';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
+export const BannerPosition = {
+  HOME_MAIN: 'HOME_MAIN',
+  HOME_PROMO: 'HOME_PROMO',
+  HOME_FEATURE: 'HOME_FEATURE',
+  HORIZONTAL_BANNER: 'HORIZONTAL_BANNER',
+  CATEGORY_TOP: 'CATEGORY_TOP',
+  CATEGORY_SIDEBAR: 'CATEGORY_SIDEBAR',
+  PRODUCT_DETAIL_TOP: 'PRODUCT_DETAIL_TOP',
+  PRODUCT_DETAIL_BOTTOM: 'PRODUCT_DETAIL_BOTTOM',
+  CART_PAGE: 'CART_PAGE',
+  CHECKOUT_PAGE: 'CHECKOUT_PAGE',
+  FOOTER_BANNER: 'FOOTER_BANNER',
+  SIDEBAR_BANNER: 'SIDEBAR_BANNER',
+  
+};
 
 const BannerManagement = () => {
   const [banners, setBanners] = useState([]);
@@ -112,19 +127,18 @@ const BannerManagement = () => {
       dataIndex: 'position',
       key: 'position',
       render: (position) => {
-        const positionMap = {
-          header: { label: 'HEADER', color: 'blue' },
-          sidebar: { label: 'SIDEBAR', color: 'green' },
-          footer: { label: 'FOOTER', color: 'orange' },
-          popup: { label: 'POPUP', color: 'red' },
-          hero: { label: 'HERO', color: 'purple' },
-          HOME_MAIN: { label: 'HOME_MAIN', color: 'geekblue' },
-        };
-        const pos = positionMap[position] || {
-          label: position,
-          color: 'default',
-        };
-        return <Tag color={pos.color}>{pos.label}</Tag>;
+        switch (position) {
+          case 'HOME_MAIN':
+            return 'Trang chủ - chính';
+          case 'HOME_PROMO':
+            return 'Trang chủ - khuyến mãi';
+          case 'HOME_FEATURE':
+            return 'Trang chủ - nổi bật';
+          case 'HORIZONTAL_BANNER':
+            return 'Trang chủ - banner ngang';
+          default:
+            return position;
+        }
       },
     },
     {

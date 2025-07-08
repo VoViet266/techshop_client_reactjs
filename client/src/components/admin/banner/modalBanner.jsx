@@ -15,6 +15,7 @@ import {
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { callCreateBanners, callUpdateBanners } from '@/services/apis';
+import { BannerPosition } from '@/pages/admin/banner';
 
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
@@ -141,11 +142,11 @@ const ModalBanner = (props) => {
               rules={[{ required: true, message: 'Vui lòng chọn vị trí!' }]}
             >
               <Select>
-                <Select.Option value="header">Header</Select.Option>
-                <Select.Option value="sidebar">Sidebar</Select.Option>
-                <Select.Option value="footer">Footer</Select.Option>
-                <Select.Option value="popup">Popup</Select.Option>
-                <Select.Option value="hero">Hero Section</Select.Option>
+                {Object.values(BannerPosition).map((item) => (
+                  <Option key={item} value={item}>
+                    {item}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
           </Col>
