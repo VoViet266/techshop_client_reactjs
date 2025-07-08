@@ -7,6 +7,7 @@ import {
   callUpdateBrand,
   callUploadSingleImage,
 } from '@/services/apis';
+import Files from '@/services/files';
 
 const ModalBrand = (props) => {
   const { setOpenModal, reloadTable, dataInit, setDataInit, visible } = props;
@@ -60,10 +61,7 @@ const ModalBrand = (props) => {
     }
 
     if (logoImage[0]?.originFileObj) {
-      const filePathLogo = await callUploadSingleImage(
-        logoImage[0]?.originFileObj,
-        `brand/logo`,
-      );
+      const filePathLogo = await Files.upload(logoImage[0]?.originFileObj);
       brandData.logo = filePathLogo.data.data.filePath;
     } else if (logoImage[0]?.url) {
       brandData.logo = logoImage[0]?.url;

@@ -16,6 +16,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { callCreateBanners, callUpdateBanners } from '@/services/apis';
 import { BannerPosition } from '@/pages/admin/banner';
+import { useAppContext } from '@/contexts';
+import Files from '@/services/files';
+import { set } from 'react-hook-form';
 
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
@@ -23,7 +26,9 @@ const { RangePicker } = DatePicker;
 const ModalBanner = (props) => {
   const { openModal, reloadTable, dataInit, setDataInit, setOpenModal } = props;
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
+
+  const [image, setImage] = useState([]);
+  const { message } = useAppContext();
 
   useEffect(() => {
     if (dataInit?._id) {
@@ -31,17 +36,12 @@ const ModalBanner = (props) => {
         ...dataInit,
         dateRange: [dayjs(dataInit.startDate), dayjs(dataInit.endDate)],
       });
-      setFileList([
-        {
-          uid: '-1',
-          name: 'image.png',
-          status: 'done',
-          url: dataInit.imageUrl,
-        },
-      ]);
+      if (dataInit?.imageUrl && typeof dataInit?.imageUrl === 'string') {
+        setImage([{ uid: '-1', url: dataInit.imageUrl }]);
+      }
     } else {
       form.resetFields();
-      setFileList([]);
+      setImage([]);
     }
   }, [dataInit, form]);
 
@@ -49,13 +49,12 @@ const ModalBanner = (props) => {
     form.resetFields();
     setOpenModal(false);
     setDataInit(null);
-    setFileList([]);
+    setImage([]);
   };
 
   const beforeUpload = (file) => {
     const isImage = file.type.startsWith('image/');
     const isLt2M = file.size / 1024 / 1024 < 2;
-
     if (!isImage) {
       message.error('Chỉ được upload hình ảnh!');
       return Upload.LIST_IGNORE;
@@ -67,37 +66,48 @@ const ModalBanner = (props) => {
     return false;
   };
 
-  const handleChange = ({ fileList: newFileList }) => {
-    setFileList(newFileList.slice(-1));
+  const handleChange = ({ fileList }) => {
+    setImage(fileList);
   };
 
   const handleSubmit = async (values) => {
     const { dateRange, ...rest } = values;
-    const imageUrl = fileList[0]?.url || fileList[0]?.thumbUrl;
-
-    const data = {
+    message.loading({
+      content: dataInit?._id ? 'Đang cập nhật banner' : 'Đang tạo banner',
+      key: 'banner',
+    });
+    const bannerData = {
       ...rest,
-      imageUrl,
       _id: dataInit?._id,
       startDate: dateRange?.[0]?.toISOString(),
       endDate: dateRange?.[1]?.toISOString(),
     };
+    if (image[0]?.originFileObj) {
+      const filePathImage = await Files.upload(image[0]?.originFileObj);
+      bannerData.imageUrl = filePathImage;
+    }
 
     try {
       const res = dataInit?._id
-        ? await callUpdateBanners(data)
-        : await callCreateBanners(data);
+        ? await callUpdateBanners(bannerData)
+        : await callCreateBanners(bannerData);
 
       if (res.data) {
-        message.success(
-          dataInit?._id
-            ? 'Cập nhật banner thành công!'
-            : 'Tạo banner mới thành công!',
-        );
+        message.success({
+          content: dataInit?._id
+            ? 'Cập nhật banner thành công'
+            : 'Tạo banner thành công',
+          key: 'banner',
+        });
         reloadTable();
         handleReset();
       } else {
-        message.error('Lưu banner thất bại!');
+        message.error({
+          content: dataInit?._id
+            ? 'Cập nhật banner thất bại'
+            : 'Tạo banner thất bại',
+          key: 'banner',
+        });
       }
     } catch (err) {
       console.error(err);
@@ -111,7 +121,6 @@ const ModalBanner = (props) => {
       open={openModal}
       onCancel={handleReset}
       onOk={form.submit}
-      destroyOnClose
       width={800}
     >
       <Form
@@ -163,12 +172,12 @@ const ModalBanner = (props) => {
         >
           <Upload
             listType="picture-card"
-            fileList={fileList}
-            onChange={handleChange}
+            fileList={image}
+            onChange={({ fileList }) => handleChange({ fileList })}
             beforeUpload={beforeUpload}
             maxCount={1}
           >
-            {fileList.length >= 1 ? null : (
+            {image.length >= 1 ? null : (
               <div>
                 <PlusOutlined />
                 <div style={{ marginTop: 8 }}>Upload</div>

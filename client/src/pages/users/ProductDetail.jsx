@@ -371,7 +371,11 @@ function ProductDetail() {
   useEffect(() => {
     fetchRecommentProducts();
   }, [id]);
-
+  useEffect(() => {
+    if (user && product?._id) {
+ 
+    }
+  }, [product, userId]);
   const fetchBranchs = async () => {
     try {
       const res = await callFetchBranches();
