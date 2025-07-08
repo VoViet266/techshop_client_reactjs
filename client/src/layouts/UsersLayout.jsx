@@ -17,7 +17,7 @@ function Header() {
   }, []);
 
   return (
-    <Layout.Header className="font-roboto! px-0! w-full! fixed! top-0! left-0! right-0! z-10! bg-white! h-60! flex items-center justify-center">
+    <Layout.Header className="font-roboto! px-0! w-full! fixed! top-0! left-0! right-0! z-10! bg-white! h-60! flex items-center justify-center border-b border-b-[#e5e7ec]!">
       <div className="w-5/6 flex! items-center! justify-between!">
         <Link to="/">
           <Typography.Title

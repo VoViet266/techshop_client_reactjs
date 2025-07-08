@@ -235,50 +235,49 @@ function Order() {
   return (
     <Flex gap={12} className="w-full! h-screen! px-50! py-20! mb-1000!">
       <Flex vertical gap={12} className="w-[50%]!">
-        <div className="border w-full! rounded-md border-[#e5e7eb]">
-          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
-            <Typography.Title level={5} className="m-0!">
-              Sản phẩm trong đơn
-            </Typography.Title>
-          </div>
-          <div className="p-12 flex max-h-500 overflow-y-auto flex-col gap-10">
-            {cartItems.map((item, index) => {
-              return (
-                <Card key={index} className="rounded-xl">
-                  <div className="flex gap-12 items-start">
-                    <Image
-                      width={64}
-                      height={64}
-                      preview={false}
-                      src={item.variant.images[0]}
-                      className="rounded-md border"
-                    />
+        <Card className="w-full! rounded-md border-none!">
+          <Typography.Title level={5} className="m-0! mb-8!">
+            {`Sản phẩm trong đơn (${cartItems.length})`}
+          </Typography.Title>
 
-                    <div className="flex-1">
-                      <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
-                        {item.variant.name}
-                        <Tag color="red">{`-${item.product.discount}%`}</Tag>
-                      </Typography.Text>
+          {cartItems.map((item, index) => {
+            return (
+              <Card key={index} className="rounded-xl! border-none!">
+                <div className="flex gap-12 items-center">
+                  <Image
+                    width={64}
+                    height={64}
+                    preview={false}
+                    src={item.variant.images[0]}
+                    className="rounded-md! border! border-gray-300! flex! items-center! justify-center!"
+                  />
+
+                  <div className="flex-1">
+                    <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
+                      {item.variant.name}
+                      <Tag color="red" className='rounded-full! text-center!'>{`-${item.product.discount}%`}</Tag>
+                    </Typography.Text>
+                    <Flex align='center'>
                       <Tag color="default" className="mt-4!">
                         {`Màu: ${item.variant.color.name}`}
                       </Tag>
-                    </div>
-
-                    <div className="text-right">
                       <Typography.Text type="secondary">{`x${item.quantity}`}</Typography.Text>
-                      <div className="text-red-600 font-semibold text-lg">
-                        {`${formatCurrency(item.price - item.price * (item.product.discount / 100))}đ`}
-                      </div>
-                      <div className="line-through text-gray-400 text-sm">
-                        {`${formatCurrency(item.price)}đ`}
-                      </div>
+                    </Flex>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-red-600 font-semibold text-lg">
+                      {`${formatCurrency(item.price - item.price * (item.product.discount / 100))}đ`}
+                    </div>
+                    <div className="line-through text-gray-400 text-sm">
+                      {`${formatCurrency(item.price)}đ`}
                     </div>
                   </div>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
+                </div>
+              </Card>
+            );
+          })}
+        </Card>
 
         <div className="border w-full! rounded-md border-[#e5e7eb]">
           <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">

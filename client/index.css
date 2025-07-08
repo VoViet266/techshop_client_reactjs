@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import 'tailwindcss';
 
 @keyframes fadeInUp {
   from {
@@ -13,9 +13,14 @@
 }
 
 @theme {
-  --font-roboto: "Roboto", sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
   --spacing: 1px;
   /* --color-primary: #FE2C55; */
   /* --color-primary: #ee4d2d; */
   --color-primary: #dc2626;
+}
+
+/* Overide CSS */
+.ant-card-body {
+  padding: 12px !important; /* Sử dụng !important để đảm bảo ghi đè */
 }
