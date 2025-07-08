@@ -27,7 +27,7 @@ import {
   TabletOutlined,
 } from '@ant-design/icons';
 import Products from '@services/products';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { useAppContext } from '@contexts';
@@ -35,15 +35,12 @@ import { Comments } from '@components/products';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ProductSpecification } from '@components/products';
 import { ProductDescription } from '@components/products';
-import {
-  callFetchBranches,
-  callFetchStats,
-  callRecommentProduct,
-} from '@/services/apis';
+import { callFetchBranches, callFetchStats } from '@/services/apis';
 import { formatCurrency } from '@/helpers';
 import CartServices from '@/services/carts';
 
 import SliderProduct from '@/components/app/ImagesSlider';
+import Recomment from '@/services/recomment';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -109,7 +106,7 @@ const PRODUCT_CONFIGS = {
     variants: ['color'],
     memoryDisplay: null,
   },
-  // Có thể thêm các loại sản phẩm khác
+
   mouse: {
     icon: <BsShop />,
     highlightSpecs: [
@@ -124,7 +121,6 @@ const PRODUCT_CONFIGS = {
   },
 };
 
-// Component hiển thị thông số nổi bật
 const HighlightSpecs = ({ product, productType, onSpecsClick }) => {
   const config = PRODUCT_CONFIGS[productType] || PRODUCT_CONFIGS.laptop;
   const specs = config.highlightSpecs;
@@ -156,7 +152,6 @@ const HighlightSpecs = ({ product, productType, onSpecsClick }) => {
   );
 };
 
-// Hàm lấy giá trị thông số
 const getSpecValue = (specifications, spec) => {
   if (!specifications) return 'N/A';
 
@@ -170,7 +165,6 @@ const getSpecValue = (specifications, spec) => {
   return value;
 };
 
-// Component hiển thị variants linh hoạt
 const VariantSelector = ({
   product,
   productType,
@@ -193,7 +187,7 @@ const VariantSelector = ({
           <Row gutter={[12, 12]}>
             {[
               ...new Map(
-                product.variants.map((v) => [
+                product?.variants?.map((v) => [
                   `${v.memory?.ram || ''}-${v.memory?.storage || ''}`,
                   v,
                 ]),
@@ -233,8 +227,8 @@ const VariantSelector = ({
             Màu sắc
           </Title>
           <Row gutter={[12, 12]}>
-            {product.variants
-              .filter((variant) => {
+            {product?.variants
+              ?.filter((variant) => {
                 if (!hasMemoryVariants) return true;
                 return (
                   variant.memory?.ram === selectedMemory?.ram &&
@@ -300,7 +294,7 @@ function ProductDetail() {
   const { message, setShowLogin } = useAppContext();
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
-
+  const hasRecordedRef = useRef(false);
   const getProductType = (product) => {
     if (!product.category) return 'laptop';
 
@@ -315,7 +309,6 @@ function ProductDetail() {
       return 'headphones';
     if (category.includes('mouse') || category.includes('chuột'))
       return 'mouse';
-
     return 'laptop';
   };
 
@@ -359,8 +352,8 @@ function ProductDetail() {
   const fetchRecommentProducts = async () => {
     try {
       setLoading(true);
-      const res = await callRecommentProduct(id);
-      setRecommentProducts(res.data.data);
+      const res = await Recomment.getRecommendedProducts(id);
+      setRecommentProducts(res);
     } catch (error) {
       console.error('Đã có lỗi xảy ra:', error);
     } finally {
@@ -371,11 +364,36 @@ function ProductDetail() {
   useEffect(() => {
     fetchRecommentProducts();
   }, [id]);
+
   useEffect(() => {
-    if (user && product?._id) {
- 
+    const record = async () => {
+      // if (hasRecordedRef.current) return;
+      // hasRecordedRef.current = true;
+
+      if (product._id && user?._id) {
+        try {
+          await Recomment.recordViewHistory({
+            productId: product._id,
+            userId: user._id,
+          });
+        } catch (err) {
+          console.error('Failed to record view history', err);
+        }
+      }
+    };
+
+    if (!user && product?._id) {
+      const viewed = JSON.parse(localStorage.getItem('viewedProducts') || '[]');
+      const updated = [
+        product._id,
+        ...viewed.filter((id) => id !== product._id),
+      ].slice(0, 20);
+      localStorage.setItem('viewedProducts', JSON.stringify(updated));
     }
-  }, [product, userId]);
+
+    record();
+  }, [product._id, user?._id]);
+
   const fetchBranchs = async () => {
     try {
       const res = await callFetchBranches();

@@ -348,9 +348,7 @@ export const callDeleteFile = (url) => {
   });
 };
 
-export const callRecommentProduct = (id) => {
-  return axiosInstance.get(`api/v1/recommendation/${id}`)
-}
+
 export const callCreateReview = (value) => {
 
   return axiosInstance.post(`api/v1/review`, {

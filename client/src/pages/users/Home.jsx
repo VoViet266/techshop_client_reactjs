@@ -1,13 +1,31 @@
-import { Carousel, Image, Spin, Typography, Flex, Row, Col, Card } from 'antd';
+import {
+  Carousel,
+  Image,
+  Spin,
+  Typography,
+  Flex,
+  Row,
+  Col,
+  Card,
+  Button,
+  Empty,
+} from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import Categories from '@services/categories';
 import { PreviewListProducts } from '@components/products';
 
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import {
+  ArrowRightOutlined,
+  LeftOutlined,
+  RightOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { callFetchBanners } from '@/services/apis';
 import { DotDuration } from 'antd/es/carousel/style';
+import { useAppContext } from '@/contexts';
+import Recomment from '@/services/recomment';
+import CardProduct from '@/components/products/Card';
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -18,6 +36,8 @@ function Home() {
   const [promoBanners, setPromoBanners] = useState([]);
   const [featureBanners, setFeatureBanners] = useState([]);
   const [isHovered, setIsHovered] = useState(false);
+  const [recommentProducts, setRecommentProducts] = useState([]);
+  const { user } = useAppContext();
 
   // Fallback banners for development/testing
   const fallbackBanners = {
@@ -159,8 +179,21 @@ function Home() {
       setFeatureBanners(fallbackBanners.feature);
     }
   };
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (user) {
+        try {
+          const res = await Recomment.getRecommendationsByUser(user._id);
+          setRecommentProducts(res);
+        } catch (error) {
+          console.error('Error fetching recommendations:', error);
+        }
+      }
+    };
 
-  // Initialize data on component mount
+    fetchRecommendations();
+  }, [user]);
+
   useEffect(() => {
     const initializeData = async () => {
       await Promise.all([fetchCategories(), fetchProducts(), fetchBanners()]);
@@ -311,6 +344,57 @@ function Home() {
           </Col>
         </Row>
       </section>
+
+      <section className="w-full bg-white p-20 rounded-xl mt-20">
+        <div className="flex mb-10 items-center justify-between">
+          <Typography.Title
+            level={3}
+            className="font-roboto! uppercase! font-extrabold! ml-8! mb-6! "
+          >
+            Sản phẩm có thể phù hợp với bạn
+          </Typography.Title>
+
+          <Button
+            type="primary"
+            onClick={() => navigate('/product/all')}
+            className="text-base! mr-8! font-medium! text-white! px-15! py-15! bg-primary! rounded-3xl! hover:bg-primary/90! transition-all! duration-300!"
+          >
+            Khám phá ngay <ArrowRightOutlined />
+          </Button>
+        </div>
+
+        {recommentProducts.length === 0 ? (
+          <Empty
+            className="mx-auto"
+            description={
+              <Typography.Text className="font-roboto text-gray-400">
+                Không tìm thấy sản phẩm
+              </Typography.Text>
+            }
+          />
+        ) : (
+          <Row gutter={[10, 10]} className="w-full mx-auto">
+            {recommentProducts.map((product, index) => (
+              <Col
+                key={index}
+                xs={24}
+                sm={12}
+                md={8}
+                lg={6}
+                xl={4}
+                className="mb-6"
+              >
+                <CardProduct
+                  product={product}
+                  loading={loading}
+                  className="w-full transform transition-all duration-300 hover:shadow-xl"
+                />
+              </Col>
+            ))}
+          </Row>
+        )}
+      </section>
+
       <section className="w-full px-4 lg:px-8 xl:px-12 mb-8">
         <div className="max-w-7xl mx-auto">
           <Image
