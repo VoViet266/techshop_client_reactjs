@@ -234,7 +234,7 @@ function Order() {
   }
 
   return (
-    <Flex gap={12} className="w-full! px-50! py-20!">
+    <Flex gap={12} className="w-full! py-20!">
       <Flex vertical gap={12} className="w-[55%]!">
         <Card className="w-full! rounded-md border-none!">
           <Typography.Title level={5} className="m-0! mb-8!">
