@@ -39,34 +39,7 @@ function Home() {
   const [recommentProducts, setRecommentProducts] = useState([]);
   const { user } = useAppContext();
 
-  // Fallback banners for development/testing
   const fallbackBanners = {
-    main: [
-      {
-        id: 1,
-        imageUrl:
-          'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&h=600&fit=crop',
-        title: 'MacBook Pro 2024',
-        description: 'Sức mạnh vượt trội cho mọi công việc',
-        link: '/products/macbook',
-      },
-      {
-        id: 2,
-        imageUrl:
-          'https://images.unsplash.com/photo-1542393545-10f5cde2c810?w=1200&h=600&fit=crop',
-        title: 'iPhone 15 Pro Max',
-        description: 'Đột phá công nghệ, thiết kế hoàn hảo',
-        link: '/products/iphone',
-      },
-      {
-        id: 3,
-        imageUrl:
-          'https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=1200&h=600&fit=crop',
-        title: 'Gaming Laptop',
-        description: 'Trải nghiệm game đỉnh cao',
-        link: '/products/gaming',
-      },
-    ],
     promo: [
       {
         id: 4,
@@ -93,24 +66,6 @@ function Home() {
         link: '/promotions/installment',
       },
     ],
-    // feature: [
-    //   {
-    //     id: 7,
-    //     imageUrl:
-    //       'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=300&fit=crop',
-    //     title: 'Bảo hành 2 năm',
-    //     description: 'Cam kết chất lượng',
-    //     link: '/warranty',
-    //   },
-    //   {
-    //     id: 8,
-    //     imageUrl:
-    //       'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=400&h=300&fit=crop',
-    //     title: 'Giao hàng 24h',
-    //     description: 'Miễn phí toàn quốc',
-    //     link: '/shipping',
-    //   },
-    // ],
   };
 
   // Fetch categories
@@ -136,7 +91,6 @@ function Home() {
     }
   };
 
-  // Fetch banners with better error handling
   const fetchBanners = async () => {
     try {
       const response = await callFetchBanners();
@@ -161,7 +115,6 @@ function Home() {
         (b) => b.position === 'HOME_FEATURE',
       );
 
-      // Use fallback if no banners available
       setMainBanners(
         mainBanners.length > 0 ? mainBanners : fallbackBanners.main,
       );
@@ -244,16 +197,17 @@ function Home() {
 
   return (
     <div className="w-full min-h-screen ">
-      <section className="w-full px-4 lg:px-8 xl:px-12 py-4 lg:py-8">
-        <Row gutter={[16, 16]} className="w-full! mx-auto">
-          <Col xs={0} sm={0} md={4} lg={4} xl={5}>
-            <Card className="h-full bg-white shadow-sm border-0">
+      <section className="w-full my-15">
+        <Row gutter={[10]} className="w-full! h-full! mx-auto!">
+          <Col xs={0} sm={0} md={3} lg={3} xl={4}>
+            <Card className="h-full bg-white  border-0">
               <div className="space-y-3"></div>
             </Card>
           </Col>
-          <Col xs={24} sm={24} md={14} lg={14} xl={14}>
+
+          <Col xs={24} sm={24} md={14} lg={14} xl={15}>
             <div
-              className="relative h-[200px] md:h-[300px] lg:h-[400px] rounded-lg overflow-hidden"
+              className="relative  rounded-lg overflow-hidden"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
@@ -263,57 +217,43 @@ function Home() {
                 autoplaySpeed={5000}
                 infinite
                 slidesToShow={1}
+                dots
                 nextArrow={<CustomNextArrow />}
                 prevArrow={<CustomPrevArrow />}
                 dotPosition="bottom"
-                className="h-full"
               >
                 {mainBanners.map((banner, index) => (
-                  <div key={index} className="h-full w-full">
-                    <div
-                      className="relative h-full w-full cursor-pointer"
-                      onClick={() => handleBannerClick(banner)}
-                    >
-                      <Image
-                        src={banner.imageUrl}
-                        alt={`Banner ${index}`}
-                        preview={false}
-                        className="w-full h-full object-contain!"
-                      />
-                    </div>
+                  <div
+                    key={index}
+                    className="relative h-[500px] cursor-pointer"
+                    onClick={() => handleBannerClick(banner)}
+                  >
+                    <img
+                      src={banner.imageUrl}
+                      alt={`Banner ${index}`}
+                      className="w-full h-full object-fit"
+                    />
                   </div>
                 ))}
               </Carousel>
             </div>
           </Col>
 
-          <Col xs={0} sm={0} md={6} lg={6} xl={5}>
-            <div className="space-y-4 h-[200px] md:h-[300px] lg:h-[400px]">
+          <Col xs={0} sm={0} md={6} lg={6} xl={5} className="p-0! ">
+            <div className="flex flex-col h-full gap-6">
               {promoBanners.slice(0, 3).map((banner, index) => (
                 <div
                   key={banner.id}
-                  className="h-1/3 cursor-pointer group"
+                  className="h-1/3 cursor-pointer "
                   onClick={() => handleBannerClick(banner)}
                 >
-                  <div className="relative h-full w-full rounded-lg overflow-hidden ">
-                    <Image
+                  <div className="relative h-full w-full rounded-xl overflow-hidden">
+                    <img
                       src={banner.imageUrl}
                       alt={banner.title}
                       preview={false}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full! h-full! object-cover "
                     />
-
-                    <div className="text-center text-white px-2">
-                      <Typography.Text
-                        strong
-                        className="text-white block text-sm"
-                      >
-                        {banner.title}
-                      </Typography.Text>
-                      <Typography.Text className="text-white/90 text-xs">
-                        {banner.description}
-                      </Typography.Text>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -321,28 +261,18 @@ function Home() {
           </Col>
         </Row>
       </section>
+      {recommentProducts.length > 0 && (
+        <section className="w-full mb-12 bg-[#ffffff] rounded-xl">
+          <div className="flex mb-10 items-center justify-between">
+            <Typography.Title
+              level={3}
+              className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
+            >
+              Sản phẩm có thể phù hợp với bạn
+            </Typography.Title>
+          </div>
 
-      <section className="w-full   mb-12 bg-[#ffffff] rounded-xl">
-        <div className="flex mb-10 items-center justify-between">
-          <Typography.Title
-            level={3}
-            className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
-          >
-            Sản phẩm có thể phù hợp với bạn
-          </Typography.Title>
-        </div>
-
-        {recommentProducts.length === 0 ? (
-          <Empty
-            className="mx-auto"
-            description={
-              <Typography.Text className="font-roboto text-gray-400">
-                Không tìm thấy sản phẩm
-              </Typography.Text>
-            }
-          />
-        ) : (
-          <Row gutter={[10, 10]} className="w-full mx-auto">
+          <Row className="w-full mx-auto ">
             {recommentProducts.map((product, index) => (
               <Col
                 key={index}
@@ -361,11 +291,11 @@ function Home() {
               </Col>
             ))}
           </Row>
-        )}
-      </section>
+        </section>
+      )}
 
       <section className="w-full mb-12">
-        <div className="mx-auto">
+        <div className="mx-auto ">
           <Row justify="center">
             <Flex wrap="wrap" justify="center" className="-mx-8!">
               {categories.map((category, index) => {
@@ -377,7 +307,7 @@ function Home() {
                         const id = category._id;
                         navigate(`/product/all/${id}`);
                       }}
-                      className={`bg-white group cursor-pointer flex w-full! p-16 rounded-xl hover:shadow-md transition-shadow`}
+                      className={`bg-white group cursor-pointer flex w-full h-full p-16 rounded-xl hover:shadow-md transition-shadow`}
                     >
                       <div className="w-[50%] flex justify-start">
                         <Typography.Text

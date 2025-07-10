@@ -16,11 +16,48 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
 
   const settings = {
     speed: 500,
-    infinite: products.length > 6, // chỉ infinite khi đủ sản phẩm
-    slidesToShow: Math.min(products.length, 6),
+    infinite: products.length > 5, // chỉ infinite khi đủ sản phẩm
+    slidesToShow: Math.min(products.length, 5),
     slidesToScroll: 1,
     nextArrow: <CustomNextArrow isVisible={isHovered} />,
     prevArrow: <CustomPrevArrow isVisible={isHovered} />,
+    responsive: [
+      {
+        breakpoint: 1600,
+        settings: {
+          slidesToShow: Math.min(products.length, 4),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 1400,
+        settings: {
+          slidesToShow: Math.min(products.length, 3),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: Math.min(products.length, 3),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: Math.min(products.length, 2),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
   };
 
   function CustomNextArrow(properties) {
@@ -28,11 +65,11 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
       <button
         type="button"
         onClick={properties.onClick}
-        className={`absolute  lg:-right-19 h-[60px] w-[60px] rounded-l-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white   cursor-pointer shadow-lg p-7 lg:p-7 transition-all text-lg ${
+        className={`absolute -right-4 sm:-right-6 lg:-right-8 xl:-right-12 h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-l-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-2xl p-4 sm:p-6 lg:p-7 transition-all text-base sm:text-lg ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <RightOutlined className="font-bold! " />
+        <RightOutlined className="font-bold" />
       </button>
     );
   }
@@ -42,20 +79,21 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
       <button
         type="button"
         onClick={properties.onClick}
-        className={`absolute  lg:-left-19 h-[60px] w-[60px] rounded-r-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-lg p-7 lg:p-7 transition-all text-lg ${
+        className={`absolute -left-4 sm:-left-6 lg:-left-8 xl:-left-12 h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-r-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-2xl p-4 sm:p-6 lg:p-7 transition-all text-base sm:text-lg ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <LeftOutlined className="font-bold! " />
+        <LeftOutlined className="font-bold" />
       </button>
     );
   }
+
   return (
-    <div className="w-full bg-white p-20 rounded-xl mt-20">
-      <div className="flex mb-10 items-center justify-between">
+    <div className="w-full bg-white p-4 sm:p-8 lg:p-12 xl:p-20 rounded-xl mt-8 sm:mt-12 lg:mt-16 xl:mt-20">
+      <div className="flex mb-6 sm:mb-8 lg:mb-10 items-center justify-between">
         <Typography.Title
           level={3}
-          className="font-roboto! uppercase font-bold! ml-8! mb-6!"
+          className="font-roboto uppercase font-bold ml-2 sm:ml-4 lg:ml-8 mb-0 text-lg sm:text-xl lg:text-2xl"
         >
           {title}
         </Typography.Title>
@@ -65,7 +103,7 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
             const id = category._id;
             navigate(`/product/all/${id}`);
           }}
-          className="cursor-pointer text-base mr-8 font-medium text-primary"
+          className="cursor-pointer text-sm sm:text-base mr-2 sm:mr-4 lg:mr-8 font-medium text-primary hover:underline"
         >
           Xem tất cả
         </span>
@@ -75,9 +113,9 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
         {products.length === 0 && (
           <div className="w-full">
             <Empty
-              className="mx-auto!"
+              className="mx-auto"
               description={
-                <Typography.Text className="font-roboto! text-gray-400!">
+                <Typography.Text className="font-roboto text-gray-400">
                   Không tìm thấy sản phẩm
                 </Typography.Text>
               }
@@ -86,18 +124,21 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
         )}
 
         <div
-          className="w-full"
+          className="w-full relative"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <Slider {...settings} className="bg-white! w-full! h-full!">
+          <Slider {...settings} className="bg-white w-full h-full">
             {products.map((product, index) => {
               return (
-                <div key={index} className="px-4 my-10">
+                <div
+                  key={index}
+                  className="px-2 sm:px-3 lg:px-4 my-6 sm:my-8 lg:my-10 flex justify-between"
+                >
                   <CardProduct
                     product={product}
                     loading={loading}
-                    className={products.length < 6 && 'w-1/6'}
+                    className={products.length < 5 && `w-full`}
                   />
                 </div>
               );

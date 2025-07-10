@@ -15,16 +15,19 @@ import {
   Slider,
   Tag,
 } from 'antd';
-import { BsShop, BsSignTurnRightFill, BsCartPlusFill } from 'react-icons/bs';
+import {
+  BsShop,
+  BsSignTurnRightFill,
+  BsCartPlusFill,
+  BsFillGeoAltFill,
+} from 'react-icons/bs';
+import { BsFillTelephoneFill } from 'react-icons/bs';
 import {
   ShoppingCartOutlined,
   CheckCircleOutlined,
   GiftOutlined,
   CreditCardOutlined,
   RightOutlined,
-  MobileOutlined,
-  LaptopOutlined,
-  TabletOutlined,
 } from '@ant-design/icons';
 import Products from '@services/products';
 import { useState, useEffect, useRef } from 'react';
@@ -41,242 +44,11 @@ import CartServices from '@/services/carts';
 
 import SliderProduct from '@/components/app/ImagesSlider';
 import Recomment from '@/services/recomment';
+import Inventory from '@/services/inventories';
+import { set } from 'react-hook-form';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
-
-// Cấu hình cho từng loại sản phẩm
-const PRODUCT_CONFIGS = {
-  laptop: {
-    icon: <LaptopOutlined />,
-    highlightSpecs: [
-      { key: 'processor', label: 'CPU', icon: '💻' },
-      { key: 'graphics', label: 'Card đồ họa', icon: '🎮' },
-      {
-        key: 'displaySize',
-        label: 'Kích thước màn hình',
-        icon: '📱',
-        unit: 'inch',
-      },
-      { key: 'ram', label: 'RAM', icon: '🔧' },
-      { key: 'storage', label: 'Bộ nhớ trong', icon: '💾' },
-      { key: 'operatingSystem', label: 'Hệ điều hành', icon: '🖥️' },
-    ],
-    variants: ['memory', 'color'],
-    memoryDisplay: (memory) => `${memory.storage} - ${memory.ram}`,
-  },
-  smartphone: {
-    icon: <MobileOutlined />,
-    highlightSpecs: [
-      { key: 'chipset', label: 'Chipset', icon: '🔬' },
-      { key: 'displaySize', label: 'Màn hình', icon: '📱', unit: 'inch' },
-      { key: 'camera', label: 'Camera chính', icon: '📷' },
-      { key: 'battery', label: 'Pin', icon: '🔋', unit: 'mAh' },
-      { key: 'operatingSystem', label: 'Hệ điều hành', icon: '📱' },
-      { key: 'connectivity', label: 'Kết nối', icon: '📶' },
-    ],
-    variants: ['memory', 'color'],
-    memoryDisplay: (memory) =>
-      `${memory.storage}${memory.ram ? ` - ${memory.ram}` : ''}`,
-  },
-  tablet: {
-    icon: <TabletOutlined />,
-    highlightSpecs: [
-      { key: 'processor', label: 'Processor', icon: '💻' },
-      { key: 'displaySize', label: 'Màn hình', icon: '📱', unit: 'inch' },
-      { key: 'camera', label: 'Camera', icon: '📷' },
-      { key: 'battery', label: 'Pin', icon: '🔋', unit: 'mAh' },
-      { key: 'operatingSystem', label: 'Hệ điều hành', icon: '📱' },
-      { key: 'connectivity', label: 'Kết nối', icon: '📶' },
-    ],
-    variants: ['memory', 'color'],
-    memoryDisplay: (memory) =>
-      `${memory.storage}${memory.ram ? ` - ${memory.ram}` : ''}`,
-  },
-  headphones: {
-    icon: <BsShop />,
-    highlightSpecs: [
-      { key: 'driverSize', label: 'Kích thước driver', icon: '🎵', unit: 'mm' },
-      { key: 'frequency', label: 'Tần số', icon: '🎶' },
-      { key: 'impedance', label: 'Trở kháng', icon: '⚡', unit: 'Ohm' },
-      { key: 'connectivity', label: 'Kết nối', icon: '📶' },
-      { key: 'battery', label: 'Pin', icon: '🔋', unit: 'giờ' },
-      { key: 'noiseCancel', label: 'Chống ồn', icon: '🔇' },
-    ],
-    variants: ['color'],
-    memoryDisplay: null,
-  },
-
-  mouse: {
-    icon: <BsShop />,
-    highlightSpecs: [
-      { key: 'dpi', label: 'DPI', icon: '🎯' },
-      { key: 'pollingRate', label: 'Tần số phản hồi', icon: '🕒' },
-      { key: 'switchType', label: 'Loại switch', icon: '🔘' },
-      { key: 'weight', label: 'Trọng lượng', icon: '⚖️', unit: 'g' },
-      { key: 'connectivity', label: 'Kết nối', icon: '📶' },
-    ],
-    variants: ['color'],
-    memoryDisplay: null,
-  },
-};
-
-const HighlightSpecs = ({ product, productType, onSpecsClick }) => {
-  const config = PRODUCT_CONFIGS[productType] || PRODUCT_CONFIGS.laptop;
-  const specs = config.highlightSpecs;
-
-  return (
-    <div className="mt-10 p-5 border border-gray-300 rounded-lg">
-      <Title level={4} className="mb-4 mt-10">
-        Thông số nổi bật
-      </Title>
-      <Row
-        gutter={16}
-        onClick={onSpecsClick}
-        style={{ cursor: 'pointer', padding: 20 }}
-      >
-        {specs.slice(0, 3).map((spec, index) => {
-          const value = getSpecValue(product.specifications, spec);
-          return (
-            <Col span={8} key={index}>
-              <div className="text-center p-3 bg-white rounded-lg border border-gray-300">
-                <div className="text-2xl mb-2">{spec.icon}</div>
-                <div className="font-medium">{spec.label}</div>
-                <div className="text-sm text-gray-600">{value || 'N/A'}</div>
-              </div>
-            </Col>
-          );
-        })}
-      </Row>
-    </div>
-  );
-};
-
-const getSpecValue = (specifications, spec) => {
-  if (!specifications) return 'N/A';
-
-  const value = specifications[spec.key];
-  if (!value) return 'N/A';
-
-  if (spec.unit) {
-    return `${value} ${spec.unit}`;
-  }
-
-  return value;
-};
-
-const VariantSelector = ({
-  product,
-  productType,
-  selectedMemory,
-  selectedColor,
-  onMemoryChange,
-  onColorChange,
-}) => {
-  const config = PRODUCT_CONFIGS[productType] || PRODUCT_CONFIGS.laptop;
-  const hasMemoryVariants = config.variants.includes('memory');
-  const hasColorVariants = config.variants.includes('color');
-
-  return (
-    <>
-      {hasMemoryVariants && (
-        <div className="mb-6">
-          <Title level={5} className="mb-2">
-            Phiên bản
-          </Title>
-          <Row gutter={[12, 12]}>
-            {[
-              ...new Map(
-                product?.variants?.map((v) => [
-                  `${v.memory?.ram || ''}-${v.memory?.storage || ''}`,
-                  v,
-                ]),
-              ).values(),
-            ].map((variant, index) => {
-              const isSelected =
-                selectedMemory?.ram === variant.memory?.ram &&
-                selectedMemory?.storage === variant.memory?.storage;
-
-              return (
-                <Col xs={24} sm={12} md={8} key={`memory-${index}`}>
-                  <Button
-                    block
-                    style={{
-                      padding: '16px',
-                      borderRadius: 8,
-                      borderColor: isSelected ? '#1890ff' : '#d9d9d9',
-                    }}
-                    onClick={() => onMemoryChange(variant.memory)}
-                  >
-                    <Text strong>
-                      {config.memoryDisplay
-                        ? config.memoryDisplay(variant.memory)
-                        : variant.memory?.storage || 'Mặc định'}
-                    </Text>
-                  </Button>
-                </Col>
-              );
-            })}
-          </Row>
-        </div>
-      )}
-
-      {hasColorVariants && (
-        <div className="mb-6">
-          <Title level={5} className="mb-2">
-            Màu sắc
-          </Title>
-          <Row gutter={[12, 12]}>
-            {product?.variants
-              ?.filter((variant) => {
-                if (!hasMemoryVariants) return true;
-                return (
-                  variant.memory?.ram === selectedMemory?.ram &&
-                  variant.memory?.storage === selectedMemory?.storage
-                );
-              })
-              .map((variant, index) => {
-                const isSelected = selectedColor === variant.color?.name;
-
-                return (
-                  <Col xs={24} sm={12} md={8} key={`color-${index}`}>
-                    <div
-                      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer"
-                      style={{
-                        border: isSelected
-                          ? '2px solid #1890ff'
-                          : '1px solid #d1d5db',
-                      }}
-                      onClick={() => onColorChange(variant.color?.name)}
-                    >
-                      <div className="w-50 h-50 bg-gray-100 rounded overflow-hidden">
-                        <Image
-                          preview={false}
-                          src={
-                            variant.images?.[0] ||
-                            'https://dummyimage.com/200x200/ccc/000&text=No+Image'
-                          }
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <div>
-                        <Typography.Text strong className="block">
-                          {variant.color?.name || 'Mặc định'}
-                        </Typography.Text>
-                        <Typography.Text type="secondary">
-                          {formatCurrency(variant.price)}đ
-                        </Typography.Text>
-                      </div>
-                    </div>
-                  </Col>
-                );
-              })}
-          </Row>
-        </div>
-      )}
-    </>
-  );
-};
 
 function ProductDetail() {
   const { id } = useParams();
@@ -287,58 +59,37 @@ function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedMemory, setSelectedMemory] = useState({});
+  const [selectBranchs, setSelectBranchs] = useState({});
+
   const [detailDrawerSpecsVisible, setDetailDrawerSpecsVisible] =
     useState(false);
   const [drawerAddressVisible, setDrawerAddessVisible] = useState(false);
   const [recommnentProducts, setRecommentProducts] = useState([]);
+  const [branchStocks, setBranchStocks] = useState({});
   const { message, setShowLogin } = useAppContext();
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
-  const hasRecordedRef = useRef(false);
-  const getProductType = (product) => {
-    if (!product.category) return 'laptop';
 
-    const category = product.category.toLowerCase();
-    if (category.includes('laptop') || category.includes('máy tính'))
-      return 'laptop';
-    if (category.includes('phone') || category.includes('điện thoại'))
-      return 'smartphone';
-    if (category.includes('tablet') || category.includes('máy tính bảng'))
-      return 'tablet';
-    if (category.includes('headphone') || category.includes('tai nghe'))
-      return 'headphones';
-    if (category.includes('mouse') || category.includes('chuột'))
-      return 'mouse';
-    return 'laptop';
+  const fetchProductDetail = async () => {
+    try {
+      const res = await Products.get(id);
+      setProduct(res);
+      setSelectedColor(res.variants[0].color.name);
+      setSelectedMemory(res.variants[0].memory);
+    } catch (error) {
+      console.error('Đã có lỗi xảy ra:', error);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const productType = getProductType(product);
-  const productConfig = PRODUCT_CONFIGS[productType] || PRODUCT_CONFIGS.laptop;
 
   useEffect(() => {
     document.title = 'TechShop | Chi tiết sản phẩm';
+
+    fetchProductDetail();
+    fetchBranchs();
     fetchStats();
   }, []);
-
-  useEffect(() => {
-    const fetchProductDetail = async () => {
-      try {
-        const res = await Products.get(id);
-        setProduct(res);
-
-        if (res.variants && res.variants.length > 0) {
-          const firstVariant = res.variants[0];
-          setSelectedColor(firstVariant.color?.name || '');
-          setSelectedMemory(firstVariant.memory || {});
-        }
-      } catch (error) {
-        console.error('Đã có lỗi xảy ra:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProductDetail();
-  }, [id]);
 
   const fetchStats = async () => {
     try {
@@ -348,7 +99,6 @@ function ProductDetail() {
       console.error('Đã có lỗi xảy ra:', error);
     }
   };
-
   const fetchRecommentProducts = async () => {
     try {
       setLoading(true);
@@ -360,16 +110,21 @@ function ProductDetail() {
       setLoading(false);
     }
   };
-
+  const fetchBranchs = async () => {
+    try {
+      const res = await callFetchBranches();
+      setBranchs(res.data.data);
+      setSelectBranchs(res.data.data[0]._id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   useEffect(() => {
     fetchRecommentProducts();
   }, [id]);
 
   useEffect(() => {
     const record = async () => {
-      // if (hasRecordedRef.current) return;
-      // hasRecordedRef.current = true;
-
       if (product._id && user?._id) {
         try {
           await Recomment.recordViewHistory({
@@ -394,19 +149,6 @@ function ProductDetail() {
     record();
   }, [product._id, user?._id]);
 
-  const fetchBranchs = async () => {
-    try {
-      const res = await callFetchBranches();
-      setBranchs(res.data.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchBranchs();
-  }, []);
-
   const handleAddItemsToCart = async (items) => {
     const cartServices = new CartServices();
     try {
@@ -427,36 +169,42 @@ function ProductDetail() {
       message.error('Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
     }
   };
+  const selectedVariant = product?.variants?.find(
+    (v) =>
+      v.memory?.ram === selectedMemory?.ram &&
+      v.memory?.storage === selectedMemory?.storage &&
+      v.color?.name === selectedColor,
+  );
 
-  const handleMemoryChange = (memory) => {
-    setSelectedMemory(memory);
-    const matchedVariants = product.variants.filter(
-      (v) =>
-        v.memory?.ram === memory?.ram && v.memory?.storage === memory?.storage,
-    );
+  useEffect(() => {
+    const fetchBranchStocks = async () => {
+      if (!selectedVariant?._id || !id || !branchs.length) return;
 
-    if (matchedVariants.length > 0) {
-      const colorNames = matchedVariants.map((v) => v.color?.name);
-      if (!colorNames.includes(selectedColor)) {
-        setSelectedColor(matchedVariants[0].color?.name || '');
-      }
-    }
-  };
+      const result = {};
 
-  const handleColorChange = (colorName) => {
-    setSelectedColor(colorName);
-  };
+      await Promise.all(
+        branchs.map(async (branch) => {
+          try {
+            const res = await Inventory.getStockProduct(
+              branch._id,
+              selectedVariant._id,
+              id,
+            );
+            result[branch._id] = res.data.data;
+          } catch (err) {
+            result[branch._id] = false;
+          }
+        }),
+      );
 
-  const selectedVariant = product?.variants?.find((v) => {
-    const memoryMatch = productConfig.variants.includes('memory')
-      ? v.memory?.ram === selectedMemory?.ram &&
-        v.memory?.storage === selectedMemory?.storage
-      : true;
-    const colorMatch = productConfig.variants.includes('color')
-      ? v.color?.name === selectedColor
-      : true;
-    return memoryMatch && colorMatch;
-  });
+      setBranchStocks(result);
+    };
+
+    fetchBranchStocks();
+  }, [selectedVariant?._id, id, branchs]);
+
+  const allImages = selectedVariant?.images || [];
+  const currentStock = branchStocks[selectBranchs];
 
   if (loading) {
     return (
@@ -466,44 +214,112 @@ function ProductDetail() {
     );
   }
 
-  const allImages = selectedVariant?.images || product.images || [];
-
   return (
-    <div className="min-h-screen rounded-[10px]">
-      <div className="max-w-7xl mx-auto rounded-[10px]">
+    <div className="w-full h-full rounded-[10px] px-2 sm:px-4 lg:px-6">
+      <div className="mx-auto rounded-[10px]">
         <Row gutter={[10, 10]}>
-          <Col span={14}>
-            <Card className="h-full!">
-              <div className="relative border border-gray-200 rounded-[15px]">
+          <Col xl={14} lg={14} md={24} sm={24} xs={24}>
+            <Card className="h-full">
+              <div className="relative h-auto sm:h-[80%]">
                 <SliderProduct images={allImages} />
               </div>
-              <HighlightSpecs
-                product={product}
-                productType={productType}
-                onSpecsClick={() => setDetailDrawerSpecsVisible(true)}
-              />
+              <div className="p-2 sm:p-4">
+                {branchs.length > 0 && (
+                  <div className="space-y-4">
+                    <Title level={5} className="mb-3 text-base sm:text-lg">
+                      Danh sách cửa hàng
+                    </Title>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {branchs.map((branch) => {
+                        const inStock = branchStocks[branch._id];
+                        return (
+                          <Card
+                            key={branch._id}
+                            size="small"
+                            onClick={() => {
+                              console.log('branch._id', branch._id);
+                              setSelectBranchs(branch._id);
+                            }}
+                            className="hover:shadow-md transition-shadow cursor-pointer"
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Text strong className="text-sm sm:text-base">
+                                    {branch.name}
+                                  </Text>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-gray-500 text-sm">
+                                      <BsFillGeoAltFill />
+                                    </span>
+                                    <Text className="text-xs sm:text-sm text-gray-600">
+                                      {branch.address}
+                                    </Text>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-gray-500 text-sm">
+                                      <BsFillTelephoneFill />
+                                    </span>
+                                    <Text className="text-xs sm:text-sm text-gray-600">
+                                      {branch.phone || 'Chưa cập nhật'}
+                                    </Text>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col items-end gap-2">
+                                {inStock === undefined ? (
+                                  <Text className="text-gray-400 text-xs sm:text-sm">
+                                    Đang kiểm tra...
+                                  </Text>
+                                ) : inStock ? (
+                                  <Text className="text-xs! sm:text-sm! font-medium! text-green-500!">
+                                    Còn hàng
+                                  </Text>
+                                ) : (
+                                  <Text className="text-xs! sm:text-sm! font-medium! text-red-600!">
+                                    Hết hàng
+                                  </Text>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </Card>
           </Col>
 
-          <Col span={10}>
+          <Col xl={10} lg={10} md={24} sm={24} xs={24}>
             <Card>
               <div className="mb-4">
-                <Title level={3} className="mb-2">
+                <Title
+                  level={3}
+                  className="mb-2 text-lg sm:text-xl lg:text-2xl"
+                >
                   {product.name}
                 </Title>
-                <div className="flex items-center gap-20 mb-10">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 lg:gap-20 mb-6 sm:mb-10">
                   <Rate
                     disabled
                     defaultValue={stats?.averageRating}
                     className="text-sm"
                   />
-                  <Text type="secondary">
+                  <Text type="secondary" className="text-xs sm:text-sm">
                     {stats?.totalComments} Lượt đánh giá
                   </Text>
                   <Button
                     type="link"
                     size="small"
-                    className="p-0"
+                    className="p-0 text-xs sm:text-sm"
                     onClick={() => setDetailDrawerSpecsVisible(true)}
                   >
                     Thông số kỹ thuật
@@ -511,41 +327,142 @@ function ProductDetail() {
                 </div>
               </div>
 
-              <VariantSelector
-                product={product}
-                productType={productType}
-                selectedMemory={selectedMemory}
-                selectedColor={selectedColor}
-                onMemoryChange={handleMemoryChange}
-                onColorChange={handleColorChange}
-              />
+              <div className="mb-6">
+                <Title level={5} className="mb-2 text-sm sm:text-base">
+                  Bộ nhớ
+                </Title>
+                <Row gutter={[8, 8]}>
+                  {[
+                    ...new Map(
+                      product.variants?.map((v) => [
+                        `${v.memory.ram}-${v.memory.storage}`,
+                        v,
+                      ]),
+                    ).values(),
+                  ].map((variant, index) => {
+                    const isSelected =
+                      selectedMemory?.ram === variant.memory?.ram &&
+                      selectedMemory?.storage === variant.memory?.storage;
+
+                    return (
+                      <Col span={12} key={`memory-${index}`}>
+                        <Button
+                          block
+                          className={`py-10! sm:py-4! px-8! sm:px-4! rounded-lg! text-xs! sm:text-sm! ${
+                            isSelected ? 'border! border-primary!' : ' '
+                          } `}
+                          onClick={() => {
+                            setSelectedMemory(variant.memory);
+                            const matchedVariants = product.variants.filter(
+                              (v) =>
+                                v.memory?.ram === variant.memory?.ram &&
+                                v.memory?.storage === variant.memory?.storage,
+                            );
+
+                            if (matchedVariants.length > 0) {
+                              const colorNames = matchedVariants.map(
+                                (v) => v.color.name,
+                              );
+                              if (!colorNames.includes(selectedColor)) {
+                                setSelectedColor(matchedVariants[0].color.name);
+                              }
+                            }
+                          }}
+                        >
+                          <Text strong className="text-xs! sm:text-sm!">
+                            {variant.memory.storage} - {variant.memory.ram}
+                          </Text>
+                        </Button>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              </div>
 
               <div className="mb-6">
-                <div className="flex items-baseline gap-3 mb-2">
-                  <Title level={2} className="text-red-600 mb-0">
-                    {`${formatCurrency(selectedVariant?.price || product.price)}đ`}
+                <Title level={5} className="mb-2 text-sm sm:text-base">
+                  Màu sắc
+                </Title>
+                <Row gutter={[8, 8]}>
+                  {product.variants
+                    ?.filter(
+                      (variant) =>
+                        variant.memory?.ram === selectedMemory?.ram &&
+                        variant.memory?.storage === selectedMemory?.storage,
+                    )
+                    .map((variant, index) => {
+                      const isSelected = selectedColor === variant.color.name;
+
+                      return (
+                        <Col span={12} key={`color-${index}`}>
+                          <div
+                            className={
+                              'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs sm:text-sm ' +
+                              (isSelected ? 'border border-primary' : '')
+                            }
+                            onClick={() => setSelectedColor(variant.color.name)}
+                          >
+                            <div className="w-40 h-40 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                              <Image
+                                preview={false}
+                                src={
+                                  variant.images?.[0] ||
+                                  'https://dummyimage.com/200x200/ccc/000&text=No+Image'
+                                }
+                                className="w-full! h-full! object-contain!"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <Typography.Text
+                                strong
+                                className="block text-xs sm:text-sm truncate"
+                              >
+                                {variant.color.name}
+                              </Typography.Text>
+                              <Typography.Text
+                                type="secondary"
+                                className="text-xs sm:text-sm"
+                              >
+                                {formatCurrency(variant.price)}đ
+                              </Typography.Text>
+                            </div>
+                          </div>
+                        </Col>
+                      );
+                    })}
+                </Row>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-2 sm:gap-3 mb-2">
+                  <Title
+                    level={2}
+                    className="text-red-600 mb-0 text-xl sm:text-2xl lg:text-3xl"
+                  >
+                    {`${formatCurrency(selectedVariant?.price)}đ`}
                   </Title>
-                  {selectedVariant?.compareAtPrice && (
-                    <Text delete className="text-gray-500">
-                      {`${formatCurrency(selectedVariant.compareAtPrice)}đ`}
-                    </Text>
-                  )}
+                  <Text delete className="text-gray-500 text-sm sm:text-base">
+                    {`${formatCurrency(selectedVariant?.compareAtPrice)}đ`}
+                  </Text>
                 </div>
               </div>
 
               <div className="mb-6">
-                <Text strong className="block mb-3">
+                <Text strong className="block mb-3 text-sm sm:text-base">
                   Chọn 1 trong các khuyến mãi sau:
                 </Text>
                 <div className="space-y-2">
                   <Card size="small" className="border-red-200 bg-red-50">
                     <div className="flex items-center gap-2">
-                      <GiftOutlined className="text-red-500" />
+                      <GiftOutlined className="text-red-500 flex-shrink-0" />
                       <div>
-                        <Text strong className="text-red-600">
+                        <Text
+                          strong
+                          className="text-red-600 text-xs sm:text-sm"
+                        >
                           Khuyến mãi 1
                         </Text>
-                        <div className="text-sm">
+                        <div className="text-xs sm:text-sm">
                           Giảm ngay 2,500,000đ áp dụng đến 31/07
                         </div>
                       </div>
@@ -554,13 +471,18 @@ function ProductDetail() {
 
                   <Card size="small" className="border-blue-200 bg-blue-50">
                     <div className="flex items-center gap-2">
-                      <CreditCardOutlined className="text-blue-500" />
+                      <CreditCardOutlined className="text-blue-500 flex-shrink-0" />
                       <div>
-                        <Text strong className="text-blue-600">
+                        <Text
+                          strong
+                          className="text-blue-600 text-xs sm:text-sm"
+                        >
                           Khuyến mãi 2
                         </Text>
-                        <div className="text-sm">Giảm ngay 1,700,000đ</div>
-                        <div className="text-sm">Trả góp 0%</div>
+                        <div className="text-xs sm:text-sm">
+                          Giảm ngay 1,700,000đ
+                        </div>
+                        <div className="text-xs sm:text-sm">Trả góp 0%</div>
                       </div>
                     </div>
                   </Card>
@@ -568,13 +490,14 @@ function ProductDetail() {
               </div>
 
               <div className="space-y-3">
-                <Row gutter={[10, 10]}>
+                <Row gutter={[8, 8]}>
                   <Col span={12}>
                     <Button
                       type="primary"
                       size="large"
                       block
-                      className="bg-red-600! hover:bg-red-700! border-red-600! font-semibold! hover:shadow-md! shadow-md!"
+                      disabled={!currentStock}
+                      className="bg-red-600 hover:bg-red-700 border-red-600 font-semibold hover:shadow-md shadow-md h-auto py-2 sm:py-3 text-xs sm:text-sm"
                       icon={<ShoppingCartOutlined />}
                       onClick={async () => {
                         if (!user) {
@@ -582,10 +505,18 @@ function ProductDetail() {
                           setShowLogin(true);
                           return;
                         }
+
+                        if (!currentStock) {
+                          message.error(
+                            'Sản phẩm đã hết hàng tại chi nhánh này',
+                          );
+                          return;
+                        }
+
                         await handleAddItemsToCart([
                           {
                             product: product._id,
-                            variant: selectedVariant?._id,
+                            variant: selectedVariant._id,
                             quantity: 1,
                           },
                         ]);
@@ -598,6 +529,8 @@ function ProductDetail() {
                     <Button
                       size="large"
                       block
+                      disabled={!currentStock}
+                      className=" py-2! sm:py-3! text-xs! sm:text-sm!"
                       icon={<BsCartPlusFill />}
                       onClick={async () => {
                         if (!user) {
@@ -607,6 +540,14 @@ function ProductDetail() {
                           setShowLogin(true);
                           return;
                         }
+
+                        if (!currentStock) {
+                          message.error(
+                            'Sản phẩm đã hết hàng tại chi nhánh này',
+                          );
+                          return;
+                        }
+
                         await handleAddItemsToCart([
                           {
                             product: product._id,
@@ -616,14 +557,24 @@ function ProductDetail() {
                         ]);
                       }}
                     >
-                      Thêm vào giỏ hàng
+                      <span className="hidden! sm:inline!">
+                        Thêm vào giỏ hàng
+                      </span>
+                      <span className="sm:hidden!">Thêm vào giỏ</span>
                     </Button>
                   </Col>
+                  {!currentStock && (
+                    <Col span={24}>
+                      <Text className="text-red-500! text-sm! sm:text-base! text-center! font-medium!">
+                        Sản phẩm đang tạm hết hàng ở khu vực này. Vui lòng chọn
+                        khu vực khác!
+                      </Text>
+                    </Col>
+                  )}
                   <Col span={24}>
                     <Card
                       className="shadow"
                       style={{ borderRadius: 8 }}
-                      bodyStyle={{ padding: 16 }}
                       onClick={() => setDrawerAddessVisible(true)}
                     >
                       <div className="flex justify-between items-center">
@@ -643,16 +594,22 @@ function ProductDetail() {
               <div className="mt-6 pt-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <CheckCircleOutlined className="text-green-500" />
-                    <Text>Bảo hành chính hãng 24 tháng</Text>
+                    <CheckCircleOutlined className="text-green-500 flex-shrink-0" />
+                    <Text className="text-xs sm:text-sm">
+                      Bảo hành chính hãng 24 tháng
+                    </Text>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircleOutlined className="text-green-500" />
-                    <Text>Miễn phí giao hàng toàn quốc</Text>
+                    <CheckCircleOutlined className="text-green-500 flex-shrink-0" />
+                    <Text className="text-xs sm:text-sm">
+                      Miễn phí giao hàng toàn quốc
+                    </Text>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircleOutlined className="text-green-500" />
-                    <Text>Đổi trả trong 7 ngày</Text>
+                    <CheckCircleOutlined className="text-green-500 flex-shrink-0" />
+                    <Text className="text-xs sm:text-sm">
+                      Đổi trả trong 7 ngày
+                    </Text>
                   </div>
                 </div>
               </div>
@@ -660,35 +617,22 @@ function ProductDetail() {
           </Col>
         </Row>
 
-        <Row gutter={[10, 10]} className="mt-6">
-          <Col span={14}>
-            <Card
-              style={{
-                width: '100%',
-                maxWidth: '100%',
-              }}
-            >
-              <Tabs defaultActiveKey="description">
+        <Row gutter={[10, 10]} className="mt-6 sm:mt-8 lg:mt-10">
+          <Col lg={14} md={24} sm={24} xs={24}>
+            <Card>
+              <Tabs defaultActiveKey="description" size="small">
                 <TabPane tab="Mô tả sản phẩm" key="description">
-                  <div style={{ width: '100%', maxWidth: '100%' }}>
+                  <div className="w-full overflow-hidden">
                     <ProductDescription product={product} loading={loading} />
                   </div>
                 </TabPane>
                 <TabPane tab="Thông số kỹ thuật" key="specifications">
-                  <div style={{ width: '900px', maxWidth: '100%' }}>
+                  <div className="w-full overflow-hidden">
                     <ProductSpecification product={product} />
                   </div>
                 </TabPane>
-                <TabPane
-                  tab="Đánh giá"
-                  key="reviews"
-                  style={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div style={{ width: '900px', maxWidth: '100%' }}>
+                <TabPane tab="Đánh giá" key="reviews">
+                  <div className="w-full overflow-hidden">
                     <Comments
                       product={product}
                       loading={loading}
@@ -700,80 +644,53 @@ function ProductDetail() {
               </Tabs>
             </Card>
           </Col>
-          <Col span={10}>
-            <Card
-              className="recomment-product"
-              style={{
-                borderRadius: '8px',
-                padding: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              <Title
-                level={3}
-                style={{ marginBottom: '16px' }}
-                className="mb-4"
-              >
+          <Col lg={10} md={24} sm={24} xs={24}>
+            <Card className="recomment-product">
+              <Title level={3} className="mb-4 text-lg sm:text-xl">
                 Sản phẩm liên quan
               </Title>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                }}
-              >
+              <div className="flex flex-col gap-4">
                 {recommnentProducts && recommnentProducts.length > 0 ? (
                   recommnentProducts.map((product) => (
                     <Link key={product._id} to={`/product/${product._id}`}>
-                      <div
-                        key={product._id}
-                        className="shadow p-[12px] border border-gray-200 rounded-lg cursor-pointer"
-                      >
-                        <div className="flex items-center gap-12">
-                          <div className="w-[100px] h-[100px] overflow-hidden">
+                      <div className="shadow p-3 border border-gray-200 rounded-lg cursor-pointer hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 overflow-hidden flex-shrink-0">
                             {product.variants?.[0]?.images?.length > 0 ? (
                               <Image
                                 src={product.variants[0].images[0]}
-                                className="w-[100px] h-[100px] object-cover"
+                                className="w-full h-full object-cover"
                                 preview={false}
                               />
                             ) : (
-                              <div className="w-[100px] h-[100px] flex items-center justify-center bg-gray-100">
-                                <span
-                                  style={{
-                                    color: '#9ca3af',
-                                    fontSize: '12px',
-                                  }}
-                                >
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                <span className="text-gray-400 text-xs">
                                   No Image
                                 </span>
                               </div>
                             )}
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <Text strong ellipsis>
+                          <div className="flex-1 min-w-0">
+                            <Text
+                              strong
+                              className="block text-sm sm:text-base line-clamp-2"
+                            >
                               {product.name}
                             </Text>
-                            <div className="flex items-center justify-between">
-                              <span className="text-red-500 font-semibold">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-red-500 font-semibold text-sm sm:text-base">
                                 {product.variants?.[0]?.price
                                   ? `${product.variants[0].price.toLocaleString('vi-VN')} đ`
                                   : 'Liên hệ'}
                               </span>
                             </div>
-                            <div>
+                            <div className="flex items-center gap-2">
                               <Rate
                                 disabled
                                 defaultValue={product.rating || 0}
-                                style={{ fontSize: '12px' }}
+                                className="text-xs"
                               />
-                              <span
-                                style={{
-                                  color: '#6b7280',
-                                  fontSize: '12px',
-                                }}
-                              >
+                              <span className="text-gray-500 text-xs">
                                 ({product.reviewCount || 0})
                               </span>
                             </div>
@@ -783,13 +700,7 @@ function ProductDetail() {
                     </Link>
                   ))
                 ) : (
-                  <div
-                    style={{
-                      textAlign: 'center',
-                      color: '#6b7280',
-                      padding: '32px 0',
-                    }}
-                  >
+                  <div className="text-center text-gray-500 py-8">
                     Đang tải sản phẩm liên quan...
                   </div>
                 )}
@@ -802,30 +713,30 @@ function ProductDetail() {
       <Drawer
         open={detailDrawerSpecsVisible}
         placement="left"
-        width={600}
+        width={window.innerWidth > 768 ? 600 : '90%'}
         onClose={() => setDetailDrawerSpecsVisible(false)}
       >
         <ProductSpecification product={product} />
       </Drawer>
 
       <Drawer
-        title={'Danh sách cửa hàng'}
+        title="Danh sách cửa hàng"
         open={drawerAddressVisible}
         placement="right"
         onClose={() => setDrawerAddessVisible(false)}
-        width={600}
-        style={{ background: '#f5f5f5' }}
+        width={window.innerWidth > 768 ? 600 : '90%'}
+        className="bg-gray-50"
       >
         <Row gutter={[10, 10]}>
           {branchs.map((branch) => (
             <Col span={24} key={branch.id}>
-              <Card title={branch.name} className="flex! flex-col! p-[10px]!">
-                <Text strong className="block! text-[16px]! my-[5px]!">
+              <Card title={branch.name} className="p-2 sm:p-4">
+                <Text strong className="block text-sm sm:text-base mb-2">
                   {branch.address}
                 </Text>
                 <Button
                   icon={<BsSignTurnRightFill />}
-                  className="flex! p-[20px]! w-[200px]! my-20! rounded-2xl! bg-primary! text-white! font-medium!"
+                  className="flex items-center justify-center py-2 sm:py-4 px-4 sm:px-6 w-full sm:w-auto rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700"
                   onClick={() => {
                     navigator.geolocation.getCurrentPosition((position) => {
                       const origin = `${position.coords.latitude},${position.coords.longitude}`;
@@ -836,7 +747,7 @@ function ProductDetail() {
                     });
                   }}
                 >
-                  Xem trên map
+                  Xem chỉ đường
                 </Button>
               </Card>
             </Col>
@@ -846,4 +757,5 @@ function ProductDetail() {
     </div>
   );
 }
+
 export default ProductDetail;

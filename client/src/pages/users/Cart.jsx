@@ -11,10 +11,22 @@ import {
   Modal,
   Divider,
   Spin,
+  Card,
+  Space,
+  Tag,
+  Image,
+  Tooltip,
+  Row,
+  Col,
 } from 'antd';
 import { Link } from 'react-router-dom';
-import { DeleteOutlined } from '@ant-design/icons';
-import { set } from 'react-hook-form';
+import {
+  DeleteOutlined,
+  ShoppingCartOutlined,
+  CreditCardOutlined,
+  MinusOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -126,61 +138,136 @@ function Cart() {
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
+  const shippingFee = 0;
+
+  const calculateDiscountedPrice = (item) => {
+    const originalPrice = item?.variant?.price * item.quantity;
+    const discountAmount = originalPrice * (item.product.discount / 100);
+    return originalPrice - discountAmount;
+  };
 
   const columns = [
     {
       title: 'Sản phẩm',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
-      render: (_, item) => `${item?.variant?.name}`,
+      width: '35%',
+      render: (_, item) => {
+        return (
+          <div className="flex items-center gap-3">
+            <div className=" bg-gray-100 my-2.5 rounded-lg flex items-center justify-center overflow-hidden">
+              <Image
+                src={item?.variant?.images || '/placeholder-image.jpg'}
+                alt={item?.variant?.name}
+                width={64}
+                height={64}
+                className="object-cover"
+                fallback="/placeholder-image.jpg"
+              />
+            </div>
+            <div className="flex-1">
+              <Link to={`/product/${item.product._id}`}>
+                <Text className="text-gray-900 font-medium text-base hover:text-blue-600 hover:underline cursor-pointer">
+                  {item?.variant?.name}
+                </Text>
+              </Link>
+              {item.product.discount > 0 && (
+                <div className="mt-1">
+                  <Tag color="red" className="text-xs">
+                    -{item.product.discount}%
+                  </Tag>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: 'Đơn giá',
       dataIndex: 'price',
       key: 'price',
       align: 'center',
+      width: '20%',
       render: (_, item) => (
-        <Typography.Text className="text-primary! font-medium! text-base!">{`${item?.variant?.price.toLocaleString()}₫`}</Typography.Text>
+        <div className="text-center">
+          <Text className="text-gray-900 font-medium text-base">
+            {`${item?.variant?.price.toLocaleString()}₫`}
+          </Text>
+        </div>
       ),
     },
     {
       title: 'Số lượng',
       key: 'quantity',
       align: 'center',
+      width: '25%',
       render: (_, item) => (
-        <InputNumber
-          min={1}
-          value={item.quantity}
-          onChange={(value) => updateQuantity(item.product._id, value)}
-        />
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            size="small"
+            icon={<MinusOutlined />}
+            onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
+            disabled={item.quantity <= 1}
+            className="flex items-center justify-center w-8 h-8"
+          />
+          <InputNumber
+            min={1}
+            value={item.quantity}
+            onChange={(value) => updateQuantity(item.product._id, value)}
+            className="w-16 text-center"
+            controls={false}
+          />
+          <Button
+            size="small"
+            icon={<PlusOutlined />}
+            onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
+            className="flex items-center justify-center w-8 h-8"
+          />
+        </div>
       ),
     },
     {
       title: 'Thành tiền',
       key: 'total',
       align: 'center',
+      width: '15%',
       render: (_, item) => {
-        console.log('Item:', item);
+        const discountedPrice = calculateDiscountedPrice(item);
+        const originalPrice = item?.variant?.price * item.quantity;
+
         return (
-          <Typography.Text className="text-primary! font-medium! text-base!">{`${(item?.variant?.price * item.quantity - item?.variant?.price * item.quantity * (item.product.discount / 100)).toLocaleString()}₫`}</Typography.Text>
+          <div className="text-center">
+            <Text className="text-gray-900 font-semibold text-base">
+              {`${discountedPrice.toLocaleString()}₫`}
+            </Text>
+            {item.product.discount > 0 && (
+              <div className="text-xs text-gray-500 line-through mt-1">
+                {`${originalPrice.toLocaleString()}₫`}
+              </div>
+            )}
+          </div>
         );
       },
     },
     {
-      title: 'Xóa',
       key: 'action',
       align: 'center',
+      width: '5%',
       render: (_, item) => (
-        <Button
-          icon={<DeleteOutlined />}
-          danger
-          onClick={() => {
-            setDeleteType('item');
-            showModal();
-            setDeleteItem(item);
-          }}
-        />
+        <Tooltip title="Xóa sản phẩm">
+          <Button
+            icon={<DeleteOutlined />}
+            danger
+            type="text"
+            onClick={() => {
+              setDeleteType('item');
+              showModal();
+              setDeleteItem(item);
+            }}
+            className="hover:bg-red-50"
+          />
+        </Tooltip>
       ),
     },
   ];
@@ -191,103 +278,184 @@ function Cart() {
       setSelectedRowKeys(newSelectedRowKeys);
     },
     getCheckboxProps: (record) => ({
-      disabled: record.name === 'Disabled User', // Column configuration not to be checked
+      disabled: record.name === 'Disabled User',
       name: record.name,
     }),
   };
 
   if (loading) {
     return (
-      <div className="w-full h-[calc(100vh-60px)] px-50 flex justify-center items-center">
-        <Spin size="large" />
+      <div className="min-h-[calc(100vh-200px)] flex justify-center items-center">
+        <div className="text-center">
+          <Spin size="large" />
+          <div className="mt-4 text-gray-500">Đang tải giỏ hàng...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full px-50 py-20">
-      <Title level={3} className="text-primary! font-bold!">
-        Giỏ hàng của bạn
-      </Title>
+    <div className="px-6 py-8 w-full">
+      <div className="mb-8">
+        <Title
+          level={2}
+          className="text-gray-900 font-bold flex items-center gap-3 mb-2"
+        >
+          <ShoppingCartOutlined className="text-blue-600" />
+          Giỏ hàng của bạn
+        </Title>
+        <Text className="text-gray-600">
+          {cartItems.length > 0
+            ? `${cartItems.length} sản phẩm`
+            : 'Giỏ hàng trống'}
+        </Text>
+      </div>
 
       <Modal
         centered
         open={open}
         okText="Xóa"
-        title="Xác nhận"
+        title={
+          <div className="flex items-center gap-2">
+            <DeleteOutlined className="text-red-500" />
+            <span>Xác nhận xóa</span>
+          </div>
+        }
         cancelText="Hủy"
         onOk={handleOk}
         onCancel={handleCancel}
         confirmLoading={confirmLoading}
+        okButtonProps={{ danger: true }}
       >
-        <p>{modalText}</p>
+        <p className="text-gray-700 py-4">{modalText}</p>
       </Modal>
 
-      <Flex className="w-full relative!" gap={12}>
-        <Button
-          icon={<DeleteOutlined />}
-          onClick={() => {
-            console.log('Selected row keys:', selectedRowKeys);
-            setModalText(
-              'Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng không?',
-            );
-            setOpen(true);
-            setDeleteType('all');
-          }}
-          disabled={
-            !(
-              selectedRowKeys.length === cartItems.length &&
-              cartItems.length > 0
-            )
-          }
-          className="absolute! z-10 left-840! -top-40"
-        >
-          Xóa tất cả
-        </Button>
-        <Table
-          rowKey={(record) => `${record.product._id}-${record.variant._id}`}
-          columns={columns}
-          pagination={false}
-          dataSource={cartItems}
-          className="w-2/3 border border-[#e5e7eb] rounded-lg! overflow-hidden!"
-          rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}
-          locale={{
-            emptyText: <Empty description={<Text>Giỏ hàng trống</Text>} />,
-          }}
-        />
-
-        <div className="border flex-1 rounded-md border-[#e5e7eb]">
-          <div className="bg-[#f3f4f6] rounded-t-md px-12 py-6 font-medium">
-            <Typography.Title level={5} className="m-0!">
-              Thông tin đơn hàng
-            </Typography.Title>
-          </div>
-          <div className="p-12 relative h-full flex flex-col justify-between gap-10">
-            <Flex justify="space-between">
-              <Typography.Text className="text-lg!">Tổng tiền</Typography.Text>
-              <Typography.Text
-                level={3}
-                className="m-0! text-primary! text-lg! font-medium!"
-              >
-                {total.toLocaleString()}đ
-              </Typography.Text>
-            </Flex>
-            <div className="absolute bottom-52 left-12 right-12">
-              <Divider className="my-0! mb-10!" />
-              <Link to="/order">
+      {cartItems.length === 0 ? (
+        <Card className="text-center py-20">
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <div>
+                <Text className="text-gray-500 text-lg">
+                  Giỏ hàng của bạn đang trống
+                </Text>
+                <div className="mt-4">
+                  <Link to="/">
+                    <Button type="primary" size="large" className="rounded-lg">
+                      Tiếp tục mua sắm
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            }
+          />
+        </Card>
+      ) : (
+        <Row gutter={[10, 10]} className="w-full!">
+          <Col span={18}>
+            <Card className="shadow-sm!">
+              <div className="flex justify-between items-center mb-6">
+                <div></div>
                 <Button
-                  type="primary"
-                  size="large"
-                  className="rounded-md! w-full!"
-                  disabled={cartItems.length === 0}
+                  icon={<DeleteOutlined />}
+                  danger
+                  type="text"
+                  onClick={() => {
+                    setModalText(
+                      'Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng không?',
+                    );
+                    setOpen(true);
+                    setDeleteType('all');
+                  }}
+                  disabled={
+                    !(
+                      selectedRowKeys.length === cartItems.length &&
+                      cartItems.length > 0
+                    )
+                  }
+                  className="hover:bg-red-50"
                 >
-                  Tiến hành thanh toán
+                  Xóa tất cả
                 </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </Flex>
+              </div>
+
+              <Table
+                rowKey={(record) =>
+                  `${record.product._id}-${record.variant._id}`
+                }
+                columns={columns}
+                pagination={false}
+                dataSource={cartItems}
+                className="border-0! w-full! rounded-md"
+                bordered={false}
+                rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}
+                locale={{
+                  emptyText: <Empty description="Giỏ hàng trống" />,
+                }}
+              />
+            </Card>
+          </Col>
+
+          <Col span={6}>
+            <Card className="shadow-sm sticky ">
+              <div className="mb-6">
+                <Title level={4} className="text-gray-900 font-semibold mb-0">
+                  Tóm tắt đơn hàng
+                </Title>
+              </div>
+
+              <div className="space-y-4">
+                <Flex justify="space-between" align="center">
+                  <Text className="text-gray-600">Tạm tính</Text>
+                  <Text className="text-lg font-medium">
+                    {total.toLocaleString()}₫
+                  </Text>
+                </Flex>
+
+                <Flex justify="space-between" align="center">
+                  <Text className="text-gray-600">Phí vận chuyển</Text>
+                  <Text className="text-green-600 font-medium">
+                    {shippingFee?.toLocaleString()
+                      ? shippingFee?.toLocaleString()
+                      : 'Miễn phí'}
+                  </Text>
+                </Flex>
+
+                <Divider className="my-4" />
+
+                <Flex justify="space-between" align="center">
+                  <Text className="text-lg font-medium">Tổng cộng</Text>
+                  <Text className="text-xl font-bold text-blue-600">
+                    {total.toLocaleString()}₫
+                  </Text>
+                </Flex>
+
+                <div className="pt-4">
+                  <Link to="/order">
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<CreditCardOutlined />}
+                      className="w-full rounded-lg h-12 font-medium"
+                      disabled={cartItems.length === 0}
+                    >
+                      Tiến hành thanh toán
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="text-center pt-2">
+                  <Link to="/">
+                    <Button type="link" className="text-blue-600">
+                      ← Tiếp tục mua sắm
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      )}
     </div>
   );
 }

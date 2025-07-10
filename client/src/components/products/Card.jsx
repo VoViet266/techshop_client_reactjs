@@ -11,23 +11,15 @@ import {
 } from 'antd';
 import { callFetchStats } from '@/services/apis';
 import { useEffect, useState } from 'react';
+import { formatCurrency } from '@/helpers';
 
 function CardProduct({ product = {}, className, loading = false }) {
   const [stats, setStats] = useState({});
-  function formatCurrency(amount, locale = 'vi-VN', currency = 'VND') {
-    return new Intl.NumberFormat(locale, {
-      style: 'decimal', // hoặc 'currency' nếu bạn muốn hiển thị ký hiệu tiền tệ
-      // currency: currency, // Chỉ dùng nếu style là 'currency'
-      minimumFractionDigits: 0, // Đảm bảo không có số lẻ sau dấu phẩy
-      maximumFractionDigits: 0, // Đảm bảo không có số lẻ sau dấu phẩy
-    }).format(amount);
-  }
 
   const fetchStats = async () => {
     try {
       const res = await callFetchStats(product._id);
       setStats(res.data.data.data);
-      console.log('stats', res.data.data.data.averageRating);
     } catch (error) {
       console.error('Đã có lỗi xảy ra:', error);
     }
@@ -65,14 +57,18 @@ function CardProduct({ product = {}, className, loading = false }) {
             />
           </div>
         }
-        className={`group ${className} rounded-lg! overflow-hidden! border-none! hover:shadow-sm!`}
+        className={`group ${className} rounded-xl! overflow-hidden! border-none! hover:shadow-sm!`}
       >
         <Divider className="my-0! mb-10!" />
         <Typography.Title
-          level={4}
-          className="line-clamp-1! mb-10! font-roboto!  leading-1.4! "
+          level={3}
+          ellipsis={{ tooltip: product.name || 'Sản phẩm mới' }}
+          className="line-clamp-2! mb-10! font-roboto! leading-1.4! cursor-pointer!"
+          title={product.name || 'Sản phẩm mới'}
         >
-          {product.name || 'Sản phẩm mới'}
+          <Typography.Text className="!block">
+            {product.name || 'Sản phẩm mới'}
+          </Typography.Text>
         </Typography.Title>
         <div className="flex items-center mb-3">
           <Rate

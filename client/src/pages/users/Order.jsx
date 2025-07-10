@@ -121,10 +121,7 @@ function Order() {
 
   useEffect(() => {
     if (inventories) {
-      // Lấy tất cả branchId duy nhất từ inventories
       const branchIds = [...new Set(inventories.map((inv) => inv.branch._id))];
-
-      // Lọc ra các branch còn đủ hàng cho toàn bộ items
       const availableBranchIds = branchIds.filter((branchId) => {
         // Với mỗi item trong items, kiểm tra có inventory nào cùng branch, cùng product, cùng variant và đủ stock không
         return items.every((item) => {
@@ -246,11 +243,11 @@ function Order() {
               <Card key={index} className="rounded-xl! border-none!">
                 <div className="flex gap-12 items-center">
                   <Image
-                    width={64}
-                    height={64}
+                    width={70}
+                    height={70}
                     preview={false}
                     src={item.variant.images[0]}
-                    className="rounded-md! border! border-gray-300! flex! items-center! justify-center!"
+                    className=" ! flex! items-center! justify-center!"
                   />
 
                   <div className="flex-1">
@@ -261,11 +258,13 @@ function Order() {
                         className="rounded-full! text-center!"
                       >{`-${item.product.discount}%`}</Tag>
                     </Typography.Text>
-                    <Flex align="center">
+                    <Flex align="center" className="mt-4!">
                       <Tag color="default" className="mt-4!">
                         {`Màu: ${item.variant.color.name}`}
                       </Tag>
-                      <Typography.Text type="secondary">{`x${item.quantity}`}</Typography.Text>
+                      <Tag color="default" className="mt-4! ml-4!">
+                        {`Biến thể: ${item.variant.memory.ram}, ${item.variant.memory.storage}`}
+                      </Tag>
                     </Flex>
                   </div>
 
@@ -296,7 +295,11 @@ function Order() {
             className="w-full!"
           >
             <Typography.Text strong>Họ và tên</Typography.Text>
-            <Input value={user.name} className="w-full! flex-1 py-8!" />
+            <Input
+              value={user.name}
+              disabled
+              className="w-full! flex-1 py-8!"
+            />
           </Flex>
           <Flex
             gap={4}
@@ -308,7 +311,11 @@ function Order() {
             <Typography.Text strong className="mt-8!">
               Số điện thoại
             </Typography.Text>
-            <Input value={userInfo?.phone} className="w-full! flex-1 py-8!" />
+            <Input
+              value={userInfo?.phone}
+              disabled
+              className="w-full! flex-1 py-8!"
+            />
           </Flex>
         </Card>
 

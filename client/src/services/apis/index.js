@@ -117,7 +117,7 @@ export const callFetchProductDetail = (id) => {
 };
 
 export const callUpdateProduct = (value) => {
-  console.log(value);
+
   return axiosInstance.patch(`/api/v1/products/${value._id}`, {
     ...value,
   });
@@ -173,7 +173,7 @@ export const callFetchOutboundHistory = () => {
 };
 
 export const callFetchDetailOutbound = (id) => {
-  console.log(id);
+
   return axiosInstance.get(`/api/v1/inventories/getExport/${id}`);
 };
 
@@ -237,7 +237,7 @@ export const callFetchOrderByUserId = (userId) => {
   return axiosInstance.get(`/api/v1/orders/user/${userId}`);
 };
 export const callCreateOrder = (value) => {
-  console.log(value);
+  ;
   return axiosInstance.post(`/api/v1/orders`, {
     ...value,
   });
@@ -290,7 +290,7 @@ export const callCreateRole = (value) => {
 
 
 export const callUpdateRole = (value) => {
-  console.log(value);
+
   return axiosInstance.patch(`/api/v1/roles/${value._id}`, {
     ...value,
   });

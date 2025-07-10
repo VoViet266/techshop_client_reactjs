@@ -192,23 +192,25 @@ function ListProducts(properties) {
 
   return (
     <div className="min-h-screen w-full">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
         <Title level={3} className="mb-0! text-gray-800 font-extrabold!">
           {currentConfig?.title}
         </Title>
       </div>
 
-      <Row gutter={[10, 10]} className="mb-6">
-        <Button
-          size="large"
-          type="default"
-          className="ml-10! h-[50px]! w-[150px]"
-          onClick={() => handleBrandClick('Tất cả')}
-        >
-          Tất cả
-        </Button>
+      <Row gutter={[10, 10]} className="mb-6 flex-wrap">
+        <Col xs={24} sm={6}>
+          <Button
+            size="large"
+            type="default"
+            className="h-[50px]! w-full mb-2 sm:mb-0"
+            onClick={() => handleBrandClick('Tất cả')}
+          >
+            Tất cả
+          </Button>
+        </Col>
         {brands.map((brand, index) => (
-          <Col xs={12} md={6} lg={4} key={index}>
+          <Col xs={12} sm={6} md={6} lg={4} key={index}>
             <Button
               size="large"
               type="default"
@@ -240,8 +242,8 @@ function ListProducts(properties) {
       </Row>
 
       <Row gutter={[10, 10]}>
-        <Col xs={24} md={6} lg={6}>
-          <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+        <Col xs={24} md={8} lg={6} xl={5} xxl={4}>
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 sticky top-6">
             <div className="flex items-center justify-between gap-2 my-6">
               <Title level={5} className="mb-0! text-gray-800">
                 <FilterOutlined className="mr-2!" />
@@ -293,11 +295,11 @@ function ListProducts(properties) {
                         });
                       }}
                     >
-                      <Text className="text-sm text-gray-600">Tất cả</Text>
+                      <Text className="text-sm! text-gray-600!">Tất cả</Text>
                     </Checkbox>
                   </div>
                   {currentConfig.priceRanges.map((range, index) => (
-                    <div key={index} className="flex items-center">
+                    <div key={index} className="flex! items-center">
                       <Checkbox
                         checked={
                           JSON.stringify(filter.price) ===
@@ -319,7 +321,7 @@ function ListProducts(properties) {
                           });
                         }}
                       >
-                        <Text className="text-sm text-gray-600">
+                        <Text className="text-sm! text-gray-600!">
                           {range.label}
                         </Text>
                       </Checkbox>
@@ -327,7 +329,7 @@ function ListProducts(properties) {
                   ))}
                 </div>
                 <div className="mt-4 pt-4 border-t">
-                  <Text className="text-sm text-gray-600 mb-2 block">
+                  <Text className="text-sm! text-gray-600! mb-2 block!">
                     Hoặc nhập khoảng giá phù hợp:
                   </Text>
                   <div className="mb-4!">
@@ -352,7 +354,7 @@ function ListProducts(properties) {
                       }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  <div className="flex! justify-between! text-xs! text-gray-500! mt-2!">
                     <span>
                       {formatCurrency(
                         filter.priceRange?.[0] || currentConfig.minPrice,
@@ -442,21 +444,20 @@ function ListProducts(properties) {
           </div>
         </Col>
 
-        {/* Danh sách sản phẩm */}
-        <Col xs={24} md={18} lg={18}>
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <div className="flex justify-between items-center p-4">
+        <Col xs={24} md={16} lg={18} xl={19} xxl={20}>
+          <div className="bg-white rounded-lg shadow-sm p-2 md:p-4 mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-2 md:p-4 gap-2">
               <Text className="text-sm text-gray-600">
                 Tìm thấy{' '}
-                <span className="font-semibold">{filteredProducts.length}</span>{' '}
-                kết quả (Đang hiển thị {startIndex + 1}-
-                {Math.min(endIndex, filteredProducts.length)})
+                <span className="font-semibold">
+                  {filteredProducts.length}
+                </span>{' '}
               </Text>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-4 md:gap-4">
+                <div className="flex items-center gap-4 ">
                   <Button
-                    className="p-3! border-none!"
+                    className="p-3! border-none! rounded-xl!"
                     type={sort === null ? 'primary' : 'default'}
                     size="small"
                     onClick={() => handleSortChange(null)}
@@ -464,7 +465,7 @@ function ListProducts(properties) {
                     Nổi bật
                   </Button>
                   <Button
-                    className="p-3! border-none!"
+                    className="p-3! border-none! rounded-xl!"
                     type={sort === 1 ? 'primary' : 'default'}
                     size="small"
                     onClick={() => handleSortChange(1)}
@@ -472,7 +473,7 @@ function ListProducts(properties) {
                     Giá tăng dần
                   </Button>
                   <Button
-                    className="p-3! border-none!"
+                    className="p-3! border-none! rounded-xl!"
                     type={sort === 2 ? 'primary' : 'default'}
                     size="small"
                     onClick={() => handleSortChange(2)}
@@ -496,7 +497,15 @@ function ListProducts(properties) {
             ) : paginatedProducts.length > 0 ? (
               <Row gutter={[16, 16]}>
                 {paginatedProducts.map((product, index) => (
-                  <Col key={index} xs={12} xl={6}>
+                  <Col
+                    key={index}
+                    xs={24}
+                    sm={12}
+                    md={12}
+                    lg={8}
+                    xl={6}
+                    xxl={4}
+                  >
                     <Card
                       product={product}
                       loading={loading}
@@ -527,7 +536,7 @@ function ListProducts(properties) {
           </div>
 
           {!loading && filteredProducts.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm p-4 w-[50%] mx-auto">
+            <div className="bg-white rounded-lg shadow-sm p-2 md:p-4 w-full md:w-[50%] mx-auto">
               <Flex justify="center">
                 <Pagination
                   total={filteredProducts.length}
