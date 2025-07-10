@@ -3,7 +3,6 @@ import { Modal, Input, Table, Tag, Button, Badge, Typography } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
 const ModalSearchProduct = ({
-  inbound,
   productSearchVisible,
   setProductSearchVisible,
   handleSelectProduct,
@@ -12,7 +11,6 @@ const ModalSearchProduct = ({
   setFilteredProducts,
 }) => {
   const [productSearchText, setProductSearchText] = useState('');
-
   const handleProductSearch = (value) => {
     setProductSearchText(value);
     if (!value.trim()) {
