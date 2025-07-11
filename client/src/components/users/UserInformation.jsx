@@ -43,7 +43,7 @@ function UserInformation() {
   const items = [
     {
       key: '1',
-      label: 'Tài khoản của tôi',
+      label: <Link to="/account-info">Tài khoản của tôi</Link>,
     },
     {
       key: '3',
