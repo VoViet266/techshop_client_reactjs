@@ -79,8 +79,8 @@ const OrderManagement = () => {
 
   const statusOptions = [
     { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
-    { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
     { value: 'PROCESSING', label: 'Đang xử lý', color: 'cyan' },
+    { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
     { value: 'SHIPPING', label: 'Đang giao hàng', color: 'purple' },
     { value: 'DELIVERED', label: 'Đã giao hàng', color: 'green' },
     { value: 'CANCELLED', label: 'Đã hủy', color: 'red' },
@@ -89,7 +89,7 @@ const OrderManagement = () => {
 
   const paymentStatusOptions = [
     { value: 'PENDING', label: 'Đang chờ thanh toán', color: 'orange' },
-    { value: 'SUCCESS', label: 'Đã thanh toán', color: 'green' },
+    { value: 'COMPLETED', label: 'Đã thanh toán', color: 'green' },
     { value: 'FAILED', label: 'Thanh toán thất bại', color: 'red' },
     { value: 'CANCELLED', label: 'Đã hủy', color: 'gray' },
     { value: 'REFUNDED', label: 'Đã hoàn tiền', color: 'blue' },

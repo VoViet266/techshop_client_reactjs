@@ -22,6 +22,7 @@ import UserRoleManagement from '@/pages/admin/role/userRole';
 import WarehouseTransfer from '@/pages/admin/warehouse/transfer';
 import BannerManagement from '@/pages/admin/banner';
 import PermissionsManagement from '@/pages/admin/permission/permission';
+import WarehouseTransferManagement from '@/pages/admin/warehouse/transfer';
 
 const router = createBrowserRouter([
   {
@@ -148,7 +149,7 @@ const router = createBrowserRouter([
           },
           {
             path: 'transfer',
-            element: <WarehouseTransfer />,
+            element: <WarehouseTransferManagement />,
           },
         ],
       },

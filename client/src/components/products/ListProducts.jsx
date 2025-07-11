@@ -32,21 +32,19 @@ const { TabPane } = Tabs;
 function ListProducts(properties) {
   const {
     sort,
-    rams,
-    title,
+
     brands,
     filter,
     setSort,
     loading,
-    products,
-    storages,
+
     setFilter,
-    setProducts,
+    products,
     categorieCurrent,
     currentBrand,
     setCurrentBrand,
     filteredProducts,
-
+    categoryConfig,
     setProductType,
   } = properties;
 
@@ -81,40 +79,19 @@ function ListProducts(properties) {
     setSearchParams({ _page: '1', _limit: _limit.toString() });
   };
 
-  const handleProductTypeChange = (type) => {
-    setProductType(type);
-
-    setFilter({
-      price: null,
-      color: null,
-      ram: null,
-      storage: null,
-      priceRange: null,
-      os: null,
-      processor: null,
-      screenSize: null,
-      batteryCapacity: null,
-      connectivity: null,
-    });
-
-    setCurrentBrand('');
-    setSort(null);
-    setActiveFilters({});
-    setSearchParams({ _page: '1', _limit: _limit.toString() });
-  };
-
+ 
   const handleFilterReset = () => {
     setFilter({
-      price: null,
-      color: null,
-      ram: null,
-      storage: null,
-      priceRange: null,
-      os: null,
-      processor: null,
-      screenSize: null,
-      batteryCapacity: null,
-      connectivity: null,
+      // price: null,
+      // color: null,
+      // ram: null,
+      // storage: null,
+      // priceRange: null,
+      // os: null,
+      // processor: null,
+      // screenSize: null,
+      // batteryCapacity: null,
+      // connectivity: null,
     });
     setCurrentBrand('');
     setSort(null);
@@ -160,28 +137,6 @@ function ListProducts(properties) {
     }).format(amount);
   };
 
-  const renderFilterPanel = (key, title, options) => (
-    <Panel header={title} key={key}>
-      <div className="space-y-2">
-        {options.map((option, index) => {
-          const label = typeof option === 'object' ? option.label : option;
-          return (
-            <div key={index} className="flex items-center">
-              <Checkbox
-                checked={filter[key]?.label === option}
-                onChange={(e) =>
-                  handleFilterChange(key, option, e.target.checked)
-                }
-              >
-                {label}
-              </Checkbox>
-            </div>
-          );
-        })}
-      </div>
-    </Panel>
-  );
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -189,6 +144,22 @@ function ListProducts(properties) {
       </div>
     );
   }
+  const getDynamicOptions = () => {
+    const options = {};
+    categoryConfig?.configFields?.extraFields?.forEach((field) => {
+      const values = [
+        ...new Set(
+          products.map((p) => p?.attributes?.[field.name]).filter(Boolean),
+        ),
+      ];
+      if (values.length > 0) {
+        options[field.name] = values;
+      }
+    });
+    return options;
+  };
+
+  const dynamicOptions = getDynamicOptions();
 
   return (
     <div className="min-h-screen w-full">
@@ -305,6 +276,7 @@ function ListProducts(properties) {
                           JSON.stringify(filter.price) ===
                           JSON.stringify(range.value)
                         }
+                        value={range.value}
                         onChange={() => {
                           setFilter((prev) => ({
                             ...prev,
@@ -315,6 +287,7 @@ function ListProducts(properties) {
                                 : range.value,
                             priceRange: null,
                           }));
+
                           setSearchParams({
                             _page: '1',
                             _limit: _limit.toString(),
@@ -371,75 +344,29 @@ function ListProducts(properties) {
                 </div>
               </Panel>
 
-              {currentConfig.filters.operatingSystems &&
-                renderFilterPanel(
-                  'os',
-                  'Hệ điều hành',
-                  currentConfig.filters.operatingSystems,
-                )}
-
-              {currentConfig.filters.ramCapacities &&
-                renderFilterPanel(
-                  'ram',
-                  'Dung lượng RAM',
-                  currentConfig.filters.ramCapacities,
-                )}
-
-              {currentConfig.filters.storageCapacities &&
-                renderFilterPanel(
-                  'storage',
-                  'Dung lượng bộ nhớ',
-                  currentConfig.filters.storageCapacities,
-                )}
-
-              {currentConfig.filters.processors &&
-                renderFilterPanel(
-                  'processor',
-                  'Bộ xử lý',
-                  currentConfig.filters.processors,
-                )}
-
-              {currentConfig.filters.screenSize &&
-                renderFilterPanel(
-                  'screenSize',
-                  'Kích thước màn hình',
-                  currentConfig.filters.screenSize,
-                )}
-
-              {currentConfig.filters.batteryCapacity &&
-                renderFilterPanel(
-                  'batteryCapacity',
-                  'Dung lượng pin',
-                  currentConfig.filters.batteryCapacity,
-                )}
-
-              {currentConfig.filters.batteryLife &&
-                renderFilterPanel(
-                  'batteryLife',
-                  'Thời lượng pin',
-                  currentConfig.filters.batteryLife,
-                )}
-
-              {currentConfig.filters.connectivity &&
-                renderFilterPanel(
-                  'connectivity',
-                  'Kết nối',
-                  currentConfig.filters.connectivity,
-                )}
-
-              {currentConfig.filters.graphicsCard &&
-                renderFilterPanel(
-                  'graphicsCard',
-                  'Card đồ họa',
-                  currentConfig.filters.graphicsCard,
-                )}
-
-              {currentConfig.filters.features &&
-                renderFilterPanel(
-                  'features',
-                  'Tính năng',
-                  currentConfig.filters.features,
-                )}
+              {categoryConfig?.configFields?.extraFields?.map(
+                (field) =>
+                  dynamicOptions[field.name]?.length > 0 && (
+                    <Panel header={field.label} key={field.name}>
+                      {dynamicOptions[field.name].map((value, index) => (
+                        <div key={value}>
+                          <Checkbox
+                            checked={filter[field.name]?.label === value}
+                            onChange={(e) =>
+                              handleFilterChange(
+                                field.name,
+                                value,
+                                e.target.checked,
+                              )
+                            }
+                          >
+                            {value}
+                          </Checkbox>
+                        </div>
+                      ))}
+                    </Panel>
+                  ),
+              )}
             </Collapse>
           </div>
         </Col>

@@ -62,9 +62,8 @@ const WarehouseInbound = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [productSearchVisible, setProductSearchVisible] = useState(false);
-  const [selectedInboundDetail, setSelectedInboundDetail] = useState(null);
-
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedInboundDetail, setSelectedInboundDetail] = useState(null);
 
   const [detailLoading, setDetailLoading] = useState(false);
   const inbound = useState(true);

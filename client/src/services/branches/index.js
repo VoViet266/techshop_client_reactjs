@@ -1,9 +1,9 @@
 import axiosInstance from '@services/apis';
 
-class BranchService {
-  getAll() {
+class Branchs {
+  static getAll() {
     return axiosInstance.get('api/v1/branchs');
   }
 }
 
-export default BranchService;
+export default Branchs;

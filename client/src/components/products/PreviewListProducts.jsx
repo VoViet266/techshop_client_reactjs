@@ -65,7 +65,7 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
       <button
         type="button"
         onClick={properties.onClick}
-        className={`absolute -right-4 sm:-right-6 lg:-right-8 xl:-right-12 h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-l-full flex items-center justify-center hover:opacity-80 bg-white/30 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-2xl p-4 sm:p-6 lg:p-7 transition-all text-base sm:text-lg ${
+        className={`absolute -right-4 sm:-right-6 lg:-right-8 xl:-right-12 h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-l-full flex items-center justify-center hover:opacity-80 bg-white/50 backdrop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-2xl p-4 sm:p-6 lg:p-7 transition-all text-base sm:text-lg ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       >
@@ -79,7 +79,7 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
       <button
         type="button"
         onClick={properties.onClick}
-        className={`absolute -left-4 sm:-left-6 lg:-left-8 xl:-left-19 h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-r-full flex items-center justify-center hover:opacity-80 bg-gray-200 drop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-2xl p-4 sm:p-6 lg:p-7 transition-all text-base sm:text-lg ${
+        className={`absolute -left-4 sm:-left-6 lg:-left-8 xl:-left-19 h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-r-full flex items-center justify-center hover:opacity-80 bg-white/50 drop-filter backdrop-blur-md top-1/2 -translate-y-1/2 z-10 text-white cursor-pointer shadow-2xl p-4 sm:p-6 lg:p-7 transition-all text-base sm:text-lg ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       >
