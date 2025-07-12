@@ -13,8 +13,6 @@ import {
   Tabs,
   Tag,
   Table,
-  Popconfirm,
-  message,
   Typography,
 } from 'antd';
 import { useAppContext } from '@/contexts';
@@ -118,6 +116,36 @@ const AccountInfoPage = () => {
       throw new Error('Không thể lấy danh sách đơn hàng.');
     } catch (error) {
       console.error('Lỗi:', error);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      const userService = new UserService();
+      message.loading('Đang xóa địa chỉ');
+
+      const updatedAddresses = updateUserInfo.addresses.filter(
+        (addr) => addr.id !== addressId,
+      );
+
+      const updatedUser = {
+        ...updateUserInfo,
+        addresses: updatedAddresses,
+      };
+
+      const response = await userService.update(updatedUser);
+
+      if (response.status === 200) {
+        message.destroy();
+        message.success('Xóa địa chỉ thành công');
+        await getUser();
+      } else {
+        throw new Error('Xóa thất bại');
+      }
+    } catch (error) {
+      message.destroy();
+      console.error('Lỗi khi xóa địa chỉ:', error);
+      message.error('Xóa địa chỉ thất bại');
     }
   };
 
@@ -349,16 +377,21 @@ const AccountInfoPage = () => {
                     Sửa
                   </Button>,
 
-                  <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                      message.warning('Chưa làm xong luôn');
-                    }}
-                  >
-                    Xóa
-                  </Button>,
+                  ...(userInfo?.addresses?.length > 1
+                    ? [
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => {
+                            // message.warning('Chưa làm xong luôn');
+                            handleDeleteAddress(item.id);
+                          }}
+                        >
+                          Xóa
+                        </Button>,
+                      ]
+                    : []),
                 ]}
               >
                 <List.Item.Meta
