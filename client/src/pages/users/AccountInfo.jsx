@@ -128,46 +128,54 @@ const AccountInfoPage = () => {
   }, []);
 
   useEffect(() => {
+    if (editingAddress) {
+      console.log(JSON.stringify(editingAddress));
+    }
+  }, [editingAddress]);
+
+  useEffect(() => {
     document.title = 'Thông tin cá nhân';
     getUser();
     getAllOrders();
     fetchProvinces();
   }, []);
 
-  useEffect(() => {
-    if (editingAddress) {
-      const province = provinces.find(
-        (province) =>
-          editingAddress.addressDetail.split(', ')[0] === province.name,
-      );
-      setSelectedProvince(province);
-    }
-  }, [editingAddress]);
+  // useEffect(() => {
+  //   if (orders) {
+  //     console.log(orders);
+  //   }
+  // }, [orders]);
+
+  const [selectedWard, setSelectedWard] = useState(null);
 
   useEffect(() => {
-    if (orders) {
-      console.log(orders);
-    }
-  }, [orders]);
+    if (editingAddress && provinces.length > 0) {
+      const [cityName, districtName, wardName] = editingAddress.addressDetail
+        .split(', ')
+        .reverse();
 
-  useEffect(() => {
-    if (selectedProvince) {
-      fetchDistricts(selectedProvince.code);
+      const foundProvince = provinces.find((p) => p.name === cityName.trim());
+      if (foundProvince) {
+        setSelectedProvince(foundProvince);
+        fetchDistricts(foundProvince.code).then((districtsData) => {
+          const foundDistrict = districtsData.find(
+            (d) => d.name === districtName.trim(),
+          );
+          setDistricts(districtsData);
+          if (foundDistrict) {
+            setSelectedDistrict(foundDistrict);
+            fetchWards(foundDistrict.code).then((wardsData) => {
+              setWards(wardsData);
+              const foundWard = wardsData.find(
+                (w) => w.name === wardName.trim(),
+              );
+              setSelectedWard(foundWard);
+            });
+          }
+        });
+      }
     }
-
-    const district = districts.find(
-      (district) =>
-        editingAddress.addressDetail.split(', ')[1] === district.name,
-    );
-    // console.log(district);
-    setSelectedDistrict(district);
-  }, [selectedProvince]);
-
-  useEffect(() => {
-    if (selectedDistrict) {
-      fetchWards(selectedDistrict.code);
-    }
-  }, [selectedDistrict]);
+  }, [editingAddress, provinces]);
 
   // Dữ liệu mẫu cho thông tin cá nhân
   const [personalInfo, setPersonalInfo] = useState({
@@ -224,41 +232,6 @@ const AccountInfoPage = () => {
       phone: tempPersonalInfo.phone,
     }));
     message.success('Cập nhật thông tin thành công!');
-  };
-
-  const handleAddressSubmit = () => {
-    if (!tempAddress.trim()) {
-      message.error('Vui lòng nhập địa chỉ!');
-      return;
-    }
-
-    if (editingAddress) {
-      // Cập nhật địa chỉ
-      setPersonalInfo((prev) => ({
-        ...prev,
-        addresses: prev.addresses.map((addr) =>
-          addr.id === editingAddress.id
-            ? { ...addr, address: tempAddress }
-            : addr,
-        ),
-      }));
-      message.success('Cập nhật địa chỉ thành công!');
-    } else {
-      // Thêm địa chỉ mới
-      const newAddress = {
-        id: Date.now(),
-        address: tempAddress,
-        isDefault: personalInfo.addresses.length === 0,
-      };
-      setPersonalInfo((prev) => ({
-        ...prev,
-        addresses: [...prev.addresses, newAddress],
-      }));
-      message.success('Thêm địa chỉ thành công!');
-    }
-    setIsAddressModalVisible(false);
-    setEditingAddress(null);
-    setTempAddress('');
   };
 
   const handleDeleteAddress = (addressId) => {
@@ -457,7 +430,7 @@ const AccountInfoPage = () => {
       </Card>
 
       <Modal
-        title={editingAddress ? 'Sửa địa chỉ' : 'Thêm địa chỉ mới'}
+        title={editingAddress ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}
         open={isAddressModalVisible}
         onCancel={() => {
           setIsAddressModalVisible(false);
@@ -472,17 +445,19 @@ const AccountInfoPage = () => {
               <label className="mb-4">Tỉnh/Thành phố</label>
               <Select
                 value={selectedProvince?.code}
-                placeholder="Chọn tỉnh/thành phố"
-                onChange={(code) => {
-                  console.log(code);
-                  const selected = provinces.find((p) => p.code === code);
-                  setSelectedProvince(selected);
-                }}
-                optionFilterProp="label"
-                options={provinces.map((province) => ({
-                  label: province.name,
-                  value: province.code,
+                options={provinces.map((p) => ({
+                  label: p.name,
+                  value: p.code,
                 }))}
+                onChange={(code) => {
+                  const province = provinces.find((p) => p.code === code);
+                  setSelectedProvince(province);
+                  setSelectedDistrict(null);
+                  setSelectedWard(null);
+                  setDistricts([]);
+                  setWards([]);
+                  fetchDistricts(code); // <-- GỌI API LẤY HUYỆN
+                }}
               />
             </Flex>
 
@@ -490,31 +465,29 @@ const AccountInfoPage = () => {
               <label className="mb-4">Quận/Huyện</label>
               <Select
                 value={selectedDistrict?.code}
-                placeholder="Chọn quận/huyện"
-                onChange={(code) => {
-                  const selected = districts.find((d) => d.code === code);
-                  setSelectedDistrict(selected);
-                }}
-                optionFilterProp="label"
-                options={districts.map((district) => ({
-                  label: district.name,
-                  value: district.code,
+                options={districts.map((d) => ({
+                  label: d.name,
+                  value: d.code,
                 }))}
+                onChange={(code) => {
+                  const district = districts.find((d) => d.code === code);
+                  setSelectedDistrict(district);
+                  setSelectedWard(null);
+                  setWards([]);
+                  fetchWards(code); // <-- GỌI API LẤY PHƯỜNG/XÃ
+                }}
               />
             </Flex>
 
             <Flex vertical>
               <label className="mb-4">Xã/Phường</label>
               <Select
-                defaultValue={editingAddress?.addressDetail?.split(', ')[2]}
-                placeholder="Chọn Xã/Phường"
-                optionFilterProp="label"
-                options={wards.map((ward) => {
-                  return {
-                    label: ward.name,
-                    value: ward.code,
-                  };
-                })}
+                value={selectedWard?.code}
+                options={wards.map((w) => ({ label: w.name, value: w.code }))}
+                onChange={(code) => {
+                  const ward = wards.find((w) => w.code === code);
+                  setSelectedWard(ward);
+                }}
               />
             </Flex>
           </Flex>
@@ -524,7 +497,10 @@ const AccountInfoPage = () => {
               className="min-h-70!"
               value={editingAddress?.specificAddress}
               onChange={(event) => {
-                setEditingAddress(event.target.value);
+                setEditingAddress((prev) => ({
+                  ...prev,
+                  specificAddress: event.target.value,
+                }));
               }}
             ></Input.TextArea>
           </Flex>

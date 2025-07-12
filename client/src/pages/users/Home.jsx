@@ -155,6 +155,10 @@ function Home() {
     initializeData();
   }, []);
 
+  useEffect(() => {
+    document.title = 'Trang chủ';
+  }, []);
+
   // Custom carousel arrows
   const CustomNextArrow = ({ onClick }) => (
     <button
