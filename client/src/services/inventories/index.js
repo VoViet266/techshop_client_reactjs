@@ -8,6 +8,11 @@ class Inventory {
     const params = { branchId, variantId, productId }
     return axiosInstance.get(`api/v1/inventories/check-stock`, { params });
   }
+
+
+
+
+
 }
 
 export default Inventory;

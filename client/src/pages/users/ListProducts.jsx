@@ -47,10 +47,26 @@ function ProductsList() {
 
     const matchesFilter = (product, key, value) => {
       const data =
-        product.variants?.[0]?.memory?.[key] || product?.attributes?.[key];
-      console.log('data', data);
+        product.variants?.[0]?.memory?.[key] ?? product?.attributes?.[key];
+
+      if (typeof data === 'boolean') {
+        if (typeof value === 'boolean') {
+          return data === value;
+        }
+        if (typeof value.label === 'boolean') {
+          return data === value.label;
+        }
+        if (typeof value.label === 'string') {
+          return data === (value.label.trim().toLowerCase() === 'true');
+        }
+      }
+
       return (
-        data && data?.toLowerCase().includes(value.label?.trim().toLowerCase())
+        data &&
+        data
+          ?.toString()
+          .toLowerCase()
+          .includes(value.label?.trim().toLowerCase())
       );
     };
 
@@ -61,7 +77,7 @@ function ProductsList() {
     const allOtherFiltersMatch = keys.every((key) => {
       return matchesFilter(product, key, filter[key]);
     });
-    console.log('allOtherFiltersMatch', allOtherFiltersMatch);
+
     return matchPrice && allOtherFiltersMatch;
   });
 
@@ -155,7 +171,6 @@ function ProductsList() {
         storages={storages}
         setFilter={setFilter}
         title={category?.name}
-        categorieCurrent={category?.slug}
         setProducts={setProducts}
         currentPage={currentPage}
         currentBrand={currentBrand}
@@ -164,6 +179,7 @@ function ProductsList() {
         filteredProducts={sortedAndFilteredProducts}
         productType={productType}
         setProductType={setProductType}
+        categoryConfig={category}
       />
     </div>
   );

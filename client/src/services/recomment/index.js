@@ -15,6 +15,12 @@ class Recomment {
         const response = await axiosInstance.get(`/api/v1/recomment/get-by-user/${id}`);
         return response.data.data;
     }
+
+
+    static getRecommendedProductsIsFeatured = async (id) => {
+        const response = await axiosInstance.get(`/api/v1/recomment/featured/${id}`);
+        return response.data.data;
+    }
 }
 
 export default Recomment

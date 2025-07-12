@@ -9,6 +9,7 @@ import {
   Card,
   Button,
   Empty,
+  Skeleton,
 } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
@@ -68,7 +69,6 @@ function Home() {
     ],
   };
 
-  // Fetch categories
   const fetchCategories = async () => {
     try {
       const categories = await Categories.getAll();
@@ -78,7 +78,6 @@ function Home() {
     }
   };
 
-  // Fetch products
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -118,7 +117,7 @@ function Home() {
       setMainBanners(
         mainBanners.length > 0 ? mainBanners : fallbackBanners.main,
       );
-      console.log('mainBanners', mainBanners);
+
       setPromoBanners(
         promoBanners.length > 0 ? promoBanners : fallbackBanners.promo,
       );
@@ -133,18 +132,30 @@ function Home() {
     }
   };
   useEffect(() => {
-    const fetchRecommendations = async () => {
+    const fetchRecommendationsByUser = async () => {
       if (user) {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
           setRecommentProducts(res);
+          setLoading(false);
         } catch (error) {
+          setLoading(false);
           console.error('Error fetching recommendations:', error);
         }
       }
     };
+    const fetchRecommendationsProducts = async () => {
+      try {
+        const res = await Recomment.getRecommendations();
+        setRecommentProducts(res);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.error('Error fetching recommendations:', error);
+      }
+    }
 
-    fetchRecommendations();
+    fetchRecommendationsByUser();
   }, [user]);
 
   useEffect(() => {
@@ -194,7 +205,7 @@ function Home() {
   if (loading) {
     return (
       <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
-        <Spin size="large" tip="Đang tải..." />
+        <Spin size="large" tip="Đang tải..." delay={1000} />
       </div>
     );
   }
@@ -265,36 +276,54 @@ function Home() {
           </Col>
         </Row>
       </section>
-      {recommentProducts.length > 0 && (
+      {!loading ? (
+        <section className="w-full mb-12 bg-[#ffffff] rounded-xl">
+          {recommentProducts.length > 0 ? (
+            <>
+              <div className="flex mb-10 items-center justify-between">
+                <Typography.Title
+                  level={3}
+                  className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
+                >
+                  Sản phẩm có thể phù hợp với bạn
+                </Typography.Title>
+              </div>
+
+              <Row className="w-full mx-auto ">
+                {recommentProducts.map((product, index) => (
+                  <Col
+                    key={index}
+                    xs={24}
+                    sm={12}
+                    md={8}
+                    lg={6}
+                    xl={4}
+                    className="mb-6"
+                  >
+                    <CardProduct
+                      product={product}
+                      loading={loading}
+                      className="w-full transform transition-all duration-300 hover:shadow-xl"
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </>
+          ) : (
+            <Skeleton count={6}  className='w-full! h-full! '/>
+          )}
+        </section>
+      ) : (
         <section className="w-full mb-12 bg-[#ffffff] rounded-xl">
           <div className="flex mb-10 items-center justify-between">
             <Typography.Title
               level={3}
               className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
             >
-              Sản phẩm có thể phù hợp với bạn
+              Sản phẩm có thể phù hợp với baise
             </Typography.Title>
           </div>
-
-          <Row className="w-full mx-auto ">
-            {recommentProducts.map((product, index) => (
-              <Col
-                key={index}
-                xs={24}
-                sm={12}
-                md={8}
-                lg={6}
-                xl={4}
-                className="mb-6"
-              >
-                <CardProduct
-                  product={product}
-                  loading={loading}
-                  className="w-full transform transition-all duration-300 hover:shadow-xl"
-                />
-              </Col>
-            ))}
-          </Row>
+          <Empty />
         </section>
       )}
 
