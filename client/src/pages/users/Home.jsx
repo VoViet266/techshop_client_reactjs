@@ -200,7 +200,7 @@ function Home() {
   if (loading) {
     return (
       <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
-        <Spin size="large" tip="Đang tải..." delay={1000} />
+        <Spin size="large" tip="Đang tải..." delay={1000} fullscreen />
       </div>
     );
   }

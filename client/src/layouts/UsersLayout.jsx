@@ -15,9 +15,10 @@ import {
 } from '@ant-design/icons';
 import { Layout, Typography, Button, Flex, Spin, Grid, Dropdown } from 'antd';
 import FooterComponent from './footer';
-const { useBreakpoint } = Grid;
+import ForgotPasswordModal from '@/pages/app/forgotPassword';
 function Header() {
-  const { setShowLogin, setShowSignup, user, message } = useAppContext();
+  const { setShowLogin, setShowSignup, user, message, setShowForgotPassword } =
+    useAppContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -101,7 +102,8 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, loading, setLoading } = useAppContext();
+  const { showLogin, showSignup, loading, setLoading, showForgotPassword } =
+    useAppContext();
 
   return (
     <Layout className="font-roboto! relative! flex! flex-col! items-center!">
@@ -114,6 +116,7 @@ function UsersLayout() {
           <Outlet />
           {showLogin && <Login />}
           {showSignup && <Signup />}
+          {showForgotPassword && <ForgotPasswordModal />}
           <ChatBot />
         </Layout.Content>
       )}

@@ -15,7 +15,8 @@ const { Title, Link, Text } = Typography;
 
 function Login() {
   const [user, setUser] = useState({ email: '', password: '' });
-  const { setShowLogin, setShowSignup, message } = useAppContext();
+  const { setShowLogin, setShowSignup, message, setShowForgotPassword } =
+    useAppContext();
   const { handleLogin } = useLogin(message);
 
   return (
@@ -149,6 +150,10 @@ function Login() {
                 fontSize: 14,
                 fontWeight: 500,
                 color: '#e53935',
+              }}
+              onClick={() => {
+                setShowForgotPassword(true);
+                setShowLogin(false);
               }}
             >
               Quên mật khẩu?

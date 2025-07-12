@@ -23,6 +23,7 @@ import WarehouseTransfer from '@/pages/admin/warehouse/transfer';
 import BannerManagement from '@/pages/admin/banner';
 import PermissionsManagement from '@/pages/admin/permission/permission';
 import WarehouseTransferManagement from '@/pages/admin/warehouse/transfer';
+import ForgotPasswordPage from '@/pages/app/forgotPassword';
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: 'search/:query',
         element: <SearchProductResult />,
+      },
+      {
+        path: 'forgot-password',
+        element: <ForgotPasswordPage />,
       },
     ],
   },
