@@ -32,12 +32,10 @@ const { TabPane } = Tabs;
 function ListProducts(properties) {
   const {
     sort,
-
     brands,
     filter,
     setSort,
     loading,
-
     setFilter,
     products,
     categorieCurrent,
@@ -52,9 +50,17 @@ function ListProducts(properties) {
   const _page = parseInt(searchParams.get('_page') || '1');
   const _limit = parseInt(searchParams.get('_limit') || '8');
 
-  const currentConfig =
-    PRODUCT_CONFIGS[categorieCurrent] || PRODUCT_CONFIGS['dien-thoai'];
-
+  // const currentConfig =
+  //   PRODUCT_CONFIGS[categorieCurrent] || PRODUCT_CONFIGS['dien-thoai'];
+  const priceRange = [
+    { label: 'Dưới 2 triệu', value: [0, 2000000] },
+    { label: 'Từ 2 - 4 triệu', value: [2000000, 4000000] },
+    { label: 'Từ 4 - 7 triệu', value: [4000000, 7000000] },
+    { label: 'Từ 7 - 13 triệu', value: [7000000, 13000000] },
+    { label: 'Từ 13 - 20 triệu', value: [13000000, 20000000] },
+    { label: 'từ 20 - 30 triệu', value: [20000000, 30000000] },
+    { label: 'Trên 30 triệu', value: [30000000, 100000000] },
+  ];
   const fetchBranches = async () => {
     try {
       const res = await callFetchBrands();
@@ -79,20 +85,8 @@ function ListProducts(properties) {
     setSearchParams({ _page: '1', _limit: _limit.toString() });
   };
 
- 
   const handleFilterReset = () => {
-    setFilter({
-      // price: null,
-      // color: null,
-      // ram: null,
-      // storage: null,
-      // priceRange: null,
-      // os: null,
-      // processor: null,
-      // screenSize: null,
-      // batteryCapacity: null,
-      // connectivity: null,
-    });
+    setFilter({});
     setCurrentBrand('');
     setSort(null);
 
@@ -165,7 +159,7 @@ function ListProducts(properties) {
     <div className="min-h-screen w-full">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
         <Title level={3} className="mb-0! text-gray-800 font-extrabold!">
-          {currentConfig?.title}
+          {categorieCurrent?.name}
         </Title>
       </div>
 
@@ -269,7 +263,7 @@ function ListProducts(properties) {
                       <Text className="text-sm! text-gray-600!">Tất cả</Text>
                     </Checkbox>
                   </div>
-                  {currentConfig.priceRanges.map((range, index) => (
+                  {priceRange.map((range, index) => (
                     <div key={index} className="flex! items-center">
                       <Checkbox
                         checked={
@@ -308,16 +302,13 @@ function ListProducts(properties) {
                   <div className="mb-4!">
                     <Slider
                       range
-                      min={currentConfig.minPrice}
-                      max={currentConfig.maxPrice}
-                      defaultValue={[
-                        currentConfig.minPrice,
-                        currentConfig.maxPrice,
-                      ]}
+                      min={priceRange.minPrice}
+                      max={priceRange.maxPrice}
+                      defaultValue={[priceRange.minPrice, priceRange.maxPrice]}
                       value={
                         filter.priceRange || [
-                          currentConfig.minPrice,
-                          currentConfig.maxPrice,
+                          priceRange.minPrice,
+                          priceRange.maxPrice,
                         ]
                       }
                       step={100000}
@@ -330,13 +321,13 @@ function ListProducts(properties) {
                   <div className="flex! justify-between! text-xs! text-gray-500! mt-2!">
                     <span>
                       {formatCurrency(
-                        filter.priceRange?.[0] || currentConfig.minPrice,
+                        filter.priceRange?.[0] || priceRange.minPrice,
                       )}{' '}
                       vnđ
                     </span>
                     <span>
                       {formatCurrency(
-                        filter.priceRange?.[1] || currentConfig.maxPrice,
+                        filter.priceRange?.[1] || priceRange.maxPrice,
                       )}{' '}
                       vnđ
                     </span>

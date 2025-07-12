@@ -43,7 +43,7 @@ import { formatCurrency } from '@/helpers';
 import CartServices from '@/services/carts';
 
 import SliderProduct from '@/components/app/ImagesSlider';
-import Recomment from '@/services/recomment';
+import Recomment from '@/services/recommend';
 import Inventory from '@/services/inventories';
 import { set } from 'react-hook-form';
 
@@ -127,10 +127,13 @@ function ProductDetail() {
     const record = async () => {
       if (product._id && user?._id) {
         try {
-          await Recomment.recordViewHistory({
-            productId: product._id,
-            userId: user._id,
-          });
+          await Promise.all([
+            Products.upViewCount(product._id),
+            Recomment.recordViewHistory({
+              productId: product._id,
+              userId: user._id,
+            }),
+          ]);
         } catch (err) {
           console.error('Failed to record view history', err);
         }

@@ -4,7 +4,7 @@ import { Descriptions, Typography } from 'antd';
 const { Title } = Typography;
 
 const renderDescriptions = (title, data) => (
-  <div className="mb-6 ">
+  <div className="mb-6">
     <Title level={4}>{title}</Title>
     <Descriptions column={1} bordered size="small">
       {data.map((item) => (
@@ -22,90 +22,151 @@ const renderDescriptions = (title, data) => (
 );
 
 const ProductSpecification = ({ product }) => {
-  if (
-    !product ||
-    !product.specifications ||
-    !product.connectivity ||
-    !product.camera
-  ) {
+  if (!product || !product.attributes) {
     return <p>Không có thông tin kỹ thuật.</p>;
   }
 
-  const specs = product.specifications || {};
-  const connectivity = product.connectivity || {};
-  const frontCam = product.camera?.front || {};
-  const rearCam = product.camera?.rear || {};
+  const attributes = product.attributes || {};
+  const categoryConfig = product.category || {};
+  const groupNameMapping = {
+    specifications: 'Thông số kỹ thuật',
+    connectivity: 'Kết nối',
+    'camera.front': 'Camera trước',
+    'camera.rear': 'Camera sau',
+  };
 
-  const technicalSpecs = [
-    { label: 'Kích cỡ màn hình', value: specs.displaySize || 'Đang cập nhật' },
-    { label: 'Loại màn hình', value: specs.displayType || 'Đang cập nhật' },
-    { label: 'Vi xử lý', value: specs.processor || 'Đang cập nhật' },
-    { label: 'Hệ điều hành', value: specs.operatingSystem || 'Đang cập nhật' },
-    { label: 'Trọng lượng', value: specs.weight || 'Đang cập nhật' },
-    { label: 'Pin', value: specs.battery || 'Đang cập nhật' },
-  ];
+  // Hàm để lấy giá trị từ attributes
+  const getAttributeValue = (key) => {
+    const value = attributes[key];
 
-  const connectivitySpecs = [
-    { label: 'Wi-Fi', value: connectivity.wifi || 'Không rõ' },
-    { label: 'Bluetooth', value: connectivity.bluetooth || 'Không rõ' },
-    { label: 'Mạng di động', value: connectivity.cellular || 'Không rõ' },
-    { label: 'GPS', value: connectivity.gps ? 'Có' : 'Không' },
-    { label: 'NFC', value: connectivity.nfc ? 'Có' : 'Không' },
-    {
-      label: 'Cổng kết nối',
-      value:
-        connectivity.ports && connectivity.ports.length > 0
-          ? connectivity.ports.join(', ')
-          : 'Không rõ',
-    },
-  ];
+    if (value !== undefined && value !== null && value !== '') {
+      return value;
+    }
 
-  const frontCameraSpecs = [
-    { label: 'Độ phân giải', value: frontCam.resolution || 'Không rõ' },
-    {
-      label: 'Tính năng',
-      value:
-        frontCam.features && frontCam.features.length > 0
-          ? frontCam.features.join(', ')
-          : 'Không rõ',
-    },
-    {
-      label: 'Quay video',
-      value:
-        frontCam.videoRecording && frontCam.videoRecording.length > 0
-          ? frontCam.videoRecording.join(', ')
-          : 'Không rõ',
-    },
-  ];
+    return null;
+  };
 
-  const rearCameraSpecs = [
-    { label: 'Độ phân giải', value: rearCam.resolution || 'Không rõ' },
-    {
-      label: 'Tính năng',
-      value:
-        rearCam.features && rearCam.features.length > 0
-          ? rearCam.features.join(', ')
-          : 'Không rõ',
-    },
-    {
-      label: 'Quay video',
-      value:
-        rearCam.videoRecording && rearCam.videoRecording.length > 0
-          ? rearCam.videoRecording.join(', ')
-          : 'Không rõ',
-    },
-    {
-      label: 'Số lượng ống kính',
-      value: rearCam.lensCount || 'Không rõ',
-    },
-  ];
+  const createFieldGroups = () => {
+    const fieldGroups = {};
+
+    if (
+      !categoryConfig.configFields.extraFields ||
+      !Array.isArray(categoryConfig.configFields.extraFields)
+    ) {
+      return fieldGroups;
+    }
+
+    categoryConfig.configFields.extraFields.forEach((field) => {
+      const groupKey = field.group;
+      const groupName = groupNameMapping[groupKey] || groupKey;
+
+      if (!fieldGroups[groupName]) {
+        fieldGroups[groupName] = {
+          fields: [],
+        };
+      }
+
+      const fieldConfig = {
+        key: field.name,
+        label: field.label,
+      };
+      
+      if (field.type === 'checkbox') {
+        fieldConfig.transform = (value) => (value ? 'Có' : 'Không');
+      }
+
+      fieldGroups[groupName].fields.push(fieldConfig);
+    });
+
+    return fieldGroups;
+  };
+
+
+  const fieldGroups = createFieldGroups();
+  const generateGroupData = (groupConfig) => {
+    const data = [];
+
+    groupConfig.fields.forEach((field) => {
+      const value = getAttributeValue(field.key);
+
+      if (value !== null && value !== undefined) {
+        let displayValue = value;
+        if (field.transform && typeof field.transform === 'function') {
+          displayValue = field.transform(value);
+        }
+
+        data.push({
+          label: field.label,
+          value: displayValue || 'Đang cập nhật',
+        });
+      }
+    });
+
+    return data;
+  };
+
+  // Render các nhóm chỉ khi có dữ liệu
+  const renderGroups = () => {
+    return Object.entries(fieldGroups).map(([groupName, groupConfig]) => {
+      const groupData = generateGroupData(groupConfig);
+
+      // Chỉ render nhóm nếu có dữ liệu
+      if (groupData.length > 0) {
+        return (
+          <div key={groupName}>{renderDescriptions(groupName, groupData)}</div>
+        );
+      }
+      return null;
+    });
+  };
+
+  const renderExtraFields = () => {
+    const usedKeys = new Set();
+    Object.values(fieldGroups).forEach((group) => {
+      group.fields.forEach((field) => {
+        usedKeys.add(field.key);
+      });
+    });
+
+    const extraFields = [];
+
+    // Duyệt qua tất cả attributes để tìm các trường chưa sử dụng
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (
+        !usedKeys.has(key) &&
+        value !== null &&
+        value !== undefined &&
+        value !== ''
+      ) {
+        // Tạo label từ key
+        const label = key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, (str) => str.toUpperCase());
+
+        let displayValue = value;
+        if (Array.isArray(value)) {
+          displayValue = value.join(', ');
+        } else if (typeof value === 'boolean') {
+          displayValue = value ? 'Có' : 'Không';
+        }
+
+        extraFields.push({
+          label: label,
+          value: displayValue,
+        });
+      }
+    });
+
+    if (extraFields.length > 0) {
+      return renderDescriptions('Thông tin khác', extraFields);
+    }
+    return null;
+  };
 
   return (
     <div>
-      {renderDescriptions('Thông số kỹ thuật', technicalSpecs)}
-      {renderDescriptions('Kết nối', connectivitySpecs)}
-      {renderDescriptions('Camera trước', frontCameraSpecs)}
-      {renderDescriptions('Camera sau', rearCameraSpecs)}
+      {renderGroups()}
+      {renderExtraFields()}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { SearchIcon, TrendingUpIcon, ClockIcon, XIcon } from 'lucide-react';
 import { List, Typography } from 'antd';
 import Products from '@/services/products';
 import { useNavigate } from 'react-router-dom';
-import Recomment from '@/services/recomment';
+import Recomment from '@/services/recommend';
 import { useAppContext } from '@/contexts';
 import { set } from 'react-hook-form';
 import { formatCurrency } from '@/helpers';

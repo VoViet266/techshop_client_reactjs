@@ -19,6 +19,15 @@ class Products {
       ...paymentInformation,
     });
   }
+
+
+  static upViewCount(id) {
+    return axiosInstance.patch(`/api/v1/products/${id}/view-count`);
+  }
+
+
+
+
 }
 
 export default Products;
