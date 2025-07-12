@@ -30,10 +30,11 @@ import Address from '@services/address';
 import UserService from '@services/users';
 
 const AccountInfoPage = () => {
-  const { user } = useAppContext();
+  const { user, message } = useAppContext();
   const [wards, setWards] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedWard, setSelectedWard] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [districts, setDistricts] = useState([]);
   const [selectedMenu, setSelectedMenu] = useState('personal');
@@ -74,6 +75,7 @@ const AccountInfoPage = () => {
     try {
       const districtsData = await Address.getDistricts(provinceCode);
       setDistricts(districtsData);
+      return districtsData;
     } catch (error) {
       message.error('Không thể tải danh sách quận/huyện');
     }
@@ -83,6 +85,7 @@ const AccountInfoPage = () => {
     try {
       const wardsData = await Address.getWards(districtCode);
       setWards(wardsData);
+      return wardsData;
     } catch (error) {
       message.error('Không thể tải danh sách xã/phường');
     }
@@ -121,6 +124,50 @@ const AccountInfoPage = () => {
   useEffect(() => {
     window.scroll(0, 0);
   }, []);
+
+  const getAddress = async (editingAddress) => {
+    if (editingAddress) {
+      await fetchProvinces();
+      const editingProvince = editingAddress.addressDetail.split(', ')[0];
+      const selectedProvince = provinces.find(
+        (province) => province.name === editingProvince,
+      );
+      setSelectedProvince(selectedProvince);
+
+      const districtsData = await fetchDistricts(selectedProvince.code);
+      const editingDistrict = editingAddress.addressDetail.split(', ')[1];
+      const selectedDistrict = districtsData.find(
+        (district) => district.name === editingDistrict,
+      );
+      setSelectedDistrict(selectedDistrict);
+
+      const wardsData = await fetchWards(selectedDistrict.code);
+      const editingWard = editingAddress.addressDetail.split(', ')[2];
+      const selectedWard = wardsData.find((ward) => ward.name === editingWard);
+      setSelectedWard(selectedWard);
+    }
+  };
+
+  const updateAddress = async (updateUser) => {
+    try {
+      message.loading('Đang cập nhật');
+      const userService = new UserService();
+      const response = await userService.update(updateUser);
+      if (response.status === 200) {
+        await getUser();
+        message.destroy();
+        message.success('Cập nhật thông tin thành công');
+        setIsAddressModalVisible(false);
+        setEditingAddress(null);
+        return;
+      }
+      throw new Error('Cập nhật thông tin thất bại');
+    } catch (error) {
+      console.error(error);
+      message.destroy();
+      message.error('Cập nhật thông tin thất bại');
+    }
+  };
 
   useEffect(() => {
     document.title = 'Thông tin cá nhân';
@@ -256,7 +303,9 @@ const AccountInfoPage = () => {
       <Button
         className="ml-auto! h-40!"
         type="primary"
-        onClick={() => {}}
+        onClick={() => {
+          updateAddress(updateUserInfo);
+        }}
         style={{ marginBottom: '24px' }}
       >
         Cập nhật thông tin
@@ -270,7 +319,9 @@ const AccountInfoPage = () => {
             type="primary"
             className="my-10! h-40!"
             icon={<PlusOutlined />}
-            onClick={() => setIsAddressModalVisible(true)}
+            onClick={() => {
+              message.warning('Chưa làm xong ní ơi');
+            }}
           >
             Thêm địa chỉ
           </Button>
@@ -285,27 +336,34 @@ const AccountInfoPage = () => {
                   <Button
                     type="text"
                     icon={<EditOutlined />}
-                    onClick={() => setIsAddressModalVisible(true)}
+                    onClick={async () => {
+                      message.loading('Đang xử lý');
+                      setEditingAddress(item);
+                      await getAddress(item);
+                      message.destroy();
+                      setIsAddressModalVisible(true);
+                    }}
                   >
                     Sửa
                   </Button>,
-                  <Popconfirm
-                    title="Bạn có chắc chắn muốn xóa địa chỉ này?"
-                    onConfirm={() => handleDeleteAddress(item.id)}
-                    okText="Có"
-                    cancelText="Không"
+
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      message.warning('Chưa làm xong luôn');
+                    }}
                   >
-                    <Button type="text" danger icon={<DeleteOutlined />}>
-                      Xóa
-                    </Button>
-                  </Popconfirm>,
+                    Xóa
+                  </Button>,
                 ]}
               >
                 <List.Item.Meta
                   title={
                     item.default ? (
                       <Space>
-                        {item.addressDetail + item.specificAddress}
+                        {item.addressDetail + ', ' + item.specificAddress}
                         <Tag color="blue">Mặc định</Tag>
                       </Space>
                     ) : (
@@ -325,7 +383,6 @@ const AccountInfoPage = () => {
         onCancel={() => {
           setIsAddressModalVisible(false);
           setEditingAddress(null);
-          setTempAddress('');
         }}
         footer={null}
       >
@@ -333,22 +390,66 @@ const AccountInfoPage = () => {
           <Flex gap={8} vertical>
             <Flex vertical>
               <label className="mb-4">Tỉnh/Thành phố</label>
-              <Select />
+              <Select
+                value={selectedProvince?.code}
+                options={provinces.map((province) => {
+                  return { label: province.name, value: province.code };
+                })}
+                onChange={(value) => {
+                  const province = provinces.find((p) => p.code === value);
+                  setSelectedProvince(province);
+                  // Reset District/Ward khi chọn Tỉnh mới
+                  setSelectedDistrict(null);
+                  setSelectedWard(null);
+                  fetchDistricts(value);
+                }}
+              />
             </Flex>
 
             <Flex vertical>
               <label className="mb-4">Quận/Huyện</label>
-              <Select />
+              <Select
+                value={selectedDistrict?.code}
+                options={districts.map((district) => {
+                  return { label: district.name, value: district.code };
+                })}
+                onChange={(value) => {
+                  const district = districts.find((d) => d.code === value);
+                  setSelectedDistrict(district);
+                  setSelectedWard(null);
+                  fetchWards(value);
+                }}
+              />
             </Flex>
 
             <Flex vertical>
               <label className="mb-4">Xã/Phường</label>
-              <Select />
+              <Select
+                value={selectedWard?.code}
+                options={wards.map((ward) => {
+                  return { label: ward.name, value: ward.code };
+                })}
+                onChange={(value) => {
+                  const ward = wards.find((w) => w.code === value);
+                  setSelectedWard(ward);
+                }}
+              />
             </Flex>
           </Flex>
           <Flex vertical className="mt-8!">
             <label className="mb-4">Địa chỉ chi tiết</label>
-            <Input.TextArea className="min-h-70!"></Input.TextArea>
+            <Input.TextArea
+              value={editingAddress?.specificAddress || ''}
+              onChange={(event) => {
+                setEditingAddress((prev) => {
+                  return {
+                    ...prev,
+                    specificAddress: event.target.value,
+                  };
+                });
+              }}
+              className="min-h-70!"
+            ></Input.TextArea>
           </Flex>
         </div>
 
@@ -358,7 +459,6 @@ const AccountInfoPage = () => {
             onClick={() => {
               setIsAddressModalVisible(false);
               setEditingAddress(null);
-              setTempAddress('');
             }}
           >
             Hủy
@@ -366,9 +466,32 @@ const AccountInfoPage = () => {
           <Button
             type="primary"
             className="h-40! min-w-100!"
-            // onClick={handleAddressSubmit}
-            onClick={() => {
-              console.log('Editing address:', editingAddress);
+            onClick={async () => {
+              const newAddressDetail = `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`;
+              const newSpecificAddress = editingAddress.specificAddress;
+              const updatedAddress = {
+                ...editingAddress,
+                addressDetail: newAddressDetail,
+                specificAddress: newSpecificAddress,
+              };
+              let updateUser;
+              setUpdateUserInfo((prev) => {
+                const updatedAddresses = prev.addresses.map((addr) => {
+                  if (addr.id === editingAddress.id) {
+                    return updatedAddress;
+                  }
+                  return addr;
+                });
+
+                updateUser = {
+                  ...prev,
+                  addresses: updatedAddresses,
+                };
+
+                return updateUser;
+              });
+
+              await updateAddress(updateUser);
             }}
           >
             {editingAddress ? 'Cập nhật' : 'Thêm'}
@@ -461,7 +584,7 @@ const AccountInfoPage = () => {
   }
 
   return (
-    <div className="w-full p-24 min-h-screen">
+    <div className="w-full  p-24 min-h-screen">
       <div
         style={{
           display: 'flex',
@@ -471,7 +594,7 @@ const AccountInfoPage = () => {
         }}
       >
         {/* Khối bên trái */}
-        <div style={{ flex: '0 0 300px' }}>
+        <div className="bg-[#f3f4f6]" style={{ flex: '0 0 300px' }}>
           <Card className="p-12!" style={{ marginBottom: '16px' }}>
             <div
               style={{
