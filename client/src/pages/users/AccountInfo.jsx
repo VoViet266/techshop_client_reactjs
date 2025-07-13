@@ -31,6 +31,7 @@ const AccountInfoPage = () => {
   const { user, message } = useAppContext();
   const [wards, setWards] = useState([]);
   const [provinces, setProvinces] = useState([]);
+  const [editingAddressIndex, setEditingAddressIndex] = useState(null);
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedWard, setSelectedWard] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
@@ -124,9 +125,16 @@ const AccountInfoPage = () => {
       const userService = new UserService();
       message.loading('Đang xóa địa chỉ');
 
+      const isDefault = updateUserInfo.addresses[addressId].default;
+
       const updatedAddresses = updateUserInfo.addresses.filter(
         (_, index) => index !== addressId,
       );
+
+      // Nếu địa chỉ bị xóa là mặc định, gán địa chỉ đầu tiên còn lại làm mặc định
+      if (isDefault && updatedAddresses.length > 0) {
+        updatedAddresses[0].default = true;
+      }
 
       const updatedUser = {
         ...updateUserInfo,
@@ -368,7 +376,8 @@ const AccountInfoPage = () => {
                     icon={<EditOutlined />}
                     onClick={async () => {
                       message.loading('Đang xử lý');
-                      setEditingAddress(item);
+                      setEditingAddress(JSON.parse(JSON.stringify(item)));
+                      setEditingAddressIndex(index);
                       await getAddress(item);
                       message.destroy();
                       setIsAddressModalVisible(true);
@@ -402,7 +411,7 @@ const AccountInfoPage = () => {
                         <Tag color="blue">Mặc định</Tag>
                       </Space>
                     ) : (
-                      item.addressDetail + item.specificAddress
+                      item.addressDetail + ', ' + item.specificAddress
                     )
                   }
                 />
@@ -498,7 +507,7 @@ const AccountInfoPage = () => {
           >
             Hủy
           </Button>
-          <Button
+          {/* <Button
             type="primary"
             className="h-40! min-w-100!"
             onClick={async () => {
@@ -517,6 +526,37 @@ const AccountInfoPage = () => {
                   }
                   return addr;
                 });
+
+                updateUser = {
+                  ...prev,
+                  addresses: updatedAddresses,
+                };
+
+                return updateUser;
+              });
+
+              await updateAddress(updateUser);
+            }}
+          >
+            {editingAddress ? 'Cập nhật' : 'Thêm'}
+          </Button> */}
+
+          <Button
+            type="primary"
+            className="h-40! min-w-100!"
+            onClick={async () => {
+              const newAddressDetail = `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`;
+              const newSpecificAddress = editingAddress.specificAddress;
+              const updatedAddress = {
+                ...editingAddress,
+                addressDetail: newAddressDetail,
+                specificAddress: newSpecificAddress,
+              };
+
+              let updateUser;
+              setUpdateUserInfo((prev) => {
+                const updatedAddresses = [...prev.addresses];
+                updatedAddresses[editingAddressIndex] = updatedAddress;
 
                 updateUser = {
                   ...prev,
