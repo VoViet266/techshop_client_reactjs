@@ -46,7 +46,7 @@ import {
 } from '@/services/apis';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppContext } from '@/contexts';
-import { ExpandedRowRender } from '@/components/admin/product/expanderRowRender';
+import { ExpandedRowRender } from '@/components/admin/product/ExpandRowRender';
 
 const { Text } = Typography;
 const { Option } = Select;

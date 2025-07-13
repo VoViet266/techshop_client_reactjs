@@ -50,7 +50,6 @@ function EditProduct() {
 
   const [form] = Form.useForm();
 
-  // Titles for field groups (from AddProduct)
   const groupTitles = {
     specifications: 'Thông số kỹ thuật',
     connectivity: 'Kết nối',
