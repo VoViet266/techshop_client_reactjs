@@ -423,7 +423,6 @@ const AccountInfoPage = () => {
                           danger
                           icon={<DeleteOutlined />}
                           onClick={() => {
-                            // message.warning('Chưa làm xong luôn');
                             handleDeleteAddress(index);
                           }}
                         >
