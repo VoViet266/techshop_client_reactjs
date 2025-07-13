@@ -1,0 +1,657 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Menu,
+  Spin,
+  Card,
+  Select,
+  Flex,
+  Input,
+  Button,
+  Space,
+  List,
+  Modal,
+  Tabs,
+  Tag,
+  Table,
+  Popconfirm,
+  message,
+  Typography,
+} from 'antd';
+import { useAppContext } from '@/contexts';
+import ProductService from '@services/products';
+import {
+  UserOutlined,
+  ShoppingOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
+import Address from '@services/address';
+import UserService from '@services/users';
+
+const AccountInfoPage = () => {
+  const { user, message } = useAppContext();
+  const [wards, setWards] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedWard, setSelectedWard] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [districts, setDistricts] = useState([]);
+  const [selectedMenu, setSelectedMenu] = useState('personal');
+  const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [updateUserInfo, setUpdateUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeOrderTab, setActiveOrderTab] = useState('all');
+  const [ordersToShow, setOrdersToShow] = useState(null);
+  const [orders, setOrders] = useState(null);
+
+  useEffect(() => {
+    if (orders) {
+      const ordersToShow = orders.map((order) => {
+        return {
+          id: order._id,
+          date: order.createdAt,
+          total: order.totalPrice,
+          items: '123',
+          status: order.status,
+        };
+      });
+      setOrdersToShow(ordersToShow);
+    }
+  }, [orders]);
+
+  const fetchProvinces = async () => {
+    try {
+      const provincesData = await Address.getAllProvinces();
+      setProvinces(provincesData);
+    } catch (error) {
+      message.error('Không thể tải danh sách tỉnh/thành phố');
+    }
+  };
+
+  const fetchDistricts = async (provinceCode) => {
+    try {
+      const districtsData = await Address.getDistricts(provinceCode);
+      setDistricts(districtsData);
+      return districtsData;
+    } catch (error) {
+      message.error('Không thể tải danh sách quận/huyện');
+    }
+  };
+
+  const fetchWards = async (districtCode) => {
+    try {
+      const wardsData = await Address.getWards(districtCode);
+      setWards(wardsData);
+      return wardsData;
+    } catch (error) {
+      message.error('Không thể tải danh sách xã/phường');
+    }
+  };
+
+  const getUser = async () => {
+    try {
+      const userService = new UserService();
+      const response = await userService.get(user._id);
+      if (response.status === 200) {
+        setUserInfo(response.data.data);
+        setUpdateUserInfo(response.data.data);
+        setLoading(false);
+        return;
+      }
+      throw new Error('Lỗi khi lấy thông tin người dùng.');
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin người dùng:', error);
+    }
+  };
+
+  const getAllOrders = async () => {
+    try {
+      const productService = new ProductService();
+      const response = await productService.getAllOrder();
+      if (response.status === 200) {
+        setOrders(response.data.data);
+        return;
+      }
+      throw new Error('Không thể lấy danh sách đơn hàng.');
+    } catch (error) {
+      console.error('Lỗi:', error);
+    }
+  };
+
+  useEffect(() => {
+    window.scroll(0, 0);
+  }, []);
+
+  const getAddress = async (editingAddress) => {
+    if (editingAddress) {
+      await fetchProvinces();
+      const editingProvince = editingAddress.addressDetail.split(', ')[0];
+      const selectedProvince = provinces.find(
+        (province) => province.name === editingProvince,
+      );
+      setSelectedProvince(selectedProvince);
+
+      const districtsData = await fetchDistricts(selectedProvince.code);
+      const editingDistrict = editingAddress.addressDetail.split(', ')[1];
+      const selectedDistrict = districtsData.find(
+        (district) => district.name === editingDistrict,
+      );
+      setSelectedDistrict(selectedDistrict);
+
+      const wardsData = await fetchWards(selectedDistrict.code);
+      const editingWard = editingAddress.addressDetail.split(', ')[2];
+      const selectedWard = wardsData.find((ward) => ward.name === editingWard);
+      setSelectedWard(selectedWard);
+    }
+  };
+
+  const updateAddress = async (updateUser) => {
+    try {
+      message.loading('Đang cập nhật');
+      const userService = new UserService();
+      const response = await userService.update(updateUser);
+      if (response.status === 200) {
+        await getUser();
+        message.destroy();
+        message.success('Cập nhật thông tin thành công');
+        setIsAddressModalVisible(false);
+        setEditingAddress(null);
+        return;
+      }
+      throw new Error('Cập nhật thông tin thất bại');
+    } catch (error) {
+      console.error(error);
+      message.destroy();
+      message.error('Cập nhật thông tin thất bại');
+    }
+  };
+
+  useEffect(() => {
+    document.title = 'Thông tin cá nhân';
+    getUser();
+    getAllOrders();
+    fetchProvinces();
+  }, []);
+
+  const menuItems = [
+    {
+      key: 'personal',
+      icon: <UserOutlined />,
+      label: 'Thông tin cá nhân',
+    },
+    {
+      key: 'orders',
+      icon: <ShoppingOutlined />,
+      label: 'Danh sách đơn hàng',
+    },
+  ];
+
+  const handleMenuClick = (e) => {
+    setSelectedMenu(e.key);
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      PENDING: 'orange',
+      SHIPPING: 'blue',
+      DELIVERED: 'green',
+      CANCELLED: 'red',
+    };
+    return colors[status] || 'gray';
+  };
+
+  const getStatusText = (status) => {
+    const texts = {
+      completed: 'Hoàn tất',
+      shipping: 'Đang giao',
+      pending: 'Đang xử lý',
+      cancelled: 'Đã hủy',
+    };
+    return texts[status] || status;
+  };
+
+  const getFilteredOrders = () => {
+    if (!ordersToShow) return [];
+
+    if (activeOrderTab === 'all') return ordersToShow;
+
+    const statusMap = {
+      processing: 'PENDING',
+      shipping: 'SHIPPING',
+      completed: 'DELIVERED',
+      cancelled: 'CANCELLED',
+    };
+
+    return ordersToShow.filter(
+      (order) => order.status === statusMap[activeOrderTab],
+    );
+  };
+
+  const orderColumns = [
+    {
+      title: 'Mã đơn hàng',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: 'Ngày đặt',
+      dataIndex: 'date',
+      key: 'date',
+    },
+    {
+      title: 'Sản phẩm',
+      dataIndex: 'items',
+      key: 'items',
+    },
+    {
+      title: 'Tổng tiền',
+      dataIndex: 'total',
+      key: 'total',
+      render: (total) => `${total.toLocaleString()} VND`,
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (
+        <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+      ),
+    },
+  ];
+
+  const renderPersonalInfo = () => (
+    <Card className="p-12!">
+      <Typography.Title level={5}>Thông tin cá nhân</Typography.Title>
+      <div style={{ marginBottom: '16px' }}>
+        <label
+          className="text-primary"
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
+        >
+          Họ tên
+        </label>
+        <Input
+          className="h-40!"
+          placeholder="Nhập họ tên"
+          value={updateUserInfo.name}
+          onChange={(e) =>
+            setUpdateUserInfo((prev) => ({
+              ...prev,
+              name: e.target.value,
+            }))
+          }
+        />
+      </div>
+
+      <div style={{ marginBottom: '16px' }}>
+        <label
+          className="text-primary"
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
+        >
+          Số điện thoại
+        </label>
+        <Input
+          className="h-40!"
+          placeholder="Nhập số điện thoại"
+          value={updateUserInfo.phone}
+          onChange={(e) =>
+            setUpdateUserInfo((prev) => ({ ...prev, phone: e.target.value }))
+          }
+        />
+      </div>
+
+      <Button
+        className="ml-auto! h-40!"
+        type="primary"
+        onClick={() => {
+          updateAddress(updateUserInfo);
+        }}
+        style={{ marginBottom: '24px' }}
+      >
+        Cập nhật thông tin
+      </Button>
+
+      <Card
+        title="Địa chỉ"
+        size="small"
+        extra={
+          <Button
+            type="primary"
+            className="my-10! h-40!"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              message.warning('Chưa làm xong ní ơi');
+            }}
+          >
+            Thêm địa chỉ
+          </Button>
+        }
+      >
+        <List
+          dataSource={updateUserInfo.addresses}
+          renderItem={(item) => {
+            return (
+              <List.Item
+                actions={[
+                  <Button
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={async () => {
+                      message.loading('Đang xử lý');
+                      setEditingAddress(item);
+                      await getAddress(item);
+                      message.destroy();
+                      setIsAddressModalVisible(true);
+                    }}
+                  >
+                    Sửa
+                  </Button>,
+
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      message.warning('Chưa làm xong luôn');
+                    }}
+                  >
+                    Xóa
+                  </Button>,
+                ]}
+              >
+                <List.Item.Meta
+                  title={
+                    item.default ? (
+                      <Space>
+                        {item.addressDetail + ', ' + item.specificAddress}
+                        <Tag color="blue">Mặc định</Tag>
+                      </Space>
+                    ) : (
+                      item.addressDetail + item.specificAddress
+                    )
+                  }
+                />
+              </List.Item>
+            );
+          }}
+        />
+      </Card>
+
+      <Modal
+        title={editingAddress ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}
+        open={isAddressModalVisible}
+        onCancel={() => {
+          setIsAddressModalVisible(false);
+          setEditingAddress(null);
+        }}
+        footer={null}
+      >
+        <div className="mb-16">
+          <Flex gap={8} vertical>
+            <Flex vertical>
+              <label className="mb-4">Tỉnh/Thành phố</label>
+              <Select
+                value={selectedProvince?.code}
+                options={provinces.map((province) => {
+                  return { label: province.name, value: province.code };
+                })}
+                onChange={(value) => {
+                  const province = provinces.find((p) => p.code === value);
+                  setSelectedProvince(province);
+                  // Reset District/Ward khi chọn Tỉnh mới
+                  setSelectedDistrict(null);
+                  setSelectedWard(null);
+                  fetchDistricts(value);
+                }}
+              />
+            </Flex>
+
+            <Flex vertical>
+              <label className="mb-4">Quận/Huyện</label>
+              <Select
+                value={selectedDistrict?.code}
+                options={districts.map((district) => {
+                  return { label: district.name, value: district.code };
+                })}
+                onChange={(value) => {
+                  const district = districts.find((d) => d.code === value);
+                  setSelectedDistrict(district);
+                  setSelectedWard(null);
+                  fetchWards(value);
+                }}
+              />
+            </Flex>
+
+            <Flex vertical>
+              <label className="mb-4">Xã/Phường</label>
+              <Select
+                value={selectedWard?.code}
+                options={wards.map((ward) => {
+                  return { label: ward.name, value: ward.code };
+                })}
+                onChange={(value) => {
+                  const ward = wards.find((w) => w.code === value);
+                  setSelectedWard(ward);
+                }}
+              />
+            </Flex>
+          </Flex>
+          <Flex vertical className="mt-8!">
+            <label className="mb-4">Địa chỉ chi tiết</label>
+            <Input.TextArea
+              value={editingAddress?.specificAddress || ''}
+              onChange={(event) => {
+                setEditingAddress((prev) => {
+                  return {
+                    ...prev,
+                    specificAddress: event.target.value,
+                  };
+                });
+              }}
+              className="min-h-70!"
+            ></Input.TextArea>
+          </Flex>
+        </div>
+
+        <Flex gap={8} justify="end">
+          <Button
+            className="h-40! min-w-100!"
+            onClick={() => {
+              setIsAddressModalVisible(false);
+              setEditingAddress(null);
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            type="primary"
+            className="h-40! min-w-100!"
+            onClick={async () => {
+              const newAddressDetail = `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`;
+              const newSpecificAddress = editingAddress.specificAddress;
+              const updatedAddress = {
+                ...editingAddress,
+                addressDetail: newAddressDetail,
+                specificAddress: newSpecificAddress,
+              };
+              let updateUser;
+              setUpdateUserInfo((prev) => {
+                const updatedAddresses = prev.addresses.map((addr) => {
+                  if (addr.id === editingAddress.id) {
+                    return updatedAddress;
+                  }
+                  return addr;
+                });
+
+                updateUser = {
+                  ...prev,
+                  addresses: updatedAddresses,
+                };
+
+                return updateUser;
+              });
+
+              await updateAddress(updateUser);
+            }}
+          >
+            {editingAddress ? 'Cập nhật' : 'Thêm'}
+          </Button>
+        </Flex>
+      </Modal>
+    </Card>
+  );
+
+  const renderOrderList = () => (
+    <div>
+      <Card className="p-12!">
+        <Typography.Title level={5}>Danh sách đơn hàng</Typography.Title>
+        <Tabs
+          activeKey={activeOrderTab}
+          onChange={setActiveOrderTab}
+          items={[
+            {
+              key: 'all',
+              label: 'Tất cả',
+              children: (
+                <Table
+                  dataSource={getFilteredOrders()}
+                  columns={orderColumns}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                />
+              ),
+            },
+            {
+              key: 'processing',
+              label: 'Đang xử lý',
+              children: (
+                <Table
+                  dataSource={getFilteredOrders()}
+                  columns={orderColumns}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                />
+              ),
+            },
+            {
+              key: 'shipping',
+              label: 'Đang giao',
+              children: (
+                <Table
+                  dataSource={getFilteredOrders()}
+                  columns={orderColumns}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                />
+              ),
+            },
+            {
+              key: 'completed',
+              label: 'Hoàn tất',
+              children: (
+                <Table
+                  dataSource={getFilteredOrders()}
+                  columns={orderColumns}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                />
+              ),
+            },
+            {
+              key: 'cancelled',
+              label: 'Đã hủy',
+              children: (
+                <Table
+                  dataSource={getFilteredOrders()}
+                  columns={orderColumns}
+                  rowKey="id"
+                  pagination={{ pageSize: 10 }}
+                />
+              ),
+            },
+          ]}
+        />
+      </Card>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] px-50 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full  p-24 min-h-screen">
+      <div
+        style={{
+          display: 'flex',
+          gap: '24px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+        }}
+      >
+        {/* Khối bên trái */}
+        <div className="bg-[#f3f4f6]" style={{ flex: '0 0 300px' }}>
+          <Card className="p-12!" style={{ marginBottom: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '16px',
+              }}
+            >
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  backgroundColor: '#ff6b35',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px',
+                }}
+              >
+                <UserOutlined style={{ fontSize: '24px', color: '#fff' }} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                  {userInfo.name}
+                </div>
+                <div style={{ color: '#666', fontSize: '14px' }}>
+                  {userInfo.phone}
+                </div>
+              </div>
+            </div>
+            <div style={{ fontSize: '12px', color: '#666' }}>
+              Quý khách có thể xem thông tin cá nhân và đơn hàng tại đây.
+            </div>
+          </Card>
+
+          <Card>
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedMenu]}
+              onClick={handleMenuClick}
+              style={{ border: 'none' }}
+              items={menuItems}
+            />
+          </Card>
+        </div>
+
+        {/* Khối bên phải */}
+        <div style={{ flex: 1 }}>
+          {selectedMenu === 'personal' && renderPersonalInfo()}
+          {selectedMenu === 'orders' && renderOrderList()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AccountInfoPage;

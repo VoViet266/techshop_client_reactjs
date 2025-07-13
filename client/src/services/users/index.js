@@ -12,6 +12,10 @@ class UserService {
     return axiosInstance.get(`/api/v1/users/${id}`);
   }
 
+  update(user) {
+    return axiosInstance.patch(`/api/v1/users/${user._id}`, { ...user });
+  }
+
   signup(user) {
     return axiosInstance.post('/api/v1/auth/register', user);
   }

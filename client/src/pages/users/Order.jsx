@@ -232,7 +232,7 @@ function Order() {
 
   return (
     <Flex gap={12} className="w-full! py-20!">
-      <Flex vertical gap={12} className="w-[55%]!">
+      <Flex vertical gap={12} className="print:hidden! w-[55%]!">
         <Card className="w-full! rounded-md border-none!">
           <Typography.Title level={5} className="m-0! mb-8!">
             {`Sản phẩm trong đơn (${cartItems.length})`}
@@ -440,7 +440,7 @@ function Order() {
         </Card>
       </Flex>
       <Flex vertical className="flex-1! items-start">
-        <Card className="w-full! border-none!">
+        <Card className="print:p-0! w-full! border-none!">
           <Typography.Title level={5} className="m-0! mb-16!">
             Thông tin đơn hàng
           </Typography.Title>
@@ -521,9 +521,15 @@ function Order() {
                 handleOrder(order);
               }}
               type="primary"
-              className="h-50! rounded-lg! mt-12!"
+              className="print:hidden! h-50! rounded-lg! mt-12!"
             >
               Đặt hàng
+            </Button>
+            <Button
+              onClick={() => window.print()}
+              className="print:hidden! h-50! rounded-lg!"
+            >
+              In
             </Button>
           </div>
           <Flex vertical align="center" className="text-sm! mt-12!">

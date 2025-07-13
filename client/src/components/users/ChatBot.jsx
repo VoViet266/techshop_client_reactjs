@@ -221,11 +221,11 @@ const ChatBot = () => {
           type="primary"
           onClick={toggleChat}
           icon={<MessageOutlined />}
-          className="fixed! bottom-24! right-24! z-1000! shadow-[0_2px_8px_rgba(0,0,0,0.2)]! hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-500 to-purple-600 border-none hover:scale-110 animate-bounce"
+          className="print:hidden! fixed! bottom-24! right-24! z-1000! shadow-[0_2px_8px_rgba(0,0,0,0.2)]! hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-500 to-purple-600 border-none hover:scale-110 animate-bounce"
         />
       )}
 
-      <style jsx>{`
+      <style>{`
         .typing-cursor {
           color: #3b82f6;
           font-weight: bold;

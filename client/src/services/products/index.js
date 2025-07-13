@@ -14,6 +14,10 @@ class Products {
     return axiosInstance.post('api/v1/orders', { ...order });
   }
 
+  getAllOrder() {
+    return axiosInstance.get('/api/v1/orders');
+  }
+
   payment(paymentInformation) {
     return axiosInstance.post('/api/v1/payment/create-payment', {
       ...paymentInformation,

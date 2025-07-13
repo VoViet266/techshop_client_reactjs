@@ -6,7 +6,7 @@ const { Title, Text, Link } = Typography;
 
 const FooterComponent = () => {
   return (
-    <Layout.Footer className="py-12! px-0! bg-[#090D14]! flex! justify-center! w-full! mt-20!">
+    <Layout.Footer className="print:hidden! py-12! px-0! bg-[#090D14]! flex! justify-center! w-full! mt-20!">
       <div className="w-5/6">
         <Flex vertical gap={6} className="w-full! py-12!">
           <Typography.Text className="text-white! text-lg! font-medium!">

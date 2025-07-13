@@ -26,7 +26,7 @@ function Header() {
   }, []);
 
   return (
-    <Layout.Header className="font-roboto! px-4! w-full! fixed! top-0! left-0! right-0! z-10! p-10! bg-white! flex! items-center! justify-center! border-b! border-gray-200!  sm:h-20">
+    <Layout.Header className="print:hidden! font-roboto! px-4! w-full! fixed! top-0! left-0! right-0! z-10! p-10! bg-white! flex! items-center! justify-center! border-b! border-gray-200!  sm:h-20">
       <div className="w-[90%]  flex items-center justify-between gap-4">
         <div className="flex-shrink-0">
           <Link to="/">
