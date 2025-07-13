@@ -14,7 +14,21 @@ import Products from '@/services/products';
 import { useAppContext } from '@contexts';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Button, Col, Form, Input, Row, Select, Typography } from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Typography,
+  Upload,
+  message as antMessage,
+} from 'antd';
+import { InboxOutlined, DeleteOutlined } from '@ant-design/icons';
+
+const { Dragger } = Upload;
+
 function AddProduct() {
   const { message } = useAppContext();
   const navigate = useNavigate();
@@ -24,6 +38,10 @@ function AddProduct() {
   const [loading, setLoading] = useState(false);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
   const [product, setProduct] = useState({
     name: '',
     description: '',
@@ -32,6 +50,7 @@ function AddProduct() {
     discount: '',
     isActive: true,
     attributes: {},
+    galleryImages: [],
     variants: [
       {
         name: '',
@@ -75,6 +94,32 @@ function AddProduct() {
     }
   };
 
+  // Hàm xử lý upload gallery images
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      antMessage.error('Chỉ có thể upload file hình ảnh!');
+      return false;
+    }
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      antMessage.error('Kích thước file phải nhỏ hơn 5MB!');
+      return false;
+    }
+    return false; // Prevent auto upload
+  };
+
+  const handleGalleryImageChange = ({ fileList }) => {
+    setGalleryImages(fileList);
+
+    setProduct((prev) => ({
+      ...prev,
+      galleryImages: fileList
+        .map((file) => file.originFileObj || file.url)
+        .filter(Boolean),
+    }));
+  };
+
   const onSubmit = async () => {
     try {
       setProduct(form.getFieldsValue());
@@ -84,11 +129,25 @@ function AddProduct() {
       const productToSubmit = form.getFieldsValue();
       productToSubmit.attributes = {
         ...productToSubmit.attributes,
-        ...fieldsToShow.extraFields.reduce((acc, field) => {
+        ...fieldsToShow.extraFields?.reduce((acc, field) => {
           acc[field.name] = form.getFieldValue([field.group, field.name]);
           return acc;
         }, {}),
       };
+
+      if (galleryImages.length > 0) {
+        const uploadedGalleryUrls = [];
+        for (let i = 0; i < galleryImages.length; i++) {
+          const file = galleryImages[i];
+          if (file.originFileObj) {
+            const imageUrl = await Files.upload(file.originFileObj);
+            uploadedGalleryUrls.push(imageUrl);
+          } else if (file.url) {
+            uploadedGalleryUrls.push(file.url);
+          }
+        }
+        productToSubmit.galleryImages = uploadedGalleryUrls;
+      }
 
       for (let i = 0; i < productToSubmit.variants.length; i++) {
         const variant = productToSubmit.variants[i];
@@ -117,11 +176,27 @@ function AddProduct() {
       });
     }
   };
+
   const groupTitles = {
     specifications: 'Thông số kỹ thuật',
     connectivity: 'Kết nối',
     'camera.front': 'Camera trước',
     'camera.rear': 'Camera sau',
+  };
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handlePreview = async (file) => {
+    if (!file.url && file.originFileObj) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
   };
   const renderExtraFields = (group) => {
     const fields =
@@ -219,6 +294,61 @@ function AddProduct() {
         )}
 
         {fieldsToShow.connectivity && <>{renderExtraFields('connectivity')}</>}
+
+        <div className="mb-8">
+          <div className="flex gap-4 items-center mb-6 relative">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-primary font-semibold tracking-wide uppercase letter-spacing-0.5 relative">
+                Hình ảnh quảng bá
+              </span>
+            </div>
+            <div className="flex-1 relative">
+              <div className="border-t border-r-300 opacity-60 text-primary"></div>
+            </div>
+          </div>
+
+          <Form.Item name="galleryImages">
+            <Dragger
+              fileList={galleryImages}
+              onChange={handleGalleryImageChange}
+              onRemove={(file) =>
+                setGalleryImages((prev) =>
+                  prev.filter((f) => f.uid !== file.uid),
+                )
+              }
+              beforeUpload={beforeUpload}
+              maxCount={5}
+              multiple={true}
+              accept="image/*"
+              onPreview={(file) => handlePreview(file)}
+              className="gallery-upload"
+              listType="picture"
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: true,
+                showDownloadIcon: false,
+              }}
+            >
+              <div className="flex flex-col items-center justify-center p-6">
+                <InboxOutlined className="text-4xl text-gray-400 mb-3" />
+                <div className="text-gray-600 text-base mb-1">
+                  Kéo thả hoặc nhấp để chọn hình ảnh
+                </div>
+              </div>
+            </Dragger>
+            {previewImage && (
+              <Image
+                wrapperStyle={{ display: 'none' }}
+                preview={{
+                  visible: previewOpen,
+                  onVisibleChange: (visible) => setPreviewOpen(visible),
+                  afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                }}
+                src={previewImage}
+              />
+            )}
+          </Form.Item>
+        </div>
 
         <Variants form={form} product={product} setProduct={setProduct} />
 
