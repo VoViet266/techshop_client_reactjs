@@ -13,8 +13,6 @@ import {
   Tabs,
   Tag,
   Table,
-  Popconfirm,
-  message,
   Typography,
 } from 'antd';
 import { useAppContext } from '@/contexts';
@@ -33,10 +31,14 @@ const AccountInfoPage = () => {
   const { user, message } = useAppContext();
   const [wards, setWards] = useState([]);
   const [provinces, setProvinces] = useState([]);
+  const [editingAddressIndex, setEditingAddressIndex] = useState(null);
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedWard, setSelectedWard] = useState([]);
+  const [deleteAddressIndex, setDeleteAddressIndex] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [districts, setDistricts] = useState([]);
+  const [isDeleteAddressModalOpen, setIsDeleteAddressModalOpen] =
+    useState(false);
   const [selectedMenu, setSelectedMenu] = useState('personal');
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
@@ -118,6 +120,72 @@ const AccountInfoPage = () => {
       throw new Error('Không thể lấy danh sách đơn hàng.');
     } catch (error) {
       console.error('Lỗi:', error);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      const userService = new UserService();
+      message.loading('Đang xóa địa chỉ');
+
+      const isDefault = updateUserInfo.addresses[addressId].default;
+
+      const updatedAddresses = updateUserInfo.addresses.filter(
+        (_, index) => index !== addressId,
+      );
+
+      // Nếu địa chỉ bị xóa là mặc định, gán địa chỉ đầu tiên còn lại làm mặc định
+      if (isDefault && updatedAddresses.length > 0) {
+        updatedAddresses[0].default = true;
+      }
+
+      const updatedUser = {
+        ...updateUserInfo,
+        addresses: updatedAddresses,
+      };
+
+      const response = await userService.update(updatedUser);
+
+      if (response.status === 200) {
+        await getUser();
+        message.destroy();
+        message.success('Xóa địa chỉ thành công');
+      } else {
+        throw new Error('Xóa thất bại');
+      }
+    } catch (error) {
+      message.destroy();
+      console.error('Lỗi khi xóa địa chỉ:', error);
+      message.error('Xóa địa chỉ thất bại');
+    }
+  };
+
+  const handleSetDefaultAddress = async (index) => {
+    try {
+      const userService = new UserService();
+      message.loading('Đang cập nhật địa chỉ mặc định...');
+
+      const updatedAddresses = updateUserInfo.addresses.map((addr, i) => ({
+        ...addr,
+        default: i === index, // Địa chỉ được chọn sẽ là mặc định
+      }));
+
+      const updatedUser = {
+        ...updateUserInfo,
+        addresses: updatedAddresses,
+      };
+
+      const response = await userService.update(updatedUser);
+      if (response.status === 200) {
+        await getUser();
+        message.destroy();
+      } else {
+        throw new Error('Lỗi khi cập nhật');
+      }
+    } catch (error) {
+      message.destroy();
+      message.error('Không thể đặt làm mặc định');
+      console.error(error);
     }
   };
 
@@ -321,8 +389,20 @@ const AccountInfoPage = () => {
             type="primary"
             className="my-10! h-40!"
             icon={<PlusOutlined />}
-            onClick={() => {
-              message.warning('Chưa làm xong ní ơi');
+            onClick={async () => {
+              setEditingAddress({
+                specificAddress: '',
+                addressDetail: '',
+                default: false,
+                isDeleted: false,
+                deletedAt: null,
+              });
+              setEditingAddressIndex(null); // báo đây là "thêm mới" chứ không phải sửa
+              await fetchProvinces();
+              setSelectedProvince(null);
+              setSelectedDistrict(null);
+              setSelectedWard(null);
+              setIsAddressModalVisible(true);
             }}
           >
             Thêm địa chỉ
@@ -331,16 +411,18 @@ const AccountInfoPage = () => {
       >
         <List
           dataSource={updateUserInfo.addresses}
-          renderItem={(item) => {
+          renderItem={(item, index) => {
             return (
               <List.Item
+                className="flex! items-center!"
                 actions={[
                   <Button
                     type="text"
                     icon={<EditOutlined />}
                     onClick={async () => {
                       message.loading('Đang xử lý');
-                      setEditingAddress(item);
+                      setEditingAddress(JSON.parse(JSON.stringify(item)));
+                      setEditingAddressIndex(index);
                       await getAddress(item);
                       message.destroy();
                       setIsAddressModalVisible(true);
@@ -349,15 +431,28 @@ const AccountInfoPage = () => {
                     Sửa
                   </Button>,
 
+                  ...(userInfo?.addresses?.length > 1
+                    ? [
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => {
+                            setIsDeleteAddressModalOpen(true);
+                            setDeleteAddressIndex(index);
+                          }}
+                        >
+                          Xóa
+                        </Button>,
+                      ]
+                    : []),
+
                   <Button
                     type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                      message.warning('Chưa làm xong luôn');
-                    }}
+                    disabled={item.default}
+                    onClick={() => handleSetDefaultAddress(index)}
                   >
-                    Xóa
+                    Đặt làm mặc định
                   </Button>,
                 ]}
               >
@@ -369,7 +464,7 @@ const AccountInfoPage = () => {
                         <Tag color="blue">Mặc định</Tag>
                       </Space>
                     ) : (
-                      item.addressDetail + item.specificAddress
+                      item.addressDetail + ', ' + item.specificAddress
                     )
                   }
                 />
@@ -380,7 +475,41 @@ const AccountInfoPage = () => {
       </Card>
 
       <Modal
-        title={editingAddress ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}
+        title="Xóa địa chỉ"
+        open={isDeleteAddressModalOpen}
+        onCancel={() => {
+          setIsDeleteAddressModalOpen(false);
+        }}
+        footer={null}
+      >
+        <Typography.Text>Bạn có chắc chắn muốn xóa địa chỉ?</Typography.Text>
+        <Flex gap={8} justify="end">
+          <Button
+            className="h-40! min-w-100!"
+            onClick={() => {
+              setIsDeleteAddressModalOpen(false);
+            }}
+          >
+            Hủy
+          </Button>
+
+          <Button
+            type="primary"
+            className="h-40! min-w-100!"
+            onClick={async () => {
+              await handleDeleteAddress(deleteAddressIndex);
+              setIsDeleteAddressModalOpen(false);
+            }}
+          >
+            Xóa
+          </Button>
+        </Flex>
+      </Modal>
+
+      <Modal
+        title={
+          editingAddressIndex !== null ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'
+        }
         open={isAddressModalVisible}
         onCancel={() => {
           setIsAddressModalVisible(false);
@@ -465,25 +594,44 @@ const AccountInfoPage = () => {
           >
             Hủy
           </Button>
+
           <Button
             type="primary"
             className="h-40! min-w-100!"
             onClick={async () => {
-              const newAddressDetail = `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`;
-              const newSpecificAddress = editingAddress.specificAddress;
-              const updatedAddress = {
-                ...editingAddress,
-                addressDetail: newAddressDetail,
-                specificAddress: newSpecificAddress,
+              if (
+                !selectedProvince ||
+                !selectedDistrict ||
+                !selectedWard ||
+                !editingAddress?.specificAddress
+              ) {
+                return message.warning(
+                  'Vui lòng điền đầy đủ thông tin địa chỉ',
+                );
+              }
+
+              const newAddress = {
+                specificAddress: editingAddress.specificAddress,
+                addressDetail: `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`,
+                default: updateUserInfo.addresses.length === 0, // Nếu là địa chỉ đầu tiên thì đặt làm mặc định
+                isDeleted: false,
+                deletedAt: null,
               };
+
               let updateUser;
               setUpdateUserInfo((prev) => {
-                const updatedAddresses = prev.addresses.map((addr) => {
-                  if (addr.id === editingAddress.id) {
-                    return updatedAddress;
-                  }
-                  return addr;
-                });
+                let updatedAddresses;
+                if (editingAddressIndex !== null) {
+                  // Trường hợp sửa địa chỉ
+                  updatedAddresses = [...prev.addresses];
+                  updatedAddresses[editingAddressIndex] = {
+                    ...updatedAddresses[editingAddressIndex],
+                    ...newAddress,
+                  };
+                } else {
+                  // Trường hợp thêm mới địa chỉ
+                  updatedAddresses = [...prev.addresses, newAddress];
+                }
 
                 updateUser = {
                   ...prev,
@@ -496,7 +644,7 @@ const AccountInfoPage = () => {
               await updateAddress(updateUser);
             }}
           >
-            {editingAddress ? 'Cập nhật' : 'Thêm'}
+            {editingAddressIndex !== null ? 'Cập nhật' : 'Thêm'}
           </Button>
         </Flex>
       </Modal>
@@ -587,37 +735,13 @@ const AccountInfoPage = () => {
 
   return (
     <div className="w-full  p-24 min-h-screen">
-      <div
-        style={{
-          display: 'flex',
-          gap: '24px',
-          maxWidth: '1200px',
-          margin: '0 auto',
-        }}
-      >
+      <div className="flex gap-24 max-w-1200 my-0 mx-auto">
         {/* Khối bên trái */}
         <div className="bg-[#f3f4f6]" style={{ flex: '0 0 300px' }}>
           <Card className="p-12!" style={{ marginBottom: '16px' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '16px',
-              }}
-            >
-              <div
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  backgroundColor: '#ff6b35',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px',
-                }}
-              >
-                <UserOutlined style={{ fontSize: '24px', color: '#fff' }} />
+            <div className="flex items-center mb-16">
+              <div className="w-48 h-48 bg-[#ff6b35] rounded-full flex items-center justify-center mr-12">
+                <UserOutlined className="text-2xl! text-white!" />
               </div>
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
