@@ -6,7 +6,7 @@ import { Dropdown, Avatar, Flex, Typography, Skeleton } from 'antd';
 
 function UserInformation() {
   const { user, logout, loading } = useAppContext();
-  console.log('user', user?.avatar);
+
   function renderInformation() {
     if (loading) {
       return (
@@ -29,7 +29,7 @@ function UserInformation() {
     return (
       <>
         <Avatar
-          src={user.avatar}
+          src={user?.avatar}
           icon={<UserOutlined />}
           className="w-34! h-34!"
         />

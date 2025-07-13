@@ -11,7 +11,6 @@ const GoogleSuccess = () => {
     const accessToken = queryParams.get('access_token');
     if (accessToken) {
       localStorage.setItem('access_token', accessToken);
-
       navigate('/');
     } else {
       alert('Đăng nhập thất bại');

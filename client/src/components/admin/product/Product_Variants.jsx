@@ -73,33 +73,6 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
     return true;
   };
 
-  const handleAddVariant = () => {
-    setProduct((currentProduct) => ({
-      ...currentProduct,
-      variants: [
-        ...currentProduct.variants,
-        {
-          name: '',
-          price: '',
-          compareAtPrice: '',
-          color: { name: '', hex: '' },
-          memory: { ram: '', storage: '' },
-          images: [],
-        },
-      ],
-    }));
-  };
-
-  const handleRemoveVariant = (index) => {
-    if (product.variants.length > 1) {
-      setProduct((currentProduct) => {
-        const newVariants = [...currentProduct.variants];
-        newVariants.splice(index, 1);
-        return { ...currentProduct, variants: newVariants };
-      });
-    }
-  };
-
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -123,14 +96,6 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
           Thông tin biến thể
         </span>
         <div className="flex-1 border-t border-gray-300 opacity-60 mx-4"></div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAddVariant}
-          className="bg-gray-100 hover:bg-gray-200 py-2 px-6 rounded text-sm font-medium"
-        >
-          Thêm biến thể
-        </Button>
       </div>
 
       <Form.List name="variants">

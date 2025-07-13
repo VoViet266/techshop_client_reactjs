@@ -74,6 +74,7 @@ function ProductDetail() {
     try {
       const res = await Products.get(id);
       setProduct(res);
+      console.log(res);
       setSelectedColor(res.variants[0].color.name);
       setSelectedMemory(res.variants[0].memory);
     } catch (error) {
@@ -207,7 +208,12 @@ function ProductDetail() {
     fetchBranchStocks();
   }, [selectedVariant?._id, id, branchs]);
 
-  const allImages = selectedVariant?.images || [];
+  const variantImages = selectedVariant?.images || [];
+  const galleryImages = product.galleryImages || [];
+
+  const allImages = [...variantImages, ...galleryImages];
+
+  console.log(allImages);
   const currentStock = branchStocks[selectBranchs];
 
   if (loading) {
