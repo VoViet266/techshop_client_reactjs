@@ -1,0 +1,14 @@
+/* Bo góc cho table container */
+.ant-table-container {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Bo góc dưới bên trái và phải cho dòng cuối cùng */
+.ant-table-tbody > tr:last-child > td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.ant-table-tbody > tr:last-child > td:last-child {
+  border-bottom-right-radius: 8px;
+}

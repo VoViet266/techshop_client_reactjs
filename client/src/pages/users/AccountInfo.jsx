@@ -16,6 +16,7 @@ import {
   Typography,
 } from 'antd';
 import { useAppContext } from '@/contexts';
+import '@styles/account-info.css';
 import ProductService from '@services/products';
 import {
   UserOutlined,
@@ -23,6 +24,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
 import Address from '@services/address';
 import UserService from '@services/users';
@@ -48,6 +50,8 @@ const AccountInfoPage = () => {
   const [activeOrderTab, setActiveOrderTab] = useState('all');
   const [ordersToShow, setOrdersToShow] = useState(null);
   const [orders, setOrders] = useState(null);
+  const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     if (orders) {
@@ -327,6 +331,19 @@ const AccountInfoPage = () => {
       render: (status) => (
         <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
       ),
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      render: (_, record) => (
+        <EyeOutlined
+          onClick={() => {
+            setSelectedOrder(record);
+            setIsOrderDetailModalOpen(true);
+          }}
+        />
+      ),
+      align: 'center',
     },
   ];
 
@@ -733,6 +750,8 @@ const AccountInfoPage = () => {
     );
   }
 
+  const orderData = orders?.find((o) => o._id === selectedOrder?.id);
+
   return (
     <div className="w-full  p-24 min-h-screen">
       <div className="flex gap-24 max-w-1200 my-0 mx-auto">
@@ -765,6 +784,137 @@ const AccountInfoPage = () => {
               style={{ border: 'none' }}
               items={menuItems}
             />
+
+            <Modal
+              title={`Chi tiết đơn hàng #${selectedOrder?.id}`}
+              open={isOrderDetailModalOpen}
+              onCancel={() => {
+                setIsOrderDetailModalOpen(false);
+                setSelectedOrder(null);
+              }}
+              footer={null}
+              width={800}
+            >
+              {selectedOrder && (
+                <Flex vertical gap={20}>
+                  <Table
+                    bordered
+                    showHeader={false}
+                    pagination={false}
+                    dataSource={[
+                      ['Mã đơn hàng', selectedOrder.id],
+                      [
+                        'Khách hàng',
+                        `${orderData?.createdBy?.name} (${orderData?.createdBy?.email})`,
+                      ],
+                      ['Số điện thoại', orderData?.phone],
+                      ['Chi nhánh', orderData?.items?.[0]?.branch?.name],
+                      ['Phương thức thanh toán', orderData?.paymentMethod],
+                      [
+                        'Trạng thái đơn hàng',
+                        <Tag color={getStatusColor(selectedOrder.status)}>
+                          {selectedOrder.status}
+                        </Tag>,
+                      ],
+                      ['Địa chỉ giao hàng', orderData?.shippingAddress],
+                      [
+                        'Ngày tạo',
+                        new Date(orderData?.createdAt).toLocaleString(),
+                      ],
+                      [
+                        'Cập nhật lần cuối',
+                        new Date(orderData?.updatedAt).toLocaleString(),
+                      ],
+                    ]}
+                    columns={[
+                      {
+                        dataIndex: 0,
+                        key: 'label',
+                        width: 200,
+                        render: (text) => <strong>{text}</strong>,
+                      },
+                      {
+                        dataIndex: 1,
+                        key: 'value',
+                      },
+                    ]}
+                  />
+
+                  <div>
+                    <Typography.Title level={5} className="mb-10!">
+                      Danh sách sản phẩm
+                    </Typography.Title>
+                    <Table
+                      bordered
+                      dataSource={
+                        orders.find((o) => o._id === selectedOrder.id)?.items ||
+                        []
+                      }
+                      pagination={false}
+                      rowKey="_id"
+                      columns={[
+                        {
+                          title: 'Sản phẩm',
+                          dataIndex: 'product',
+                          key: 'product',
+                          render: (product, record) => {
+                            return (
+                              <>
+                                <div>{product.name}</div>
+                                <div className="text-xs text-gray-500">
+                                  {record.variant.name}
+                                </div>
+                              </>
+                            );
+                          },
+                        },
+                        {
+                          title: 'Số lượng',
+                          dataIndex: 'quantity',
+                          key: 'quantity',
+                          align: 'center',
+                        },
+                        {
+                          title: 'Giảm giá',
+                          dataIndex: 'discount',
+                          key: 'discount',
+                          align: 'center',
+                          render: (_, record) => {
+                            console.log(record);
+                          },
+                        },
+                        {
+                          title: 'Đơn giá',
+                          dataIndex: 'price',
+                          key: 'price',
+                          render: (price) => (
+                            <Typography.Text strong className="text-primary!">
+                              {`${price.toLocaleString()}đ`}
+                            </Typography.Text>
+                          ),
+                          align: 'right',
+                        },
+                        {
+                          title: 'Thành tiền',
+                          key: 'total',
+                          render: (_, record) => (
+                            <Typography.Text
+                              strong
+                              className="text-primary!"
+                            >{`${(record.price * record.quantity).toLocaleString()}đ`}</Typography.Text>
+                          ),
+                          align: 'right',
+                        },
+                      ]}
+                    />
+                  </div>
+                  <Typography.Text className="flex! justify-end! mt-4! text-base! text-primary! font-semibold!">
+                    Tổng cộng:&nbsp;
+                    {selectedOrder.total.toLocaleString()}đ
+                  </Typography.Text>
+                </Flex>
+              )}
+            </Modal>
           </Card>
         </div>
 
