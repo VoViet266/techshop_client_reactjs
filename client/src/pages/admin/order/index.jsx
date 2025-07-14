@@ -277,13 +277,8 @@ const OrderManagement = () => {
   };
 
   const reloadTable = async () => {
-    setLoading(true);
-    try {
-      const res = await callFetchOrders();
-      setOrders(res.data.data);
-      setFilteredOrders(res.data.data);
-      setLoading(false);
-    } catch (error) {}
+    fetchOrders();
+    setLoading(false);
   };
 
   const handleCreateOrderSubmit = async () => {
@@ -456,6 +451,7 @@ const OrderManagement = () => {
 
       reloadTable();
       message.success('Cập nhật đơn hàng thành công!');
+
       setLoading(false);
     } catch (error) {
       console.error('Failed to update order:', error);
@@ -475,22 +471,23 @@ const OrderManagement = () => {
       { title: 'Vận chuyển' },
       { title: 'Đã nhận' },
     ];
-    let current = 0;
+
+    let current;
     switch (status) {
       case 'PENDING':
-        current = 1;
+        current = 0;
         break;
       case 'PROCESSING':
+        current = 1;
+        break;
+      case 'CONFIRMED':
         current = 2;
         break;
-      case 'COMPLETED':
+      case 'SHIPPING':
         current = 3;
         break;
-      case 'SHIPPING':
-        current = 4;
-        break;
       case 'DELIVERED':
-        current = 5;
+        current = 4;
         break;
       default:
         break;
@@ -656,7 +653,7 @@ const OrderManagement = () => {
             Lưu thay đổi
           </Button>,
         ]}
-        width={800}
+        width={950}
       >
         {selectedOrder && (
           <div>

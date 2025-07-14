@@ -1,26 +1,39 @@
-import { Flex, Result, Button, Typography } from 'antd';
+import {
+  Flex,
+  Result,
+  Button,
+  Typography,
+  Select,
+  Radio,
+  Space,
+  Card,
+  Row,
+  Col,
+  Divider,
+  Slider,
+  Checkbox,
+} from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { PreviewListProducts, ListProducts } from '@/components/products';
+import { BsFilter } from 'react-icons/bs';
 import { useAppContext } from '@/contexts';
 import { Content } from 'antd/es/layout/layout';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import { formatCurrency } from '@/helpers';
+import CardProduct from '@/components/products/Card';
+
+const { Title, Text } = Typography;
 
 function SearchProductResult() {
   const { query } = useParams();
   const [result, setResult] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentBrand, setCurrentBrand] = useState('');
-  const [rams, setRams] = useState([]);
   const [sort, setSort] = useState(null);
   const [filter, setFilter] = useState({
     price: null,
-    color: null,
-    ram: null,
-    storage: null,
+    priceRange: null,
   });
-  const [brands, setBrands] = useState([]);
-  const [storages, setStorages] = useState([]);
   const { message } = useAppContext();
 
   async function fetchSearchResult() {
@@ -50,74 +63,275 @@ function SearchProductResult() {
         const realPrice =
           product?.variants?.[0]?.price -
           product?.variants?.[0]?.price * (product?.discount / 100);
-        if (filter.price === 1) {
-          matchPrice = realPrice < 10000000;
-        } else if (filter.price === 2) {
-          matchPrice = realPrice >= 10000000 && realPrice <= 20000000;
-        } else if (filter.price === 3) {
-          matchPrice = realPrice > 20000000;
+
+        // Lọc theo khoảng giá cố định
+        if (filter.price) {
+          const [minPrice, maxPrice] = filter.price;
+          matchPrice = realPrice >= minPrice && realPrice <= maxPrice;
         }
 
-        let matchRam = filter.ram
-          ? product.variants?.some((v) =>
-              v.memory.ram
-                ?.toLowerCase()
-                .includes(filter.ram.label?.toLowerCase()),
-            )
-          : true;
+        // Lọc theo khoảng giá slider
+        if (filter.priceRange) {
+          const [minPrice, maxPrice] = filter.priceRange;
+          matchPrice = realPrice >= minPrice && realPrice <= maxPrice;
+        }
 
-        let matchStorage = filter.storage
-          ? product.variants?.some((v) =>
-              v.memory.storage
-                ?.toLowerCase()
-                .includes(filter.storage.label?.toLowerCase()),
-            )
-          : true;
-
-        return matchPrice && matchRam && matchStorage;
+        return matchPrice;
       })
     : [];
 
-  useEffect(() => {
-    if (Array.isArray(result) && result.length > 0) {
-      const brands = [
-        'Tất cả',
-        ...new Set(result.map((product) => product?.brand?.[0]?.name?.[0])),
-      ];
-      setBrands(brands);
+  const handleSortChange = (value) => {
+    setSort(value);
+  };
 
-      const allRams = result.flatMap(
-        (product) =>
-          product.variants?.map((v) => v.memory.ram).filter(Boolean) || [],
-      );
-      setRams([...new Set(allRams)]);
+  const handleResetFilter = () => {
+    setFilter({
+      price: null,
+      priceRange: null,
+    });
+    setSort(null);
+  };
 
-      const allStorages = result.flatMap(
-        (product) =>
-          product.variants?.map((v) => v.memory.storage).filter(Boolean) || [],
-      );
-      setStorages([...new Set(allStorages)]);
+  const getSortedProducts = () => {
+    let sortedProducts = [...filteredProducts];
+
+    if (sort === 1) {
+      // Giá tăng dần
+      sortedProducts.sort((a, b) => {
+        const priceA =
+          a?.variants?.[0]?.price -
+          a?.variants?.[0]?.price * (a?.discount / 100);
+        const priceB =
+          b?.variants?.[0]?.price -
+          b?.variants?.[0]?.price * (b?.discount / 100);
+        return priceA - priceB;
+      });
+    } else if (sort === 2) {
+      // Giá giảm dần
+      sortedProducts.sort((a, b) => {
+        const priceA =
+          a?.variants?.[0]?.price -
+          a?.variants?.[0]?.price * (a?.discount / 100);
+        const priceB =
+          b?.variants?.[0]?.price -
+          b?.variants?.[0]?.price * (b?.discount / 100);
+        return priceB - priceA;
+      });
     }
-  }, [result, query]);
 
+    return sortedProducts;
+  };
+
+  const handlePriceRangeChange = (value) => {
+    setFilter((prev) => ({
+      ...prev,
+      priceRange: value,
+      price: null,
+    }));
+  };
+
+  const sortedProducts = getSortedProducts();
+
+  const priceRange = [
+    { label: 'Dưới 2 triệu', value: [0, 2000000] },
+    { label: 'Từ 2 - 4 triệu', value: [2000000, 4000000] },
+    { label: 'Từ 4 - 7 triệu', value: [4000000, 7000000] },
+    { label: 'Từ 7 - 13 triệu', value: [7000000, 13000000] },
+    { label: 'Từ 13 - 20 triệu', value: [13000000, 20000000] },
+    { label: 'Từ 20 - 30 triệu', value: [20000000, 30000000] },
+    { label: 'Trên 30 triệu', value: [30000000, 100000000] },
+  ];
+
+  const sliderPriceRange = { maxPrice: 100000000, minPrice: 0 };
+  useEffect(() => {
+    document.title = `Tìm thấy ${sortedProducts.length} kết quả cho từ khóa ${query}`;
+  });
   return (
-    <div className="w-full xl:px-50 lg:px-30 md:px-20 my-10">
-      <ListProducts
-        rams={rams}
-        sort={sort}
-        brands={brands}
-        filter={filter}
-        setSort={setSort}
-        loading={loading}
-        title="Tìm kiếm"
-        products={result}
-        storages={storages}
-        setFilter={setFilter}
-        setProducts={setResult}
-        currentBrand={currentBrand}
-        setCurrentBrand={setCurrentBrand}
-        filteredProducts={filteredProducts}
-      />
+    <div className="w-full ">
+      <Content className="mt-60! sm:mt-[10px]! ">
+        <div className="mb-6 ">
+          <Title level={2} className="mb-2! flex! flex-col!  ">
+            <span className="flex items-center gap-2">
+              <SearchOutlined className="text-xl! sm:text-2xl   hidden! sm:block!" />
+              <span>Kết quả tìm kiếm cho "{query}"</span>
+            </span>
+          </Title>
+
+          <Text type="secondary" className="block text-sm sm:text-base">
+            Tìm thấy {sortedProducts.length} sản phẩm
+          </Text>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div>Đang tải...</div>
+          </div>
+        ) : result.length === 0 ? (
+          <Result
+            icon={<SearchOutlined />}
+            title="Không tìm thấy sản phẩm nào"
+            subTitle={`Không có sản phẩm nào phù hợp với từ khóa "${query}"`}
+            extra={
+              <Link to="/">
+                <Button type="primary">Về trang chủ</Button>
+              </Link>
+            }
+          />
+        ) : (
+          <Row gutter={[10, 10]}>
+            <Col xs={24} md={24} lg={24} xl={6}>
+              <Card
+                title={
+                  <div className="flex items-center gap-2 py-10!">
+                    <BsFilter className="text-2xl" />
+                    Bộ lọc tìm kiếm
+                  </div>
+                }
+              >
+                <Space
+                  direction="vertical"
+                  style={{ width: '100%' }}
+                  size="middle"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={
+                          filter.price === null && filter.priceRange === null
+                        }
+                        onChange={() => {
+                          setFilter((prev) => ({
+                            ...prev,
+                            price: null,
+                            priceRange: null,
+                          }));
+                        }}
+                      >
+                        <Text className="text-sm text-gray-600">Tất cả</Text>
+                      </Checkbox>
+                    </div>
+                    {priceRange.map((range, index) => (
+                      <div key={index} className="flex items-center">
+                        <Checkbox
+                          checked={
+                            JSON.stringify(filter.price) ===
+                            JSON.stringify(range.value)
+                          }
+                          value={range.value}
+                          onChange={() => {
+                            setFilter((prev) => ({
+                              ...prev,
+                              price:
+                                JSON.stringify(prev.price) ===
+                                JSON.stringify(range.value)
+                                  ? null
+                                  : range.value,
+                              priceRange: null,
+                            }));
+                          }}
+                        >
+                          <Text className="text-sm text-gray-600">
+                            {range.label}
+                          </Text>
+                        </Checkbox>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-4">
+                    <Text className="text-sm text-gray-600 mb-2 block">
+                      Hoặc nhập khoảng giá phù hợp:
+                    </Text>
+                    <div className="mb-4">
+                      <Slider
+                        range
+                        min={sliderPriceRange.minPrice}
+                        max={sliderPriceRange.maxPrice}
+                        defaultValue={[
+                          sliderPriceRange.minPrice,
+                          sliderPriceRange.maxPrice,
+                        ]}
+                        value={
+                          filter.priceRange || [
+                            sliderPriceRange.minPrice,
+                            sliderPriceRange.maxPrice,
+                          ]
+                        }
+                        step={100000}
+                        onChange={handlePriceRangeChange}
+                        tooltip={{
+                          formatter: (value) => formatCurrency(value) + ' vnđ',
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-2">
+                      <span>
+                        {formatCurrency(
+                          filter.priceRange?.[0] || sliderPriceRange.minPrice,
+                        )}{' '}
+                        vnđ
+                      </span>
+                      <span>
+                        {formatCurrency(
+                          filter.priceRange?.[1] || sliderPriceRange.maxPrice,
+                        )}{' '}
+                        vnđ
+                      </span>
+                    </div>
+                  </div>
+                </Space>
+              </Card>
+            </Col>
+
+            <Col xs={24} md={24} lg={24} xl={18}>
+              <Card>
+                <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:justify-between sm:items-center ">
+                  <Text strong>{sortedProducts.length} sản phẩm</Text>
+                  <Space.Compact>
+                    <Button
+                      type={sort === null ? 'primary' : 'default'}
+                      onClick={() => handleSortChange(null)}
+                      className="rounded-l-xl"
+                    >
+                      Nổi bật
+                    </Button>
+                    <Button
+                      type={sort === 1 ? 'primary' : 'default'}
+                      onClick={() => handleSortChange(1)}
+                    >
+                      Giá tăng dần
+                    </Button>
+                    <Button
+                      type={sort === 2 ? 'primary' : 'default'}
+                      onClick={() => handleSortChange(2)}
+                      className="rounded-r-xl"
+                    >
+                      Giá giảm dần
+                    </Button>
+                  </Space.Compact>
+                </div>
+
+                {sortedProducts.length === 0 ? (
+                  <Result
+                    title="Không có sản phẩm nào phù hợp"
+                    subTitle="Hãy thử điều chỉnh bộ lọc để tìm thấy sản phẩm phù hợp"
+                    extra={
+                      <Button onClick={handleResetFilter}>Xóa bộ lọc</Button>
+                    }
+                  />
+                ) : (
+                  <Row gutter={[10, 10]}>
+                    {sortedProducts.map((product) => (
+                      <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                        <CardProduct product={product} />
+                      </Col>
+                    ))}
+                  </Row>
+                )}
+              </Card>
+            </Col>
+          </Row>
+        )}
+      </Content>
     </div>
   );
 }
