@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { useAppContext } from '@/contexts';
 import '@styles/account-info.css';
+import dayjs from 'dayjs';
 import ProductService from '@services/products';
 import {
   UserOutlined,
@@ -53,6 +54,16 @@ const AccountInfoPage = () => {
   const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const statusOptions = [
+    { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
+    { value: 'PROCESSING', label: 'Đang xử lý', color: 'cyan' },
+    { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
+    { value: 'SHIPPING', label: 'Đang giao hàng', color: 'purple' },
+    { value: 'DELIVERED', label: 'Đã giao hàng', color: 'green' },
+    { value: 'CANCELLED', label: 'Đã hủy', color: 'red' },
+    { value: 'RETURNED', label: 'Đã trả hàng', color: 'gray' },
+  ];
+
   useEffect(() => {
     if (orders) {
       const ordersToShow = orders.map((order) => {
@@ -60,11 +71,17 @@ const AccountInfoPage = () => {
           id: order._id,
           date: order.createdAt,
           total: order.totalPrice,
-          items: '123',
+          items: order.items,
           status: order.status,
         };
       });
       setOrdersToShow(ordersToShow);
+    }
+  }, [orders]);
+
+  useEffect(() => {
+    if (orders) {
+      console.log(orders);
     }
   }, [orders]);
 
@@ -312,11 +329,17 @@ const AccountInfoPage = () => {
       title: 'Ngày đặt',
       dataIndex: 'date',
       key: 'date',
+      render: (_, record) => {
+        return dayjs(record.date).format('HH:mm:ss DD/MM/YYYY');
+      },
     },
     {
       title: 'Sản phẩm',
       dataIndex: 'items',
       key: 'items',
+      render: (item) => {
+        return item[0].product.name;
+      },
     },
     {
       title: 'Tổng tiền',
