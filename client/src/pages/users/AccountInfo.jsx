@@ -285,19 +285,25 @@ const AccountInfoPage = () => {
   const getStatusColor = (status) => {
     const colors = {
       PENDING: 'orange',
-      SHIPPING: 'blue',
+      PROCESSING: 'cyan',
+      CONFIRMED: 'blue',
+      SHIPPING: 'purple',
       DELIVERED: 'green',
       CANCELLED: 'red',
+      RETURNED: 'gray',
     };
     return colors[status] || 'gray';
   };
 
   const getStatusText = (status) => {
     const texts = {
-      completed: 'Hoàn tất',
-      shipping: 'Đang giao',
-      pending: 'Đang xử lý',
-      cancelled: 'Đã hủy',
+      PROCESSING: 'Đang xử lý',
+      CONFIRMED: 'Đã xác nhận',
+      DELIVERED: 'Đã giao',
+      SHIPPING: 'Đang giao',
+      PENDING: 'Chờ xử lý',
+      CANCELLED: 'Đã hủy',
+      RETURNED: 'Đã trả hàng',
     };
     return texts[status] || status;
   };
@@ -351,9 +357,12 @@ const AccountInfoPage = () => {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => (
-        <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
-      ),
+      render: (status) => {
+        console.log(status);
+        return (
+          <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+        );
+      },
     },
     {
       title: 'Hành động',
