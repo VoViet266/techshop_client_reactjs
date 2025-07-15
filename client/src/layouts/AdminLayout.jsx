@@ -351,7 +351,7 @@ function AdminLayout() {
   return (
     <Layout className="w-full">
       <Header
-        className="font-roboto"
+        className="font-inter"
         style={{
           padding: isMobile ? '0 16px' : '0 24px',
           width: '100%',

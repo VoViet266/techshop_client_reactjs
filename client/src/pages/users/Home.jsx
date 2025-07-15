@@ -266,7 +266,7 @@ function Home() {
               <div className="flex mb-10 items-center justify-between">
                 <Typography.Title
                   level={3}
-                  className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
+                  className="font-inter! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
                 >
                   Sản phẩm có thể phù hợp với bạn
                 </Typography.Title>
@@ -301,7 +301,7 @@ function Home() {
           <div className="flex mb-10 items-center justify-between">
             <Typography.Title
               level={3}
-              className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
+              className="font-inter! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
             >
               Sản phẩm có thể phù hợp với baise
             </Typography.Title>

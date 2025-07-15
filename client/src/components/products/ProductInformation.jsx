@@ -56,7 +56,7 @@ function ProductInformation({ className, product, loading }) {
         <Typography.Text
           delete
           type="secondary"
-          className="text-lg! font-roboto!"
+          className="text-lg! font-inter!"
         >
           {!loading ? (
             `${formatCurrency(product?.variants?.[currentVariant]?.price)}đ`

@@ -67,7 +67,7 @@ function Header() {
   }));
 
   return (
-    <Layout.Header className="print:hidden! font-roboto! px-4! w-full! fixed! top-0! left-0! right-0! z-10! p-10! bg-primary! flex! items-center! justify-center! border-b! border-gray-200!  sm:h-20">
+    <Layout.Header className="print:hidden! font-inter! px-4! w-full! fixed! top-0! left-0! right-0! z-10! p-10! bg-primary! flex! items-center! justify-center! border-b! border-gray-200!  sm:h-20">
       <div className="w-5/6  flex items-center justify-between gap-4">
         <div className="flex-shrink-0">
           <Link to="/">
@@ -186,7 +186,7 @@ function UsersLayout() {
     useAppContext();
 
   return (
-    <Layout className="font-roboto! relative! flex! flex-col! items-center!">
+    <Layout className="font-inter! relative! flex! flex-col! items-center!">
       <Header />
 
       {loading ? (
