@@ -572,6 +572,7 @@ const AccountInfoPage = () => {
               <label className="mb-4">Tỉnh/Thành phố</label>
               <Select
                 value={selectedProvince?.code}
+                placeholder="Chọn Tỉnh/Thành phố"
                 options={provinces.map((province) => {
                   return { label: province.name, value: province.code };
                 })}
@@ -590,6 +591,7 @@ const AccountInfoPage = () => {
               <label className="mb-4">Quận/Huyện</label>
               <Select
                 value={selectedDistrict?.code}
+                placeholder="Chọn Quận/Huyện"
                 options={districts.map((district) => {
                   return { label: district.name, value: district.code };
                 })}
@@ -606,6 +608,7 @@ const AccountInfoPage = () => {
               <label className="mb-4">Xã/Phường</label>
               <Select
                 value={selectedWard?.code}
+                placeholder="Chọn Xã/Phường"
                 options={wards.map((ward) => {
                   return { label: ward.name, value: ward.code };
                 })}
@@ -619,6 +622,7 @@ const AccountInfoPage = () => {
           <Flex vertical className="mt-8!">
             <label className="mb-4">Địa chỉ chi tiết</label>
             <Input.TextArea
+              placeholder="Nhập địa chỉ chi tiết"
               value={editingAddress?.specificAddress || ''}
               onChange={(event) => {
                 setEditingAddress((prev) => {
