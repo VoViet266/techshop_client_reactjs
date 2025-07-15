@@ -16,8 +16,8 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
 
   const settings = {
     speed: 500,
-    infinite: products.length > 5, // chỉ infinite khi đủ sản phẩm
-    slidesToShow: Math.min(products.length, 5),
+    infinite: products.length > 5,
+    slidesToShow: 5,
     slidesToScroll: 1,
     nextArrow: <CustomNextArrow isVisible={isHovered} />,
     prevArrow: <CustomPrevArrow isVisible={isHovered} />,
@@ -133,12 +133,12 @@ function PreviewListProducts({ title, loading, products = [], category = {} }) {
               return (
                 <div
                   key={index}
-                  className="px-2 sm:px-3 lg:px-4 my-6 sm:my-8 lg:my-10 flex justify-between"
+                  className="px-2 sm:px-3 lg:px-4 my-6 sm:my-8 lg:my-10 w-1/5"
                 >
                   <CardProduct
                     product={product}
                     loading={loading}
-                    className={products.length < 5 && `w-1/5 sm:w-1/3 lg:w-1/4`}
+                    className="w-full!"
                   />
                 </div>
               );
