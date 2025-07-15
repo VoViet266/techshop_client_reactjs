@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')).render(
     <ConfigProvider
       theme={{
         token: {
-          fontFamily: 'Roboto, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           colorPrimary: '#dc2626',
         },
         components: {

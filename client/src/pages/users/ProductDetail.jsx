@@ -85,6 +85,10 @@ function ProductDetail() {
   };
 
   useEffect(() => {
+    window.scroll(0, 0);
+  }, []);
+
+  useEffect(() => {
     document.title = 'TechShop | Chi tiết sản phẩm';
 
     fetchProductDetail();
@@ -224,7 +228,7 @@ function ProductDetail() {
   }
 
   return (
-    <div className="w-full h-full rounded-[10px] px-2 sm:px-4 lg:px-6">
+    <div className="w-full h-full font-inter mt-24 rounded-[10px] px-2 sm:px-4 lg:px-6">
       <div className="mx-auto rounded-[10px]">
         <Row gutter={[10, 10]}>
           <Col xl={14} lg={14} md={24} sm={24} xs={24}>
@@ -239,7 +243,7 @@ function ProductDetail() {
                       Danh sách cửa hàng
                     </Title>
 
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-10">
                       {branchs.map((branch) => {
                         const inStock = branchStocks[branch._id];
                         return (
@@ -250,7 +254,7 @@ function ProductDetail() {
                               console.log('branch._id', branch._id);
                               setSelectBranchs(branch._id);
                             }}
-                            className="hover:shadow-md transition-shadow cursor-pointer"
+                            className="hover:shadow-none! cursor-default! transition-shadow"
                           >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
@@ -316,14 +320,14 @@ function ProductDetail() {
                 >
                   {product.name}
                 </Title>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 lg:gap-20 mb-6 sm:mb-10">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 lg:gap-10 mb-6 sm:mb-10">
                   <Rate
                     disabled
                     defaultValue={stats?.averageRating}
                     className="text-sm"
                   />
                   <Text type="secondary" className="text-xs sm:text-sm">
-                    {stats?.totalComments} Lượt đánh giá
+                    {stats?.totalComments} lượt đánh giá
                   </Text>
                   <Button
                     type="link"
@@ -335,164 +339,178 @@ function ProductDetail() {
                   </Button>
                 </div>
               </div>
-
-              {/* Chỉ hiển thị phần Bộ nhớ nếu sản phẩm có memory */}
-{product.variants?.some(v => v.memory?.ram || v.memory?.storage) && (
-  <div className="mb-6">
-    <Title level={5} className="mb-2 text-sm sm:text-base">
-      Bộ nhớ
-    </Title>
-    <Row gutter={[8, 8]}>
-      {[
-        ...new Map(
-          product.variants
-            ?.filter(v => v.memory?.ram || v.memory?.storage) // Lọc variants có memory
-            ?.map((v) => [
-              `${v.memory?.ram || 'no-ram'}-${v.memory?.storage || 'no-storage'}`,
-              v,
-            ]),
-        ).values(),
-      ].map((variant, index) => {
-        const isSelected =
-          selectedMemory?.ram === variant.memory?.ram &&
-          selectedMemory?.storage === variant.memory?.storage;
-
-        return (
-          <Col span={12} key={`memory-${index}`}>
-            <Button
-              block
-              className={`py-10! sm:py-4! px-8! sm:px-4! rounded-lg! text-xs! sm:text-sm! ${
-                isSelected ? 'border! border-primary!' : ' '
-              } `}
-              onClick={() => {
-                setSelectedMemory(variant.memory);
-                const matchedVariants = product.variants.filter(
-                  (v) =>
-                    v.memory?.ram === variant.memory?.ram &&
-                    v.memory?.storage === variant.memory?.storage,
-                );
-
-                if (matchedVariants.length > 0) {
-                  const colorNames = matchedVariants.map(
-                    (v) => v.color?.name,
-                  );
-                  if (!colorNames.includes(selectedColor)) {
-                    setSelectedColor(matchedVariants[0].color?.name);
-                  }
-                }
-              }}
-            >
-              <Text strong className="text-xs! sm:text-sm!">
-                {variant.memory?.storage && variant.memory?.ram 
-                  ? `${variant.memory.storage} - ${variant.memory.ram}`
-                  : variant.memory?.storage || variant.memory?.ram || 'Không có thông số'
-                }
-              </Text>
-            </Button>
-          </Col>
-        );
-      })}
-    </Row>
-  </div>
-)}
-
-<div className="mb-6">
-  <Title level={5} className="mb-2 text-sm sm:text-base">
-    Màu sắc
-  </Title>
-  <Row gutter={[8, 8]}>
-    {product.variants
-      ?.filter((variant) => {
-        // Nếu sản phẩm không có memory, hiển thị tất cả variants
-        if (!product.variants?.some(v => v.memory?.ram || v.memory?.storage)) {
-          return true;
-        }
-        
-        // Nếu có memory, filter theo selectedMemory
-        if (selectedMemory) {
-          return (
-            variant.memory?.ram === selectedMemory?.ram &&
-            variant.memory?.storage === selectedMemory?.storage
-          );
-        }
-        
-        // Nếu chưa chọn memory, không hiển thị variants nào
-        return false;
-      })
-      .map((variant, index) => {
-        const isSelected = selectedColor === variant.color?.name;
-
-        return (
-          <Col span={12} key={`color-${index}`}>
-            <div
-              className={
-                'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs sm:text-sm cursor-pointer hover:bg-gray-50 ' +
-                (isSelected ? 'border border-primary bg-blue-50' : 'border border-gray-200')
-              }
-              onClick={() => setSelectedColor(variant.color?.name)}
-            >
-              <div className="w-40 h-40 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                <Image
-                  preview={false}
-                  src={
-                    variant.images?.[0] ||
-                    'https://dummyimage.com/200x200/ccc/000&text=No+Image'
-                  }
-                  className="w-full! h-full! object-contain!"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <Typography.Text
-                  strong
-                  className="block text-xs sm:text-sm truncate"
-                >
-                  {variant.color?.name}
-                </Typography.Text>
-                <Typography.Text
-                  type="secondary"
-                  className="text-xs sm:text-sm"
-                >
-                  {formatCurrency(variant.price)}đ
-                </Typography.Text>
-                {/* Hiển thị thông tin memory nếu có */}
-                {(variant.memory?.ram || variant.memory?.storage) && (
-                  <Typography.Text
-                    type="secondary"
-                    className="block text-xs mt-1"
-                  >
-                    {variant.memory?.storage && variant.memory?.ram 
-                      ? `${variant.memory.storage} - ${variant.memory.ram}`
-                      : variant.memory?.storage || variant.memory?.ram
-                    }
-                  </Typography.Text>
-                )}
-              </div>
-            </div>
-          </Col>
-        );
-      })}
-  </Row>
-</div>
-
               <div className="mb-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-2 sm:gap-3 mb-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-10 sm:gap-3 mb-2">
                   <Title
                     level={2}
-                    className="text-red-600 mb-0 text-xl sm:text-2xl lg:text-3xl"
+                    className="text-2xl! sm:text-2xl! mr-6!"
                   >
                     {`${formatCurrency(selectedVariant?.price)}đ`}
                   </Title>
-                  <Text delete className="text-gray-500 text-sm sm:text-base">
-                    {`${formatCurrency(selectedVariant?.compareAtPrice)}đ`}
+                  <Text delete className="text-gray-500! text-base! sm:text-base!">
+                    {`${formatCurrency(product?.variants?.[0]?.price - (product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100)))}đ`}
                   </Text>
                 </div>
               </div>
 
+              {/* Chỉ hiển thị phần Bộ nhớ nếu sản phẩm có memory */}
+              {product.variants?.some(
+                (v) => v.memory?.ram || v.memory?.storage,
+              ) && (
+                <div className="mb-6">
+                  <Title level={5} className="mb-2 text-sm sm:text-base">
+                    Bộ nhớ
+                  </Title>
+                  <Row gutter={[8, 8]}>
+                    {[
+                      ...new Map(
+                        product.variants
+                          ?.filter((v) => v.memory?.ram || v.memory?.storage) // Lọc variants có memory
+                          ?.map((v) => [
+                            `${v.memory?.ram || 'no-ram'}-${v.memory?.storage || 'no-storage'}`,
+                            v,
+                          ]),
+                      ).values(),
+                    ].map((variant, index) => {
+                      const isSelected =
+                        selectedMemory?.ram === variant.memory?.ram &&
+                        selectedMemory?.storage === variant.memory?.storage;
+
+                      return (
+                        <Col span={12} key={`memory-${index}`}>
+                          <Button
+                            block
+                            className={`py-10! sm:py-4! px-8! sm:px-4! rounded-md! h-40! text-xs! sm:text-sm! ${
+                              isSelected ? 'border! border-primary!' : ' '
+                            } `}
+                            onClick={() => {
+                              setSelectedMemory(variant.memory);
+                              const matchedVariants = product.variants.filter(
+                                (v) =>
+                                  v.memory?.ram === variant.memory?.ram &&
+                                  v.memory?.storage === variant.memory?.storage,
+                              );
+
+                              if (matchedVariants.length > 0) {
+                                const colorNames = matchedVariants.map(
+                                  (v) => v.color?.name,
+                                );
+                                if (!colorNames.includes(selectedColor)) {
+                                  setSelectedColor(
+                                    matchedVariants[0].color?.name,
+                                  );
+                                }
+                              }
+                            }}
+                          >
+                            <Text className="text-sm! sm:text-sm!">
+                              {variant.memory?.storage && variant.memory?.ram
+                                ? `${variant.memory.storage} - ${variant.memory.ram}`
+                                : variant.memory?.storage ||
+                                  variant.memory?.ram ||
+                                  'Không có thông số'}
+                            </Text>
+                          </Button>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                </div>
+              )}
+
               <div className="mb-6">
-                <Text strong className="block mb-3 text-sm sm:text-base">
+                <Title level={5} className="mb-2 text-sm sm:text-base">
+                  Màu sắc
+                </Title>
+                <Row gutter={[8, 8]}>
+                  {product.variants
+                    ?.filter((variant) => {
+                      // Nếu sản phẩm không có memory, hiển thị tất cả variants
+                      if (
+                        !product.variants?.some(
+                          (v) => v.memory?.ram || v.memory?.storage,
+                        )
+                      ) {
+                        return true;
+                      }
+
+                      // Nếu có memory, filter theo selectedMemory
+                      if (selectedMemory) {
+                        return (
+                          variant.memory?.ram === selectedMemory?.ram &&
+                          variant.memory?.storage === selectedMemory?.storage
+                        );
+                      }
+
+                      // Nếu chưa chọn memory, không hiển thị variants nào
+                      return false;
+                    })
+                    .map((variant, index) => {
+                      const isSelected = selectedColor === variant.color?.name;
+
+                      return (
+                        <Col span={12} key={`color-${index}`}>
+                          <div
+                            className={
+                              'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs bg-white! rounded-md! sm:text-sm cursor-pointer hover:bg-gray-50 ' +
+                              (isSelected
+                                ? 'border border-primary bg-blue-50'
+                                : 'border border-gray-200')
+                            }
+                            onClick={() =>
+                              setSelectedColor(variant.color?.name)
+                            }
+                          >
+                            <div className="w-50 h-50 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                              <Image
+                                preview={false}
+                                src={
+                                  variant.images?.[0] ||
+                                  'https://dummyimage.com/200x200/ccc/000&text=No+Image'
+                                }
+                                className="w-full! h-full! object-contain!"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <Typography.Text
+                                strong
+                                className="block text-xs sm:text-sm truncate"
+                              >
+                                {variant.color?.name}
+                              </Typography.Text>
+                              <Typography.Text
+                                type="secondary"
+                                className="text-xs sm:text-sm"
+                              >
+                                {formatCurrency(variant.price)}đ
+                              </Typography.Text>
+                              {/* Hiển thị thông tin memory nếu có */}
+                              {(variant.memory?.ram ||
+                                variant.memory?.storage) && (
+                                <Typography.Text
+                                  type="secondary"
+                                  className="block text-xs mt-1"
+                                >
+                                  {variant.memory?.storage &&
+                                  variant.memory?.ram
+                                    ? `${variant.memory.storage} - ${variant.memory.ram}`
+                                    : variant.memory?.storage ||
+                                      variant.memory?.ram}
+                                </Typography.Text>
+                              )}
+                            </div>
+                          </div>
+                        </Col>
+                      );
+                    })}
+                </Row>
+              </div>
+
+              <div className="mb-6">
+                <Text className="block! mt-10! mb-5! font-medium! text-base!">
                   Chọn 1 trong các khuyến mãi sau:
                 </Text>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-10">
                   <Card size="small" className="border-red-200 bg-red-50">
                     <div className="flex items-center gap-2">
                       <GiftOutlined className="text-red-500 flex-shrink-0" />
