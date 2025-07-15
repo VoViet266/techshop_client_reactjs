@@ -73,14 +73,14 @@ function Header() {
           <Link to="/">
             <Typography.Title
               level={3}
-              className="font-extrabold! text-2xl! sm:text-3xl! md:text-4xl! xl:text-4xl! tracking-wider! cursor-pointer! text-white! m-0!"
+              className="font-extrabold! text-2xl! sm:text-3xl! md:text-4xl! xl:text-4xl! cursor-pointer! text-white! m-0!"
             >
-              TECHSHOP
+              TechShop
             </Typography.Title>
           </Link>
         </div>
         <div className="flex items-center gap-4 sm:gap-15 w-3/5 mr-[100px]">
-          <div className="hidden md:flex  w-[20%]">
+          <div className="hidden md:flex cursor-pointer w-[20%]">
             <Dropdown
               menu={{ items }}
               trigger={['hover']}

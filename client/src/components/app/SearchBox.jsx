@@ -148,7 +148,7 @@ function SearchBox() {
         <div className={'relative  '} onClick={handleFocus}>
           <div
             className={
-              'relative bg-white  rounded-l-full rounded-r-full shadow-lg border-2 border-gray-200 '
+              'relative bg-white rounded-l-full rounded-r-full'
             }
           >
             <div className="flex items-center px-4 py-4">
@@ -177,7 +177,7 @@ function SearchBox() {
               )}
               <button
                 onClick={handleSearch}
-                className=" flex items-center  bg-gradient-to-r bg-[#fee2e2] text-white rounded-full p-8"
+                className=" flex items-center cursor-pointer bg-gradient-to-r bg-[#fee2e2] text-white rounded-full p-8"
               >
                 <SearchIcon className="w-20 h-20 text-primary " />
               </button>
