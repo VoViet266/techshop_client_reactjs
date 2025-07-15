@@ -644,7 +644,7 @@ const AccountInfoPage = () => {
             Hủy
           </Button>
 
-          <Button
+          {/* <Button
             type="primary"
             className="h-40! min-w-100!"
             onClick={async () => {
@@ -689,6 +689,68 @@ const AccountInfoPage = () => {
 
                 return updateUser;
               });
+
+              await updateAddress(updateUser);
+            }}
+          >
+            {editingAddressIndex !== null ? 'Cập nhật' : 'Thêm'}
+          </Button> */}
+
+          <Button
+            type="primary"
+            className="h-40! min-w-100!"
+            onClick={async () => {
+              if (
+                !selectedProvince ||
+                !selectedDistrict ||
+                !selectedWard ||
+                !editingAddress?.specificAddress
+              ) {
+                return message.warning(
+                  'Vui lòng điền đầy đủ thông tin địa chỉ',
+                );
+              }
+
+              const newAddress = {
+                specificAddress: editingAddress.specificAddress,
+                addressDetail: `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`,
+                default: false, // tạm để false, lát set lại
+                isDeleted: false,
+                deletedAt: null,
+              };
+
+              let updatedAddresses = [...updateUserInfo.addresses];
+
+              if (editingAddressIndex !== null) {
+                // Cập nhật địa chỉ
+                updatedAddresses[editingAddressIndex] = {
+                  ...updatedAddresses[editingAddressIndex],
+                  ...newAddress,
+                };
+              } else {
+                // Thêm mới địa chỉ
+                updatedAddresses.push(newAddress);
+              }
+
+              // Luôn gán địa chỉ đầu tiên là mặc định nếu không có địa chỉ mặc định nào
+              const hasDefault = updatedAddresses.some((addr) => addr.default);
+              if (!hasDefault) {
+                updatedAddresses[0].default = true;
+              }
+
+              // Đảm bảo chỉ có 1 địa chỉ mặc định duy nhất
+              const defaultIndex = updatedAddresses.findIndex(
+                (addr) => addr.default,
+              );
+              updatedAddresses = updatedAddresses.map((addr, idx) => ({
+                ...addr,
+                default: idx === defaultIndex,
+              }));
+
+              const updateUser = {
+                ...updateUserInfo,
+                addresses: updatedAddresses,
+              };
 
               await updateAddress(updateUser);
             }}
