@@ -9,6 +9,7 @@ import {
   Rate,
   Tag,
   Flex,
+  Divider,
 } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -178,12 +179,51 @@ function Comments({ className, product, loading: initialLoading }) {
 
         <div className="p-6">
           <div className="flex items-start gap-8">
-            <Avatar
-              src={user?.avatar}
-              size={40}
-              className="border-2 border-white shadow-md"
-              icon={<AiOutlineUser />}
-            />
+            {!user.avatar ? (
+              <div>
+                <svg
+                  width="44"
+                  height="44"
+                  viewBox="0 0 44 44"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="mb:hidden"
+                >
+                  <rect width="44" height="44" rx="22" fill="#FECAB5"></rect>
+                  <path
+                    d="M22.0086 10C23.3144 10 24.5909 10.3871 25.6767 11.1123C26.7624 11.8375 27.6087 12.8683 28.1084 14.0743C28.6081 15.2803 28.7389 16.6073 28.4841 17.8876C28.2294 19.1679 27.6006 20.3439 26.6772 21.2669C25.7538 22.1899 24.5774 22.8185 23.2967 23.0732C22.0159 23.3278 20.6884 23.1971 19.482 22.6976C18.2756 22.1981 17.2444 21.3521 16.519 20.2668C15.7935 19.1814 15.4063 17.9054 15.4062 16.6C15.4115 14.8512 16.1088 13.1755 17.3458 11.9389C18.5829 10.7023 20.2592 10.0052 22.0086 10Z"
+                    fill="#F37021"
+                  ></path>
+                  <path
+                    opacity="0.95"
+                    d="M22.0049 39.6009C17.4561 39.5967 13.0859 37.8304 9.8125 34.6729C10.7861 32.2356 12.4672 30.1453 14.6394 28.6713C16.8117 27.1973 19.3756 26.4071 22.001 26.4024C24.6264 26.3976 27.1931 27.1786 29.3707 28.6448C31.5482 30.1109 33.2369 32.1951 34.2192 34.6289C30.9533 37.8169 26.5696 39.6013 22.0049 39.6009Z"
+                    fill="#13001E"
+                  ></path>
+                  <path
+                    opacity="0.3"
+                    d="M33 22.9318C33.9545 22.8636 35.7273 21.7727 36 20C36 21.4318 37.7727 22.7955 39 22.9318C38 23.1364 36 24.6909 36 26C36 24.3636 33.8182 23.1364 33 22.9318Z"
+                    fill="#F37021"
+                  ></path>
+                  <path
+                    opacity="0.3"
+                    d="M6 21.4432C6.79545 21.3864 8.27273 20.4773 8.5 19C8.5 20.1932 9.97727 21.3295 11 21.4432C10.1667 21.6136 8.5 22.9091 8.5 24C8.5 22.6364 6.68182 21.6136 6 21.4432Z"
+                    fill="#F37021"
+                  ></path>
+                  <path
+                    opacity="0.3"
+                    d="M29 6.95455C29.6364 6.90909 30.8182 6.18182 31 5C31 5.95455 32.1818 6.86364 33 6.95455C32.3333 7.09091 31 8.12727 31 9C31 7.90909 29.5455 7.09091 29 6.95455Z"
+                    fill="#F37021"
+                  ></path>
+                </svg>
+              </div>
+            ) : (
+              <Avatar
+                src={user?.avatar}
+                size={40}
+                className="border-2 border-white shadow-md"
+                icon={<AiOutlineUser />}
+              />
+            )}
             <div className="flex-1">
               {loading ? (
                 <Skeleton height={100} />
@@ -236,7 +276,7 @@ function Comments({ className, product, loading: initialLoading }) {
             </div>
           </div>
         </div>
-
+        <Divider />
         <div className="p-6">
           {loading ? (
             <div className="space-y-6">
@@ -266,25 +306,75 @@ function Comments({ className, product, loading: initialLoading }) {
               </p>
             </div>
           ) : (
-            <div className="mt-30">
+            <div className="">
               {reviews.map((review) => (
                 <div
                   key={review._id}
-                  className="bg-white flex items-start p-6 gap-8"
+                  className="bg-white flex items-start p-6 gap-12"
                 >
                   <div className="flex items-center gap-8 mb-4">
-                    <Avatar
-                      src={review.userId?.avatar}
-                      size={40}
-                      icon={<AiOutlineUser />}
-                    />
+                    {!user.avatar ? (
+                      <div>
+                        <svg
+                          width="44"
+                          height="44"
+                          viewBox="0 0 44 44"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="mb:hidden"
+                        >
+                          <rect
+                            width="44"
+                            height="44"
+                            rx="22"
+                            fill="#FECAB5"
+                          ></rect>
+                          <path
+                            d="M22.0086 10C23.3144 10 24.5909 10.3871 25.6767 11.1123C26.7624 11.8375 27.6087 12.8683 28.1084 14.0743C28.6081 15.2803 28.7389 16.6073 28.4841 17.8876C28.2294 19.1679 27.6006 20.3439 26.6772 21.2669C25.7538 22.1899 24.5774 22.8185 23.2967 23.0732C22.0159 23.3278 20.6884 23.1971 19.482 22.6976C18.2756 22.1981 17.2444 21.3521 16.519 20.2668C15.7935 19.1814 15.4063 17.9054 15.4062 16.6C15.4115 14.8512 16.1088 13.1755 17.3458 11.9389C18.5829 10.7023 20.2592 10.0052 22.0086 10Z"
+                            fill="#F37021"
+                          ></path>
+                          <path
+                            opacity="0.95"
+                            d="M22.0049 39.6009C17.4561 39.5967 13.0859 37.8304 9.8125 34.6729C10.7861 32.2356 12.4672 30.1453 14.6394 28.6713C16.8117 27.1973 19.3756 26.4071 22.001 26.4024C24.6264 26.3976 27.1931 27.1786 29.3707 28.6448C31.5482 30.1109 33.2369 32.1951 34.2192 34.6289C30.9533 37.8169 26.5696 39.6013 22.0049 39.6009Z"
+                            fill="#13001E"
+                          ></path>
+                          <path
+                            opacity="0.3"
+                            d="M33 22.9318C33.9545 22.8636 35.7273 21.7727 36 20C36 21.4318 37.7727 22.7955 39 22.9318C38 23.1364 36 24.6909 36 26C36 24.3636 33.8182 23.1364 33 22.9318Z"
+                            fill="#F37021"
+                          ></path>
+                          <path
+                            opacity="0.3"
+                            d="M6 21.4432C6.79545 21.3864 8.27273 20.4773 8.5 19C8.5 20.1932 9.97727 21.3295 11 21.4432C10.1667 21.6136 8.5 22.9091 8.5 24C8.5 22.6364 6.68182 21.6136 6 21.4432Z"
+                            fill="#F37021"
+                          ></path>
+                          <path
+                            opacity="0.3"
+                            d="M29 6.95455C29.6364 6.90909 30.8182 6.18182 31 5C31 5.95455 32.1818 6.86364 33 6.95455C32.3333 7.09091 31 8.12727 31 9C31 7.90909 29.5455 7.09091 29 6.95455Z"
+                            fill="#F37021"
+                          ></path>
+                        </svg>
+                      </div>
+                    ) : (
+                      <Avatar
+                        src={user?.avatar}
+                        size={40}
+                        className="border-2 border-white shadow-md"
+                        icon={<AiOutlineUser />}
+                      />
+                    )}
                   </div>
                   <div className="mb-4 text-gray-700 w-full leading-relaxed rounded-lg">
                     <div className="flex-1!">
-                      <div className="flex! items-center! gap-8! mb-1!">
+                      <div className="flex! items-center! gap-4! mb-1!">
                         <Text className="font-semibold! text-gray-800!">
                           {review.userId?.name || 'Người dùng'}
                         </Text>
+                        <BsDot />
+                        <Typography.Text className="flex! items-center! text-xs!">
+                          {formatTime(review.createdAt)}
+                        </Typography.Text>
+                        <BsDot />
                         <div className="flex! items-center! gap-3! text-sm! text-gray-500!">
                           <Rate
                             disabled
@@ -293,13 +383,11 @@ function Comments({ className, product, loading: initialLoading }) {
                             className="text-yellow-400 text-sm!"
                           />
                         </div>
-                        <BsDot />
-                        <Typography.Text className="flex! items-center! text-xs!">
-                          {formatTime(review.createdAt)}
-                        </Typography.Text>
                       </div>
                     </div>
-                    {review.content}
+                    <Typography.Text className="text-sm! text-black!">
+                      {review.content}
+                    </Typography.Text>
                     <div className="flex! items-center! gap-8! mt-4 text-sm! text-gray-500! mb-4!">
                       <button className="flex! items-center! gap-2! transition-colors! cursor-pointer! text-black! px-8! py-4! rounded-full! border border-gray-300!">
                         <AiOutlineLike />
@@ -395,7 +483,7 @@ function Comments({ className, product, loading: initialLoading }) {
         </div>
 
         {!loading && total > 0 && (
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+          <div className="px-6 py-4">
             <div className="flex justify-center">
               <Pagination
                 current={page}
