@@ -8,6 +8,7 @@ import {
   Divider,
   Image,
   Rate,
+  Flex,
 } from 'antd';
 import { callFetchStats } from '@/services/apis';
 import { useEffect, useState } from 'react';
@@ -42,78 +43,63 @@ function CardProduct({ product = {}, className, loading = false }) {
   }
 
   return (
-    <Link to={`/product/${product._id}`} >
+    <Link to={`/product/${product._id}`}>
       <Card
         cover={
-          <Image
-            preview={false}
-            alt="Product Image"
-            className="object-fill! aspect-square! mx-auto! mt-20! min-h-full! w-[80%]! border-none! transition-all! duration-300! ease-in-out! group-hover:scale-110!"
-            src={
-              product?.variants?.[0]?.images?.[0] ||
-              'https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg'
-            }
-          />
+          <div className="h-200">
+            <Image
+              preview={false}
+              alt="Product Image"
+              className="object-fill! aspect-square! mx-auto! mt-20! min-h-full! w-[50%]! border-none! transition-all! duration-300! ease-in-out! group-hover:scale-110!"
+              src={
+                product?.variants?.[0]?.images?.[0] ||
+                'https://cdn.tgdd.vn/Products/Images/42/329138/iphone-16-plus-hong-thumb-1-600x600.jpg'
+              }
+            />
+          </div>
         }
-        className={`group ${className} rounded-xl!  overflow-hidden! border-none! hover:shadow-sm!`}
+        className={`group ${className} rounded-xl! min-h-400! overflow-hidden! border! hover:shadow-none!`}
       >
-        <Divider className="my-0! mb-10!" />
-        <Typography.Title
-          level={3}
-          ellipsis={{ tooltip: product.name || 'Sản phẩm mới' }}
-          className="line-clamp-2! mb-10! font-roboto! leading-1.4! cursor-pointer!"
-          title={product.name || 'Sản phẩm mới'}
-        >
-          <Typography.Text className="!block">
-            {product.name || 'Sản phẩm mới'}
-          </Typography.Text>
-        </Typography.Title>
-        <div className="flex items-center mb-3">
-          <Rate
-            disabled
-            value={stats?.averageRating ? stats?.averageRating : 5}
-            className="text-sm!"
-          />
-          <Typography.Text type="secondary">
-            ({stats?.totalComments})
-          </Typography.Text>
-        </div>
-        <div className="mb-10">
-          <div className="flex flex-col items-start gap-1">
-            <Typography.Text
-              delete
-              type="secondary"
-              className="text-sm! font-roboto!"
-            >
-              {`${formatCurrency(product?.variants?.[0]?.price)}đ` || ''}
-            </Typography.Text>
-            <Typography.Text className="text-xl! font-bold! font-roboto! text-[#d32f2f]!">
+        <Typography.Text className="text-base! font-medium!">
+          {product.name || 'Sản phẩm mới'}
+        </Typography.Text>
+        <div className="mt-8">
+          <div className="flex flex-col items-start gap-4">
+            <Flex gap={8} align="center">
+              <Typography.Text
+                delete
+                type="secondary"
+                className="text-sm! font-inter!"
+              >
+                {`${formatCurrency(product?.variants?.[0]?.price)}đ` || ''}
+              </Typography.Text>
+              <Typography.Text className="font-medium! text-primary! text-sm!">
+                -{product.discount}%
+              </Typography.Text>
+            </Flex>
+            <Typography.Text className="text-base! font-bold! font-inter!">
               {`${formatCurrency(product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100))}đ` ||
                 'Liên hệ'}
             </Typography.Text>
             <div className="flex items-center gap-8">
-              <Typography.Text className="text-xs! mb-10 font-roboto! text-[#52c41a]!">
+              <Typography.Text className="text-sm! mb-10 font-inter! text-[#059669]!">
                 Giảm{' '}
                 {`${formatCurrency(product?.variants?.[0]?.price - (product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100)))}đ`}
               </Typography.Text>
             </div>
           </div>
         </div>
-        {/* 
-          <div className="mb-10">
-            <Space direction="vertical" size={4}>
-              <div className="flex items-center gap-8">
-                <Typography.Text className="text-xs! mb-10 font-roboto! text-[#52c41a]!">
-                  Miễn phí vận chuyển
-                </Typography.Text>
-              </div>
-              <div className="flex items-center gap-8">
-                <Typography.Text className="text-xs! font-roboto! text-[#1890ff]!">
-                  Trả góp 0% qua thẻ tín dụng
-                </Typography.Text>
-              </div>
-            </Space>
-          </div> */}
+        <div className="flex items-center gap-8 mb-3">
+          <Rate
+            disabled
+            value={stats?.averageRating ? stats?.averageRating : 5}
+            className="text-base!"
+          />
+          <Typography.Text type="secondary">
+            ({stats?.totalComments})
+          </Typography.Text>
+        </div>
+        <Button type='primary' className='w-full! mt-8! h-40!'>Xem ngay</Button>
       </Card>
     </Link>
   );

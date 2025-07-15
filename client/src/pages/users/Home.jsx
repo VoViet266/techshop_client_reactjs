@@ -187,8 +187,9 @@ function Home() {
   );
 
   const handleBannerClick = (banner) => {
-    if (banner.link) {
-      navigate(banner.link);
+    console.log(banner);
+    if (banner.linkTo) {
+      window.location.href = banner.linkTo;
     }
   };
   if (loading) {
@@ -203,13 +204,7 @@ function Home() {
     <div className="w-full min-h-screen ">
       <section className="w-full my-15">
         <Row gutter={[10]} className="w-full! h-full! mx-auto!">
-          <Col xs={0} sm={0} md={3} lg={3} xl={4}>
-            <Card className="h-full bg-white  border-0">
-              <div className="space-y-3"></div>
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={24} md={14} lg={14} xl={15}>
+          <Col xs={24} sm={24} md={14} lg={14} xl={19}>
             <div
               className="relative rounded-lg overflow-hidden"
               onMouseEnter={() => setIsHovered(true)}
@@ -265,19 +260,19 @@ function Home() {
         </Row>
       </section>
       {!loading ? (
-        <section className="w-full mb-12 bg-[#ffffff] rounded-xl">
+        <section className="w-full xl:p-20 mb-12 bg-[#ffffff] rounded-xl">
           {recommentProducts.length > 0 ? (
             <>
               <div className="flex mb-10 items-center justify-between">
                 <Typography.Title
                   level={3}
-                  className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
+                  className="font-inter! uppercase! font-bold! text-primary! ml-2! sm:ml-4! lg:ml-8! mb-0! text-lg! sm:text-xl! lg:text-2xl!"
                 >
                   Sản phẩm có thể phù hợp với bạn
                 </Typography.Title>
               </div>
 
-              <Row className="w-full mx-auto ">
+              <Row className="w-full mx-auto" gutter={[10]}>
                 {recommentProducts?.map((product, index) => (
                   <Col
                     key={index}
@@ -285,7 +280,7 @@ function Home() {
                     sm={12}
                     md={8}
                     lg={6}
-                    xl={4}
+                    xl={6}
                     className="mb-6"
                   >
                     <CardProduct
@@ -298,7 +293,9 @@ function Home() {
               </Row>
             </>
           ) : (
-            <Skeleton count={6} className="w-full! h-full!  " />
+            <div className="w-full min-h-300 flex items-center justify-center">
+              <Spin />
+            </div>
           )}
         </section>
       ) : (
@@ -306,7 +303,7 @@ function Home() {
           <div className="flex mb-10 items-center justify-between">
             <Typography.Title
               level={3}
-              className="font-roboto! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
+              className="font-inter! uppercase! font-extrabold!  m-10! text-primary! text-2xl"
             >
               Sản phẩm có thể phù hợp với baise
             </Typography.Title>

@@ -917,8 +917,8 @@ const AccountInfoPage = () => {
   const orderData = orders?.find((o) => o._id === selectedOrder?.id);
 
   return (
-    <div className="w-full  p-24 min-h-screen">
-      <div className="flex gap-24 max-w-1200 my-0 mx-auto">
+    <div className="w-full mt-24 min-h-screen">
+      <div className="flex gap-24 my-0 mx-auto">
         {/* Khối bên trái */}
         <div className="bg-[#f3f4f6]" style={{ flex: '0 0 300px' }}>
           <Card className="p-12!" style={{ marginBottom: '16px' }}>
