@@ -243,7 +243,7 @@ function ProductDetail() {
                       Danh sách cửa hàng
                     </Title>
 
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-10">
                       {branchs.map((branch) => {
                         const inStock = branchStocks[branch._id];
                         return (
@@ -254,7 +254,7 @@ function ProductDetail() {
                               console.log('branch._id', branch._id);
                               setSelectBranchs(branch._id);
                             }}
-                            className="hover:shadow-md transition-shadow cursor-pointer"
+                            className="hover:shadow-none! cursor-default! transition-shadow"
                           >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
@@ -320,14 +320,14 @@ function ProductDetail() {
                 >
                   {product.name}
                 </Title>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 lg:gap-20 mb-6 sm:mb-10">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 lg:gap-10 mb-6 sm:mb-10">
                   <Rate
                     disabled
                     defaultValue={stats?.averageRating}
                     className="text-sm"
                   />
                   <Text type="secondary" className="text-xs sm:text-sm">
-                    {stats?.totalComments} Lượt đánh giá
+                    {stats?.totalComments} lượt đánh giá
                   </Text>
                   <Button
                     type="link"
@@ -337,6 +337,19 @@ function ProductDetail() {
                   >
                     Thông số kỹ thuật
                   </Button>
+                </div>
+              </div>
+              <div className="mb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-10 sm:gap-3 mb-2">
+                  <Title
+                    level={2}
+                    className="text-2xl! sm:text-2xl! mr-6!"
+                  >
+                    {`${formatCurrency(selectedVariant?.price)}đ`}
+                  </Title>
+                  <Text delete className="text-gray-500! text-base! sm:text-base!">
+                    {`${formatCurrency(product?.variants?.[0]?.price - (product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100)))}đ`}
+                  </Text>
                 </div>
               </div>
 
@@ -367,7 +380,7 @@ function ProductDetail() {
                         <Col span={12} key={`memory-${index}`}>
                           <Button
                             block
-                            className={`py-10! sm:py-4! px-8! sm:px-4! rounded-lg! text-xs! sm:text-sm! ${
+                            className={`py-10! sm:py-4! px-8! sm:px-4! rounded-md! h-40! text-xs! sm:text-sm! ${
                               isSelected ? 'border! border-primary!' : ' '
                             } `}
                             onClick={() => {
@@ -390,7 +403,7 @@ function ProductDetail() {
                               }
                             }}
                           >
-                            <Text strong className="text-xs! sm:text-sm!">
+                            <Text className="text-sm! sm:text-sm!">
                               {variant.memory?.storage && variant.memory?.ram
                                 ? `${variant.memory.storage} - ${variant.memory.ram}`
                                 : variant.memory?.storage ||
@@ -439,7 +452,7 @@ function ProductDetail() {
                         <Col span={12} key={`color-${index}`}>
                           <div
                             className={
-                              'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs sm:text-sm cursor-pointer hover:bg-gray-50 ' +
+                              'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs bg-white! rounded-md! sm:text-sm cursor-pointer hover:bg-gray-50 ' +
                               (isSelected
                                 ? 'border border-primary bg-blue-50'
                                 : 'border border-gray-200')
@@ -448,7 +461,7 @@ function ProductDetail() {
                               setSelectedColor(variant.color?.name)
                             }
                           >
-                            <div className="w-40 h-40 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                            <div className="w-50 h-50 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                               <Image
                                 preview={false}
                                 src={
@@ -494,24 +507,10 @@ function ProductDetail() {
               </div>
 
               <div className="mb-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-2 sm:gap-3 mb-2">
-                  <Title
-                    level={2}
-                    className="text-red-600 mb-0 text-xl sm:text-2xl lg:text-3xl"
-                  >
-                    {`${formatCurrency(selectedVariant?.price)}đ`}
-                  </Title>
-                  <Text delete className="text-gray-500 text-sm sm:text-base">
-                    {`${formatCurrency(selectedVariant?.compareAtPrice)}đ`}
-                  </Text>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <Text strong className="block mb-3 text-sm sm:text-base">
+                <Text className="block! mt-10! mb-5! font-medium! text-base!">
                   Chọn 1 trong các khuyến mãi sau:
                 </Text>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-10">
                   <Card size="small" className="border-red-200 bg-red-50">
                     <div className="flex items-center gap-2">
                       <GiftOutlined className="text-red-500 flex-shrink-0" />
