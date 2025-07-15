@@ -15,12 +15,7 @@ function UserInformation() {
             active={loading}
             size="default"
             shape="circle"
-            className="w-34! h-34!"
-          />
-          <Skeleton.Input
-            active={loading}
-            className="w-100! h-30!"
-            size="small"
+            className="w-40! h-40!"
           />
         </>
       );
@@ -31,11 +26,8 @@ function UserInformation() {
         <Avatar
           src={user?.avatar}
           icon={<UserOutlined />}
-          className="w-34! h-34!"
+          className="w-40! h-40!"
         />
-        <Typography.Text className="text-base! font-normal!">
-          {user?.name}
-        </Typography.Text>
       </>
     );
   }

@@ -340,7 +340,7 @@ export const ExpandedRowRender = ({ record }) => {
                     {variant.memory && (
                       <Space direction="vertical" size={1}>
                         <Text style={{ color: '#475569' }}>
-                          RAM: {variant.memory.ram}
+                          RAM: {variant.memory?.ram}
                         </Text>
                         <Text style={{ color: '#475569' }}>
                           Storage: {variant.memory.storage}

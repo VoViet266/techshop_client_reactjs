@@ -113,13 +113,13 @@ function ProductsList() {
 
       const allRams = products.flatMap(
         (product) =>
-          product.variants?.map((v) => v.memory.ram).filter(Boolean) || [],
+          product.variants?.map((v) => v.memory?.ram).filter(Boolean) || [],
       );
       setRams([...new Set(allRams)]);
 
       const allStorages = products.flatMap(
         (product) =>
-          product.variants?.map((v) => v.memory.storage).filter(Boolean) || [],
+          product.variants?.map((v) => v.memory?.storage).filter(Boolean) || [],
       );
       setStorages([...new Set(allStorages)]);
     }
