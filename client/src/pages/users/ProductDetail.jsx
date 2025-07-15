@@ -75,7 +75,7 @@ function ProductDetail() {
       const res = await Products.get(id);
       setProduct(res);
       console.log(res);
-      setSelectedColor(res.variants[0].color.name);
+      setSelectedColor(res.variants[0].color?.name);
       setSelectedMemory(res.variants[0].memory);
     } catch (error) {
       console.error('Đã có lỗi xảy ra:', error);
@@ -213,7 +213,6 @@ function ProductDetail() {
 
   const allImages = [...variantImages, ...galleryImages];
 
-  console.log(allImages);
   const currentStock = branchStocks[selectBranchs];
 
   if (loading) {
@@ -337,111 +336,143 @@ function ProductDetail() {
                 </div>
               </div>
 
-              <div className="mb-6">
-                <Title level={5} className="mb-2 text-sm sm:text-base">
-                  Bộ nhớ
-                </Title>
-                <Row gutter={[8, 8]}>
-                  {[
-                    ...new Map(
-                      product.variants?.map((v) => [
-                        `${v.memory.ram}-${v.memory.storage}`,
-                        v,
-                      ]),
-                    ).values(),
-                  ].map((variant, index) => {
-                    const isSelected =
-                      selectedMemory?.ram === variant.memory?.ram &&
-                      selectedMemory?.storage === variant.memory?.storage;
+              {/* Chỉ hiển thị phần Bộ nhớ nếu sản phẩm có memory */}
+{product.variants?.some(v => v.memory?.ram || v.memory?.storage) && (
+  <div className="mb-6">
+    <Title level={5} className="mb-2 text-sm sm:text-base">
+      Bộ nhớ
+    </Title>
+    <Row gutter={[8, 8]}>
+      {[
+        ...new Map(
+          product.variants
+            ?.filter(v => v.memory?.ram || v.memory?.storage) // Lọc variants có memory
+            ?.map((v) => [
+              `${v.memory?.ram || 'no-ram'}-${v.memory?.storage || 'no-storage'}`,
+              v,
+            ]),
+        ).values(),
+      ].map((variant, index) => {
+        const isSelected =
+          selectedMemory?.ram === variant.memory?.ram &&
+          selectedMemory?.storage === variant.memory?.storage;
 
-                    return (
-                      <Col span={12} key={`memory-${index}`}>
-                        <Button
-                          block
-                          className={`py-10! sm:py-4! px-8! sm:px-4! rounded-lg! text-xs! sm:text-sm! ${
-                            isSelected ? 'border! border-primary!' : ' '
-                          } `}
-                          onClick={() => {
-                            setSelectedMemory(variant.memory);
-                            const matchedVariants = product.variants.filter(
-                              (v) =>
-                                v.memory?.ram === variant.memory?.ram &&
-                                v.memory?.storage === variant.memory?.storage,
-                            );
+        return (
+          <Col span={12} key={`memory-${index}`}>
+            <Button
+              block
+              className={`py-10! sm:py-4! px-8! sm:px-4! rounded-lg! text-xs! sm:text-sm! ${
+                isSelected ? 'border! border-primary!' : ' '
+              } `}
+              onClick={() => {
+                setSelectedMemory(variant.memory);
+                const matchedVariants = product.variants.filter(
+                  (v) =>
+                    v.memory?.ram === variant.memory?.ram &&
+                    v.memory?.storage === variant.memory?.storage,
+                );
 
-                            if (matchedVariants.length > 0) {
-                              const colorNames = matchedVariants.map(
-                                (v) => v.color.name,
-                              );
-                              if (!colorNames.includes(selectedColor)) {
-                                setSelectedColor(matchedVariants[0].color.name);
-                              }
-                            }
-                          }}
-                        >
-                          <Text strong className="text-xs! sm:text-sm!">
-                            {variant.memory.storage} - {variant.memory.ram}
-                          </Text>
-                        </Button>
-                      </Col>
-                    );
-                  })}
-                </Row>
+                if (matchedVariants.length > 0) {
+                  const colorNames = matchedVariants.map(
+                    (v) => v.color?.name,
+                  );
+                  if (!colorNames.includes(selectedColor)) {
+                    setSelectedColor(matchedVariants[0].color?.name);
+                  }
+                }
+              }}
+            >
+              <Text strong className="text-xs! sm:text-sm!">
+                {variant.memory?.storage && variant.memory?.ram 
+                  ? `${variant.memory.storage} - ${variant.memory.ram}`
+                  : variant.memory?.storage || variant.memory?.ram || 'Không có thông số'
+                }
+              </Text>
+            </Button>
+          </Col>
+        );
+      })}
+    </Row>
+  </div>
+)}
+
+<div className="mb-6">
+  <Title level={5} className="mb-2 text-sm sm:text-base">
+    Màu sắc
+  </Title>
+  <Row gutter={[8, 8]}>
+    {product.variants
+      ?.filter((variant) => {
+        // Nếu sản phẩm không có memory, hiển thị tất cả variants
+        if (!product.variants?.some(v => v.memory?.ram || v.memory?.storage)) {
+          return true;
+        }
+        
+        // Nếu có memory, filter theo selectedMemory
+        if (selectedMemory) {
+          return (
+            variant.memory?.ram === selectedMemory?.ram &&
+            variant.memory?.storage === selectedMemory?.storage
+          );
+        }
+        
+        // Nếu chưa chọn memory, không hiển thị variants nào
+        return false;
+      })
+      .map((variant, index) => {
+        const isSelected = selectedColor === variant.color?.name;
+
+        return (
+          <Col span={12} key={`color-${index}`}>
+            <div
+              className={
+                'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs sm:text-sm cursor-pointer hover:bg-gray-50 ' +
+                (isSelected ? 'border border-primary bg-blue-50' : 'border border-gray-200')
+              }
+              onClick={() => setSelectedColor(variant.color?.name)}
+            >
+              <div className="w-40 h-40 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                <Image
+                  preview={false}
+                  src={
+                    variant.images?.[0] ||
+                    'https://dummyimage.com/200x200/ccc/000&text=No+Image'
+                  }
+                  className="w-full! h-full! object-contain!"
+                />
               </div>
-
-              <div className="mb-6">
-                <Title level={5} className="mb-2 text-sm sm:text-base">
-                  Màu sắc
-                </Title>
-                <Row gutter={[8, 8]}>
-                  {product.variants
-                    ?.filter(
-                      (variant) =>
-                        variant.memory?.ram === selectedMemory?.ram &&
-                        variant.memory?.storage === selectedMemory?.storage,
-                    )
-                    .map((variant, index) => {
-                      const isSelected = selectedColor === variant.color.name;
-
-                      return (
-                        <Col span={12} key={`color-${index}`}>
-                          <div
-                            className={
-                              'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 rounded-lg text-xs sm:text-sm ' +
-                              (isSelected ? 'border border-primary' : '')
-                            }
-                            onClick={() => setSelectedColor(variant.color.name)}
-                          >
-                            <div className="w-40 h-40 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                              <Image
-                                preview={false}
-                                src={
-                                  variant.images?.[0] ||
-                                  'https://dummyimage.com/200x200/ccc/000&text=No+Image'
-                                }
-                                className="w-full! h-full! object-contain!"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <Typography.Text
-                                strong
-                                className="block text-xs sm:text-sm truncate"
-                              >
-                                {variant.color.name}
-                              </Typography.Text>
-                              <Typography.Text
-                                type="secondary"
-                                className="text-xs sm:text-sm"
-                              >
-                                {formatCurrency(variant.price)}đ
-                              </Typography.Text>
-                            </div>
-                          </div>
-                        </Col>
-                      );
-                    })}
-                </Row>
+              <div className="flex-1 min-w-0">
+                <Typography.Text
+                  strong
+                  className="block text-xs sm:text-sm truncate"
+                >
+                  {variant.color?.name}
+                </Typography.Text>
+                <Typography.Text
+                  type="secondary"
+                  className="text-xs sm:text-sm"
+                >
+                  {formatCurrency(variant.price)}đ
+                </Typography.Text>
+                {/* Hiển thị thông tin memory nếu có */}
+                {(variant.memory?.ram || variant.memory?.storage) && (
+                  <Typography.Text
+                    type="secondary"
+                    className="block text-xs mt-1"
+                  >
+                    {variant.memory?.storage && variant.memory?.ram 
+                      ? `${variant.memory.storage} - ${variant.memory.ram}`
+                      : variant.memory?.storage || variant.memory?.ram
+                    }
+                  </Typography.Text>
+                )}
               </div>
+            </div>
+          </Col>
+        );
+      })}
+  </Row>
+</div>
 
               <div className="mb-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-2 sm:gap-3 mb-2">

@@ -27,6 +27,7 @@ axiosInstance.interceptors.response.use(
       try {
         const token = localStorage.getItem("access_token");
         if (token) {
+          console.log("Phiên đăng nhập hết hạn");
           localStorage.removeItem("access_token");
           const res = await callFreshToken();
           if (res.data && res.data.data && res.data.data.access_token) {

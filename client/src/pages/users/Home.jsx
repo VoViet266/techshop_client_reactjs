@@ -211,7 +211,7 @@ function Home() {
 
           <Col xs={24} sm={24} md={14} lg={14} xl={15}>
             <div
-              className="relative  rounded-lg overflow-hidden"
+              className="relative rounded-lg overflow-hidden"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
@@ -229,7 +229,7 @@ function Home() {
                 {mainBanners.map((banner, index) => (
                   <div
                     key={index}
-                    className="relative h-[500px] cursor-pointer"
+                    className="relative h-[180px] sm:h-[300px] md:h-[400px] lg:h-[500px] xl:h-[500px]  cursor-pointer"
                     onClick={() => handleBannerClick(banner)}
                   >
                     <img
@@ -255,7 +255,6 @@ function Home() {
                     <img
                       src={banner.imageUrl}
                       alt={banner.title}
-                      preview={false}
                       className="w-full! h-full! object-cover "
                     />
                   </div>
@@ -316,55 +315,58 @@ function Home() {
         </section>
       )}
 
-      <section className="w-full mb-12">
+      <section className="w-full">
         <div className="mx-auto ">
-          <Row justify="center">
-            <Flex wrap="wrap" justify="center" className="-mx-8!">
-              {categories.map((category, index) => {
-                return (
-                  <div className={`px-8 w-1/${categories.length}`}>
-                    <div
-                      key={index}
-                      onClick={() => {
-                        const id = category._id;
-                        navigate(`/product/all/${id}`);
-                      }}
-                      className={`bg-white group cursor-pointer flex w-full h-full p-16 rounded-xl hover:shadow-md transition-shadow`}
-                    >
-                      <div className="w-[50%] flex justify-start">
-                        <Typography.Text
-                          strong
-                          className="text-base! font-bold! w-[100%]!"
-                        >
-                          {category.name}
-                        </Typography.Text>
-                      </div>
-                      <div className="flex-1">
-                        <Image
-                          preview={false}
-                          className="group-hover:scale-130! transition-all! rounded-2xl"
-                          src={
-                            category.logo || 'https://via.placeholder.com/150'
-                          }
-                        />
-                      </div>
+          <Row justify="center" gutter={[10]} className="flex! flex-1/2">
+            {categories?.map((category, index) => {
+              return (
+                <Col
+                  key={index}
+                  xs={12}
+                  sm={12}
+                  md={8}
+                  lg={6}
+                  xl={4}
+                  className="mb-6"
+                >
+                  <div
+                    key={index}
+                    onClick={() => {
+                      const id = category._id;
+                      navigate(`/product/all/${id}`);
+                    }}
+                    className={`bg-white group cursor-pointer flex w-full h-full p-16 rounded-xl hover:shadow-md transition-shadow`}
+                  >
+                    <div className="w-[50%] flex justify-start">
+                      <Typography.Text
+                        strong
+                        className="text-base! font-bold! w-[100%]!"
+                      >
+                        {category.name}
+                      </Typography.Text>
+                    </div>
+                    <div className="flex-1">
+                      <Image
+                        preview={false}
+                        className="group-hover:scale-130! transition-all! rounded-2xl"
+                        src={category.logo || 'https://via.placeholder.com/150'}
+                      />
                     </div>
                   </div>
-                );
-              })}
-            </Flex>
+                </Col>
+              );
+            })}
           </Row>
         </div>
       </section>
       <section className="w-full pb-12">
         <div className=" mx-auto space-y-12">
-          {categories.map((category) => {
+          {categories?.map((category) => {
             const filteredProducts = products.filter(
               (product) => product.category?.name === category.name,
             );
 
             if (filteredProducts.length === 0) return null;
-
             return (
               <PreviewListProducts
                 key={category._id}

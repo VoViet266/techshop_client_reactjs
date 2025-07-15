@@ -50,7 +50,7 @@ function Cart() {
         setLoading(false);
       }
     } catch (error) {
-      message.error('Không thể lấy giỏ hàng');
+      message.error('Không thể lấy giỏ hàng!');
       console.error('Lỗi khi lấy giỏ hàng:', error);
     }
   };
@@ -157,7 +157,7 @@ function Cart() {
           <div className="flex items-center gap-3">
             <div className=" bg-gray-100 my-2.5 rounded-lg flex items-center justify-center overflow-hidden">
               <Image
-                src={item?.variant?.images || '/placeholder-image.jpg'}
+                src={item?.variant?.images[0] || '/placeholder-image.jpg'}
                 alt={item?.variant?.name}
                 width={64}
                 height={64}
@@ -331,7 +331,7 @@ function Cart() {
       </Modal>
 
       {cartItems.length === 0 ? (
-        <Card className="text-center py-20">
+        <Card className="text-center! flex! justify-center! py-20! h-[500px]!">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={

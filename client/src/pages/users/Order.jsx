@@ -108,8 +108,8 @@ function Order() {
 
   const getAllBranches = async () => {
     try {
-      const branchService = new BranchService();
-      const response = await branchService.getAll();
+      const response = await BranchService.getAll();
+      console.log(response);
       if (response.status === 200) {
         setBranches(response.data.data);
         return;
