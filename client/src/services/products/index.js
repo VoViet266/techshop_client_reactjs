@@ -18,6 +18,10 @@ class Products {
     return axiosInstance.get('/api/v1/orders');
   }
 
+  getOrderByUser(userId) {
+    return axiosInstance.get(`/api/v1/orders/user`);
+  }
+
   payment(paymentInformation) {
     return axiosInstance.post('/api/v1/payment/create-payment', {
       ...paymentInformation,
