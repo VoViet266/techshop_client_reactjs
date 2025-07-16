@@ -22,7 +22,7 @@ function ProductDescription({ className, product, loading }) {
         <p
           ref={descriptionRef}
           dangerouslySetInnerHTML={{ __html: product.description }}
-          className="text-justify text-lg leading-24 my-10"
+          className="text-justify text-base leading-24 my-10"
         />
       ) : (
         <p>Sản phẩm không có mô tả</p>

@@ -253,10 +253,10 @@ function Order() {
                   <div className="flex-1">
                     <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
                       {item.variant.name}
-                      <Tag
+                      {/* <Tag
                         color="red"
                         className="rounded-full! text-center!"
-                      >{`-${item.product.discount}%`}</Tag>
+                      >{`-${item.product.discount}%`}</Tag> */}
                     </Typography.Text>
                     <Flex align="center" className="mt-4!">
                       <Tag color="default" className="mt-4!">
@@ -270,11 +270,11 @@ function Order() {
 
                   <div className="text-right">
                     <div className="text-red-600 font-semibold text-lg">
-                      {`${formatCurrency(item.price - item.price * (item.product.discount / 100))}đ`}
-                    </div>
-                    <div className="line-through text-gray-400 text-sm">
                       {`${formatCurrency(item.price)}đ`}
                     </div>
+                    {/* <div className="line-through text-gray-400 text-sm">
+                      {`${formatCurrency(item.price)}đ`}
+                    </div> */}
                   </div>
                 </div>
               </Card>
@@ -488,18 +488,18 @@ function Order() {
             </Flex>
             <Divider className="my-0!" />
             <Flex justify="space-between">
-              <Typography.Text className="text-sm!">Tổng tiền</Typography.Text>
+              <Typography.Text className="text-sm!">Giá tạm tính</Typography.Text>
               <Typography.Text className="text-sm! text-primary! font-medium!">{`${formatCurrency(total)}đ`}</Typography.Text>
             </Flex>
             <Divider className="my-0!" />
-            <Flex justify="space-between">
+            {/* <Flex justify="space-between">
               <Typography.Text className="text-sm!">Giảm giá</Typography.Text>
               <Typography.Text className="text-sm! flex! items-center! gap-8 text-primary! font-medium!">
                 {`-${formatCurrency(discount)}đ`}
                 <Tag color="blue">{-(discount / total) * 100}%</Tag>
               </Typography.Text>
             </Flex>
-            <Divider className="my-0!" />
+            <Divider className="my-0!" /> */}
             <Flex justify="space-between">
               <Typography.Text className="text-sm!">
                 Phí vận chuyển
@@ -509,12 +509,12 @@ function Order() {
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
-            <Flex justify="space-between">
+            {/* <Flex justify="space-between">
               <Typography.Text className="text-sm!">
                 Cần thanh toán
               </Typography.Text>
               <Typography.Text className="text-sm! text-primary! font-medium!">{`${formatCurrency(total)}đ`}</Typography.Text>
-            </Flex>
+            </Flex> */}
 
             <Button
               onClick={() => {

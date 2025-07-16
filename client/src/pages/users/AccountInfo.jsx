@@ -16,6 +16,7 @@ import {
   Table,
   Typography,
 } from 'antd';
+import Products from '@/services/products';
 import { useAppContext } from '@/contexts';
 import '@styles/account-info.css';
 import dayjs from 'dayjs';
@@ -135,6 +136,20 @@ const AccountInfoPage = () => {
       throw new Error('Không thể lấy danh sách đơn hàng.');
     } catch (error) {
       console.error('Lỗi:', error);
+    }
+  };
+
+  const handlePayment = async (paymentInformation) => {
+    try {
+      message.loading('Đang xử lý');
+      const productService = new Products();
+      const response = await productService.payment(paymentInformation);
+      if (response.status === 201) {
+        window.location.href = response.data.data.payUrl;
+        return;
+      }
+    } catch (error) {
+      console.error('Đã có lỗi:', error);
     }
   };
 
@@ -915,6 +930,7 @@ const AccountInfoPage = () => {
   }
 
   const orderData = orders?.find((o) => o._id === selectedOrder?.id);
+  console.log('Order data:', orderData);
 
   return (
     <div className="w-full mt-24 min-h-screen">
@@ -1071,10 +1087,37 @@ const AccountInfoPage = () => {
                       ]}
                     />
                   </div>
-                  <Typography.Text className="flex! justify-end! mt-4! text-base! text-primary! font-semibold!">
-                    Tổng cộng:&nbsp;
-                    {selectedOrder.total.toLocaleString()}đ
-                  </Typography.Text>
+                  <Flex
+                    className=""
+                    align="center"
+                    justify={
+                      orderData?.paymentMethod === 'momo'
+                        ? 'space-between'
+                        : 'end'
+                    }
+                  >
+                    <Typography.Text className="flex! justify-end! mt-4! text-base! text-primary! font-semibold!">
+                      Tổng cộng:&nbsp;
+                      {selectedOrder.total.toLocaleString()}đ
+                    </Typography.Text>
+                    {orderData?.paymentMethod === 'momo' && (
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          const paymentInformation = {
+                            order: orderData?._id,
+                            amount: orderData?.totalPrice,
+                            description: `Thanh toán đơn hàng ${orderData?._id}`,
+                          };
+
+                          handlePayment(paymentInformation);
+                        }}
+                        className="rounded-md! h-40!"
+                      >
+                        Thanh toán
+                      </Button>
+                    )}
+                  </Flex>
                 </Flex>
               )}
             </Modal>

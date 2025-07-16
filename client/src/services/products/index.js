@@ -15,7 +15,7 @@ class Products {
   }
 
   getAllOrder() {
-    return axiosInstance.get('/api/v1/orders');
+    return axiosInstance.get('/api/v1/orders/user');
   }
 
   payment(paymentInformation) {
