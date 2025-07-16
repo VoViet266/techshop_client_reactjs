@@ -295,20 +295,7 @@ function Cart() {
   }
 
   return (
-    <div className="px-6 py-8 w-full">
-      <div className="mb-8">
-        <Title
-          level={2}
-          className="text-gray-900 font-bold flex items-center gap-3 mb-2"
-        >
-          <ShoppingCartOutlined className="text-blue-600" />
-          Giỏ hàng của bạn
-        </Title>
-        <Text className="text-gray-600">
-          {cartItems.length > 0 ? `${cartItems.length} sản phẩm` : null}
-        </Text>
-      </div>
-
+    <div className="px-6 py-8 mt-24 w-full">
       <Modal
         centered
         open={open}
@@ -329,7 +316,7 @@ function Cart() {
       </Modal>
 
       {cartItems.length === 0 ? (
-        <Card className="text-center! flex! justify-center! py-20! h-[500px]!">
+        <Card className="text-center! shadow-none! flex! justify-center! py-20! h-[500px]!">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
@@ -351,30 +338,45 @@ function Cart() {
       ) : (
         <Row gutter={[10, 10]} className="w-full!">
           <Col span={18}>
-            <Card className="shadow-sm!">
+            <Card className="shadow-none!">
               <div className="flex justify-between items-center mb-6">
-                <div></div>
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  type="text"
-                  onClick={() => {
-                    setModalText(
-                      'Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng không?',
-                    );
-                    setOpen(true);
-                    setDeleteType('all');
-                  }}
-                  disabled={
-                    !(
-                      selectedRowKeys.length === cartItems.length &&
-                      cartItems.length > 0
-                    )
-                  }
-                  className="hover:bg-red-50"
-                >
-                  Xóa tất cả
-                </Button>
+                <Flex align="center" justify="space-between">
+                  <Flex className="mb-8!" align="center">
+                    <Title
+                      level={2}
+                      className="text-gray-900 font-bold flex items-center gap-3 mb-2"
+                    >
+                      <ShoppingCartOutlined />
+                      Giỏ hàng của bạn
+                    </Title>
+                    <Text className="text-gray-600! block!">
+                      {cartItems.length > 0
+                        ? `${cartItems.length} sản phẩm`
+                        : null}
+                    </Text>
+                  </Flex>
+                  <Button
+                    icon={<DeleteOutlined />}
+                    danger
+                    type="text"
+                    onClick={() => {
+                      setModalText(
+                        'Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng không?',
+                      );
+                      setOpen(true);
+                      setDeleteType('all');
+                    }}
+                    disabled={
+                      !(
+                        selectedRowKeys.length === cartItems.length &&
+                        cartItems.length > 0
+                      )
+                    }
+                    className="hover:bg-red-50"
+                  >
+                    Xóa tất cả
+                  </Button>
+                </Flex>
               </div>
 
               <Table
@@ -384,8 +386,8 @@ function Cart() {
                 columns={columns}
                 pagination={false}
                 dataSource={cartItems}
-                className="border-0! w-full! rounded-md"
-                bordered={false}
+                bordered
+                className="w-full! rounded-md!"
                 rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}
                 locale={{
                   emptyText: <Empty description="Giỏ hàng trống" />,
