@@ -827,6 +827,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -839,6 +840,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -851,6 +853,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -863,6 +866,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -875,6 +879,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -887,6 +892,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -899,6 +905,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),
@@ -911,6 +918,7 @@ const AccountInfoPage = () => {
                   dataSource={getFilteredOrders()}
                   columns={orderColumns}
                   rowKey="id"
+                  bordered
                   pagination={{ pageSize: 10 }}
                 />
               ),

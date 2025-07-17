@@ -405,7 +405,7 @@ function Comments({ className, product, loading: initialLoading }) {
                       </div>
                     </div>
                     {review.replies && review.replies.length > 0 && (
-                      <div className="ml-8! mt-12 mb-4!">
+                      <div className="-ml-10 mt-20 mb-4! flex flex-col gap-12">
                         {review.replies.map((reply, index) => (
                           <div
                             key={index}
