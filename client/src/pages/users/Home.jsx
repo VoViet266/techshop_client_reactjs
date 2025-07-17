@@ -136,6 +136,7 @@ function Home() {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
           setRecommentProducts(res);
+
           setLoading(false);
         } catch (error) {
           setLoading(false);
@@ -279,8 +280,8 @@ function Home() {
                     xs={24}
                     sm={12}
                     md={8}
-                    lg={6}
-                    xl={6}
+                    lg={8}
+                    xl={4}
                     className="mb-6"
                   >
                     <CardProduct

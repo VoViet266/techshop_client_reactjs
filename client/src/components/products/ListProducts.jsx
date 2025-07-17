@@ -24,6 +24,7 @@ import { use, useEffect, useState } from 'react';
 import { callFetchBranches, callFetchBrands } from '@/services/apis';
 
 import { Filter, RotateCcw } from 'lucide-react';
+import CardProduct from './Card';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -478,37 +479,39 @@ function ListProducts(properties) {
               )}
 
               {/* Các bộ lọc động khác */}
-              {categoryConfig?.configFields?.extraFields?.map(
-                (field) =>
-                  dynamicOptions[field.name]?.length > 0 && (
-                    <Panel
-                      header={field.label}
-                      key={field.name}
-                      className="p-0! bg-gray-50! rounded-xl! mb-4"
-                    >
-                      {dynamicOptions[field.name].map((value, index) => (
-                        <div key={value}>
-                          <Checkbox
-                            checked={filter[field.name]?.label === value}
-                            onChange={(e) =>
-                              handleFilterChange(
-                                field.name,
-                                value,
-                                e.target.checked,
-                              )
-                            }
-                          >
-                            {typeof value === 'boolean'
-                              ? value
-                                ? 'Có'
-                                : 'Không'
-                              : value}
-                          </Checkbox>
-                        </div>
-                      ))}
-                    </Panel>
-                  ),
-              )}
+              {categoryConfig?.configFields?.extraFields
+                ?.filter((field) => field.filterable)
+                ?.map(
+                  (field) =>
+                    dynamicOptions[field.name]?.length > 0 && (
+                      <Panel
+                        header={field.label}
+                        key={field.name}
+                        className="p-0! bg-gray-50! rounded-xl! mb-4"
+                      >
+                        {dynamicOptions[field.name].map((value, index) => (
+                          <div key={value}>
+                            <Checkbox
+                              checked={filter[field.name]?.label === value}
+                              onChange={(e) =>
+                                handleFilterChange(
+                                  field.name,
+                                  value,
+                                  e.target.checked,
+                                )
+                              }
+                            >
+                              {typeof value === 'boolean'
+                                ? value
+                                  ? 'Có'
+                                  : 'Không'
+                                : value}
+                            </Checkbox>
+                          </div>
+                        ))}
+                      </Panel>
+                    ),
+                )}
             </Collapse>
           </div>
         </Col>
@@ -561,7 +564,7 @@ function ListProducts(properties) {
             {loading ? (
               <Row gutter={[16, 16]}>
                 {Array.from({ length: 8 }).map((_, index) => (
-                  <Col key={index} xs={12} sm={8} md={6} lg={6} xl={4}>
+                  <Col key={index} xs={12} sm={8} md={6} lg={6}>
                     <Skeleton.Input active className="w-full h-80 rounded-lg" />
                   </Col>
                 ))}
@@ -569,16 +572,8 @@ function ListProducts(properties) {
             ) : paginatedProducts.length > 0 ? (
               <Row gutter={[16, 16]}>
                 {paginatedProducts.map((product, index) => (
-                  <Col
-                    key={index}
-                    xs={24}
-                    sm={12}
-                    md={12}
-                    lg={8}
-                    xl={6}
-                    xxl={4}
-                  >
-                    <Card
+                  <Col key={index} xs={24} sm={12} lg={12} xl={8} xxl={6}>
+                    <CardProduct
                       product={product}
                       loading={loading}
                       className="h-full bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
