@@ -262,9 +262,11 @@ function Order() {
                       <Tag color="default" className="mt-4!">
                         {`Màu: ${item.variant.color.name}`}
                       </Tag>
-                      <Tag color="default" className="mt-4! ml-4!">
-                        {`Biến thể: ${item.variant.memory.ram}, ${item.variant.memory.storage}`}
-                      </Tag>
+                      {item.variant.memory && (
+                        <Tag color="default" className="mt-4! ml-4!">
+                          {`Biến thể: ${item.variant.memory.ram}, ${item.variant.memory.storage}`}
+                        </Tag>
+                      )}
                     </Flex>
                   </div>
 

@@ -45,6 +45,7 @@ import {
 import useMessage from '@/hooks/useMessage';
 import { Label } from 'recharts';
 import { Group } from 'antd/es/radio';
+import { useAppContext } from '@/contexts';
 
 const { Title, Text, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -63,7 +64,7 @@ const RoleManagement = () => {
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
-  const { success, error, warning, contextHolder } = useMessage();
+  const { message } = useAppContext();
 
   useEffect(() => {
     fetchRoles();
@@ -77,7 +78,7 @@ const RoleManagement = () => {
       setRoles(response.data.data);
     } catch (error) {
       console.error('Error fetching roles:', error);
-      error('Failed to load roles');
+      message.error('Failed to load roles');
     } finally {
       setLoading(false);
     }
@@ -121,7 +122,7 @@ const RoleManagement = () => {
       });
 
       if (rolesWithUsers.length > 0) {
-        error('Không thể xóa role đang được sử dụng bởi user!');
+        message.error('Không thể xóa role đang được sử dụng bởi user!');
         return;
       }
 
@@ -133,7 +134,7 @@ const RoleManagement = () => {
       fetchRoles();
     } catch (error) {
       console.error('Failed to delete roles:', error);
-      error('Xóa thất bại');
+      message.error('Xóa thất bại');
     }
   };
 
@@ -144,7 +145,7 @@ const RoleManagement = () => {
       message.success('Data refreshed successfully');
     } catch (error) {
       console.error('Failed to reload data:', error);
-      error('Failed to refresh data');
+      message.error('Failed to refresh data');
     } finally {
       setLoading(false);
     }
@@ -266,21 +267,21 @@ const RoleManagement = () => {
           description: values.description,
           permissions: values.permissions || [],
         });
-        success('Cập nhật role thành công');
+        message.success('Cập nhật role thành công');
       } else {
         await callCreateRole({
           name: values.name,
           description: values.description,
           permissions: values.permissions || [],
         });
-        success('Tạo role mới thành công');
+        message.success('Tạo role mới thành công');
       }
 
       handleCancel();
       reloadTable();
     } catch (error) {
       console.error('Failed to save role:', error);
-      error('Lưu role thất bại');
+      message.error('Lưu role thất bại');
     } finally {
       setLoading(false);
     }
@@ -341,7 +342,6 @@ const RoleManagement = () => {
 
   return (
     <>
-      {contextHolder}
       <Modal
         title="Xóa role"
         open={openModalDelete}

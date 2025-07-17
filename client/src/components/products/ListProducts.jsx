@@ -160,7 +160,6 @@ function ListProducts(properties) {
     });
     return options;
   };
-  console.log(products);
 
   const getMemoryOptions = () => {
     const ramOptions = new Set();
