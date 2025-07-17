@@ -490,7 +490,9 @@ function Order() {
             </Flex>
             <Divider className="my-0!" />
             <Flex justify="space-between">
-              <Typography.Text className="text-sm!">Giá tạm tính</Typography.Text>
+              <Typography.Text className="text-sm!">
+                Giá tạm tính
+              </Typography.Text>
               <Typography.Text className="text-sm! text-primary! font-medium!">{`${formatCurrency(total)}đ`}</Typography.Text>
             </Flex>
             <Divider className="my-0!" />
@@ -511,28 +513,24 @@ function Order() {
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
-            {/* <Flex justify="space-between">
-              <Typography.Text className="text-sm!">
-                Cần thanh toán
-              </Typography.Text>
-              <Typography.Text className="text-sm! text-primary! font-medium!">{`${formatCurrency(total)}đ`}</Typography.Text>
-            </Flex> */}
 
-            <Button
-              onClick={() => {
-                handleOrder(order);
-              }}
-              type="primary"
-              className="print:hidden! h-50! rounded-lg! mt-12!"
-            >
-              Đặt hàng
-            </Button>
-            <Button
-              onClick={() => window.print()}
-              className="print:hidden! h-50! rounded-lg!"
-            >
-              In
-            </Button>
+            <Flex className="w-full!" align="center" gap={8}>
+              <Button
+                onClick={() => window.print()}
+                className="print:hidden! h-40! rounded-md! flex-1!"
+              >
+                In
+              </Button>
+              <Button
+                onClick={() => {
+                  handleOrder(order);
+                }}
+                type="primary"
+                className="print:hidden! h-40! rounded-md! w-1/2!"
+              >
+                Đặt hàng
+              </Button>
+            </Flex>
           </div>
           <Flex vertical align="center" className="text-sm! mt-12!">
             <Typography.Text className="text-gray-500!">

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SearchIcon, TrendingUpIcon, ClockIcon, XIcon } from 'lucide-react';
-import { List, Typography } from 'antd';
+import { List, Spin, Typography, Image } from 'antd';
 import Products from '@/services/products';
 import { useNavigate } from 'react-router-dom';
 import Recomment from '@/services/recommend';
@@ -146,11 +146,7 @@ function SearchBox() {
     <div className="w-full relative">
       <div ref={containerRef}>
         <div className={'relative  '} onClick={handleFocus}>
-          <div
-            className={
-              'relative bg-white rounded-l-full rounded-r-full'
-            }
-          >
+          <div className={'relative bg-white rounded-l-full rounded-r-full'}>
             <div className="flex items-center px-4 py-4">
               <SearchIcon
                 className={`w-20 h-20 transition-colors duration-300 ml-5 mr-10 ${
@@ -185,8 +181,8 @@ function SearchBox() {
           </div>
         </div>
 
-        {showResults && (
-          <div className="absolute top-full mt-6 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100  overflow-hidden min-h-1/4 z-50 animate-in slide-in-from-top-2 duration-300">
+        {showResults && query.trim() !== '' && (
+          <div className="absolute top-full mt-6 p-10 left-0 right-0 bg-white rounded-xl border border-gray-300 overflow-hidden min-h-1/4 z-50 animate-in slide-in-from-top-2 duration-300">
             {!query.trim() && (
               <div className="p-6">
                 {recommentProducts.length > 0 && (
@@ -204,7 +200,7 @@ function SearchBox() {
                             setShowResults(false);
                             setIsFocused(false);
                           }}
-                          className=" flex items-center gap-2 bg-gradient-to-r h-[60px] min-w-[1/5] max-w-[2/5] px-10 py-7 rounded-full text-sm hover:from-orange-100 hover:to-red-100 transition-all duration-300 transform hover:scale-105"
+                          className="flex items-center gap-2 bg-gradient-to-r h-[60px] min-w-[1/5] max-w-[2/5] px-10 py-7 rounded-full text-sm hover:from-orange-100 hover:to-red-100 transition-all duration-300 transform hover:scale-105"
                         >
                           <img
                             src={term?.variants[0]?.images}
@@ -217,7 +213,7 @@ function SearchBox() {
                     </div>
                   </div>
                 )}
-                {recentSearches.length > 0 && (
+                {recentSearches.length > 0 && query.trim() && (
                   <div>
                     <div className="space-y-2">
                       {recentSearches.slice(0, 5).map((term, index) => (
@@ -246,17 +242,12 @@ function SearchBox() {
             )}
 
             {loading && query.trim() && (
-              <div className="p-4">
-                <div className="text-sm text-gray-500 mb-4 px-2">
-                  Đang tìm kiếm...
-                </div>
-                {[...Array(6)].map((_, i) => (
-                  <SkeletonItem key={i} />
-                ))}
+              <div className="flex min-h-200 items-center justify-center">
+                <Spin size="default" />
               </div>
             )}
 
-            {filteredResults.length > 0 && !loading && (
+            {filteredResults.length > 0 && !loading && query.trim() !== '' && (
               <div className="p-4 max-h-300 overflow-y-auto">
                 <div className="text-sm text-gray-500 mb-4 px-2">
                   Tìm thấy {filteredResults.length} sản phẩm
@@ -266,7 +257,7 @@ function SearchBox() {
                   <div
                     key={item.id}
                     onClick={() => handleItemClick(item)}
-                    className="flex items-center gap-4 p-6 mb-4 rounded-xl hover:bg-gray-50 cursor-pointer transition-all duration-200 group"
+                    className="flex items-center gap-4 p-10 mb-4 rounded-md hover:bg-gray-100 cursor-pointer transition-all duration-200 group"
                   >
                     <div className="w-50 h-50  flex items-center justify-center">
                       <img
@@ -276,11 +267,11 @@ function SearchBox() {
                       />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
+                      <div className="font-medium text-gray-800 group-hover:text-primary transition-colors">
                         {item.name}
                       </div>
                     </div>
-                    <div className="text-blue-600 font-semibold">
+                    <div className="text-primary font-semibold">
                       {item.variants[0].price.toLocaleString()}₫
                     </div>
                   </div>
@@ -290,10 +281,13 @@ function SearchBox() {
 
             {filteredResults.length === 0 && !loading && query.trim() && (
               <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <SearchIcon className="w-8 h-8 text-gray-400" />
+                <div className="w-200 h-150 flex items-center justify-center mx-auto">
+                  <Image
+                    preview={false}
+                    src="https://fptshop.com.vn/img/empty_state.png?w=640&q=75"
+                  />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                <h3 className="text-lg font-medium text-gray-700">
                   Không tìm thấy sản phẩm
                 </h3>
                 <p className="text-gray-500 text-sm">
