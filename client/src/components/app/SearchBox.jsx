@@ -181,14 +181,14 @@ function SearchBox() {
           </div>
         </div>
 
-        {showResults && query.trim() !== '' && (
+        {showResults && (
           <div className="absolute top-full mt-6 p-10 left-0 right-0 bg-white rounded-xl border border-gray-300 overflow-hidden min-h-1/4 z-50 animate-in slide-in-from-top-2 duration-300">
             {!query.trim() && (
               <div className="p-6">
                 {recommentProducts.length > 0 && (
                   <div className="mb-6">
                     <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                      <TrendingUpIcon className="w-20 h-20 text-orange-500" />
+                      <TrendingUpIcon className="w-20 h-20 text-primary" />
                       Sản phẩm gợi ý cho bạn
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -200,7 +200,7 @@ function SearchBox() {
                             setShowResults(false);
                             setIsFocused(false);
                           }}
-                          className="flex items-center gap-2 bg-gradient-to-r h-[60px] min-w-[1/5] max-w-[2/5] px-10 py-7 rounded-full text-sm hover:from-orange-100 hover:to-red-100 transition-all duration-300 transform hover:scale-105"
+                          className="flex items-center gap-2 bg-gradient-to-r h-[60px] min-w-[1/5] max-w-[2/5] p-10 rounded-md text-sm hover:from-orange-100 hover:to-red-100 transition-all duration-300 transform hover:scale-105"
                         >
                           <img
                             src={term?.variants[0]?.images}
