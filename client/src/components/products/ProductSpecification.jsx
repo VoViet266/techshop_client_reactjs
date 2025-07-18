@@ -169,6 +169,7 @@ const ProductSpecification = ({ product }) => {
 
   return (
     <div>
+      <Typography.Title level={3} className='mb-20!'>Thông số cấu hình</Typography.Title>
       {renderGroups()}
       {renderExtraFields()}
     </div>

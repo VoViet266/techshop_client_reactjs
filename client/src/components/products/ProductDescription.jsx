@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { Typography } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -9,7 +10,10 @@ function ProductDescription({ className, product, loading }) {
 
   return (
     <div className={className}>
-      <span className="font-bold text-primary text-xl uppercase">
+      <Typography.Title
+        level={3}
+        className="mb-10!"
+      >
         {loading ? (
           <div className="w-250">
             <Skeleton className="h-40" />
@@ -17,7 +21,7 @@ function ProductDescription({ className, product, loading }) {
         ) : (
           'Mô tả sản phẩm'
         )}
-      </span>
+      </Typography.Title>
       {product.description ? (
         <p
           ref={descriptionRef}

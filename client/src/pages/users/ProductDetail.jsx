@@ -348,13 +348,13 @@ function ProductDetail() {
               <div className="mb-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-baseline gap-10 sm:gap-3 mb-2">
                   <Title level={2} className="text-2xl! sm:text-2xl! mr-6!">
-                    {`${formatCurrency(selectedVariant?.price)}đ`}
+                    {`${formatCurrency(product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100))}đ`}
                   </Title>
                   <Text
                     delete
                     className="text-gray-500! text-base! sm:text-base!"
                   >
-                    {`${formatCurrency(product?.variants?.[0]?.price - (product?.variants?.[0]?.price - product?.variants?.[0]?.price * (product?.discount / 100)))}đ`}
+                    {`${formatCurrency(selectedVariant?.price)}đ`}
                   </Text>
                 </div>
               </div>
@@ -679,6 +679,16 @@ function ProductDetail() {
         </Row>
 
         <Row gutter={[10, 10]} className="mt-6 sm:mt-8 lg:mt-10">
+          <Col lg={14}>
+            <Card className="p-10!">
+              <ProductDescription product={product} loading={loading} />
+            </Card>
+          </Col>
+          <Col lg={10}>
+            <Card className="p-10!">
+              <ProductSpecification product={product} />
+            </Card>
+          </Col>
           <Col lg={14} md={24} sm={24} xs={24}>
             <Card className="px-10!">
               <Tabs defaultActiveKey="description" size="middle">
