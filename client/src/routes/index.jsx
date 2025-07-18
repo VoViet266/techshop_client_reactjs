@@ -2,11 +2,7 @@ import { UsersLayout, AdminLayout } from '@layouts';
 import { Cart, ListProducts, Order, AccountInfo } from '@pages/users';
 import BranchManagement from '@/pages/admin/branch';
 import Dashboard from '@/pages/admin/dashboard/Dashboard';
-import {
-  Home,
-  ProductDetail,
-  SearchProductResult,
-} from '@/pages/users';
+import { Home, ProductDetail, SearchProductResult } from '@/pages/users';
 import { AddProduct, EditProduct, ListProduct } from '@/pages/admin/product';
 import { createBrowserRouter } from 'react-router-dom';
 import WarehouseManagement from '@/pages/admin/warehouse';
@@ -29,6 +25,8 @@ import PermissionsManagement from '@/pages/admin/permission/permission';
 import WarehouseTransferManagement from '@/pages/admin/warehouse/transfer';
 import ForgotPasswordPage from '@/pages/app/forgotPassword';
 import GoogleSuccess from '@/pages/app/googleSucces';
+import WarrantyPolicyManagement from '@/pages/admin/Policy/warrantyPolicy';
+import PromotionManagement from '@/pages/admin/Policy/promotion';
 
 const router = createBrowserRouter([
   {
@@ -224,8 +222,20 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: 'policy',
+        children: [
+          {
+            path: 'warranty/management',
+            element: <WarrantyPolicyManagement />,
+          },
+          {
+            path: 'promotion/management',
+            element: <PromotionManagement />,
+          },
+        ],
+      },
 
-      // Catch-all route for admin
       {
         path: '*',
         element: <NotExist />,

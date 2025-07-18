@@ -17,6 +17,8 @@ import {
   Empty,
   Spin,
   Divider,
+  Alert,
+  Checkbox,
 } from 'antd';
 import {
   SearchOutlined,
@@ -31,9 +33,16 @@ import {
   WarningOutlined,
   EyeOutlined,
   EyeInvisibleOutlined,
+  CheckOutlined,
+  CloseCircleOutlined,
+  PlusCircleFilled,
+  GiftOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { callFetchInventories } from '@/services/apis';
 import useMessage from '@/hooks/useMessage';
+import { data } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 const { Text, Title } = Typography;
 const { Option } = Select;
@@ -45,6 +54,8 @@ const WarehouseManagement = () => {
   const [selectedBranch, setSelectedBranch] = useState('all');
   const [filteredData, setFilteredData] = useState([]);
   const { success, error, warning, contextHolder } = useMessage();
+  const [showOutOfStockOnly, setShowOutOfStockOnly] = useState(false);
+
   const fetchInventory = async () => {
     try {
       const res = await callFetchInventories();
@@ -68,7 +79,7 @@ const WarehouseManagement = () => {
 
   useEffect(() => {
     let filtered = warehouses;
-
+    console.log(filtered);
     if (searchText) {
       filtered = filtered.filter(
         (item) =>
@@ -81,9 +92,14 @@ const WarehouseManagement = () => {
     if (selectedBranch !== 'all') {
       filtered = filtered.filter((item) => item.branch.name === selectedBranch);
     }
+    if (showOutOfStockOnly) {
+      filtered = filtered.filter((item) =>
+        item.variants.some((variant) => variant.stock === 0),
+      );
+    }
 
     setFilteredData(filtered);
-  }, [searchText, selectedBranch, warehouses]);
+  }, [searchText, selectedBranch, warehouses, showOutOfStockOnly]);
 
   const branches = [...new Set(warehouses.map((item) => item.branch.name))];
 
@@ -130,6 +146,7 @@ const WarehouseManagement = () => {
         </Space>
       ),
     },
+
     {
       title: 'Biến thể',
       key: 'variantCount',
@@ -149,13 +166,16 @@ const WarehouseManagement = () => {
 
         return (
           <Space>
-            <Text> {totalStock}</Text>
+            <StockOutlined
+              style={{ color: getStockStatus(totalStock).color }}
+            />
+            <Text>{totalStock}</Text>
           </Space>
         );
       },
     },
     {
-      title: 'Ngày tạo',
+      title: 'Ngày nhập',
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 150,
@@ -167,18 +187,68 @@ const WarehouseManagement = () => {
         </Space>
       ),
     },
-    {
-      title: 'Người tạo',
-      dataIndex: ['createdBy', 'name'],
-      key: 'createdBy',
-      width: 150,
-      render: (name) => (
-        <Space>
-          <Text>{name}</Text>
-        </Space>
-      ),
-    },
   ];
+  const stats = {
+    totalStock: warehouses.reduce((sum, inventory) => {
+      return (
+        sum +
+        inventory.variants.reduce(
+          (variantSum, variant) => variantSum + variant.stock,
+          0,
+        )
+      );
+    }, 0),
+
+    totalProducts: new Set(warehouses.map((item) => item.product.name)).size,
+
+    totalVariants: warehouses.reduce((sum, inventory) => {
+      return sum + inventory.variants.length;
+    }, 0),
+
+    totalCost: warehouses.reduce((sum, inventory) => {
+      return (
+        sum +
+        inventory.variants.reduce(
+          (variantSum, variant) => variantSum + (variant.cost || 0),
+          0,
+        )
+      );
+    }, 0),
+
+    totalValue: warehouses.reduce((sum, inventory) => {
+      return (
+        sum +
+        inventory.variants.reduce(
+          (variantSum, variant) =>
+            variantSum + variant.stock * (variant.cost || 0),
+          0,
+        )
+      );
+    }, 0),
+
+    lowStockItems: warehouses.reduce((count, inventory) => {
+      const lowStock = inventory.variants.filter(
+        (variant) => variant.stock < 10,
+      ).length;
+      return count + lowStock;
+    }, 0),
+    highStockItems: warehouses.reduce((count, inventory) => {
+      const highStock = inventory.variants.filter(
+        (variant) => variant.stock > 100, // Ngưỡng tùy bạn điều chỉnh
+      ).length;
+      return count + highStock;
+    }, 0),
+    outOfStockItems: warehouses.reduce((count, inventory) => {
+      const outOfStock = inventory.variants.filter(
+        (variant) => variant.stock === 0,
+      ).length;
+      return count + outOfStock;
+    }, 0),
+    newProducts: warehouses.filter((item) => {
+      const importedDate = dayjs(item.createdAt);
+      return importedDate.isAfter(dayjs().subtract(7, 'day')); // 7 ngày gần đây
+    }).length,
+  };
 
   const expandedRowRender = (record) => {
     const variantColumns = [
@@ -244,6 +314,9 @@ const WarehouseManagement = () => {
       </div>
     );
   };
+  const outOfStockProducts = warehouses.flatMap((warehouse) =>
+    warehouse.variants.filter((variant) => variant.stock === 0),
+  );
 
   if (loading) {
     return (
@@ -260,25 +333,27 @@ const WarehouseManagement = () => {
     <div
       style={{
         padding: '24px',
-        // backgroundColor: "#f5f5f5",
         minHeight: '100vh',
         borderRadius: '8px',
       }}
     >
-      {contextHolder}
-      {/* <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
-        <Col
-          xs={24}
-          sm={12}
-          md={8}
-          style={{ boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)" }}
-        >
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-10">
+          <Title level={2} className="!mb-2">
+            <SettingOutlined className="mr-2" />
+            Quản lý kho hàng
+          </Title>
+          <Text type="secondary">{/* Quản lý  */}</Text>
+        </div>
+      </div>
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={12} md={8}>
           <Card>
             <Statistic
               title="Tổng sản phẩm"
-              value={totalProducts}
-              prefix={<ProductOutlined style={{ color: "#1890ff" }} />}
-              valueStyle={{ color: "#1890ff" }}
+              value={stats.totalProducts}
+              prefix={<ProductOutlined style={{ color: '#1890ff' }} />}
+              valueStyle={{ color: '#1890ff' }}
             />
           </Card>
         </Col>
@@ -287,31 +362,95 @@ const WarehouseManagement = () => {
           <Card>
             <Statistic
               title="Tổng tồn kho"
-              value={totalStock}
-              prefix={<StockOutlined style={{ color: "#722ed1" }} />}
-              valueStyle={{ color: "#722ed1" }}
+              value={stats.totalStock}
+              prefix={<StockOutlined style={{ color: '#722ed1' }} />}
+              valueStyle={{ color: '#722ed1' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Card>
             <Statistic
-              title="Sản phẩm cảnh báo"
-              value={lowStockItems}
-              prefix={<WarningOutlined style={{ color: "#fa541c" }} />}
-              valueStyle={{ color: lowStockItems > 0 ? "#fa541c" : "#52c41a" }}
+              title="Sản phẩm mới"
+              value={stats.newProducts}
+              prefix={<PlusCircleFilled style={{ color: '#faad14' }} />}
+              valueStyle={{ color: '#faad14' }}
             />
           </Card>
         </Col>
-      </Row> */}
-
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Sản phẩm đã hết hàng"
+              value={stats.outOfStockItems}
+              prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
+              valueStyle={{
+                color: stats.outOfStockItems > 0 ? '#ff4d4f' : '#52c41a',
+              }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Sản Phẩm còn tồn nhiều"
+              value={stats.highStockItems}
+              prefix={<CheckOutlined style={{ color: '#52c41a' }} />}
+              valueStyle={{ color: '#52c41a' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Sản phẩm cảnh báo sắp hết"
+              value={stats.lowStockItems}
+              prefix={<WarningOutlined style={{ color: '#fa541c' }} />}
+              valueStyle={{
+                color: stats.lowStockItems > 0 ? '#fa541c' : '#52c41a',
+              }}
+            />
+          </Card>
+        </Col>
+      </Row>
+      {outOfStockProducts.length > 0 && (
+        <Alert
+          message="Cảnh báo tồn kho"
+          description={
+            <div>
+              <div>
+                Có <b>{outOfStockProducts.length}</b> sản phẩm hết hàng:
+              </div>
+              <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+                {outOfStockProducts.slice(0, 5).map((variant, index) => (
+                  <li key={index}>
+                    <b>{variant.variantId.name}</b> (SKU: {variant.sku || 'N/A'}
+                    )
+                  </li>
+                ))}
+              </ul>
+              {outOfStockProducts.length > 5 && (
+                <div style={{ marginTop: 8 }}>
+                  <a onClick={() => setShowOutOfStockOnly(true)}>
+                    Xem tất cả sản phẩm hết hàng
+                  </a>
+                </div>
+              )}
+            </div>
+          }
+          type="warning"
+          showIcon
+          closable
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Card
         style={{
           marginBottom: '24px',
         }}
       >
         <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24} sm={12} md={6}>
             <Input
               placeholder="Tìm kiếm sản phẩm, chi nhánh, người tạo..."
               prefix={<SearchOutlined />}
@@ -335,7 +474,17 @@ const WarehouseManagement = () => {
               ))}
             </Select>
           </Col>
-          <Col xs={24} sm={24} md={10}>
+          <Col xs={24} sm={12} md={6}>
+            <Space>
+              <Checkbox
+                checked={showOutOfStockOnly}
+                onChange={(e) => setShowOutOfStockOnly(e.target.checked)}
+              >
+                Hiển thị sản phẩm hết hàng
+              </Checkbox>
+            </Space>
+          </Col>
+          <Col xs={24} sm={24} md={4}>
             <Space>
               <Button
                 icon={<ReloadOutlined />}

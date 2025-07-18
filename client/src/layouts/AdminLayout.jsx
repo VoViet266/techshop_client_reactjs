@@ -209,6 +209,29 @@ function AdminLayout() {
       },
       { type: 'divider' },
       {
+        key: 'policy',
+        label: 'Chính sách ',
+        icon: <SafetyOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
+        children: [
+          {
+            key: 'warranty',
+            label: 'Chính sách bảo hành',
+            onClick: () => {
+              navigate('/admin/policy/warranty/management');
+              setDrawerVisible(false);
+            },
+          },
+          {
+            key: 'promotion',
+            label: 'Khuyến mãi',
+            onClick: () => {
+              navigate('/admin/policy/promotion/management');
+              setDrawerVisible(false);
+            },
+          },
+        ],
+      },
+      {
         key: 'banner',
         label: 'Banner',
         icon: <SlidersOutlined style={{ color: '#dc2626', fontSize: 15 }} />,

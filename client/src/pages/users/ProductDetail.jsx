@@ -369,13 +369,14 @@ function ProductDetail() {
                   </Title>
                   <Row gutter={[8, 8]}>
                     {[
+                      // Tạo map để loại trùng theo `ram-storage`
                       ...new Map(
                         product.variants
-                          ?.filter((v) => v.memory?.ram || v.memory?.storage) // Lọc variants có memory
-                          ?.map((v) => [
-                            `${v.memory?.ram || 'no-ram'}-${v.memory?.storage || 'no-storage'}`,
-                            v,
-                          ]),
+                          ?.filter((v) => v.memory?.ram || v.memory?.storage)
+                          .map((v) => {
+                            const key = `${v.memory?.ram || 'no-ram'}-${v.memory?.storage || 'no-storage'}`;
+                            return [key, v];
+                          }),
                       ).values(),
                     ].map((variant, index) => {
                       const isSelected =
@@ -383,12 +384,12 @@ function ProductDetail() {
                         selectedMemory?.storage === variant.memory?.storage;
 
                       return (
-                        <Col span={6} key={`memory-${index}`}>
+                        <Col xs={12} lg={12} xl={8} key={`memory-${index}`}>
                           <Button
                             block
-                            className={`py-10! sm:py-4! px-8! sm:px-4! rounded-md! h-40! text-xs! sm:text-sm! ${
-                              isSelected ? 'border! border-primary!' : ' '
-                            } `}
+                            className={`py-[20px]! sm:py-[25px]! px-8! sm:px-4! rounded-md! h-40! text-xs! sm:text-sm! ${
+                              isSelected ? 'border! border-primary!' : ''
+                            }`}
                             onClick={() => {
                               setSelectedMemory(variant.memory);
                               const matchedVariants = product.variants.filter(
@@ -647,14 +648,14 @@ function ProductDetail() {
                       <span className="sm:hidden!">Thêm vào giỏ</span>
                     </Button>
                   </Col>
-                  {/* {!currentStock && (
+                  {!currentStock && (
                     <Col span={24}>
                       <Text className="text-primary! text-sm! sm:text-base! text-center! font-medium!">
                         Sản phẩm đang tạm hết hàng ở khu vực này. Vui lòng chọn
                         khu vực khác!
                       </Text>
                     </Col>
-                  )} */}
+                  )}
                   <Col span={24}>
                     <Card
                       className="shadow-none! rounded-md! hover:border-gray-300! cursor-pointer! mt-10!"

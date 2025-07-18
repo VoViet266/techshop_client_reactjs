@@ -35,6 +35,7 @@ import {
   callCreatePermission,
 } from '@/services/apis';
 import useMessage from '@/hooks/useMessage';
+import { useAppContext } from '@/contexts';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -51,7 +52,7 @@ const PermissionsManagement = () => {
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState(null);
-  const { success, error, warning, contextHolder } = useMessage();
+  const { message } = useAppContext();
 
   useEffect(() => {
     fetchPermissions();
@@ -64,7 +65,7 @@ const PermissionsManagement = () => {
       setPermissions(response.data.data);
     } catch (error) {
       console.error('Error fetching permissions:', error);
-      error('Failed to load permissions');
+      message.error('Failed to load permissions');
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,7 @@ const PermissionsManagement = () => {
       fetchPermissions();
     } catch (error) {
       console.error('Failed to delete permissions:', error);
-      error('Xóa thất bại');
+      message.error('Xóa thất bại');
     }
   };
 
@@ -92,7 +93,7 @@ const PermissionsManagement = () => {
       message.success('Permissions refreshed successfully');
     } catch (error) {
       console.error('Failed to reload permissions:', error);
-      error('Failed to refresh permissions');
+      message.error('Failed to refresh permissions');
     } finally {
       setLoading(false);
     }
@@ -255,14 +256,14 @@ const PermissionsManagement = () => {
           action: values.action,
           module: values.module,
         });
-        success('Tạo permission mới thành công');
+        message.success('Tạo quyền mới thành công');
       }
 
       handleCancel();
       reloadTable();
     } catch (error) {
       console.error('Failed to save permission:', error);
-      error('Lưu permission thất bại');
+      message.error('Lưu quyền thất bại');
     } finally {
       setLoading(false);
     }
@@ -297,7 +298,6 @@ const PermissionsManagement = () => {
   ];
   return (
     <>
-      {contextHolder}
       <Modal
         title="Xóa quyền"
         open={openModalDelete}

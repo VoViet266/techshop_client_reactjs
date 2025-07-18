@@ -122,6 +122,7 @@ function SearchBox() {
       if (user) {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
+          console.log(res);
           setRecommentProducts(res);
         } catch (error) {
           console.error('Error fetching recommendations:', error);
@@ -131,16 +132,6 @@ function SearchBox() {
 
     fetchRecommendations();
   }, [user]);
-  const SkeletonItem = () => (
-    <div className="flex items-center gap-3 p-3 animate-pulse">
-      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-      <div className="flex-1">
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-      </div>
-      <div className="h-4 bg-gray-200 rounded w-20"></div>
-    </div>
-  );
 
   return (
     <div className="w-full relative">
@@ -203,7 +194,7 @@ function SearchBox() {
                           className="flex items-center gap-2 bg-gradient-to-r h-[60px] min-w-[1/5] max-w-[2/5] p-10 rounded-md text-sm hover:from-orange-100 hover:to-red-100 transition-all duration-300 transform hover:scale-105"
                         >
                           <img
-                            src={term?.variants[0]?.images}
+                            src={term?.variants[0]?.images[0]}
                             alt={term.name}
                             className="w-70 h-50 object-contain"
                           />

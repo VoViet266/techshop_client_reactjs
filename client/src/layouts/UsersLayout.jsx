@@ -5,7 +5,7 @@ import { Login, Signup } from '@pages/app';
 import { ChatBot } from '@components/users';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { UserInformation } from '@components/users';
-import { BsCartFill, BsList, BsSignTurnRightFill } from 'react-icons/bs';
+import { BsCartFill, BsGeoAltFill, BsList, BsSignTurnRightFill } from 'react-icons/bs';
 import {
   Layout,
   Typography,
@@ -85,15 +85,15 @@ function Header() {
           </Link>
         </div>
         <div className="flex items-center gap-4 sm:gap-15 w-3/5 mr-[100px]">
-          <div className="hidden md:flex cursor-pointer w-[20%]">
+          <div className="hidden md:flex cursor-pointer w-auto ">
             <Dropdown
               menu={{ items, className: 'custom-dropdown-menu' }}
               trigger={['hover']}
-              className="text-white flex justify-center items-center bg-[rgb(126,22,28)]! h-[44px] rounded-full  w-full"
+              className="text-white flex justify-center items-center bg-[rgb(126,22,28)]! h-[44px] rounded-full  w-full  px-[20px]"
             >
               <Text className="text-white! text-base! flex! items-center!">
-                <BsList className="mr-5 font-bold text-2xl" />
-                Cửa hàng
+                <BsGeoAltFill className="mr-5 font-bold text-2xl" />
+                <text>Chi nhánh</text>
               </Text>
             </Dropdown>
           </div>

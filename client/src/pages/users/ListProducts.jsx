@@ -157,7 +157,7 @@ function ProductsList() {
         });
     }
   }, [category, currentBrand, currentPage]);
-
+  
   return (
     <div className="w-full mt-10">
       <ListProducts

@@ -49,7 +49,9 @@ const ChatBot = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState([
+    { sender: 'bot', text: 'Xin chào! Tôi có thể giúp gì cho bạn?' },
+  ]);
   const [latestBotMessageIndex, setLatestBotMessageIndex] = useState(-1);
 
   useEffect(() => {

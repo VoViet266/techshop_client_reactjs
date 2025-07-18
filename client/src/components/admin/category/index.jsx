@@ -255,6 +255,16 @@ const ModalCategory = (props) => {
               }}
               options={groupOptions}
             />
+            <Checkbox
+              checked={field.filterable}
+              onChange={(e) => {
+                const updated = [...extraFields];
+                updated[index].filterable = e.target.checked;
+                setExtraFields(updated);
+              }}
+            >
+              Lọc được
+            </Checkbox>
             <Button
               danger
               onClick={() => {
@@ -277,7 +287,7 @@ const ModalCategory = (props) => {
           }
           block
         >
-          + Thêm trường mới
+          Thêm trường mới
         </Button>
       </Form>
     </Modal>
