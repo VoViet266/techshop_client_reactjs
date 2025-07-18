@@ -695,7 +695,7 @@ function ProductDetail() {
             {recommnentProducts && recommnentProducts.length > 0 && (
               <PreviewListProducts
                 viewAll={false}
-                title='Sản phẩm liên quan'
+                title="Sản phẩm liên quan"
                 products={recommnentProducts}
               />
             )}
@@ -704,6 +704,7 @@ function ProductDetail() {
         <Row gutter={[10, 10]} className="mt-6 sm:mt-8 lg:mt-10">
           <Col lg={24}>
             <Comments
+              stats={stats}
               product={product}
               loading={loading}
               comment={comment}

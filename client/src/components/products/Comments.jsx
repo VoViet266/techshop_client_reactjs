@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Button,
   message,
   Pagination,
   Input,
+  Row,
+  Col,
   Avatar,
   Typography,
   Rate,
   Tag,
   Flex,
   Divider,
+  Progress,
 } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -27,12 +30,14 @@ import {
 } from '@/services/apis';
 import { useAppContext } from '@/contexts';
 import { BsDot } from 'react-icons/bs';
+import { StarFilled } from '@ant-design/icons';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
 
-function Comments({ className, product, loading: initialLoading }) {
+function Comments({ className, product, loading: initialLoading, stats = {} }) {
   const [comment, setComment] = useState('');
+  const commentInputRef = useRef(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(initialLoading);
   const [submitting, setSubmitting] = useState(false);
@@ -55,6 +60,8 @@ function Comments({ className, product, loading: initialLoading }) {
       fetchReviews(page);
     }
   }, [page, product?._id]);
+
+  console.log(stats);
 
   const fetchReviews = async (currentPage) => {
     setLoading(true);
@@ -139,6 +146,10 @@ function Comments({ className, product, loading: initialLoading }) {
     }
   };
 
+  console.log('Review:', reviews);
+
+  console.log(product.averageRating);
+
   const formatTime = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -158,14 +169,33 @@ function Comments({ className, product, loading: initialLoading }) {
     console.log(showReplyInput);
   };
 
+  function countRatings(obj) {
+    const ratingCounts = {
+      5: 0,
+      4: 0,
+      3: 0,
+      2: 0,
+      1: 0,
+    };
+
+    if (obj && obj.ratings && Array.isArray(obj.ratings)) {
+      obj.ratings.forEach((rating) => {
+        if (rating >= 1 && rating <= 5) {
+          ratingCounts[rating]++;
+        }
+      });
+    }
+
+    return ratingCounts;
+  }
+
+  console.log(countRatings(stats));
+
   return (
     <div className={className}>
-      <div className="bg-white p-20 rounded-xl overflow-hidden">
-        <Flex align="center" gap={8}>
-          <Typography.Title
-            level={3}
-            className="text-xl! font-bold! text-gray-800"
-          >
+      <div className="bg-white p-30 rounded-xl overflow-hidden">
+        <Flex vertical align="" className="mb-8!" gap={0}>
+          <Typography.Title level={2}>
             {loading ? (
               <Skeleton width={200} height={24} />
             ) : (
@@ -173,12 +203,74 @@ function Comments({ className, product, loading: initialLoading }) {
             )}
           </Typography.Title>
           <Typography.Text className="text-sm! text-gray-600!">
-            {loading ? <Skeleton width={100} /> : `${total} bình luận`}
+            {/* {loading ? <Skeleton width={100} /> : `${total} bình luận`} */}
           </Typography.Text>
+          <Row className="my-10!">
+            <Col lg={8}>
+              <Flex
+                gap={8}
+                vertical
+                align="center"
+                justify="center"
+                className="mr-30!"
+              >
+                <Typography.Title level={1} className="mb-0!">
+                  {stats?.averageRating?.toFixed(1)}
+                </Typography.Title>
+                <Typography.Text>
+                  {stats?.totalComments} lượt đánh giá
+                </Typography.Text>
+                <Rate
+                  value={stats?.averageRating?.toFixed(1)}
+                  allowHalf
+                  disabled
+                  className="text-yellow-400!"
+                />
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    commentInputRef.current.focus();
+                  }}
+                  className="rounded-full! h-35! font-medium! w-3/4!"
+                >
+                  Đánh giá ngay
+                </Button>
+              </Flex>
+            </Col>
+            <Col lg={16}>
+              {/* Rate row */}
+              <Flex vertical gap={10}>
+                {Array.from({ length: 5 }, (_, index) => {
+                  return (
+                    <Flex gap={8} align="center">
+                      <Flex align="center">
+                        <Typography.Text>{5 - index}</Typography.Text>
+                        <StarFilled className="text-yellow-400! text-xl! ml-2!" />
+                      </Flex>
+                      <Progress
+                        showInfo={false}
+                        percent={
+                          (countRatings(stats)[5 - index] /
+                            stats.totalComments) *
+                          100
+                        }
+                        className="flex-1!"
+                        size={[, 12]}
+                        strokeColor="#dc2626"
+                      />
+                      <Typography.Text>
+                        {countRatings(stats)[5 - index]}
+                      </Typography.Text>
+                    </Flex>
+                  );
+                })}
+              </Flex>
+            </Col>
+          </Row>
         </Flex>
 
         <div className="p-6">
-          <div className="flex items-start gap-8">
+          <div className="flex items-start gap-8 mt-10">
             {!user.avatar ? (
               <div>
                 <svg
@@ -231,12 +323,13 @@ function Comments({ className, product, loading: initialLoading }) {
                 <div className="space-y-4">
                   <TextArea
                     value={comment}
+                    ref={commentInputRef}
                     maxLength={1000}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Chia sẻ suy nghĩ của bạn về sản phẩm này..."
                     rows={6}
                     autoSize={{ minRows: 2, maxRows: 4 }}
-                    className="w-full min-h-100! border-gray-200 rounded-md! focus:border-transparent"
+                    className="w-full min-h-100! placeholder:text-base! placeholder:text-gray-500! border-gray-400 rounded-md!"
                   />
                   <div className="flex items-center justify-between mt-8">
                     <div className="flex items-center gap-8">
@@ -265,7 +358,7 @@ function Comments({ className, product, loading: initialLoading }) {
                         onClick={handleSubmitComment}
                         loading={submitting}
                         disabled={!comment.trim()}
-                        className="min-w-100! rounded-md! h-40!"
+                        className="min-w-100! rounded-md! font-medium! h-40!"
                       >
                         Gửi bình luận
                       </Button>
@@ -464,7 +557,7 @@ function Comments({ className, product, loading: initialLoading }) {
                               )}
                             </div>
                             <div className="text-sm text-gray-700 leading-relaxed">
-                              <div className='flex items-center'>
+                              <div className="flex items-center">
                                 <span className="font-medium text-sm text-gray-800">
                                   {reply.userName}
                                 </span>
