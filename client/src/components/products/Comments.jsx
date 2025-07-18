@@ -274,8 +274,8 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
             {!user.avatar ? (
               <div>
                 <svg
-                  width="44"
-                  height="44"
+                  width="40"
+                  height="40"
                   viewBox="0 0 44 44"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -311,7 +311,7 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
             ) : (
               <Avatar
                 src={user?.avatar}
-                size={40}
+                size={30}
                 className="border-2 border-white shadow-md"
                 icon={<AiOutlineUser />}
               />
@@ -409,8 +409,8 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                     {!user.avatar ? (
                       <div>
                         <svg
-                          width="44"
-                          height="44"
+                          width="40"
+                          height="40"
                           viewBox="0 0 44 44"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
@@ -451,14 +451,14 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                     ) : (
                       <Avatar
                         src={user?.avatar}
-                        size={40}
+                        size={30}
                         className="border-2 border-white shadow-md"
                         icon={<AiOutlineUser />}
                       />
                     )}
                   </div>
 
-                  <div>
+                  <div className='w-full'>
                     <div className="mb-4 text-gray-700 w-full leading-relaxed rounded-lg">
                       <div className="flex-1!">
                         <div className="flex! items-center! gap-4! mb-1!">
@@ -498,11 +498,11 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                       </div>
                     </div>
                     {review.replies && review.replies.length > 0 && (
-                      <div className="-ml-10 mt-20 mb-4! flex flex-col gap-12">
+                      <div className="-ml-30 mt-20 bg-gray-50 p-20 rounded-md w-full mb-4! flex flex-col gap-20">
                         {review.replies.map((reply, index) => (
                           <div
                             key={index}
-                            className="rounded-md! flex items-start gap-8 p-4!"
+                            className="rounded-md! w-full! flex items-start gap-8 p-4!"
                           >
                             <div className="flex! items-center! gap-2! mb-2!">
                               {!user.avatar ? (
@@ -578,8 +578,8 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                           {!user.avatar ? (
                             <div>
                               <svg
-                                width="44"
-                                height="44"
+                                width="40"
+                                height="40"
                                 viewBox="0 0 44 44"
                                 fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -620,7 +620,7 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                           ) : (
                             <Avatar
                               src={user?.avatar}
-                              size={40}
+                              size={30}
                               className="border-2 border-white shadow-md"
                               icon={<AiOutlineUser />}
                             />
