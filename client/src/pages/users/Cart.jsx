@@ -321,25 +321,24 @@ function Cart() {
       </Modal>
 
       {cartItems.length === 0 ? (
-        <Card className="text-center! shadow-none! flex! justify-center! py-20! h-[500px]!">
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={
-              <div>
-                <Text className="text-gray-500 text-lg">
-                  Giỏ hàng của bạn đang trống
-                </Text>
-                <div className="mt-4">
-                  <Link to="/">
-                    <Button type="primary" size="large" className="rounded-lg">
-                      Tiếp tục mua sắm
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            }
+        <Flex justify='space-between' className="bg-white rounded-xl p-30!">
+          <Flex vertical gap={20}>
+            <Title level={1} className="font-medium! mb-0!">
+              Chưa có sản phẩm nào trong giỏ hàng
+            </Title>
+            <Text className="text-[#6b7280]! text-base!">
+              Cùng mua sắm hàng ngàn sản phẩm tại TechShop nhé!
+            </Text>
+            <Button type="primary" className="rounded-full! h-40! w-150!">
+              Mua hàng
+            </Button>
+          </Flex>
+          <Image
+            width={300}
+            preview={false}
+            src="https://fptshop.com.vn/img/empty_state.png?w=640&q=75"
           />
-        </Card>
+        </Flex>
       ) : (
         <Row gutter={[10, 10]} className="w-full!">
           <Col span={17}>
