@@ -165,8 +165,8 @@ function ListProduct() {
 
   const stats = {
     total: products.length,
-    active: products.filter((p) => p.status === 'active').length,
-    inactive: products.filter((p) => p.status !== 'active').length,
+    active: products.filter((p) => p.isActive === true).length,
+    inactive: products.filter((p) => p.isActive === false).length,
     discounted: products.filter((p) => p.discount > 0).length,
   };
 
@@ -489,7 +489,7 @@ function ListProduct() {
     <div>
       <div
         style={{
-          padding: '24px',
+          padding: '10px',
           minHeight: '100vh',
           borderRadius: '8px',
         }}
@@ -510,7 +510,7 @@ function ListProduct() {
         >
           <p>{modalText}</p>
         </Modal>
-        <Row gutter={16} style={{ marginBottom: '24px' }}>
+        <Row gutter={16} style={{ marginBottom: '10px' }}>
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
@@ -557,7 +557,7 @@ function ListProduct() {
         </Row>
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 10,
             borderRadius: 16,
             border: `1px solid #E2E8F0"`,
           }}

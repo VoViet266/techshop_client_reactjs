@@ -17,6 +17,7 @@ import {
   Space,
   Popconfirm,
   Select,
+  Switch,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -27,6 +28,8 @@ import {
   SearchOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
+  FilterOutlined,
+  ClearOutlined,
 } from '@ant-design/icons';
 import {
   callFetchPermission,
@@ -34,7 +37,7 @@ import {
   callUpdatePermission,
   callCreatePermission,
 } from '@/services/apis';
-import useMessage from '@/hooks/useMessage';
+
 import { useAppContext } from '@/contexts';
 
 const { Title, Text, Paragraph } = Typography;
@@ -52,6 +55,11 @@ const PermissionsManagement = () => {
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState(null);
+  const [filters, setFilters] = useState({
+    module: undefined,
+    action: undefined,
+    status: undefined,
+  });
   const { message } = useAppContext();
 
   useEffect(() => {
@@ -65,7 +73,6 @@ const PermissionsManagement = () => {
       setPermissions(response.data.data);
     } catch (error) {
       console.error('Error fetching permissions:', error);
-      message.error('Failed to load permissions');
     } finally {
       setLoading(false);
     }
@@ -81,7 +88,6 @@ const PermissionsManagement = () => {
       fetchPermissions();
     } catch (error) {
       console.error('Failed to delete permissions:', error);
-      message.error('Xóa thất bại');
     }
   };
 
@@ -90,13 +96,25 @@ const PermissionsManagement = () => {
     try {
       const response = await callFetchPermission();
       setPermissions(response.data.data);
-      message.success('Permissions refreshed successfully');
+      message.success('Permissions đã làm mới thành công');
     } catch (error) {
       console.error('Failed to reload permissions:', error);
-      message.error('Failed to refresh permissions');
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearAllFilters = () => {
+    setSearchText('');
+    setFilters({
+      module: undefined,
+      action: undefined,
+      status: undefined,
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return searchText || filters.module || filters.action || filters.status;
   };
 
   useEffect(() => {
@@ -107,17 +125,38 @@ const PermissionsManagement = () => {
         action: dataInit.action,
         module: dataInit.module,
         description: dataInit.description,
+        isActive: dataInit.isActive,
       });
     } else {
       form.resetFields();
     }
   }, [dataInit]);
 
-  const filteredPermissions = permissions.filter(
-    (permission) =>
-      permission.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-      permission.description?.toLowerCase().includes(searchText.toLowerCase()),
-  );
+  const filteredPermissions = permissions.filter((permission) => {
+    const matchesSearch = searchText
+      ? permission.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        permission.description
+          ?.toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        permission.module?.toLowerCase().includes(searchText.toLowerCase()) ||
+        permission.action?.toLowerCase().includes(searchText.toLowerCase())
+      : true;
+
+    const matchesModule = filters.module
+      ? permission.module?.toLowerCase() === filters.module.toLowerCase()
+      : true;
+
+    const matchesAction = filters.action
+      ? permission.action?.toLowerCase() === filters.action.toLowerCase()
+      : true;
+
+    const matchesStatus =
+      filters.status !== undefined
+        ? permission.isActive === filters.status
+        : true;
+
+    return matchesSearch && matchesModule && matchesAction && matchesStatus;
+  });
 
   const columns = [
     {
@@ -144,22 +183,26 @@ const PermissionsManagement = () => {
       dataIndex: 'action',
       key: 'action',
       render: (text) => (
-        <code
-          style={{
-            backgroundColor: '#f6f8fa',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '13px',
-            fontWeight: 500,
-          }}
+        <Tag
+          color={
+            text === 'create'
+              ? 'green'
+              : text === 'update'
+                ? 'blue'
+                : text === 'delete'
+                  ? 'red'
+                  : text === 'view'
+                    ? 'purple'
+                    : 'default'
+          }
         >
           {text}
-        </code>
+        </Tag>
       ),
       sorter: (a, b) => a.action.localeCompare(b.action),
     },
     {
-      title: 'mô-đun',
+      title: 'Mô-đun',
       dataIndex: 'module',
       key: 'module',
       render: (text) => (
@@ -207,7 +250,11 @@ const PermissionsManagement = () => {
       title: 'Trạng thái',
       key: 'isActive',
       align: 'center',
-      render: (record) => <Tag color="green">Hoạt động</Tag>,
+      render: (_, record) => (
+        <Tag color={record.isActive ? 'green' : 'red'}>
+          {record.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+        </Tag>
+      ),
     },
     {
       title: 'Hành động',
@@ -239,7 +286,6 @@ const PermissionsManagement = () => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      console.log(values);
       if (dataInit) {
         await callUpdatePermission({
           _id: dataInit._id,
@@ -247,14 +293,16 @@ const PermissionsManagement = () => {
           action: values.action,
           module: values.module,
           description: values.description,
+          isActive: values.isActive,
         });
-        success('Cập nhật permission thành công');
+        message.success('Cập nhật permission thành công');
       } else {
         await callCreatePermission({
           name: values.name,
           description: values.description,
           action: values.action,
           module: values.module,
+          isActive: values.isActive ?? true,
         });
         message.success('Tạo quyền mới thành công');
       }
@@ -296,6 +344,12 @@ const PermissionsManagement = () => {
     { label: 'Update', value: 'update' },
     { label: 'Delete', value: 'delete' },
   ];
+
+  const statusOptions = [
+    { label: 'Hoạt động', value: true },
+    { label: 'Ngưng hoạt động', value: false },
+  ];
+
   return (
     <>
       <Modal
@@ -329,7 +383,7 @@ const PermissionsManagement = () => {
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: '10px' }}
         >
           <Col>
             <Title level={4} style={{ margin: 0 }}>
@@ -337,9 +391,91 @@ const PermissionsManagement = () => {
               Quản lý quyền hạn
             </Title>
             <p style={{ margin: '8px 0 0 0', color: '#666' }}>
-              Quản lý các quyền hạn trong hệ thống. Tổng cộng:{' '}
-              <strong>{permissions.length}</strong> quyền
+              Quản lý các quyền hạn trong hệ thống.
+              {hasActiveFilters() ? (
+                <>
+                  Hiển thị: <strong>{filteredPermissions.length}</strong> /{' '}
+                  <strong>{permissions.length}</strong> quyền
+                </>
+              ) : (
+                <>
+                  Tổng cộng: <strong>{permissions.length}</strong> quyền
+                </>
+              )}
             </p>
+          </Col>
+        </Row>
+
+        <Row gutter={[10]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} md={8}>
+            <Input
+              placeholder="Tìm kiếm quyền, mô tả..."
+              prefix={<SearchOutlined style={{ color: '#94A3B8' }} />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              allowClear
+              className="p-8! w-full"
+            />
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            <Select
+              placeholder="Mô đun"
+              value={filters.module}
+              onChange={(value) => setFilters({ ...filters, module: value })}
+              allowClear
+              style={{ width: '100%' }}
+              suffixIcon={<FilterOutlined />}
+            >
+              {moduleOptions.map((option) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            <Select
+              placeholder="Thao tác"
+              value={filters.action}
+              onChange={(value) => setFilters({ ...filters, action: value })}
+              allowClear
+              style={{ width: '100%' }}
+              suffixIcon={<FilterOutlined />}
+            >
+              {actionOptions.map((option) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            <Select
+              placeholder="Trạng thái"
+              value={filters.status}
+              onChange={(value) => setFilters({ ...filters, status: value })}
+              allowClear
+              style={{ width: '100%' }}
+              suffixIcon={<FilterOutlined />}
+            >
+              {statusOptions.map((option) => (
+                <Select.Option key={String(option.value)} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            {hasActiveFilters() && (
+              <Button
+                icon={<ClearOutlined />}
+                onClick={clearAllFilters}
+                type="default"
+                className="px-10! h-full! w-full!"
+              >
+                Xóa bộ lọc
+              </Button>
+            )}
           </Col>
         </Row>
 
@@ -348,21 +484,15 @@ const PermissionsManagement = () => {
           align="middle"
           style={{ marginBottom: 16 }}
         >
-          <Col xs={24} sm={12} md={6}>
-            <Input
-              placeholder="Tìm kiếm quyền, mô tả..."
-              prefix={<SearchOutlined style={{ color: '#94A3B8' }} />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              allowClear
-              style={{
-                borderRadius: 8,
-                border: `1px solid #CBD5E1`,
-              }}
-            />
+          <Col>
+            {hasActiveFilters() && (
+              <Text type="secondary">
+                <FilterOutlined style={{ marginRight: 4 }} />
+                Đang áp dụng bộ lọc
+              </Text>
+            )}
           </Col>
-
-          <Col xs={24} sm={12} md={12}>
+          <Col>
             <Flex gap={8} wrap="wrap" justify="end">
               <Button
                 type="primary"
@@ -380,7 +510,6 @@ const PermissionsManagement = () => {
               >
                 Tạo quyền mới
               </Button>
-
               <Button
                 type="primary"
                 disabled={selectedRowKeys.length !== 1}
@@ -445,11 +574,19 @@ const PermissionsManagement = () => {
           size="middle"
           pagination={{
             defaultPageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} của ${total} quyền`,
           }}
           locale={{
             emptyText: (
               <Empty
-                description="Không tìm thấy permission nào"
+                description={
+                  hasActiveFilters()
+                    ? 'Không tìm thấy permission nào phù hợp với bộ lọc'
+                    : 'Không tìm thấy permission nào'
+                }
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             ),
@@ -499,21 +636,24 @@ const PermissionsManagement = () => {
             </div>
             <div style={{ width: '100%' }}>
               <Title level={5}>Thao tác</Title>
-              <code
-                style={{
-                  backgroundColor: '#f6f8fa',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  display: 'block',
-                  marginBottom: 16,
-                }}
+              <Tag
+                color={
+                  selectedPermission.action === 'create'
+                    ? 'green'
+                    : selectedPermission.action === 'update'
+                      ? 'blue'
+                      : selectedPermission.action === 'delete'
+                        ? 'red'
+                        : selectedPermission.action === 'view'
+                          ? 'purple'
+                          : 'default'
+                }
+                style={{ fontSize: '14px', padding: '4px 12px' }}
               >
                 {selectedPermission.action}
-              </code>
+              </Tag>
             </div>
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', marginTop: 16 }}>
               <Title level={5}>Module</Title>
               <code
                 style={{
@@ -530,6 +670,15 @@ const PermissionsManagement = () => {
               </code>
             </div>
             <div style={{ width: '100%' }}>
+              <Title level={5}>Trạng thái</Title>
+              <Tag
+                color={selectedPermission.isActive ? 'green' : 'red'}
+                style={{ fontSize: '14px', padding: '4px 12px' }}
+              >
+                {selectedPermission.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+              </Tag>
+            </div>
+            <div style={{ width: '100%', marginTop: 16 }}>
               <Title level={5}>Mô tả</Title>
               <Paragraph>
                 {selectedPermission.description || 'Không có mô tả.'}
@@ -567,16 +716,16 @@ const PermissionsManagement = () => {
           </Button>,
         ]}
         width={600}
-        OnClose
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
           autoComplete="off"
+          initialValues={{ isActive: true }}
         >
           <Row gutter={16}>
-            <Col span={12}>
+            <Col span={24}>
               <Form.Item
                 label="Tên Quyền"
                 name="name"
@@ -597,9 +746,20 @@ const PermissionsManagement = () => {
                 />
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <Form.Item label="Thao tác" name="action">
-                <Select placeholder="Ví dụ: view, edit, delete">
+          </Row>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                label="Thao tác"
+                name="action"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng chọn thao tác!',
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn thao tác">
                   {actionOptions.map((option) => (
                     <Select.Option key={option.value} value={option.value}>
                       {option.label}
@@ -608,18 +768,37 @@ const PermissionsManagement = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <Form.Item label="Mô-đun" name="module">
-                <Select
-                  placeholder="Mô-đun"
-                  style={{ fontFamily: 'monospace' }}
-                >
+            <Col span={8}>
+              <Form.Item
+                label="Mô-đun"
+                name="module"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng chọn mô-đun!',
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn mô-đun">
                   {moduleOptions.map((option) => (
                     <Select.Option key={option.value} value={option.value}>
                       {option.label}
                     </Select.Option>
                   ))}
                 </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="Trạng thái"
+                name="isActive"
+                valuePropName="checked"
+              >
+                <Switch
+                  checkedChildren="Hoạt động"
+                  unCheckedChildren="Ngưng hoạt động"
+                  defaultChecked={true}
+                />
               </Form.Item>
             </Col>
           </Row>

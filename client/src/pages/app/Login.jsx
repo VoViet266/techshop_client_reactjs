@@ -152,7 +152,7 @@ function Login() {
             />
           </Form.Item>
 
-          <div style={{ textAlign: 'right', marginBottom: 24 }}>
+          <div style={{ textAlign: 'right', marginBottom: '10px' }}>
             <Link
               style={{
                 fontSize: 14,

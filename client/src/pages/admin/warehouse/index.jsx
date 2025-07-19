@@ -332,13 +332,13 @@ const WarehouseManagement = () => {
   return (
     <div
       style={{
-        padding: '24px',
+        padding: '10px',
         minHeight: '100vh',
         borderRadius: '8px',
       }}
     >
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-10">
+      <div className="max-w-7xl mb-5">
+        <div>
           <Title level={2} className="!mb-2">
             <SettingOutlined className="mr-2" />
             Quản lý kho hàng
@@ -346,7 +346,7 @@ const WarehouseManagement = () => {
           <Text type="secondary">{/* Quản lý  */}</Text>
         </div>
       </div>
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '10px' }}>
         <Col xs={24} sm={12} md={8}>
           <Card>
             <Statistic
@@ -441,12 +441,12 @@ const WarehouseManagement = () => {
           type="warning"
           showIcon
           closable
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 10 }}
         />
       )}
       <Card
         style={{
-          marginBottom: '24px',
+          marginBottom: '10px',
         }}
       >
         <Row gutter={[16, 16]} align="middle">

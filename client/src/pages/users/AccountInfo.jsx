@@ -470,7 +470,7 @@ const AccountInfoPage = () => {
         onClick={() => {
           updateAddress(updateUserInfo);
         }}
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '10px' }}
       >
         Cập nhật thông tin
       </Button>

@@ -12,8 +12,8 @@ class UserService {
     return axiosInstance.get(`/api/v1/users/${id}`);
   }
 
-  update(user) {
-    return axiosInstance.patch(`/api/v1/users/${user._id}`, { ...user });
+  static create(user) {
+    return axiosInstance.post('/api/v1/users', { ...user });
   }
 
   signup(user) {
@@ -24,12 +24,12 @@ class UserService {
     return axiosInstance.get('/api/v1/users');
   }
 
-  deleteOne(id) {
+  static deleteOne(id) {
     return axiosInstance.delete(`/api/v1/users/${id}`);
   }
 
-  update(user) {
-    return axiosInstance.patch(`/api/v1/users/${user._id}`, user);
+  static update(id, user) {
+    return axiosInstance.patch(`/api/v1/users/${id}`, user);
   }
 
   updateRole(value) {

@@ -45,6 +45,7 @@ import {
 
 import { useAppContext } from '@/contexts';
 import Address from '@/services/address';
+import UserService from '@/services/users';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -334,31 +335,12 @@ const UserManagement = () => {
       key: 'phone',
       sorter: (a, b) => a.phone.localeCompare(b.phone),
     },
-
-    {
-      title: 'Thống kê',
-      key: 'statistics',
-      align: 'center',
-      width: 150,
-      render: (record) => (
-        <div style={{ fontSize: '12px' }}>
-          <div style={{ color: '#52c41a', fontWeight: 500 }}>
-            {record.totalSpent
-              ? `${Number(record.totalSpent).toLocaleString('vi-VN')}đ`
-              : '0đ'}
-          </div>
-          <div style={{ color: '#666' }}>
-            {record.totalOrders || 0} đơn hàng
-          </div>
-        </div>
-      ),
-    },
     {
       title: 'Trạng thái',
       key: 'isActive',
       align: 'center',
       render: (record) => (
-        <Tag color={record.isActive ? 'green' : 'red'}>
+        <Tag color={record.isActive ? 'green' : 'red'} className="p-5! w-full">
           {record.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
         </Tag>
       ),
@@ -406,21 +388,6 @@ const UserManagement = () => {
               Sửa
             </Button>
           </Tooltip>
-          {/* <Popconfirm
-            title="Xóa người dùng"
-            description="Bạn có chắc chắn muốn xóa người dùng này?"
-            icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
-            onConfirm={() => handleDeleteUser(record._id)}
-            okText="Xóa"
-            cancelText="Hủy"
-            okButtonProps={{ danger: true }}
-          >
-            <Tooltip title="Xóa">
-              <Button danger icon={<DeleteOutlined />} size="small">
-                Xóa
-              </Button>
-            </Tooltip>
-          </Popconfirm> */}
         </Space>
       ),
     },
@@ -435,11 +402,12 @@ const UserManagement = () => {
     setSubmitLoading(true);
     try {
       if (!selectedUser) {
-        const response = await callCreateUser(values);
+        const response = await UserService.create(values);
         setUsers([...users, response.data.data]);
         message.success('Tạo người dùng thành công');
       } else {
-        const response = await callUpdateUser(values);
+        console.log(selectedUser);
+        const response = await UserService.update(selectedUser._id, values);
         setUsers(
           users.map((user) =>
             user._id === selectedUser._id ? response.data.data : user,
@@ -460,41 +428,6 @@ const UserManagement = () => {
       setSubmitLoading(false);
     }
   };
-
-  // const handleBulkDelete = async () => {
-  //   if (selectedRowKeys.length === 0) {
-  //     message.warning('Vui lòng chọn ít nhất một người dùng');
-  //     return;
-  //   }
-
-  //   Modal.confirm({
-  //     title: 'Xóa nhiều người dùng',
-  //     content: `Bạn có chắc chắn muốn xóa ${selectedRowKeys.length} người dùng được chọn?`,
-  //     icon: <ExclamationCircleOutlined />,
-  //     okText: 'Xóa',
-  //     cancelText: 'Hủy',
-  //     okButtonProps: { danger: true },
-  //     onOk: async () => {
-  //       setLoading(true);
-  //       try {
-  //         await Promise.all(
-  //           selectedRowKeys.map((userId) => callDeleteUser(userId)),
-  //         );
-  //         setUsers(users.filter((user) => !selectedRowKeys.includes(user._id)));
-  //         message.success(
-  //           `Đã xóa ${selectedRowKeys.length} người dùng thành công`,
-  //         );
-  //         setSelectedRowKeys([]);
-  //         setSelectedRows([]);
-  //       } catch (error) {
-  //         console.error('Failed to bulk delete users:', error);
-  //         message.error('Xóa hàng loạt thất bại');
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     },
-  //   });
-  // };
 
   const handleCancel = () => {
     form.resetFields();
@@ -519,7 +452,7 @@ const UserManagement = () => {
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: '10px' }}
         >
           <Col>
             <Title level={4} style={{ margin: 0 }}>
@@ -731,36 +664,11 @@ const UserManagement = () => {
                   <Text type="secondary">Chưa có địa chỉ</Text>
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label="Tổng chi tiêu">
-                <Text strong style={{ color: '#52c41a' }}>
-                  {previewUser.totalSpent
-                    ? `${Number(previewUser.totalSpent).toLocaleString('vi-VN')}đ`
-                    : '0đ'}
-                </Text>
-              </Descriptions.Item>
-              <Descriptions.Item label="Tổng đơn hàng">
-                <Text strong style={{ color: '#1890ff' }}>
-                  {previewUser.totalOrders || 0} đơn hàng
-                </Text>
-              </Descriptions.Item>
+
               <Descriptions.Item label="Trạng thái">
                 <Tag color={previewUser.isActive ? 'green' : 'red'}>
                   {previewUser.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
                 </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngày tạo">
-                <Text>
-                  {previewUser.createdAt
-                    ? new Date(previewUser.createdAt).toLocaleString('vi-VN')
-                    : '-'}
-                </Text>
-              </Descriptions.Item>
-              <Descriptions.Item label="Cập nhật lần cuối">
-                <Text>
-                  {previewUser.updatedAt
-                    ? new Date(previewUser.updatedAt).toLocaleString('vi-VN')
-                    : '-'}
-                </Text>
               </Descriptions.Item>
             </Descriptions>
           </div>
@@ -848,18 +756,7 @@ const UserManagement = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item
-                name="age"
-                label="Tuổi"
-                rules={[
-                  {
-                    type: 'number',
-                    min: 1,
-                    max: 120,
-                    message: 'Tuổi phải từ 1-120!',
-                  },
-                ]}
-              >
+              <Form.Item name="age" label="Tuổi">
                 <Input type="number" size="large" placeholder="Nhập tuổi" />
               </Form.Item>
             </Col>

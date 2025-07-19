@@ -210,7 +210,7 @@ const WarrantyPolicyManagement = () => {
 
   return (
     <div className="p-6  min-h-screen">
-      <div className="max-w-7xl mx-auto">
+      <div >
         <div className="mb-6">
           <Title level={2} className="!mb-2">
             <SettingOutlined className="mr-2" />

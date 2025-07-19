@@ -354,7 +354,7 @@ function Signup() {
             </Col>
             <Col span={24}>
               <Form.Item>
-                <div style={{ marginBottom: 24, position: 'relative' }}>
+                <div style={{ marginBottom: '10px', position: 'relative' }}>
                   <label
                     style={{
                       fontSize: 14,

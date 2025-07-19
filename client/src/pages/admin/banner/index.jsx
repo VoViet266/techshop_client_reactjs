@@ -44,7 +44,6 @@ export const BannerPosition = {
   CHECKOUT_PAGE: 'CHECKOUT_PAGE',
   FOOTER_BANNER: 'FOOTER_BANNER',
   SIDEBAR_BANNER: 'SIDEBAR_BANNER',
-  
 };
 
 const BannerManagement = () => {
@@ -228,7 +227,7 @@ const BannerManagement = () => {
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: '10px' }}
         >
           <Col>
             <Title level={4} style={{ margin: 0 }}>

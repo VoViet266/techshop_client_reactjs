@@ -72,7 +72,6 @@ const UserRoleManagement = () => {
       setUsers(response.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);
-      message.error('Tải danh sách người dùng thất bại');
     } finally {
       setLoading(false);
     }
@@ -83,7 +82,6 @@ const UserRoleManagement = () => {
       const response = await callFetchRoles();
       setRoles(response.data.data);
     } catch (error) {
-      message.error('Tải danh sách quyen thất bại');
       console.error('Error fetching roles:', error);
     }
   };
@@ -94,7 +92,6 @@ const UserRoleManagement = () => {
       await Promise.all([fetchUsers(), fetchRoles()]);
     } catch (error) {
       console.error('Failed to reload data:', error);
-      message.error('Failed to refresh data');
     } finally {
       setLoading(false);
     }
@@ -291,7 +288,7 @@ const UserRoleManagement = () => {
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: '10px' }}
         >
           <Col>
             <Title level={4} style={{ margin: 0 }}>
@@ -501,7 +498,7 @@ const UserRoleManagement = () => {
                 background: '#f8f9fa',
                 padding: '16px',
                 borderRadius: '8px',
-                marginBottom: '24px',
+                marginBottom: '10px',
               }}
             >
               <div

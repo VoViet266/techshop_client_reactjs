@@ -221,7 +221,7 @@ const ForgotPasswordModal = () => {
               type="info"
               showIcon
               style={{
-                marginBottom: 24,
+                marginBottom: '10px',
                 borderRadius: 8,
                 backgroundColor: '#f0f8ff',
                 border: '1px solid #91d5ff',
@@ -250,7 +250,7 @@ const ForgotPasswordModal = () => {
         )}
         {currentStep === 1 && (
           <div>
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
               <Text style={{ color: '#8c8c8c', fontSize: 15 }}>
                 Mã xác nhận đã được gửi đến:
               </Text>
@@ -429,7 +429,7 @@ const ForgotPasswordModal = () => {
               type="info"
               showIcon
               style={{
-                marginBottom: 24,
+                marginBottom: '10px',
                 borderRadius: 8,
                 backgroundColor: '#f0f8ff',
                 border: '1px solid #91d5ff',

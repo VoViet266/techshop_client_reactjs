@@ -18,10 +18,6 @@ import {
   Drawer,
 } from 'antd';
 import {
-  DashboardOutlined,
-  HomeOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
   ProductOutlined,
   ShoppingOutlined,
   UserOutlined,
@@ -50,6 +46,7 @@ function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [isLast, setIsLast] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -246,27 +243,30 @@ function AdminLayout() {
 
   const getBreadcrumbItems = () => {
     const pathSnippets = location.pathname.split('/').filter((i) => i);
+
     const breadcrumbItems = [
       {
         title: <Link to="/admin/dashboard">Admin</Link>,
       },
     ];
 
-    pathSnippets.forEach((_, index) => {
-      const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-      const title =
-        pathSnippets[index].charAt(0).toUpperCase() +
-        pathSnippets[index].slice(1);
+    const visibleSnippets =
+      pathSnippets[0] === 'admin' ? pathSnippets.slice(1) : pathSnippets;
 
-      if (index > 0) {
-        breadcrumbItems.push({
-          title: (
-            <Link to={url} style={{ color: '#475569' }}>
-              {title}
-            </Link>
-          ),
-        });
-      }
+    visibleSnippets.forEach((_, index) => {
+      const url = `/admin/${visibleSnippets.slice(0, index + 1).join('/')}`;
+      const title =
+        visibleSnippets[index].charAt(0).toUpperCase() +
+        visibleSnippets[index].slice(1);
+      breadcrumbItems.push({
+        title: isLast ? (
+          <span style={{ color: '#94a3b8' }}>{title}</span>
+        ) : (
+          <Link to={url} style={{ color: '#475569' }}>
+            {title}
+          </Link>
+        ),
+      });
     });
 
     return breadcrumbItems;
@@ -385,7 +385,7 @@ function AdminLayout() {
           zIndex: 1000,
           backgroundColor: '#fff',
           borderBottom: '1px solid #e8e8e8',
-          height: 64,
+          height: isMobile ? 56 : 64,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -446,22 +446,30 @@ function AdminLayout() {
             width={280}
             collapsedWidth={80}
             style={{
-              overflow: 'auto',
-              height: '100vh',
-              maxHeight: '100vh',
+              overflow: 'hidden',
+              height: 'calc(100vh - 64px)',
               position: 'fixed',
               left: 0,
               top: 64,
-              bottom: 0,
               background: 'rgb(255, 255, 255)',
               borderRight: `1px solid #E2E8F0`,
               transition: 'all 0.3s ease',
               boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
+              zIndex: 1000,
             }}
           >
-            <SidebarContent />
+            <div
+              style={{
+                height: '100%',
+                overflow: 'auto',
+                paddingBottom: '20px',
+              }}
+            >
+              <SidebarContent />
+            </div>
           </Sider>
         )}
+
         {isMobile && (
           <Drawer
             title={
@@ -476,6 +484,13 @@ function AdminLayout() {
             onClose={() => setDrawerVisible(false)}
             open={drawerVisible}
             width={280}
+            styles={{
+              body: {
+                padding: 0, // Loại bỏ padding mặc định
+                height: '100%',
+                overflow: 'auto',
+              },
+            }}
           >
             <SidebarContent />
           </Drawer>
@@ -485,6 +500,7 @@ function AdminLayout() {
           style={{
             marginLeft: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'margin-left 0.2s',
+            minHeight: 'calc(100vh - 64px)',
           }}
         >
           <Content
@@ -494,8 +510,9 @@ function AdminLayout() {
               background: 'rgb(255, 255, 255)',
               borderRadius: 10,
               boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
-              minHeight: 'calc(100vh - 112px)',
+              minHeight: 'calc(100vh - 64px - 48px)', // Tính toán chính xác
               border: `1px solid #E2E8F0`,
+              overflow: 'auto', // Cho phép scroll nội dung chính
             }}
           >
             <Breadcrumb

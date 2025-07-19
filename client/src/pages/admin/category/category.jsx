@@ -184,7 +184,7 @@ const CategoryManagement = () => {
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: '10px' }}
         >
           <Col>
             <Title level={4} style={{ margin: 0 }}>

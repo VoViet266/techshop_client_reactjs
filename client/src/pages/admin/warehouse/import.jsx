@@ -562,7 +562,7 @@ const WarehouseInbound = () => {
           </Card>
         </Col>
 
-        <Col xs={24} lg={10} style={{ marginBottom: '24px' }}>
+        <Col xs={24} lg={10} style={{ marginBottom: '10px' }}>
           <InboundSummary
             inbound={inbound}
             inboundItems={inboundItems}
