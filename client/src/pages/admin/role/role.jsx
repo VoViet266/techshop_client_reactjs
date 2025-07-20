@@ -685,6 +685,7 @@ const RoleManagement = () => {
                       key={moduleKey}
                       items={[
                         {
+                          forceRender: true,
                           key: moduleKey,
                           label: (
                             <Text strong>
