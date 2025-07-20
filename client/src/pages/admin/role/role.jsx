@@ -260,7 +260,6 @@ const RoleManagement = () => {
     console.log('Form values:', values);
     try {
       if (dataInit) {
-        console.log('Updating role:', dataInit._id);
         await callUpdateRole({
           _id: dataInit._id,
           name: values.name,
@@ -662,40 +661,110 @@ const RoleManagement = () => {
                 Các quyền hạn được phép cho vai trò này
               </Text>
             </Flex>
-            <Flex vertical gap={18} className="mt-18!">
-              {moduleKeys.map((moduleKey, index) => {
-                return (
-                  <Collapse
-                    key={index}
-                    items={[
-                      {
-                        key: '1',
-                        label: moduleKey,
-                        children: (
-                          <Form.Item name="permissions" className="mb-0!">
-                            <Checkbox.Group className="w-full!">
+            {/* <Form.Item name="permissions" className="mb-0!">
+              <Checkbox.Group className="w-full!">
+                <Flex vertical gap={18} className="mt-18! w-full!">
+                  {moduleKeys.map((moduleKey, index) => (
+                    <Collapse
+                      key={index}
+                      items={[
+                        {
+                          key: moduleKey,
+                          label: (
+                            <Text strong>
+                              {moduleKey.charAt(0).toUpperCase() +
+                                moduleKey.slice(1)}
+                            </Text>
+                          ),
+                          children: (
+                            <Row gutter={[12, 12]}>
                               {groupedPermissions[moduleKey].map(
-                                (permission, index) => {
-                                  return (
+                                (permission) => (
+                                  <Col span={8} key={permission._id}>
                                     <Checkbox
-                                      className="w-1/3! my-6! p-10! rounded-md! border! border-gray-300!"
                                       value={permission._id}
-                                      key={index}
+                                      style={{
+                                        padding: '10px 12px',
+                                        border: '1px dashed #ccc',
+                                        borderRadius: 6,
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
                                     >
                                       {permission.name}
                                     </Checkbox>
-                                  );
-                                },
+                                  </Col>
+                                ),
                               )}
-                            </Checkbox.Group>
-                          </Form.Item>
-                        ),
-                      },
-                    ]}
-                  />
-                );
-              })}
-            </Flex>
+                            </Row>
+                          ),
+                        },
+                      ]}
+                    />
+                  ))}
+                </Flex>
+              </Checkbox.Group>
+            </Form.Item> */}
+
+            <Form.Item name="permissions" className="mb-0!">
+              <Checkbox.Group
+                style={{ width: '100%' }}
+                onChange={async (checkedValues) => {
+                  // const permissionsSet = new Set(
+                  //   form.getFieldValue('permissions'),
+                  // );
+                  // checkedValues.forEach((value) => {
+                  //   permissionsSet.add(value);
+                  // });
+                  // const permissionsArray = Array.from(permissionsSet);
+                  // form.setFieldValue('permissions', permissionsArray);
+                  console.log(form.getFieldValue('permissions'));
+                }}
+              >
+                <Flex vertical gap={18} className="mt-18! w-full!">
+                  {moduleKeys.map((moduleKey) => (
+                    <Collapse
+                      key={moduleKey}
+                      items={[
+                        {
+                          key: moduleKey,
+                          label: (
+                            <Text strong>
+                              {moduleKey.charAt(0).toUpperCase() +
+                                moduleKey.slice(1)}
+                            </Text>
+                          ),
+                          children: (
+                            <Row gutter={[12, 12]}>
+                              {groupedPermissions[moduleKey].map(
+                                (permission) => (
+                                  <Col span={8} key={permission._id}>
+                                    <Checkbox
+                                      value={permission._id}
+                                      style={{
+                                        padding: '10px 12px',
+                                        border: '1px dashed #ccc',
+                                        borderRadius: 6,
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      {permission.name}
+                                    </Checkbox>
+                                  </Col>
+                                ),
+                              )}
+                            </Row>
+                          ),
+                        },
+                      ]}
+                    />
+                  ))}
+                </Flex>
+              </Checkbox.Group>
+            </Form.Item>
           </>
         </Form>
       </Modal>
