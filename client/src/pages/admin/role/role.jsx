@@ -67,12 +67,10 @@ const RoleManagement = () => {
   const { message } = useAppContext();
 
   useEffect(() => {
-    fetchRoles();
-    fetchPermissions();
+    Promise.all([fetchRoles(), fetchPermissions()]);
   }, []);
 
   const fetchRoles = async () => {
-    setLoading(true);
     try {
       const response = await callFetchRoles();
       setRoles(response.data.data);
@@ -90,6 +88,8 @@ const RoleManagement = () => {
       setPermissions(response.data.data);
     } catch (error) {
       console.error('Error fetching permissions:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -257,7 +257,7 @@ const RoleManagement = () => {
 
   const handleSubmit = async (values) => {
     setLoading(true);
-    console.log('Form values:', values);
+
     try {
       if (dataInit) {
         await callUpdateRole({
@@ -266,6 +266,8 @@ const RoleManagement = () => {
           description: values.description,
           permissions: values.permissions || [],
         });
+        setSelectedRowKeys([]);
+        setSelectedRows([]);
         message.success('Cập nhật role thành công');
       } else {
         await callCreateRole({
@@ -273,6 +275,7 @@ const RoleManagement = () => {
           description: values.description,
           permissions: values.permissions || [],
         });
+
         message.success('Tạo role mới thành công');
       }
 
@@ -294,52 +297,6 @@ const RoleManagement = () => {
 
   const groupedPermissions = groupPermissionsByModule();
   const moduleKeys = Object.keys(groupedPermissions).sort();
-
-  const getItems = () =>
-    moduleKeys.map((module) => ({
-      key: module,
-      label: (
-        <div
-          style={{
-            padding: '12px 16px',
-            cursor: 'pointer',
-            borderRadius: 8,
-            border: '2px solid  #E2E8F0',
-          }}
-        >
-          <Text strong>
-            {module.charAt(0).toUpperCase() + module.slice(1).toLowerCase()}
-          </Text>
-        </div>
-      ),
-      children: (
-        <div style={{ padding: '16px' }}>
-          <Row gutter={[16, 16]}>
-            {groupedPermissions[module].map((permission) => {
-              return (
-                <Col span={12} key={permission._id}>
-                  <Checkbox
-                    value={permission._id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '10px 12px',
-                      border: '1px dashed rgb(178, 180, 184)',
-                      borderRadius: 6,
-                      width: '100%',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    <span style={{ marginLeft: 8 }}>{permission.name}</span>
-                  </Checkbox>
-                </Col>
-              );
-            })}
-          </Row>
-        </div>
-      ),
-    }));
 
   return (
     <>
