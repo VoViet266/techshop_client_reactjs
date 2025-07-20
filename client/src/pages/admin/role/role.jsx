@@ -141,7 +141,7 @@ const RoleManagement = () => {
   const reloadTable = async () => {
     setLoading(true);
     try {
-      await Promise.all([fetchRoles(), fetchPermissions(), fetchUsers()]);
+      await Promise.all([fetchRoles(), fetchPermissions(), callFetchUsers()]);
       message.success('Data refreshed successfully');
     } catch (error) {
       console.error('Failed to reload data:', error);
@@ -157,7 +157,7 @@ const RoleManagement = () => {
         _id: dataInit._id,
         name: dataInit.name,
         description: dataInit.description,
-        permissions: permissions,
+        permissions: dataInit.permissions.map((permission) => permission._id),
       });
     } else {
       form.resetFields();
@@ -316,25 +316,27 @@ const RoleManagement = () => {
       children: (
         <div style={{ padding: '16px' }}>
           <Row gutter={[16, 16]}>
-            {groupedPermissions[module].map((permission) => (
-              <Col span={12} key={permission._id}>
-                <Checkbox
-                  value={permission._id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '10px 12px',
-                    border: '1px dashed rgb(178, 180, 184)',
-                    borderRadius: 6,
-                    width: '100%',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <span style={{ marginLeft: 8 }}>{permission.name}</span>
-                </Checkbox>
-              </Col>
-            ))}
+            {groupedPermissions[module].map((permission) => {
+              return (
+                <Col span={12} key={permission._id}>
+                  <Checkbox
+                    value={permission._id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 12px',
+                      border: '1px dashed rgb(178, 180, 184)',
+                      borderRadius: 6,
+                      width: '100%',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <span style={{ marginLeft: 8 }}>{permission.name}</span>
+                  </Checkbox>
+                </Col>
+              );
+            })}
           </Row>
         </div>
       ),
@@ -577,18 +579,25 @@ const RoleManagement = () => {
       </Modal>
 
       <Modal
-        title={dataInit ? 'Cập nhật Role' : 'Tạo Role mới'}
+        title={dataInit ? 'Cập nhật quyền' : 'Tạo quyền mới'}
         open={openModal}
         onCancel={handleCancel}
         footer={[
-          <Button key="cancel" onClick={handleCancel}>
+          <Button
+            key="cancel"
+            className="h-40! min-w-100!"
+            onClick={handleCancel}
+          >
             Hủy
           </Button>,
           <Button
             key="submit"
             type="primary"
             loading={loading}
-            onClick={() => form.submit()}
+            className="h-40! min-w-100! font-medium!"
+            onClick={() => {
+              form.submit();
+            }}
           >
             {dataInit ? 'Cập nhật' : 'Tạo mới'}
           </Button>,
@@ -606,7 +615,7 @@ const RoleManagement = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label="Tên Role"
+                label="Tên quyền"
                 name="name"
                 rules={[
                   {
@@ -641,42 +650,53 @@ const RoleManagement = () => {
           </Row>
 
           <Divider orientation="center">
-            <span style={{ fontWeight: 600, size: '16px' }}>Gán quyền </span>
+            <span style={{ fontWeight: 600, size: '16px' }}>Phân quyền</span>
           </Divider>
 
-          <Form.Item name="permissions">
-            <div>
-              <Text strong style={{ fontSize: '16px' }}>
-                Quyền hạn{' '}
-              </Text>{' '}
-              <span style={{ fontSize: '12px', color: '#666' }}>
-                {' '}
-                các quyền hạn được phép cho vai trò này
-              </span>
-            </div>
-
-            <Checkbox.Group
-              style={{ width: '100%' }}
-              onChange={(checkedValues) => {
-                form.setFieldValue('permissions', checkedValues);
-                console.log('Form values:', form.getFieldsValue());
-              }}
-            >
-              <div style={{ width: '100%' }}>
-                <Collapse
-                  bordered={false}
-                  defaultActiveKey={moduleKeys}
-                  expandIcon={({ isActive }) => (
-                    <CaretRightOutlined rotate={isActive ? 90 : 0} />
-                  )}
-                  items={getItems()}
-                  style={{
-                    background: 'transparent',
-                  }}
-                />
-              </div>
-            </Checkbox.Group>
-          </Form.Item>
+          <>
+            <Flex vertical>
+              <Text strong className="text-base!">
+                Quyền hạn
+              </Text>
+              <Text className="text-xs! text-[#666]!">
+                Các quyền hạn được phép cho vai trò này
+              </Text>
+            </Flex>
+            <Flex vertical gap={18} className="mt-18!">
+              {moduleKeys.map((moduleKey, index) => {
+                return (
+                  <Collapse
+                    key={index}
+                    items={[
+                      {
+                        key: '1',
+                        label: moduleKey,
+                        children: (
+                          <Form.Item name="permissions" className="mb-0!">
+                            <Checkbox.Group className="w-full!">
+                              {groupedPermissions[moduleKey].map(
+                                (permission, index) => {
+                                  return (
+                                    <Checkbox
+                                      className="w-1/3! my-6! p-10! rounded-md! border! border-gray-300!"
+                                      value={permission._id}
+                                      key={index}
+                                    >
+                                      {permission.name}
+                                    </Checkbox>
+                                  );
+                                },
+                              )}
+                            </Checkbox.Group>
+                          </Form.Item>
+                        ),
+                      },
+                    ]}
+                  />
+                );
+              })}
+            </Flex>
+          </>
         </Form>
       </Modal>
     </>
