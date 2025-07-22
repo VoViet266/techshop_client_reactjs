@@ -26,7 +26,7 @@ function PreviewListProducts({
       {
         breakpoint: 1600,
         settings: {
-          slidesToShow:6,
+          slidesToShow: 5,
           slidesToScroll: 1,
         },
       },
@@ -47,7 +47,7 @@ function PreviewListProducts({
       {
         breakpoint: 768,
         settings: {
-          slidesToShow:2,
+          slidesToShow: 2,
           slidesToScroll: 1,
         },
       },

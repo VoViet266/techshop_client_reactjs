@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Actions, Subjects } from '@/constants/permissions';
 import Products from '@services/products';
 import {
   Tag,
@@ -21,6 +22,7 @@ import {
   Badge,
   Avatar,
 } from 'antd';
+import { hasPermission } from '@helpers';
 import {
   TagOutlined,
   WifiOutlined,
@@ -44,8 +46,8 @@ import {
   callFetchBrands,
   callFetchCategories,
 } from '@/services/apis';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppContext } from '@/contexts';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ExpandedRowRender } from '@/components/admin/product/ExpandRowRender';
 
 const { Text } = Typography;
@@ -64,11 +66,31 @@ function ListProduct() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const { message, notification } = useAppContext();
+  const { message, notification, user, permissions } = useAppContext();
   const navigate = useNavigate();
   const _page = searchParams.get('_page') || 1;
   const _limit = searchParams.get('_limit') || 10;
   const _category = searchParams.get('_category') || null;
+  const canUpdateProduct = hasPermission(
+    permissions,
+    Subjects.Product,
+    Actions.Update,
+  );
+  const canDeleteProduct = hasPermission(
+    permissions,
+    Subjects.Product,
+    Actions.Delete,
+  );
+  const canReadProduct = hasPermission(
+    permissions,
+    Subjects.Product,
+    Actions.Read,
+  );
+  const canCreateProduct = hasPermission(
+    permissions,
+    Subjects.Product,
+    Actions.Create,
+  );
 
   const [filters, setFilters] = useState({
     category: null,
@@ -87,10 +109,12 @@ function ListProduct() {
         message: 'Lỗi tải dữ liệu sản phẩm',
         description: `Lỗi: ${error.message}`,
         duration: 4.5,
-      })
+      });
       setLoading(false);
     }
   };
+
+  // ham(module, action) && button
 
   const fetchCategories = async () => {
     try {
@@ -101,7 +125,7 @@ function ListProduct() {
         message: 'Lỗi tải dữ liệu danh sách danh mục',
         description: `Lỗi: ${error}`,
         duration: 4.5,
-      })
+      });
       console.error('Error fetching categories:', error);
       throw error;
     }
@@ -116,7 +140,7 @@ function ListProduct() {
         message: 'Lỗi tải dữ liệu danh sách thuật hành',
         description: `Lỗi: ${error}`,
         duration: 4.5,
-      })
+      });
       console.error('Error fetching brands:', error);
       throw error;
     }
@@ -641,6 +665,7 @@ function ListProduct() {
             <Col xs={24} md={8}>
               <Flex gap={8} wrap="nowrap" justify="end">
                 <Button
+                  disabled={!canCreateProduct}
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => navigate('/admin/product/add')}
@@ -657,7 +682,7 @@ function ListProduct() {
                 <Button
                   type="primary"
                   onClick={handleEditProduct}
-                  disabled={selectedRowKeys.length !== 1}
+                  disabled={!(selectedRowKeys.length === 1 && canUpdateProduct)}
                   icon={<EditOutlined />}
                   style={{
                     borderRadius: 8,
@@ -674,7 +699,7 @@ function ListProduct() {
                 <Button
                   danger
                   onClick={() => setOpen(true)}
-                  disabled={selectedRowKeys.length === 0}
+                  disabled={selectedRowKeys.length === 0 || !canDeleteProduct}
                   icon={<DeleteOutlined />}
                   style={{
                     borderRadius: 8,

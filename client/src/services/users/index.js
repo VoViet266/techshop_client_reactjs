@@ -16,6 +16,10 @@ class UserService {
     return axiosInstance.post('/api/v1/users', { ...user });
   }
 
+  static getUserHasPermission() {
+    return axiosInstance.get('/api/v1/users/get/all-users-has-permission');
+  }
+
   signup(user) {
     return axiosInstance.post('/api/v1/auth/register', user);
   }
@@ -39,7 +43,6 @@ class UserService {
   }
 
   static forgotPassword(email) {
-
     return axiosInstance.post('/api/v1/auth/forgot-password', {
       email: email,
     });

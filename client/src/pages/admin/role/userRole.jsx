@@ -36,9 +36,12 @@ import {
   callFetchRoles,
   callUpdateUser,
   callUpdateRoleUser,
+  callFetchBranches,
 } from '@/services/apis';
 import useMessage from '@/hooks/useMessage';
 import { useAppContext } from '@/contexts';
+import Branchs from '@/services/branches';
+import UserService from '@/services/users';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -53,6 +56,7 @@ const UserRoleManagement = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [branches, setBranches] = useState(null);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewUser, setPreviewUser] = useState(null);
   const [filters, setFilters] = useState({
@@ -63,15 +67,27 @@ const UserRoleManagement = () => {
   useEffect(() => {
     fetchUsers();
     fetchRoles();
+    fetchBranches();
   }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await callFetchUsers();
+      const response = await UserService.getUserHasPermission();
       setUsers(response.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchBranches = async () => {
+    setLoading(true);
+    try {
+      const response = await Branchs.getAll();
+      setBranches(response.data.data);
+    } catch (error) {
+      console.error('Error fetching branches:', error);
     } finally {
       setLoading(false);
     }
@@ -97,17 +113,21 @@ const UserRoleManagement = () => {
     }
   };
 
+  console.log(selectedUser)
+
   useEffect(() => {
     if (selectedUser) {
       form.setFieldsValue({
         userId: selectedUser._id,
         roleId: selectedUser.role?._id,
+        branch: selectedUser.branch._id,
       });
     } else {
       form.resetFields();
     }
   }, [selectedUser, form]);
 
+  console.log(form.getFieldValue('branch'));
   const filteredUsers = users.filter((user) => {
     // Chỉ lấy user có role là nhân viên cửa hàng
     const staff = user.role?.permissions.length > 0;
@@ -160,6 +180,15 @@ const UserRoleManagement = () => {
       align: 'center',
       render: (role) => (
         <Tag icon={<TeamOutlined />}>{role?.name || 'chưa có role'}</Tag>
+      ),
+    },
+    {
+      title: 'Cửa hàng',
+      dataIndex: 'branch',
+      key: 'branch',
+      align: 'center',
+      render: (branch) => (
+        <Tag icon={<TeamOutlined />}>{branch?.name || 'chưa có role'}</Tag>
       ),
     },
     {
@@ -220,13 +249,11 @@ const UserRoleManagement = () => {
   ];
 
   const handleSubmit = async (values) => {
+    console.log(values);
     setLoading(true);
 
     try {
-      await callUpdateRoleUser({
-        userId: values.userId,
-        roleId: values?.roleId || null,
-      });
+      await callUpdateRoleUser(values);
       setUsers(
         users.map((user) =>
           user?._id === values?.userId
@@ -525,6 +552,15 @@ const UserRoleManagement = () => {
               </div>
             </div>
           )}
+          <Form.Item name="branch">
+            <Select placeholder="Chọn cửa hàng">
+              {branches?.map((branch, index) => (
+                <Select.Option key={index} value={branch._id}>
+                  {branch?.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
 
           <Divider orientation="left">
             <span style={{ color: '#1890ff', fontWeight: 600 }}>

@@ -9,6 +9,7 @@ import {
   Image,
   Rate,
   Flex,
+  Tooltip,
 } from 'antd';
 import { callFetchStats } from '@/services/apis';
 import { useEffect, useState } from 'react';
@@ -60,9 +61,11 @@ function CardProduct({ product = {}, className, loading = false }) {
         }
         className={`group ${className} rounded-xl! min-h-400! overflow-hidden! border! hover:shadow-none!`}
       >
-        <Typography.Text className="text-base! font-medium!">
-          {product.name || 'Sản phẩm mới'}
-        </Typography.Text>
+        <Tooltip title={product?.name}>
+          <Typography.Text className="text-base! line-clamp-1! font-medium!">
+            {product.name || 'Sản phẩm mới'}
+          </Typography.Text>
+        </Tooltip>
         <div className="mt-8">
           <div className="flex flex-col items-start gap-4">
             <Flex gap={8} align="center">
@@ -99,7 +102,9 @@ function CardProduct({ product = {}, className, loading = false }) {
             ({stats?.totalComments})
           </Typography.Text>
         </div>
-        <Button type='primary' className='w-full! mt-8! h-40!'>Xem ngay</Button>
+        <Button type="primary" className="w-full! mt-8! h-40!">
+          Xem ngay
+        </Button>
       </Card>
     </Link>
   );

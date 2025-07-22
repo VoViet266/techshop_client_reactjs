@@ -1,4 +1,5 @@
 export { default as validatePhone } from './validatePhone';
+export { default as hasPermission } from './validatePermission';
 export { default as validateEmail } from './validateEmail';
 export { default as formatCurrency } from './formatCurrency';
 export { default as validateAddress } from './validateAddress';

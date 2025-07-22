@@ -237,24 +237,17 @@ function Home() {
               </Typography.Title>
             </div>
 
-            <Row className="w-full mx-auto" gutter={[10]}>
+            <Flex className="w-full mx-auto">
               {recommentProducts?.map((product, index) => (
-                <Col
-                  key={index}
-                  xs={24}
-                  sm={12}
-                  xl={6}
-                  xxl={4}
-                  className="mb-6"
-                >
+                <div key={index} className="w-1/5 px-8">
                   <CardProduct
                     product={product}
                     loading={loading}
-                    className="w-full transform transition-all duration-300 hover:shadow-xl"
+                    className="transform transition-all duration-300"
                   />
-                </Col>
+                </div>
               ))}
-            </Row>
+            </Flex>
           </>
         </section>
       )}

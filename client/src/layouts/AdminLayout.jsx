@@ -3,8 +3,6 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Layout,
   Typography,
-  Flex,
-  Breadcrumb,
   Menu,
   Space,
   Avatar,
@@ -16,6 +14,7 @@ import {
   FloatButton,
   message,
   Drawer,
+  Flex,
 } from 'antd';
 import {
   ProductOutlined,
@@ -38,6 +37,9 @@ import {
 } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { callLogout } from '@/services/apis';
+import { hasPermission } from '@/helpers';
+import { Actions, Subjects } from '@/constants/permissions';
+import { AvatarDefault } from '@/components/app';
 
 function AdminLayout() {
   const { Title, Text } = Typography;
@@ -50,7 +52,12 @@ function AdminLayout() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, message } = useAppContext();
+  const { user, message, permissions } = useAppContext();
+  const canReadProduct = hasPermission(
+    permissions,
+    Subjects.Product,
+    Actions.Read,
+  );
 
   const navItems = useMemo(
     () => [
@@ -64,7 +71,7 @@ function AdminLayout() {
         },
       },
       { type: 'divider' },
-      {
+      canReadProduct && {
         key: 'product',
         label: 'Sản phẩm',
         icon: <ProductOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
@@ -241,37 +248,6 @@ function AdminLayout() {
     [navigate],
   );
 
-  const getBreadcrumbItems = () => {
-    const pathSnippets = location.pathname.split('/').filter((i) => i);
-
-    const breadcrumbItems = [
-      {
-        title: <Link to="/admin/dashboard">Admin</Link>,
-      },
-    ];
-
-    const visibleSnippets =
-      pathSnippets[0] === 'admin' ? pathSnippets.slice(1) : pathSnippets;
-
-    visibleSnippets.forEach((_, index) => {
-      const url = `/admin/${visibleSnippets.slice(0, index + 1).join('/')}`;
-      const title =
-        visibleSnippets[index].charAt(0).toUpperCase() +
-        visibleSnippets[index].slice(1);
-      breadcrumbItems.push({
-        title: isLast ? (
-          <span style={{ color: '#94a3b8' }}>{title}</span>
-        ) : (
-          <Link to={url} style={{ color: '#475569' }}>
-            {title}
-          </Link>
-        ),
-      });
-    });
-
-    return breadcrumbItems;
-  };
-
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -316,22 +292,28 @@ function AdminLayout() {
           background: collapsed && !isMobile ? 'none' : '#FEFEFE',
           margin: collapsed && !isMobile ? '16px 8px' : '16px',
           borderRadius: collapsed && !isMobile ? 12 : 16,
-          boxShadow: '0 4px 16px rgba(79, 70, 229, 0.08)',
+          // boxShadow: '0 4px 16px rgba(79, 70, 229, 0.08)',
           border: `1px solid #E2E8F0`,
           transition: 'all 0.3s ease',
         }}
       >
         {collapsed && !isMobile ? (
           <Tooltip title="Admin User" placement="right">
-            <Avatar src={user?.avatar} size={48}>
-              <UserOutlined style={{ color: '#FEFEFE' }} />
-            </Avatar>
+            {user?.avatar ? (
+              <Avatar src={user?.avatar} size={48}></Avatar>
+            ) : (
+              <AvatarDefault width={48} height={48} />
+            )}
           </Tooltip>
         ) : (
           <Space direction="vertical" size={8} style={{ width: '100%' }}>
-            <Avatar src={user?.avatar} size={64}>
-              <UserOutlined style={{ color: '#FEFEFE' }} />
-            </Avatar>
+            <Flex justify="center">
+              {user?.avatar ? (
+                <Avatar src={user?.avatar} size={48}></Avatar>
+              ) : (
+                <AvatarDefault width={48} height={48} />
+              )}
+            </Flex>
             <div>
               <Text
                 strong
@@ -374,7 +356,7 @@ function AdminLayout() {
   return (
     <Layout className="w-full">
       <Header
-        className="font-inter"
+        className="font-inter!"
         style={{
           padding: isMobile ? '0 16px' : '0 24px',
           width: '100%',
@@ -394,6 +376,7 @@ function AdminLayout() {
         <div className="flex items-center space-x-4">
           <Button
             type="default"
+            className="shadow-none! bg-gray-100! rounded-lg! mr-10!"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={handleMenuToggle}
             style={{
@@ -422,16 +405,6 @@ function AdminLayout() {
               >
                 TechShop
               </Title>
-              {!isMobile && (
-                <Text
-                  type="secondary"
-                  style={{
-                    textShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  }}
-                >
-                  trang quản lý
-                </Text>
-              )}
             </div>
           </Link>
         </div>
@@ -454,7 +427,7 @@ function AdminLayout() {
               background: 'rgb(255, 255, 255)',
               borderRight: `1px solid #E2E8F0`,
               transition: 'all 0.3s ease',
-              boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
+              // boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
               zIndex: 1000,
             }}
           >
@@ -505,25 +478,16 @@ function AdminLayout() {
         >
           <Content
             style={{
-              margin: isMobile ? '16px' : '24px',
+              // margin: isMobile ? '16px' : '24px',
               padding: isMobile ? '16px' : '32px',
               background: 'rgb(255, 255, 255)',
-              borderRadius: 10,
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
+              // borderRadius: 10,
+              // boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
               minHeight: 'calc(100vh - 64px - 48px)', // Tính toán chính xác
-              border: `1px solid #E2E8F0`,
+              // border: `1px solid #E2E8F0`,
               overflow: 'auto', // Cho phép scroll nội dung chính
             }}
           >
-            <Breadcrumb
-              items={getBreadcrumbItems()}
-              style={{
-                fontSize: isMobile ? 12 : 14,
-                color: '#475569',
-                marginBottom: isMobile ? 16 : 24,
-              }}
-            />
-
             <Outlet />
           </Content>
         </Layout>

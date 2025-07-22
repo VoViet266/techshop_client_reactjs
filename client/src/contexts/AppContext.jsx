@@ -15,6 +15,7 @@ function AppProvider({ children }) {
   const [loadingError, setLoadingError] = useState(false);
   const [loadingSuccess, setLoadingSuccess] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
+  const [permissions, setPermissions] = useState(null);
   const [sideBarSelectedTab, setSideBarSelectedTab] = useState();
   const [messageApi, contextHolder] = message.useMessage();
   const [notificationApi, notificationContextHolder] =
@@ -39,6 +40,7 @@ function AppProvider({ children }) {
         const response = await callFetchAccount();
         if (response.data) {
           setUser(response.data.data.user);
+          setPermissions(response.data.data.user.permission);
         }
       } catch (error) {
         console.error('Error verifying token:', error);
@@ -57,7 +59,7 @@ function AppProvider({ children }) {
       localStorage.removeItem('access_token');
       setUser(null);
       message.success('Đăng xuất thành công!');
-      window.location.href = '/'
+      window.location.href = '/';
     } catch (error) {
       message.error('Đăng xuất thất bại');
       localStorage.removeItem('access_token');
@@ -84,6 +86,7 @@ function AppProvider({ children }) {
     showLogin,
     showSignup,
     showForgotPassword,
+    permissions,
     loadingError,
     toastLoading,
     loadingSuccess,
@@ -96,6 +99,7 @@ function AppProvider({ children }) {
     setUser,
     setQuery,
     setLoading,
+    setPermissions,
     setShowLogin,
     setShowSignup,
     setLoadingError,
