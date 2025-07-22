@@ -243,7 +243,7 @@ function Home() {
                   key={index}
                   xs={24}
                   sm={12}
-                  xl={8}
+                  xl={6}
                   xxl={4}
                   className="mb-6"
                 >

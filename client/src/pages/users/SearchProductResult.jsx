@@ -5,6 +5,7 @@ import {
   Typography,
   Select,
   Radio,
+  Image,
   Space,
   Card,
   Row,
@@ -12,6 +13,7 @@ import {
   Divider,
   Slider,
   Checkbox,
+  Segmented,
 } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
@@ -149,9 +151,9 @@ function SearchProductResult() {
   return (
     <div className="w-full ">
       <Content className="mt-60! sm:mt-[10px]! ">
-        <div className="mb-6 ">
+        <div className="my-20">
           <Title level={2} className="mb-2! flex! flex-col!  ">
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-6">
               <SearchOutlined className="text-xl! sm:text-2xl   hidden! sm:block!" />
               <span>Kết quả tìm kiếm cho "{query}"</span>
             </span>
@@ -286,42 +288,55 @@ function SearchProductResult() {
               <Card>
                 <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:justify-between sm:items-center ">
                   <Text strong>{sortedProducts.length} sản phẩm</Text>
-                  <Space.Compact>
-                    <Button
-                      type={sort === null ? 'primary' : 'default'}
-                      onClick={() => handleSortChange(null)}
-                      className="rounded-l-xl"
-                    >
-                      Nổi bật
-                    </Button>
-                    <Button
-                      type={sort === 1 ? 'primary' : 'default'}
-                      onClick={() => handleSortChange(1)}
-                    >
-                      Giá tăng dần
-                    </Button>
-                    <Button
-                      type={sort === 2 ? 'primary' : 'default'}
-                      onClick={() => handleSortChange(2)}
-                      className="rounded-r-xl"
-                    >
-                      Giá giảm dần
-                    </Button>
+                  <Space.Compact className='mb-10!'>
+                    <Segmented
+                    className='p-6!'
+                      options={['Nổi bật', 'Giá tăng dần', 'Giá giảm dần']}
+                      onChange={(value) => {
+                        switch (value) {
+                          case 'Nổi bật':
+                            handleSortChange(null);
+                            break;
+                          case 'Giá tăng dần':
+                            handleSortChange(1);
+                            break;
+                          case 'Giá giảm dần':
+                            handleSortChange(2);
+                            break;
+
+                          default:
+                            break;
+                        }
+                      }}
+                    />
                   </Space.Compact>
                 </div>
 
                 {sortedProducts.length === 0 ? (
-                  <Result
-                    title="Không có sản phẩm nào phù hợp"
-                    subTitle="Hãy thử điều chỉnh bộ lọc để tìm thấy sản phẩm phù hợp"
-                    extra={
-                      <Button onClick={handleResetFilter}>Xóa bộ lọc</Button>
-                    }
-                  />
+                  <Flex vertical justify="center" align="center">
+                    <div className="w-250 h-200 flex items-center justify-center mx-auto">
+                      <Image
+                        preview={false}
+                        src="https://fptshop.com.vn/img/empty_state.png?w=640&q=75"
+                      />
+                    </div>
+                    <Typography.Title level={3} className="mb-10!">
+                      Không có sản phẩm nào phù hợp
+                    </Typography.Title>
+                    <Typography.Text>
+                      Hãy thử điều chỉnh bộ lọc để tìm thấy sản phẩm phù hợp
+                    </Typography.Text>
+                    <Button
+                      onClick={handleResetFilter}
+                      className="w-200! h-40! rounded-full! mt-20!"
+                    >
+                      Xóa bộ lọc
+                    </Button>
+                  </Flex>
                 ) : (
                   <Row gutter={[10, 10]}>
                     {sortedProducts.map((product) => (
-                      <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                      <Col key={product.id} xs={24} sm={12} md={8} lg={6} xl={8}>
                         <CardProduct product={product} />
                       </Col>
                     ))}

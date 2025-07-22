@@ -1066,7 +1066,7 @@ const AccountInfoPage = () => {
                       Tổng cộng:&nbsp;
                       {selectedOrder.total.toLocaleString()}đ
                     </Typography.Text>
-                    {orderData?.paymentMethod === 'momo' && (
+                    {orderData?.paymentMethod === 'momo' && orderData?.paymentStatus !== 'COMPLETED' && (
                       <Button
                         type="primary"
                         onClick={() => {
