@@ -8,7 +8,7 @@ const { Option } = Select;
 
 function CommonInformation({
   brands,
-  product,
+
   categories,
   form,
   onCategoryChange,
@@ -32,12 +32,6 @@ function CommonInformation({
       console.error('Image upload failed:', error);
     }
   }, []);
-
-  useEffect(() => {
-    if (product) {
-      form?.setFieldsValue(product);
-    }
-  }, [product]);
 
   return (
     <>
@@ -107,7 +101,6 @@ function CommonInformation({
       <Form.Item name="description" label="Mô tả">
         <Editor
           height="200px"
-          product={product}
           setProduct={(newData) => {
             form.setFieldsValue({ description: newData.description });
           }}

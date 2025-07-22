@@ -32,6 +32,7 @@ axiosInstance.interceptors.response.use(
     // Kiểm tra nếu lỗi là Unauthorized (401) - access token hết hạn
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
         const token = localStorage.getItem("access_token");
         if (token) {
@@ -43,19 +44,29 @@ axiosInstance.interceptors.response.use(
             originalRequest.headers["Authorization"] = `Bearer ${res.data.data.access_token}`;
             // Gọi lại request ban đầu với access token mới
             return axiosInstance(originalRequest);
+          } else {
+            // Nếu không nhận được access token mới, logout
+            throw new Error("No access token received");
           }
+        } else {
+          // Nếu không có token trong localStorage, logout
+          throw new Error("No access token found");
         }
-
-
       } catch (refreshError) {
-        if (refreshError.response &&
-          (refreshError.response.status === 401)) {
-          // Nếu token refresh cũng hết hạn, yêu cầu người dùng đăng nhập lại
+        console.log(refreshError);
+
+        // Nếu token refresh thất bại, yêu cầu người dùng đăng nhập lại
+        if (refreshError.response && refreshError.response.status === 401) {
+          // Clear localStorage trước khi redirect để tránh loop
+          localStorage.clear();
+          callLogout();
           window.location.href = "/";
         }
+
         return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );
@@ -65,6 +76,10 @@ export const callLogin = async (email, password) => {
     password: password,
   });
   return response.data;
+};
+
+export const callLogout = () => {
+  return axiosInstance.get(`/api/v1/auth/logout`);
 };
 
 export const callRegister = async (value) => {
@@ -80,9 +95,7 @@ export const callFetchAccount = () => {
 
 
 
-export const callLogout = () => {
-  return axiosInstance.get(`/api/v1/auth/logout`);
-};
+
 
 export const callFetchUsers = () => {
   return axiosInstance.get(`/api/v1/users`);

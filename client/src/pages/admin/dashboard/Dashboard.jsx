@@ -571,23 +571,23 @@ const Dashboard = () => {
                   dataKey="date"
                   stroke="#8c8c8c"
                   fontSize={12}
-                  axisLine={false}
-                  tickLine={false}
+                  axisLine={true}
+                  tickLine={true}
                 />
                 <YAxis
                   yAxisId="left"
                   stroke="#8c8c8c"
                   fontSize={12}
-                  axisLine={false}
-                  tickLine={false}
+                  axisLine={true}
+                  tickLine={true}
                 />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
                   stroke="#8c8c8c"
                   fontSize={12}
-                  axisLine={false}
-                  tickLine={false}
+                  axisLine={true}
+                  tickLine={true}
                 />
                 <Tooltip
                   contentStyle={{
@@ -613,7 +613,7 @@ const Dashboard = () => {
                 <Area
                   yAxisId="left"
                   type="monotone"
-                  dataKey="revenue"
+                  dataKey="revenue" 
                   stroke="#667eea"
                   strokeWidth={3}
                   fill="url(#colorRevenue)"

@@ -5,7 +5,12 @@ import { Login, Signup } from '@pages/app';
 import { ChatBot } from '@components/users';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { UserInformation } from '@components/users';
-import { BsCartFill, BsGeoAltFill, BsList, BsSignTurnRightFill } from 'react-icons/bs';
+import {
+  BsCartFill,
+  BsGeoAltFill,
+  BsList,
+  BsSignTurnRightFill,
+} from 'react-icons/bs';
 import {
   Layout,
   Typography,
@@ -187,7 +192,7 @@ function Header() {
 }
 
 function UsersLayout() {
-  const { showLogin, showSignup, loading, setLoading, showForgotPassword } =
+  const { showLogin, showSignup, loading, showForgotPassword } =
     useAppContext();
 
   return (
@@ -195,7 +200,7 @@ function UsersLayout() {
       <Header />
 
       {loading ? (
-        <Spin />
+        <Spin size="large" fullscreen />
       ) : (
         <Layout.Content className="w-5/6! bg-[#f3f4f6]! min-h-screen!  mt-[120px]!  md:mt-[60px]!  flex flex-col items-center rounded-[10px]">
           <Outlet />

@@ -91,10 +91,10 @@ function EditProduct() {
           setGalleryImages(existingGalleryImages);
         }
 
-        // Find the initial category config and set fieldsToShow
         const initialCategory = cats.find(
-          (c) => c._id === fetchedProduct.category,
+          (c) => c._id === fetchedProduct.category._id,
         );
+
         if (initialCategory?.configFields) {
           setSelectedCategoryConfig(initialCategory);
           setFieldsToShow(initialCategory.configFields);
@@ -104,8 +104,8 @@ function EditProduct() {
 
         form.setFieldsValue({
           ...fetchedProduct,
-          category: fetchedProduct.category, // Ensure category ID is set for Select
-          brand: fetchedProduct.brand._id, // Ensure brand ID is set for Select
+          category: fetchedProduct.category._id, 
+          brand: fetchedProduct.brand._id,
           attributes: fetchedProduct.attributes || {},
           variants: fetchedProduct.variants || [],
         });

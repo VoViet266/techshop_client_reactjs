@@ -15,11 +15,6 @@ function PreviewListProducts({
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
-  const brands = [
-    'Tất cả',
-    ...new Set(products.map((product) => product.brand.name)),
-  ];
-
   const settings = {
     speed: 500,
     infinite: products.length > 5,
@@ -31,28 +26,28 @@ function PreviewListProducts({
       {
         breakpoint: 1600,
         settings: {
-          slidesToShow: Math.min(products.length, 4),
+          slidesToShow:6,
           slidesToScroll: 1,
         },
       },
       {
         breakpoint: 1400,
         settings: {
-          slidesToShow: Math.min(products.length, 3),
+          slidesToShow: 4,
           slidesToScroll: 1,
         },
       },
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: Math.min(products.length, 3),
+          slidesToShow: 3,
           slidesToScroll: 1,
         },
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: Math.min(products.length, 2),
+          slidesToShow:2,
           slidesToScroll: 1,
         },
       },
