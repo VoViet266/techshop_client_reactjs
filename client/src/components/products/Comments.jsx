@@ -402,6 +402,7 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                           <BsDot />
                           <div className="flex! items-center! gap-3! text-sm! text-gray-500!">
                             <Rate
+                              allowHalf
                               disabled
                               defaultValue={review.rating}
                               size="small"

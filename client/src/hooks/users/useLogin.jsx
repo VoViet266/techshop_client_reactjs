@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 function useLogin(message) {
   const navigate = useNavigate();
-  const { setShowLogin } = useAppContext();
+  const { setShowLogin, notification } = useAppContext();
 
   useEffect(() => {
     document.title = 'TechShop | Đăng nhập';
@@ -35,9 +35,9 @@ function useLogin(message) {
       }
     } catch (error) {
       console.log('Lỗi khi đăng nhập:', error);
-      message.error({
-        content: `${error.response.data.statusCode}: Lỗi máy chủ hoặc thông tin không chính xác`,
-        key: 'login',
+      message.destroy();
+      notification.warning({
+        description: 'Sai tên đăng nhập hoặc mật khẩu!',
       });
     }
   }

@@ -57,6 +57,7 @@ function AppProvider({ children }) {
       localStorage.removeItem('access_token');
       setUser(null);
       message.success('Đăng xuất thành công!');
+      window.location.href = '/'
     } catch (error) {
       message.error('Đăng xuất thất bại');
       localStorage.removeItem('access_token');
@@ -97,13 +98,13 @@ function AppProvider({ children }) {
     setLoading,
     setShowLogin,
     setShowSignup,
-    setShowForgotPassword,
     setLoadingError,
     isAuthenticated,
     setToastLoading,
     setLoadingSuccess,
     setCurrentCategory,
     setSideBarSelectedTab,
+    setShowForgotPassword,
   };
 
   return (

@@ -28,12 +28,14 @@ import {
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import Address from '@services/address';
 import UserService from '@services/users';
+import { callLogout } from '@/services/apis';
 
 const AccountInfoPage = () => {
-  const { user, message } = useAppContext();
+  const { user, message, logout } = useAppContext();
   const [wards, setWards] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [editingAddressIndex, setEditingAddressIndex] = useState(null);
@@ -427,7 +429,7 @@ const AccountInfoPage = () => {
   const renderPersonalInfo = () => (
     <Card className="p-12!">
       <Typography.Title level={5}>Thông tin cá nhân</Typography.Title>
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '10px' }}>
         <label
           className="text-primary"
           style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
@@ -693,58 +695,6 @@ const AccountInfoPage = () => {
             Hủy
           </Button>
 
-          {/* <Button
-            type="primary"
-            className="h-40! min-w-100!"
-            onClick={async () => {
-              if (
-                !selectedProvince ||
-                !selectedDistrict ||
-                !selectedWard ||
-                !editingAddress?.specificAddress
-              ) {
-                return message.warning(
-                  'Vui lòng điền đầy đủ thông tin địa chỉ',
-                );
-              }
-
-              const newAddress = {
-                specificAddress: editingAddress.specificAddress,
-                addressDetail: `${selectedProvince.name}, ${selectedDistrict.name}, ${selectedWard.name}`,
-                default: updateUserInfo.addresses.length === 0, // Nếu là địa chỉ đầu tiên thì đặt làm mặc định
-                isDeleted: false,
-                deletedAt: null,
-              };
-
-              let updateUser;
-              setUpdateUserInfo((prev) => {
-                let updatedAddresses;
-                if (editingAddressIndex !== null) {
-                  // Trường hợp sửa địa chỉ
-                  updatedAddresses = [...prev.addresses];
-                  updatedAddresses[editingAddressIndex] = {
-                    ...updatedAddresses[editingAddressIndex],
-                    ...newAddress,
-                  };
-                } else {
-                  // Trường hợp thêm mới địa chỉ
-                  updatedAddresses = [...prev.addresses, newAddress];
-                }
-
-                updateUser = {
-                  ...prev,
-                  addresses: updatedAddresses,
-                };
-
-                return updateUser;
-              });
-
-              await updateAddress(updateUser);
-            }}
-          >
-            {editingAddressIndex !== null ? 'Cập nhật' : 'Thêm'}
-          </Button> */}
-
           <Button
             type="primary"
             className="h-40! min-w-100!"
@@ -972,6 +922,14 @@ const AccountInfoPage = () => {
               style={{ border: 'none' }}
               items={menuItems}
             />
+            <Button
+              type="primary"
+              onClick={logout}
+              icon={<LogoutOutlined />}
+              className="w-full! h-40! mt-10! font-medium!"
+            >
+              Đăng xuất
+            </Button>
 
             <Modal
               className="w-[70%]!"

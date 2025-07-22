@@ -45,19 +45,12 @@ function Login() {
       }
     >
       <Space
-        direction="vertical"
         size={16}
-        style={{
-          width: '100%',
-          padding: '32px 0 0 0',
-          textAlign: 'center',
-        }}
+        direction="vertical"
+        className="w-full! pt-32! text-center!"
       >
         <div>
-          <Title
-            level={2}
-            style={{ margin: 0, fontWeight: 'bold', color: '#e53935' }}
-          >
+          <Title level={2} className="m-0! font-bold!  text-[#e53935]!">
             Đăng Nhập
           </Title>
         </div>
@@ -75,13 +68,7 @@ function Login() {
         >
           <Form.Item
             label={
-              <span
-                style={{
-                  fontSize: 15,
-                  fontWeight: 500,
-                  color: '#262626',
-                }}
-              >
+              <span className="text-[15px]! font-medium! text-[#262626]!">
                 Email
               </span>
             }
@@ -100,24 +87,13 @@ function Login() {
             <Input
               prefix={<UserOutlined />}
               placeholder="Nhập email của bạn"
-              style={{
-                borderRadius: 8,
-                padding: '12px 16px',
-                border: '1px solid #e0e0e0',
-                fontSize: 15,
-              }}
+              className="rounded-lg! py-12! px-16! border border-[#e0e0e0]! text-[15px]!"
             />
           </Form.Item>
 
           <Form.Item
             label={
-              <span
-                style={{
-                  fontSize: 15,
-                  fontWeight: 500,
-                  color: '#262626',
-                }}
-              >
+              <span className="text-[15px]! font-medium! text-[#262626]!">
                 Mật khẩu
               </span>
             }
@@ -143,22 +119,13 @@ function Login() {
                   <EyeInvisibleOutlined style={{ color: '#8c8c8c' }} />
                 )
               }
-              style={{
-                borderRadius: 8,
-                padding: '12px 16px',
-                border: '1px solid #e0e0e0',
-                fontSize: 15,
-              }}
+              className="rounded-lg! py-12! px-16! border border-[#e0e0e0]! text-[15px]!"
             />
           </Form.Item>
 
-          <div style={{ textAlign: 'right', marginBottom: '10px' }}>
+          <div className="text-right! mb-10!">
             <Link
-              style={{
-                fontSize: 14,
-                fontWeight: 500,
-                color: '#e53935',
-              }}
+              className="text-sm! font-medium! text-[#e53935]!"
               onClick={() => {
                 setShowForgotPassword(true);
                 setShowLogin(false);
@@ -172,35 +139,14 @@ function Login() {
             <Button
               block
               htmlType="submit"
-              style={{
-                height: 48,
-                borderRadius: 8,
-                fontSize: 16,
-                fontWeight: 600,
-                backgroundColor: '#e53935',
-                color: '#fff',
-                border: 'none',
-              }}
+              className="h-48! rounded-lg! test-base! font-semibold! bg-[#e53935]! text-white! border-none!"
             >
               Đăng nhập
             </Button>
           </Form.Item>
 
-          <Divider
-            plain
-            style={{
-              margin: '20px 0',
-              borderColor: '#e0e0e0',
-            }}
-          >
-            <span
-              style={{
-                color: '#8c8c8c',
-                fontSize: 14,
-                backgroundColor: '#fafafa',
-                padding: '0 16px',
-              }}
-            >
+          <Divider plain className="my-20! mx-0! border border-[#e0e0e0]!">
+            <span className="text-[#8c8c8c]! text-sm! bg-[#fafafa]! py-0! px-16!">
               Hoặc tiếp tục với
             </span>
           </Divider>
@@ -208,15 +154,7 @@ function Login() {
           <Button
             icon={<GoogleOutlined style={{ fontSize: 18 }} />}
             block
-            style={{
-              height: 48,
-              borderRadius: 8,
-              fontSize: 16,
-              fontWeight: 600,
-              border: '1px solid #e0e0e0',
-              color: '#e53935',
-              backgroundColor: '#fff',
-            }}
+            className="h-48! rounded-lg! text-base! font-semibold! border border-[#e0e0e0]! text-[#e53935]! bg-white!"
             onClick={() => handleLoginWithGoogle()}
           >
             Đăng nhập với Google
@@ -224,20 +162,11 @@ function Login() {
         </Form>
       </div>
 
-      <div
-        style={{
-          textAlign: 'center',
-          padding: '16px 0',
-          backgroundColor: 'white',
-          borderTop: '1px solid #f0f0f0',
-        }}
-      >
-        <Text style={{ color: '#8c8c8c', fontSize: 14 }}>
-          Chưa có tài khoản?
-        </Text>
+      <div className="text-center! py-16! px-0! bg-white! border-t border-t-[#f0f0f0]!">
+        <Text className="text-[#8c8c8c]! text-sm!">Chưa có tài khoản?</Text>
         <Button
           type="link"
-          style={{ color: '#e53935', fontWeight: 600 }}
+          className="text-[#e53935]! font-semibold!"
           onClick={() => {
             setShowLogin(false), setShowSignup(true);
           }}
