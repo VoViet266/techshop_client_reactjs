@@ -171,7 +171,7 @@ const Dashboard = () => {
         setAllHistorical(newAllHistorical);
       } catch (err) {
         console.error('Dashboard error:', err);
-        
+
         setError(err.message || 'Đã xảy ra lỗi khi tải dữ liệu');
       } finally {
         setLoading(false);
@@ -412,7 +412,6 @@ const Dashboard = () => {
                   { label: 'Tháng này', value: 'monthly' },
                   { label: 'Năm nay', value: 'yearly' },
                 ]}
-                
                 style={{
                   backgroundColor: '#f5f5f5',
                   borderRadius: '8px',
@@ -563,11 +562,11 @@ const Dashboard = () => {
               <ComposedChart data={chartData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#667eea" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#667eea" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#667eea" stopOpacity={4} />
+                    <stop offset="95%" stopColor="#667eea" stopOpacity={0.2} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f2f5" />
+                <CartesianGrid strokeDasharray="4 4" stroke="#f0f2f5" />
                 <XAxis
                   dataKey="date"
                   stroke="#8c8c8c"

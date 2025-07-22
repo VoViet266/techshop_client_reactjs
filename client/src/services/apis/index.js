@@ -35,7 +35,6 @@ axiosInstance.interceptors.response.use(
       try {
         const token = localStorage.getItem("access_token");
         if (token) {
-          localStorage.removeItem("access_token");
           const res = await callFreshToken();
           if (res.data && res.data.data && res.data.data.access_token) {
             // Lưu access token mới vào localStorage

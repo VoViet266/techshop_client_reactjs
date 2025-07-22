@@ -4,14 +4,16 @@ import { useAppContext } from '@/contexts';
 
 import { Button, Result, Spin } from 'antd';
 
-const UnauthenticatedContent = ({ redirectUrl }) => {
-  const { showLogin, setShowLogin } = useAppContext();
+const UnauthenticatedContent = () => {
+  const { setShowLogin, loading } = useAppContext();
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
     navigate('/');
     setShowLogin(true);
   };
+
+  if (loading) return <Spin />;
 
   return (
     <Result
@@ -55,8 +57,8 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
     );
   }
 
-  if (!isAuthenticated()) {
-    return <UnauthenticatedContent />;
+  if (!isAuthenticated() ) {
+    return <UnauthenticatedContent  />;
   }
 
   // Kiểm tra quyền admin nếu cần

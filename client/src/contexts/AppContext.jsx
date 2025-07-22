@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { callFetchAccount, callLogin, callLogout } from '@/services/apis';
 import { message, notification } from 'antd';
 import { useContext, createContext, useState, useEffect } from 'react';
@@ -35,15 +34,16 @@ function AppProvider({ children }) {
         setLoading(false);
         return;
       }
+
       try {
-        setLoading(true);
         const response = await callFetchAccount();
-        setLoading(false);
         if (response.data) {
           setUser(response.data.data.user);
-          setLoading(false);
         }
       } catch (error) {
+        console.error('Error verifying token:', error);
+        localStorage.removeItem('access_token');
+      } finally {
         setLoading(false);
       }
     };
@@ -66,7 +66,10 @@ function AppProvider({ children }) {
   };
   // Kiểm tra xem người dùng có đăng nhập không
   const isAuthenticated = () => {
-    return !!user && !!localStorage.getItem('access_token');
+    const hasToken = !!localStorage.getItem('access_token');
+
+    if (loading && hasToken) return true;
+    return !!user && hasToken;
   };
 
   const isAdmin = () => {
