@@ -923,7 +923,7 @@ const AccountInfoPage = () => {
               items={menuItems}
             />
             <Button
-              type="primary"
+              type="default"
               onClick={logout}
               icon={<LogoutOutlined />}
               className="w-full! h-40! mt-10! font-medium!"
@@ -1066,7 +1066,7 @@ const AccountInfoPage = () => {
                       Tổng cộng:&nbsp;
                       {selectedOrder.total.toLocaleString()}đ
                     </Typography.Text>
-                    {orderData?.paymentMethod === 'momo' && (
+                    {orderData?.paymentMethod === 'momo' && orderData?.paymentStatus !== 'COMPLETED' && (
                       <Button
                         type="primary"
                         onClick={() => {

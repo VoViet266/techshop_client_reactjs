@@ -10,6 +10,7 @@ import {
   RobotOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { BsChatLeftFill, BsSearch } from 'react-icons/bs';
 
 const { Text } = Typography;
 
@@ -116,18 +117,18 @@ const ChatBot = () => {
   return (
     <>
       {visible && (
-        <div className="fixed bottom-20 right-6 w-[400px] h-[500px] z-[1000] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">
-          <div className="bg-gradient-to-r bg-primary text-white p-4 rounded-t-2xl">
+        <div className="fixed bottom-20 right-6 w-[400px] h-[500px] z-[1000] bg-white shadow-2xl rounded-xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="bg-gradient-to-r bg-primary text-white px-12 py-8 rounded-t-xl">
             <Flex justify="space-between" align="center">
               <Flex align="center" gap={8}>
-                <RobotOutlined className="text-xl" />
-                <Text className="text-white! font-semibold! text-lg!">
+                <BsChatLeftFill className="text-lg!" />
+                <Text className="text-white! font-medium! text-lg!">
                   Chatbot hỗ trợ khách hàng
                 </Text>
               </Flex>
               <Button
                 onClick={toggleChat}
-                className="border-none! bg-transparent!"
+                className="border-none! font-medium! bg-transparent!"
                 size="small"
               >
                 <CloseOutlined className="text-white!" />
@@ -157,21 +158,21 @@ const ChatBot = () => {
                 (
                   <div
                     key={index}
-                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in-0 slide-in-from-bottom-2 duration-300`}
+                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in px-4 fade-in-0 slide-in-from-bottom-2 duration-300`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div
                       className={`flex items-start gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
                     >
                       <div
-                        className={`px-15 py-10   rounded-2xl shadow-sm ${
+                        className={`px-15 py-10 rounded-lg my-10 shadow-none ${
                           msg.sender === 'user'
-                            ? 'bg-blue-500 text-white rounded-tr-md'
-                            : 'bg-white text-gray-800 rounded-tl-md border border-gray-200'
+                            ? 'bg-primary! text-white'
+                            : 'bg-white text-gray-800 border border-gray-200'
                         }`}
                       >
                         {msg.loading ? (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-8">
                             <Spin size="small" />
                             <span className="text-sm text-gray-500">
                               Đang trả lời...
@@ -194,24 +195,26 @@ const ChatBot = () => {
             )}
           </div>
 
-          <div className="p-4 border-t border-gray-200 bg-white">
-            <Input.Search
-              value={input}
-              onSearch={handleSend}
-              placeholder="Nhập câu hỏi của bạn..."
-              enterButton={
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  className="bg-blue-500 hover:bg-blue-600"
-                  disabled={loading}
-                />
-              }
-              onChange={(e) => setInput(e.target.value)}
-              disabled={loading}
-              className="rounded-full"
-              size="large"
-            />
+          <div className="p-10 border-t border-gray-200 bg-white">
+            <div className="rounded-full! relative">
+              <Button
+                onClick={handleSend}
+                icon={
+                  <SendOutlined className="text-primary! hover:text-[#6D0606]!" />
+                }
+                className="absolute! flex! items-center! w-30! h-30! justify-center! right-6! rounded-full! bg-transparent! border-none! shadow-none! text-white! z-10! top-1/2! -translate-y-1/2!"
+              ></Button>
+              <Input
+                value={input}
+                onSearch={handleSend}
+                onPressEnter={handleSend}
+                placeholder="Nhập câu hỏi của bạn..."
+                onChange={(e) => setInput(e.target.value)}
+                disabled={loading}
+                className="rounded-full! px-12! placeholder:text-sm! text-sm!"
+                size="large"
+              />
+            </div>
           </div>
         </div>
       )}

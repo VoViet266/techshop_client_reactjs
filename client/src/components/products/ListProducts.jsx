@@ -1,12 +1,9 @@
 import {
   Col,
   Row,
-  Tag,
   Flex,
-  Spin,
-  Empty,
   Space,
-  Select,
+  Image,
   Button,
   Skeleton,
   Typography,
@@ -14,24 +11,14 @@ import {
   Checkbox,
   Slider,
   Collapse,
-  Input,
-  Tabs,
+  Segmented,
 } from 'antd';
-import { Card } from '@components/products';
-import { ReloadOutlined, FilterOutlined } from '@ant-design/icons';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { use, useEffect, useState } from 'react';
-import { callFetchBranches, callFetchBrands } from '@/services/apis';
-
-import { Filter, RotateCcw } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { callFetchBrands } from '@/services/apis';
+import { RotateCcw } from 'lucide-react';
 import CardProduct from './Card';
-import {
-  BsFilter,
-  BsFilterCircleFill,
-  BsFilterRight,
-  BsFilterSquare,
-  BsFilterSquareFill,
-} from 'react-icons/bs';
+import { BsFilter } from 'react-icons/bs';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -261,10 +248,10 @@ function ListProducts(properties) {
       </Row>
 
       <Row gutter={[10, 10]}>
-        <Col xs={24} md={24} lg={8} xl={5}>
-          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 sticky top-6">
+        <Col xs={24} md={24} lg={8} xl={6}>
+          <div className="bg-white rounded-lg py-10 px-16 sticky top-6">
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center  gap-5">
+              <div className="flex items-center gap-5">
                 <BsFilter className="w-16! h-16!" />
                 <Text
                   level={3}
@@ -283,7 +270,7 @@ function ListProducts(properties) {
             </div>
 
             <div className="mb-6">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-8">
                 {brands.slice(0, 6).map((brand, index) => (
                   <Button
                     key={index}
@@ -310,7 +297,7 @@ function ListProducts(properties) {
                   </span>
                 }
                 key="price"
-                className="!p-0 !bg-transparent !border-0 !rounded-none"
+                className="!p-0 !bg-transparent !rounded-none"
               >
                 <div className="px-6 pb-6 space-y-4">
                   <div className="flex items-center">
@@ -422,7 +409,7 @@ function ListProducts(properties) {
                     </span>
                   }
                   key="ram"
-                  className="!p-0 !bg-transparent !border-0 !rounded-none !mt-2"
+                  className="!p-0 !bg-transparent !rounded-none !mt-2"
                 >
                   <div className="px-6 pb-6 space-y-4">
                     <div className="flex items-center">
@@ -483,7 +470,7 @@ function ListProducts(properties) {
                     </span>
                   }
                   key="storage"
-                  className="!p-0 !bg-transparent !border-0 !rounded-none !mt-2"
+                  className="!p-0 !bg-transparent !rounded-none !mt-2"
                 >
                   <div className="px-6 pb-6 space-y-4">
                     <div className="flex items-center">
@@ -539,7 +526,7 @@ function ListProducts(properties) {
                           </span>
                         }
                         key={field.name}
-                        className="!p-0 !bg-transparent !border-0 !rounded-none !mt-2"
+                        className="!p-0 !bg-transparent !rounded-none !mt-2"
                       >
                         <div className="px-6 pb-6 space-y-4">
                           {dynamicOptions[field.name].map((value, index) => (
@@ -573,14 +560,14 @@ function ListProducts(properties) {
           </div>
         </Col>
 
-        <Col xs={24} md={24}  lg={16} xl={19}>
-          <div className="bg-white rounded-lg shadow-sm p-2 md:p-4 mb-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-2 md:p-4 gap-2">
+        <Col xs={24} md={24} lg={16} xl={18}>
+          <div className="bg-white rounded-lg md:p-4 mb-6">
+            <Flex vertical className="md:items-center! md:p-4! gap-2!">
               <Flex
                 justify="space-between"
                 align="center"
                 wrap="wrap"
-                className="w-full"
+                className="w-full! px-10!"
                 gap={16}
               >
                 <Text className="text-gray-600">
@@ -592,89 +579,108 @@ function ListProducts(properties) {
                 </Text>
 
                 <Space.Compact>
-                  <Button
-                    type={sort === null ? 'primary' : 'default'}
-                    onClick={() => handleSortChange(null)}
-                    className="rounded-l-xl"
-                  >
-                    Nổi bật
-                  </Button>
-                  <Button
-                    type={sort === 1 ? 'primary' : 'default'}
-                    onClick={() => handleSortChange(1)}
-                  >
-                    Giá tăng dần
-                  </Button>
-                  <Button
-                    type={sort === 2 ? 'primary' : 'default'}
-                    onClick={() => handleSortChange(2)}
-                    className="rounded-r-xl"
-                  >
-                    Giá giảm dần
-                  </Button>
+                  <Segmented
+                    className="p-6! mb-10!"
+                    options={['Nổi bật', 'Giá tăng dần', 'Giá giảm dần']}
+                    onChange={(value) => {
+                      switch (value) {
+                        case 'Nổi bật':
+                          handleSortChange(null);
+                          break;
+                        case 'Giá tăng dần':
+                          handleSortChange(1);
+                          break;
+                        case 'Giá giảm dần':
+                          handleSortChange(2);
+                          break;
+
+                        default:
+                          break;
+                      }
+                    }}
+                  />
                 </Space.Compact>
               </Flex>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            {loading ? (
-              <Row gutter={[16, 16]}>
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <Col key={index} xs={12} sm={8} md={6} lg={6}>
-                    <Skeleton.Input active className="w-full h-80 rounded-lg" />
-                  </Col>
-                ))}
-              </Row>
-            ) : paginatedProducts.length > 0 ? (
-              <Row gutter={[16, 16]}>
-                {paginatedProducts.map((product, index) => (
-                  <Col key={index} xs={24} sm={12} lg={12} xl={8} xxl={6}>
-                    <CardProduct
-                      product={product}
-                      loading={loading}
-                      className="h-full bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                    />
-                  </Col>
-                ))}
-              </Row>
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                <Empty
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description={
-                    <Text className="text-gray-500">
-                      Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn
-                    </Text>
-                  }
-                />
-                <Button
-                  type="primary"
-                  onClick={handleFilterReset}
-                  className="mt-4"
-                >
-                  Đặt lại bộ lọc
-                </Button>
+              <div className="mb-8 w-full p-10">
+                {loading ? (
+                  <Row gutter={[16, 16]}>
+                    {Array.from({ length: 8 }).map((_, index) => (
+                      <Col key={index} xs={12} sm={8} md={6} lg={6}>
+                        <Skeleton.Input
+                          active
+                          className="w-full h-80 rounded-lg"
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                ) : paginatedProducts.length > 0 ? (
+                  <>
+                    <Row gutter={[10, 10]} className=''>
+                      {paginatedProducts.map((product, index) => (
+                        <Col key={index} xs={24} sm={12} lg={12} xl={8} xxl={6}>
+                          <CardProduct product={product} loading={loading} />
+                        </Col>
+                      ))}
+                    </Row>
+                    {!loading && filteredProducts.length > 0 && (
+                      <div className="bg-white rounded-lg shadow-none p-2 md:p-4 w-full md:w-[50%] mx-auto mt-10">
+                        <Flex justify="center">
+                          <Pagination
+                            total={filteredProducts.length}
+                            current={_page}
+                            pageSize={_limit}
+                            onChange={handlePaginationChange}
+                            onShowSizeChange={handlePaginationChange}
+                            showTotal={(total, range) =>
+                              `${range[0]}-${range[1]} của ${total} sản phẩm`
+                            }
+                          />
+                        </Flex>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                  //   <Empty
+                  //     image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  //     description={
+                  //       <Text className="text-gray-500">
+                  //         Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn
+                  //       </Text>
+                  //     }
+                  //   />
+                  //   <Button
+                  //     type="primary"
+                  //     onClick={handleFilterReset}
+                  //     className="mt-4"
+                  //   >
+                  //     Đặt lại bộ lọc
+                  //   </Button>
+                  // </div>
+                  <Flex vertical justify="center" align="center">
+                    <div className="w-250 h-200 flex items-center justify-center mx-auto">
+                      <Image
+                        preview={false}
+                        src="https://fptshop.com.vn/img/empty_state.png?w=640&q=75"
+                      />
+                    </div>
+                    <Typography.Title level={3} className="mb-10!">
+                      Không có sản phẩm nào phù hợp
+                    </Typography.Title>
+                    <Typography.Text>
+                      Hãy thử điều chỉnh bộ lọc để tìm thấy sản phẩm phù hợp
+                    </Typography.Text>
+                    <Button
+                      onClick={handleFilterReset}
+                      className="w-200! h-40! rounded-full! mt-20!"
+                    >
+                      Xóa bộ lọc
+                    </Button>
+                  </Flex>
+                )}
               </div>
-            )}
+            </Flex>
           </div>
-
-          {!loading && filteredProducts.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm p-2 md:p-4 w-full md:w-[50%] mx-auto">
-              <Flex justify="center">
-                <Pagination
-                  total={filteredProducts.length}
-                  current={_page}
-                  pageSize={_limit}
-                  onChange={handlePaginationChange}
-                  onShowSizeChange={handlePaginationChange}
-                  showTotal={(total, range) =>
-                    `${range[0]}-${range[1]} của ${total} sản phẩm`
-                  }
-                />
-              </Flex>
-            </div>
-          )}
         </Col>
       </Row>
     </div>
