@@ -35,6 +35,7 @@ import {
   LockOutlined,
   BarChartOutlined,
 } from '@ant-design/icons';
+import '@styles/admin-layout.css';
 import { useEffect, useMemo, useState } from 'react';
 import { callLogout } from '@/services/apis';
 import { hasPermission } from '@/helpers';
@@ -283,19 +284,7 @@ function AdminLayout() {
   const SidebarContent = () => (
     <>
       <div
-        style={{
-          padding: collapsed && !isMobile ? '0' : '24px',
-          textAlign: 'center',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          background: collapsed && !isMobile ? 'none' : '#FEFEFE',
-          margin: collapsed && !isMobile ? '16px 8px' : '16px',
-          borderRadius: collapsed && !isMobile ? 12 : 16,
-          // boxShadow: '0 4px 16px rgba(79, 70, 229, 0.08)',
-          border: `1px solid #E2E8F0`,
-          transition: 'all 0.3s ease',
-        }}
+        className={`${collapsed && !isMobile ? '0' : '24px'} text-center flex justify-center items-center ${collapsed && !isMobile ? 'none' : '#FEFEFE'} ${collapsed && !isMobile ? 'my-16 mx-8' : 'my-16'}`}
       >
         {collapsed && !isMobile ? (
           <Tooltip title="Admin User" placement="right">
