@@ -19,6 +19,7 @@ import {
   Divider,
   Alert,
   Checkbox,
+  Flex,
 } from 'antd';
 import {
   SearchOutlined,
@@ -39,11 +40,21 @@ import {
   GiftOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+import { FaWarehouse } from 'react-icons/fa';
 import { callFetchInventories } from '@/services/apis';
 import useMessage from '@/hooks/useMessage';
 import { data } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useAppContext } from '@/contexts';
+import {
+  BsBoxFill,
+  BsFillHouseFill,
+  BsFillInboxFill,
+  BsFillInfoCircleFill,
+  BsFillLayersFill,
+  BsLayersFill,
+  BsPassFill,
+} from 'react-icons/bs';
 
 const { Text, Title } = Typography;
 const { Option } = Select;
@@ -337,88 +348,116 @@ const WarehouseManagement = () => {
       </div>
     );
   }
-
+  const uniqueBranchNames = Array.from(
+    new Set(warehouses.map((warehouse) => warehouse.branch.name)),
+  );
   return (
-    <div
-      style={{
-        padding: '10px',
-        minHeight: '100vh',
-        borderRadius: '8px',
-      }}
-    >
-      <div className="max-w-7xl mb-5">
+    <div className=" min-h-screen">
+      <div className="mb-5">
         <div>
-          <Title level={2} className="!mb-2">
-            <SettingOutlined className="mr-2" />
+          <Title level={2} className="mb-20! flex! items-center! gap-8!">
+            <FaWarehouse className="mr-2" />
             Quản lý kho hàng
           </Title>
-          <Text type="secondary">{/* Quản lý  */}</Text>
+          <Text type="secondary">Quản lý kho: {uniqueBranchNames.join(', ')} </Text>
         </div>
       </div>
       <Row gutter={[16, 16]} style={{ marginBottom: '10px' }}>
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Tổng sản phẩm"
-              value={stats.totalProducts}
-              prefix={<ProductOutlined style={{ color: '#1890ff' }} />}
-              valueStyle={{ color: '#1890ff' }}
-            />
+            <Text type="secondary" className="text-[14px]! font-medium!">
+              Tổng sản phẩm
+            </Text>
+            <Flex align="center" gap={4} className="mt-6!">
+              <BsBoxFill className="text-[#1890ff]! text-2xl!" />
+              <Typography.Title
+                level={3}
+                className="m-0! text-[#1890ff]! text-[28px]! font-bold! leading-1.2!"
+              >
+                {stats.totalProducts}
+              </Typography.Title>
+            </Flex>
           </Card>
         </Col>
 
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Tổng tồn kho"
-              value={stats.totalStock}
-              prefix={<StockOutlined style={{ color: '#722ed1' }} />}
-              valueStyle={{ color: '#722ed1' }}
-            />
+            <Text type="secondary" className="text-[14px]! font-medium!">
+              Tổng tồn kho
+            </Text>
+            <Flex align="center" gap={4} className="mt-6!">
+              <BsFillHouseFill className="text-[#722ed1]! text-2xl!" />
+              <Typography.Title
+                level={3}
+                className="m-0! text-[#722ed1]! text-[28px]! font-bold! leading-1.2!"
+              >
+                {stats.totalStock}
+              </Typography.Title>
+            </Flex>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Sản phẩm mới"
-              value={stats.newProducts}
-              prefix={<PlusCircleFilled style={{ color: '#faad14' }} />}
-              valueStyle={{ color: '#faad14' }}
-            />
+            <Text type="secondary" className="text-[14px]! font-medium!">
+              Sản phẩm mới
+            </Text>
+            <Flex align="center" gap={4} className="mt-6!">
+              <BsFillLayersFill className="text-[#722ed1]! text-2xl!" />
+              <Typography.Title
+                level={3}
+                className="m-0! text-[#722ed1]! text-[28px]! font-bold! leading-1.2!"
+              >
+                {stats.newProducts}
+              </Typography.Title>
+            </Flex>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Sản phẩm đã hết hàng"
-              value={stats.outOfStockItems}
-              prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
-              valueStyle={{
-                color: stats.outOfStockItems > 0 ? '#ff4d4f' : '#52c41a',
-              }}
-            />
+            <Text type="secondary" className="text-[14px]! font-medium!">
+              Sản phẩm đã hết hàng
+            </Text>
+            <Flex align="center" gap={4} className="mt-6!">
+              <BsFillInboxFill className="text-[#ff4d4f]! text-2xl!" />
+              <Typography.Title
+                level={3}
+                className="m-0! text-[#ff4d4f]! text-[28px]! font-bold! leading-1.2!"
+              >
+                {stats.outOfStockItems}
+              </Typography.Title>
+            </Flex>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Sản Phẩm còn tồn nhiều"
-              value={stats.highStockItems}
-              prefix={<CheckOutlined style={{ color: '#52c41a' }} />}
-              valueStyle={{ color: '#52c41a' }}
-            />
+            <Text type="secondary" className="text-[14px]! font-medium!">
+              Sản phẩm còn tồn nhiều
+            </Text>
+            <Flex align="center" gap={4} className="mt-6!">
+              <BsLayersFill className="text-[#52c41a]! text-2xl!" />
+              <Typography.Title
+                level={3}
+                className="m-0! text-[#52c41a]! text-[28px]! font-bold! leading-1.2!"
+              >
+                {stats.highStockItems}
+              </Typography.Title>
+            </Flex>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Sản phẩm cảnh báo sắp hết"
-              value={stats.lowStockItems}
-              prefix={<WarningOutlined style={{ color: '#fa541c' }} />}
-              valueStyle={{
-                color: stats.lowStockItems > 0 ? '#fa541c' : '#52c41a',
-              }}
-            />
+            <Text type="secondary" className="text-[14px]! font-medium!">
+              Sản phẩm cảnh báo sắp hết
+            </Text>
+            <Flex align="center" gap={4} className="mt-6!">
+              <BsFillInfoCircleFill className="text-[#fa541c]! text-2xl!" />
+              <Typography.Title
+                level={3}
+                className="m-0! text-[#fa541c]! text-[28px]! font-bold! leading-1.2!"
+              >
+                {stats.lowStockItems}
+              </Typography.Title>
+            </Flex>
           </Card>
         </Col>
       </Row>

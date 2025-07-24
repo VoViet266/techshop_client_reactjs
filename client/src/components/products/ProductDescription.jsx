@@ -6,8 +6,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 function ProductDescription({ className, product, loading }) {
   const descriptionRef = useRef(null);
 
-  console.log(product.description);
-
   return (
     <div className={className}>
       <Typography.Title

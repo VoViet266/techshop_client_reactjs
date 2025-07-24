@@ -19,6 +19,7 @@ import {
   DatePicker,
   Input,
   Select,
+  Divider,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -31,6 +32,9 @@ import {
   ReloadOutlined,
   PlusOutlined,
   SearchOutlined,
+  InboxOutlined,
+  HistoryOutlined,
+  ImportOutlined,
 } from '@ant-design/icons';
 import {
   callFetchBranches,
@@ -46,8 +50,11 @@ import InboundForm from '@/components/admin/warehouse/InboundForm';
 import InboundSummary from '@/components/admin/warehouse/InboundSummary';
 import InboundDetailDrawer from '@/components/admin/warehouse/InboundDetailDrawer';
 import { useAppContext } from '@/contexts';
+import { hasPermission } from '@/helpers';
+import { Actions, Subjects } from '@/constants/permissions';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
+const { Option } = Select;
 
 const WarehouseInbound = () => {
   const [form] = Form.useForm();
@@ -72,7 +79,7 @@ const WarehouseInbound = () => {
     searchText: '',
     dateRange: null,
   });
-  const { message, notification } = useAppContext();
+  const { message, notification, permissions } = useAppContext();
   const { RangePicker } = DatePicker;
 
   const fetchProducts = async () => {
@@ -112,7 +119,7 @@ const WarehouseInbound = () => {
     } catch (error) {
       console.error('Error fetching inbound history:', error);
       notification.error({
-        message: 'Lỗi tải dữ liệu lịch sử xuất kho',
+        message: 'Lỗi tải dữ liệu lịch sử nhập kho',
         description: `Lỗi: ${error}`,
         duration: 4.5,
       });
@@ -339,7 +346,6 @@ const WarehouseInbound = () => {
       title: 'Sản phẩm',
       key: 'product',
       width: 300,
-
       render: (_, record) => (
         <Space>
           <Avatar
@@ -430,7 +436,7 @@ const WarehouseInbound = () => {
 
   const historyColumns = [
     {
-      title: 'Mã phiếu xuất',
+      title: 'Mã phiếu nhập',
       dataIndex: '_id',
       key: 'code',
       width: 150,
@@ -480,7 +486,7 @@ const WarehouseInbound = () => {
       },
     },
     {
-      title: 'Ngày xuất',
+      title: 'Ngày nhập',
       dataIndex: 'createdAt',
       key: 'date',
       width: 150,
@@ -545,19 +551,45 @@ const WarehouseInbound = () => {
   return (
     <div
       style={{
-        padding: '24px',
         minHeight: '100vh',
-        borderRadius: '8px',
       }}
     >
-      <Row gutter={[24, 24]}>
+      <div
+        style={{
+          background: '#fff',
+          padding: '24px 32px',
+          borderRadius: '12px',
+          marginBottom: '10px',
+        }}
+      >
+        <Space align="center" size="large">
+          <Avatar size={48} icon={<InboxOutlined />} />
+          <div>
+            <Title level={2} style={{ margin: 0, color: '#2c3e50' }}>
+              Quản lý nhập kho
+            </Title>
+            <Text type="secondary" style={{ fontSize: '16px' }}>
+              Tạo phiếu nhập kho và quản lý lịch sử nhập hàng
+            </Text>
+          </div>
+        </Space>
+      </div>
+
+      <Row gutter={[10, 10]}>
         <Col xs={24} lg={14}>
           <Card
-            
-            title="Tạo phiếu nhập kho"
+            className="h-full!"
+            title={
+              <Space className="py-5!">
+                <ImportOutlined />
+                <Text strong className="text-[16px]!">Tạo phiếu nhập kho</Text>
+              </Space>
+            }
           >
             <InboundForm
+              permissions={permissions}
               form={form}
+              inbound={inbound}
               branches={branches}
               selectedProduct={selectedProduct}
               setProductSearchVisible={setProductSearchVisible}
@@ -566,7 +598,7 @@ const WarehouseInbound = () => {
           </Card>
         </Col>
 
-        <Col xs={24} lg={10} style={{ marginBottom: '10px' }}>
+        <Col xs={24} lg={10}>
           <InboundSummary
             inbound={inbound}
             inboundItems={inboundItems}
@@ -576,130 +608,212 @@ const WarehouseInbound = () => {
             loading={loading}
           />
 
-          <Card title="Danh sách sản phẩm" style={{ marginTop: '16px' }}>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              {inboundItems.map((item) => (
+          <Card
+            className="mt-10!"
+            title={
+              <Space className="py-5!">
+                <ProductOutlined style={{ color: '#52c41a' }} />
+                <span>Danh sách sản phẩm</span>
+              </Space>
+            }
+          >
+            <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+              {inboundItems.length === 0 ? (
                 <div
-                  key={item.id}
                   style={{
-                    padding: '8px',
-                    border: '1px solid #f0f0f0',
-                    borderRadius: '4px',
-                    marginBottom: '8px',
-                    backgroundColor: '#fafafa',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '40px 20px',
+                    color: '#999',
                   }}
                 >
-                  <Row justify="space-between" align="middle">
-                    <Col span={18}>
-                      <Text strong style={{ fontSize: '12px' }}>
-                        {item.productName}
-                      </Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: '11px' }}>
-                        {item.variantName} × {item.quantity}
-                      </Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: '10px' }}>
-                        SKU: {item.variantSku}
-                      </Text>
-                    </Col>
-                    <Col span={6} style={{ textAlign: 'right' }}>
-                      <Text style={{ fontSize: '11px', color: '#fa8c16' }}>
-                        {item.total.toLocaleString('vi-VN')}₫
-                      </Text>
-                      <br />
-                      <Button
-                        type="text"
-                        size="small"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleRemoveItem(item.id)}
-                      />
-                    </Col>
-                  </Row>
+                  <InboxOutlined
+                    style={{ fontSize: '48px', marginBottom: '16px' }}
+                  />
+                  <Text type="secondary">Chưa có sản phẩm nào được thêm</Text>
                 </div>
-              ))}
+              ) : (
+                inboundItems.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: '16px',
+                      border: '1px solid #f0f0f0',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <Row justify="space-between" align="middle">
+                      <Col span={18}>
+                        <Text
+                          strong
+                          style={{ fontSize: '13px', color: '#2c3e50' }}
+                        >
+                          {item.productName}
+                        </Text>
+                        <br />
+                        <Tag
+                          color="blue"
+                          size="small"
+                          style={{ marginTop: '4px' }}
+                        >
+                          {item.variantName}
+                        </Tag>
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: '11px', marginLeft: '8px' }}
+                        >
+                          × {item.quantity}
+                        </Text>
+                        <br />
+                        <Text type="secondary" style={{ fontSize: '10px' }}>
+                          SKU: {item.variantSku}
+                        </Text>
+                      </Col>
+                      <Col span={6} style={{ textAlign: 'right' }}>
+                        <Text
+                          strong
+                          style={{ fontSize: '12px', color: '#fa8c16' }}
+                        >
+                          {item.total.toLocaleString('vi-VN')}₫
+                        </Text>
+                        <br />
+                        <Button
+                          type="text"
+                          size="small"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleRemoveItem(item.id)}
+                          style={{ marginTop: '4px' }}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
         </Col>
       </Row>
 
       {inboundItems.length > 0 && (
-        <Card title="Chi tiết sản phẩm nhập kho" style={{ marginTop: '24px' }}>
+        <Card
+          title={
+            <Space>
+              <ProductOutlined style={{ color: '#722ed1' }} />
+              <span>Chi tiết sản phẩm nhập kho</span>
+            </Space>
+          }
+          style={{
+            borderRadius: '12px',
+            margin: '10px 0',
+          }}
+        >
           <Table
             columns={itemColumns}
-            dataSource={filteredInbound}
+            dataSource={inboundItems}
             bordered
             rowKey="id"
             pagination={false}
             scroll={{ x: 1000 }}
-            size="middle"
           />
         </Card>
       )}
-      <Card style={{ marginTop: '24px' }}>
-        <Row gutter={16}>
-          <Col span={8}>
-            <Input
-              placeholder="Tìm kiếm..."
-              prefix={<SearchOutlined />}
-              value={filters.searchText}
-              onChange={(e) =>
-                setFilters({ ...filters, searchText: e.target.value })
-              }
-            />
-          </Col>
 
-          <Col span={5}>
-            <Select
-              placeholder="Chi nhánh"
-              style={{ width: '100%' }}
-              value={filters.branch}
-              onChange={(value) => setFilters({ ...filters, branch: value })}
-              allowClear
-            >
-              <Option value="">All</Option>
-              {branches.map((branch) => (
-                <Option key={branch._id} value={branch._id}>
-                  {branch.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={8}>
-            <RangePicker
-              style={{ width: '100%' }}
-              placeholder={['Từ ngày', 'Đến ngày']}
-              value={filters.dateRange}
-              onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
-            />
-          </Col>
-          <Col span={3}>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() =>
-                setFilters({
-                  branch: '',
-                  searchText: '',
-                  dateRange: null,
-                })
-              }
-            >
-              Làm mới lọc
-            </Button>
-          </Col>
-        </Row>
-      </Card>
-      <Card title="Lịch sử nhập kho" style={{ marginTop: '24px' }}>
-        <Table
-          columns={historyColumns}
-          dataSource={filteredInbound}
-          rowKey="_id"
-          pagination={{
-            pageSize: 10,
+      {hasPermission(permissions, Subjects.Inventory, Actions.Read) && (
+        <Card
+          style={{
+            borderRadius: '12px',
+            margin: '10px 0',
           }}
-        />
-      </Card>
+        >
+          <Row gutter={[16, 16]}>
+            <Col span={8}>
+              <Input
+                size="large"
+                placeholder="Tìm kiếm theo tên sản phẩm, chi nhánh, người tạo..."
+                prefix={<SearchOutlined />}
+                value={filters.searchText}
+                onChange={(e) =>
+                  setFilters({ ...filters, searchText: e.target.value })
+                }
+                style={{ borderRadius: '8px' }}
+              />
+            </Col>
+
+            <Col span={5}>
+              <Select
+                size="large"
+                placeholder="Chọn chi nhánh"
+                style={{ width: '100%' }}
+                value={filters.branch}
+                onChange={(value) => setFilters({ ...filters, branch: value })}
+                allowClear
+              >
+                <Option value="">Tất cả chi nhánh</Option>
+                {branches.map((branch) => (
+                  <Option key={branch._id} value={branch._id}>
+                    {branch.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+
+            <Col span={8}>
+              <RangePicker
+                size="large"
+                style={{ width: '100%' }}
+                placeholder={['Từ ngày', 'Đến ngày']}
+                value={filters.dateRange}
+                onChange={(dates) =>
+                  setFilters({ ...filters, dateRange: dates })
+                }
+              />
+            </Col>
+
+            <Col span={3}>
+              <Button
+                size="large"
+                icon={<ReloadOutlined />}
+                onClick={() =>
+                  setFilters({
+                    branch: '',
+                    searchText: '',
+                    dateRange: null,
+                  })
+                }
+                style={{ width: '100%' }}
+              >
+                Làm mới
+              </Button>
+            </Col>
+            <Divider />
+            <Col span={24}>
+              <Card
+                title={
+                  <Space className="py-5!">
+                    <HistoryOutlined style={{ color: '#fa8c16' }} />
+                    <span>Lịch sử nhập kho</span>
+                  </Space>
+                }
+              >
+                <Table
+                  columns={historyColumns}
+                  dataSource={filteredInbound}
+                  rowKey="_id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} của ${total} bản ghi`,
+                  }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </Card>
+      )}
 
       <ModalSearchProduct
         inbound={inbound}

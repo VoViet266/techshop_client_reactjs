@@ -2,6 +2,9 @@ import axiosInstance from '@services/apis';
 
 class UserService {
   login(user) {
+
+
+
     return axiosInstance.post('/api/v1/auth/login', {
       username: user.email,
       password: user.password,

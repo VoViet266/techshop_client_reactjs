@@ -62,8 +62,6 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
     }
   }, [page, product?._id]);
 
-  console.log(stats);
-
   const fetchReviews = async (currentPage) => {
     setLoading(true);
     try {
@@ -147,10 +145,6 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
     }
   };
 
-  console.log('Review:', reviews);
-
-  console.log(product.averageRating);
-
   const formatTime = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -167,7 +161,6 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
 
   const toggleReplyInput = (commentId) => {
     setShowReplyInput((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
-    console.log(showReplyInput);
   };
 
   function countRatings(obj) {
@@ -189,8 +182,6 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
 
     return ratingCounts;
   }
-
-  console.log(countRatings(stats));
 
   return (
     <div className={className}>
@@ -243,7 +234,7 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
               <Flex vertical gap={10}>
                 {Array.from({ length: 5 }, (_, index) => {
                   return (
-                    <Flex gap={8} align="center">
+                    <Flex key={index} gap={8} align="center">
                       <Flex align="center">
                         <Typography.Text>{5 - index}</Typography.Text>
                         <StarFilled className="text-yellow-400! text-xl! ml-2!" />

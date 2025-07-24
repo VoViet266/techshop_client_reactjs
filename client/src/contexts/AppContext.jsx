@@ -38,9 +38,10 @@ function AppProvider({ children }) {
 
       try {
         const response = await callFetchAccount();
+
         if (response.data) {
-          setUser(response.data.data.user);
-          setPermissions(response.data.data.user.permission);
+          setUser(response.data.data);
+          setPermissions(response.data.data.role.permissions);
         }
       } catch (error) {
         console.error('Error verifying token:', error);
@@ -75,7 +76,7 @@ function AppProvider({ children }) {
   };
 
   const isAdmin = () => {
-    return user && user?.permission.length > 0;
+    return user && user.role?.permissions.length > 0;
   };
 
   const data = {
@@ -85,8 +86,8 @@ function AppProvider({ children }) {
     message,
     showLogin,
     showSignup,
-    showForgotPassword,
     permissions,
+    showForgotPassword,
     loadingError,
     toastLoading,
     loadingSuccess,

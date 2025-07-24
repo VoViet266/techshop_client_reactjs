@@ -35,6 +35,7 @@ import {
   CloseCircleOutlined,
   ClockCircleOutlined,
   CarOutlined,
+  SwapOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import ModalSearchProduct from '@/components/admin/warehouse/modalSearchProduct';
@@ -475,10 +476,11 @@ const WarehouseTransferManagement = () => {
     allowedNextStatuses[viewingTransfer?.status]?.includes(option.value),
   );
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 ">
       <Card>
         <div className="flex justify-between items-center mb-6">
-          <Title level={2} className="m-0!">
+          <Title level={2} className="m-0! ">
+            <SwapOutlined className="mr-4!" />
             Quản lý chuyển kho hàng hóa
           </Title>
           <Button

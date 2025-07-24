@@ -62,7 +62,7 @@ const UserRoleManagement = () => {
   const [filters, setFilters] = useState({
     role: '',
   });
-  const { message } = useAppContext();
+  const { message, permission } = useAppContext();
 
   useEffect(() => {
     fetchUsers();
@@ -113,7 +113,7 @@ const UserRoleManagement = () => {
     }
   };
 
-  console.log(selectedUser)
+  console.log(selectedUser);
 
   useEffect(() => {
     if (selectedUser) {
@@ -127,7 +127,6 @@ const UserRoleManagement = () => {
     }
   }, [selectedUser, form]);
 
-  console.log(form.getFieldValue('branch'));
   const filteredUsers = users.filter((user) => {
     // Chỉ lấy user có role là nhân viên cửa hàng
     const staff = user.role?.permissions.length > 0;
@@ -249,11 +248,13 @@ const UserRoleManagement = () => {
   ];
 
   const handleSubmit = async (values) => {
-    console.log(values);
     setLoading(true);
-
     try {
-      await callUpdateRoleUser(values);
+      await callUpdateRoleUser({
+        userId: values.userId,
+        roleId: values.roleId,
+        branchId: values.branch,
+      });
       setUsers(
         users.map((user) =>
           user?._id === values?.userId

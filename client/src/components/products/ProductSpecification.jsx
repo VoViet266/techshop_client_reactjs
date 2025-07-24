@@ -6,7 +6,7 @@ const { Title } = Typography;
 
 const renderDescriptions = (title, data) => (
   <div className="mb-8">
-    <Typography.Text className='text-lg! font-semibold!'>
+    <Typography.Text className="text-lg! font-semibold!">
       {title}
     </Typography.Text>
     <Descriptions
@@ -14,11 +14,17 @@ const renderDescriptions = (title, data) => (
       size="middle"
       bordered
       className="custom-description border-none! mt-10! mb-30!"
-      labelStyle={{ width: 220, fontWeight: 500 }}
-      contentStyle={{ fontSize: 14 }}
+      style={{
+        label: { width: 220, fontWeight: 500 },
+        content: { fontSize: 14 },
+      }}
     >
       {data.map((item) => (
-        <Descriptions.Item label={item.label} key={item.label} className='bg-white! border-none!'>
+        <Descriptions.Item
+          label={item.label}
+          key={item.label}
+          className="bg-white! border-none!"
+        >
           {item.value}
         </Descriptions.Item>
       ))}
@@ -169,7 +175,9 @@ const ProductSpecification = ({ product }) => {
 
   return (
     <div>
-      <Typography.Title level={3} className='mb-20!'>Thông số cấu hình</Typography.Title>
+      <Typography.Title level={3} className="mb-20!">
+        Thông số cấu hình
+      </Typography.Title>
       {renderGroups()}
       {renderExtraFields()}
     </div>

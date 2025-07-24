@@ -29,11 +29,12 @@ import {
   UserOutlined,
   CalendarOutlined,
   EyeOutlined,
-  UploadOutlined,
   ReloadOutlined,
   SearchOutlined,
   CloseOutlined,
   WarningOutlined,
+  ExportOutlined,
+  InboxOutlined,
 } from '@ant-design/icons';
 import {
   callExportInventory,
@@ -47,8 +48,10 @@ import { useAppContext } from '@/contexts';
 import InboundDetailDrawer from '@/components/admin/warehouse/InboundDetailDrawer';
 import InboundSummary from '@/components/admin/warehouse/InboundSummary';
 import InboundConfirmModal from '@/components/admin/warehouse/InboundConfirmModal';
+import { hasPermission } from '@/helpers';
+import { Actions, Subjects } from '@/constants/permissions';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 const { Option } = Select;
 
 const WarehouseOutbound = () => {
@@ -58,7 +61,7 @@ const WarehouseOutbound = () => {
     searchText: '',
     dateRange: null,
   });
-  const { message, notification } = useAppContext();
+  const { message, notification, permissions } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [branches, setBranches] = useState([]);
   const [inventories, setInventories] = useState([]);
@@ -636,16 +639,44 @@ const WarehouseOutbound = () => {
   return (
     <div
       style={{
-        padding: '24px',
         minHeight: '100vh',
-        borderRadius: '8px',
       }}
     >
-      <Row gutter={[24, 24]}>
+      <div
+        style={{
+          background: '#fff',
+          padding: '24px 32px',
+          borderRadius: '12px',
+          marginBottom: '10px',
+        }}
+      >
+        <Space align="center" size="large">
+          <Avatar size={48} icon={<InboxOutlined />} />
+          <div>
+            <Title level={2} style={{ margin: 0, color: '#2c3e50' }}>
+              Quản lý xuất kho
+            </Title>
+            <Text type="secondary" style={{ fontSize: '16px' }}>
+              Tạo phiếu xuất kho và quản lý lịch sử xuất hàng
+            </Text>
+          </div>
+        </Space>
+      </div>
+      <Row gutter={[10, 10]}>
         <Col xs={24} lg={14}>
-          <Card title="Tạo phiếu xuất kho">
+          <Card
+            className="h-full!"
+            title={
+              <Space className="py-5!">
+                <ExportOutlined />
+                <Text strong className="text-[16px]!">
+                  Tạo phiếu xuất kho
+                </Text>
+              </Space>
+            }
+          >
             <Form form={form} layout="vertical">
-              <Row gutter={16}>
+              <Row gutter={10}>
                 <Col span={24}>
                   <Form.Item
                     label="Chi nhánh"
@@ -670,124 +701,120 @@ const WarehouseOutbound = () => {
                     </Select>
                   </Form.Item>
                 </Col>
-              </Row>
-
-              <>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label="Sản phẩm"
-                      name="productId"
-                      rules={[
-                        { required: true, message: 'Vui lòng chọn sản phẩm' },
-                      ]}
+                <Col span={12}>
+                  <Form.Item
+                    label="Sản phẩm"
+                    name="productId"
+                    rules={[
+                      { required: true, message: 'Vui lòng chọn sản phẩm' },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn sản phẩm"
+                      onChange={handleProductChange}
+                      size="large"
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      }
                     >
-                      <Select
-                        placeholder="Chọn sản phẩm"
-                        onChange={handleProductChange}
-                        size="large"
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          option.children
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
-                        }
-                      >
-                        {getFilteredInventories().map((inventory) => (
+                      {getFilteredInventories().map((inventory) => (
+                        <Option
+                          key={inventory.product._id}
+                          value={inventory.product._id}
+                        >
+                          <Space>
+                            <ProductOutlined />
+                            {inventory.product.name}
+                          </Space>
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item
+                    label="Biến thể"
+                    name="variantId"
+                    rules={[
+                      { required: true, message: 'Vui lòng chọn biến thể' },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn biến thể"
+                      size="large"
+                      disabled={!selectedInventory}
+                    >
+                      {selectedInventory?.variants
+                        ?.filter((v) => !v.isDeleted && v.stock > 0)
+                        .map((variant) => (
                           <Option
-                            key={inventory.product._id}
-                            value={inventory.product._id}
+                            key={variant.variantId._id}
+                            value={variant.variantId._id}
                           >
-                            <Space>
-                              <ProductOutlined />
-                              {inventory.product.name}
-                            </Space>
+                            <div>
+                              <Tooltip
+                                title={`${variant.variantId.name} - Tồn kho: ${variant.stock}`}
+                              >
+                                <span>{variant.variantId.name}</span>
+                              </Tooltip>
+                            </div>
                           </Option>
                         ))}
-                      </Select>
-                    </Form.Item>
-                  </Col>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="Số lượng xuất"
+                    name="quantity"
+                    rules={[
+                      { required: true, message: 'Vui lòng nhập số lượng' },
+                      {
+                        type: 'number',
+                        min: 1,
+                        message: 'Số lượng phải lớn hơn 0',
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={1}
+                      max={
+                        selectedInventory?.variants?.find(
+                          (v) =>
+                            v.variantId._id === form.getFieldValue('variantId'),
+                        )?.stock
+                      }
+                      placeholder="Nhập số lượng"
+                      style={{ width: '100%' }}
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
 
-                  <Col span={12}>
-                    <Form.Item
-                      label="Biến thể"
-                      name="variantId"
-                      rules={[
-                        { required: true, message: 'Vui lòng chọn biến thể' },
-                      ]}
+                <Col span={12}>
+                  <Form.Item label=" ">
+                    <Button
+                      type="primary"
+                      disabled={hasPermission(
+                        permissions,
+                        Subjects.Inventory,
+                        Actions.Create,
+                      )}
+                      icon={<PlusOutlined />}
+                      onClick={handleAddItem}
+                      size="large"
+                      block
                     >
-                      <Select
-                        placeholder="Chọn biến thể"
-                        size="large"
-                        disabled={!selectedInventory}
-                      >
-                        {selectedInventory?.variants
-                          ?.filter((v) => !v.isDeleted && v.stock > 0)
-                          .map((variant) => (
-                            <Option
-                              key={variant.variantId._id}
-                              value={variant.variantId._id}
-                            >
-                              <div>
-                                <Tooltip
-                                  title={`${variant.variantId.name} - Tồn kho: ${variant.stock}`}
-                                >
-                                  <span>{variant.variantId.name}</span>
-                                </Tooltip>
-                              </div>
-                            </Option>
-                          ))}
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label="Số lượng xuất"
-                      name="quantity"
-                      rules={[
-                        { required: true, message: 'Vui lòng nhập số lượng' },
-                        {
-                          type: 'number',
-                          min: 1,
-                          message: 'Số lượng phải lớn hơn 0',
-                        },
-                      ]}
-                    >
-                      <InputNumber
-                        min={1}
-                        max={
-                          selectedInventory?.variants?.find(
-                            (v) =>
-                              v.variantId._id ===
-                              form.getFieldValue('variantId'),
-                          )?.stock
-                        }
-                        placeholder="Nhập số lượng"
-                        style={{ width: '100%' }}
-                        size="large"
-                      />
-                    </Form.Item>
-                  </Col>
-
-                  <Col span={12}>
-                    <Form.Item label=" ">
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={handleAddItem}
-                        size="large"
-                        block
-                      >
-                        Thêm vào danh sách
-                      </Button>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </>
+                      Thêm vào danh sách
+                    </Button>
+                  </Form.Item>
+                </Col>
+              </Row>
             </Form>
           </Card>
         </Col>
@@ -799,62 +826,93 @@ const WarehouseOutbound = () => {
             totalValue={totalValue}
             handleSubmitInbound={handleSubmitOutbound}
             loading={loading}
-            title="Tổng quan phiếu xuất"
-            submitText="Xác nhận xuất kho"
           />
 
           <Card
-            title="Danh sách sản phẩm xuất"
+            title={
+              <Space className="py-5!">
+                <Text strong>Danh sách sản phẩm</Text>
+                <Text type="secondary">({outboundItems.length})</Text>
+              </Space>
+            }
             style={{
-              marginTop: '16px',
+              marginTop: '10px',
             }}
           >
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              {outboundItems.map((item) => (
+            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {outboundItems.length === 0 ? (
                 <div
-                  key={item.id}
                   style={{
-                    padding: '12px',
-                    border: '1px solid #f0f0f0',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    backgroundColor: '#fafafa',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '20px 10px',
+                    color: '#999',
                   }}
                 >
-                  <Row justify="space-between" align="middle">
-                    <Col span={18}>
-                      <Text strong style={{ fontSize: '13px' }}>
-                        {item.productName}
-                      </Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: '12px' }}>
-                        {item.variantName} × {item.quantity}
-                      </Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: '11px' }}>
-                        SKU: {item.variantSku}
-                      </Text>
-                      <br />
-                      <Text type="success" style={{ fontSize: '10px' }}>
-                        Tồn kho: {item.availableStock}
-                      </Text>
-                    </Col>
-                    <Col span={6} style={{ textAlign: 'right' }}>
-                      <Text style={{ fontSize: '12px', color: '#fa8c16' }}>
-                        {item.total.toLocaleString('vi-VN')}₫
-                      </Text>
-                      <br />
-                      <Button
-                        type="text"
-                        size="small"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleRemoveItem(item.id)}
-                      />
-                    </Col>
-                  </Row>
+                  <InboxOutlined
+                    style={{ fontSize: '48px', marginBottom: '16px' }}
+                  />
+                  <Text type="secondary">Chưa có sản phẩm nào được thêm</Text>
                 </div>
-              ))}
+              ) : (
+                inboundItems.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: '16px',
+                      border: '1px solid #f0f0f0',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <Row justify="space-between" align="middle">
+                      <Col span={18}>
+                        <Text
+                          strong
+                          style={{ fontSize: '13px', color: '#2c3e50' }}
+                        >
+                          {item.productName}
+                        </Text>
+                        <br />
+                        <Tag
+                          color="blue"
+                          size="small"
+                          style={{ marginTop: '4px' }}
+                        >
+                          {item.variantName}
+                        </Tag>
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: '11px', marginLeft: '8px' }}
+                        >
+                          × {item.quantity}
+                        </Text>
+                        <br />
+                        <Text type="secondary" style={{ fontSize: '10px' }}>
+                          SKU: {item.variantSku || 'Chưa có'}
+                        </Text>
+                      </Col>
+                      <Col span={6} style={{ textAlign: 'right' }}>
+                        <Text
+                          strong
+                          style={{ fontSize: '12px', color: '#fa8c16' }}
+                        >
+                          {item.total.toLocaleString('vi-VN')}₫
+                        </Text>
+                        <br />
+                        <Button
+                          type="text"
+                          size="small"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleRemoveItem(item.id)}
+                          style={{ marginTop: '4px' }}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
         </Col>
@@ -862,7 +920,11 @@ const WarehouseOutbound = () => {
 
       {outboundItems.length > 0 && (
         <Card
-          title="Chi tiết sản phẩm xuất kho"
+          title={
+            <Space className="py-5!">
+              <Text strong>Chi tiết sản phẩm xuất kho</Text>
+            </Space>
+          }
           style={{
             marginTop: '24px',
           }}
@@ -878,75 +940,81 @@ const WarehouseOutbound = () => {
           />
         </Card>
       )}
-      <Card style={{ marginTop: '24px' }}>
-        <Row gutter={16}>
-          <Col span={8}>
-            <Input
-              placeholder="Tìm kiếm..."
-              prefix={<SearchOutlined />}
-              value={filters.searchText}
-              onChange={(e) =>
-                setFilters({ ...filters, searchText: e.target.value })
-              }
-            />
-          </Col>
+      {hasPermission(permissions, Subjects.Inventory, Actions.Read) && (
+        <Card className="mt-10!">
+          <Row gutter={10}>
+            <Col span={8}>
+              <Input
+                placeholder="Tìm kiếm..."
+                prefix={<SearchOutlined />}
+                value={filters.searchText}
+                onChange={(e) =>
+                  setFilters({ ...filters, searchText: e.target.value })
+                }
+              />
+            </Col>
 
-          <Col span={5}>
-            <Select
-              placeholder="Chi nhánh"
-              style={{ width: '100%' }}
-              value={filters.branch}
-              onChange={(value) => setFilters({ ...filters, branch: value })}
-              allowClear
-            >
-              <Option value="">All</Option>
-              {branches.map((branch) => (
-                <Option key={branch._id} value={branch._id}>
-                  {branch.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={8}>
-            <RangePicker
-              style={{ width: '100%' }}
-              placeholder={['Từ ngày', 'Đến ngày']}
-              value={filters.dateRange}
-              onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
-            />
-          </Col>
-          <Col span={3}>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() =>
-                setFilters({
-                  branch: '',
-                  searchText: '',
-                  dateRange: null,
-                })
-              }
-            >
-              Làm mới lọc
-            </Button>
-          </Col>
-        </Row>
-      </Card>
-      <Card
-        title="Lịch sử xuất kho"
-        style={{
-          marginTop: '24px',
-        }}
-      >
-        <Table
-          columns={historyColumns}
-          dataSource={filteredOutbound}
-          rowKey="_id"
-          pagination={{
-            pageSize: 10,
-          }}
-          scroll={{ x: 1000 }}
-        />
-      </Card>
+            <Col span={5}>
+              <Select
+                placeholder="Chi nhánh"
+                style={{ width: '100%' }}
+                value={filters.branch}
+                onChange={(value) => setFilters({ ...filters, branch: value })}
+                allowClear
+              >
+                <Option value="">All</Option>
+                {branches.map((branch) => (
+                  <Option key={branch._id} value={branch._id}>
+                    {branch.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col span={8}>
+              <RangePicker
+                style={{ width: '100%' }}
+                placeholder={['Từ ngày', 'Đến ngày']}
+                value={filters.dateRange}
+                onChange={(dates) =>
+                  setFilters({ ...filters, dateRange: dates })
+                }
+              />
+            </Col>
+            <Col span={3}>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() =>
+                  setFilters({
+                    branch: '',
+                    searchText: '',
+                    dateRange: null,
+                  })
+                }
+              >
+                Làm mới lọc
+              </Button>
+            </Col>
+            <Col span={24}>
+              <Card
+                title="Lịch sử xuất kho"
+                style={{
+                  marginTop: '24px',
+                }}
+              >
+                <Table
+                  columns={historyColumns}
+                  dataSource={filteredOutbound}
+                  rowKey="_id"
+                  pagination={{
+                    pageSize: 10,
+                  }}
+                  scroll={{ x: 1000 }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </Card>
+      )}
 
       <InboundDetailDrawer
         open={detailDrawerVisible}

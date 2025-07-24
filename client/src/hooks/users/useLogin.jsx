@@ -20,6 +20,7 @@ function useLogin(message) {
 
       if (res.data.data.access_token) {
         message.success({ content: 'Đăng nhập thành công', key: 'login' });
+
         localStorage.setItem('access_token', res.data.data.access_token);
         setShowLogin(false);
         window.location.reload();
@@ -36,9 +37,16 @@ function useLogin(message) {
     } catch (error) {
       console.log('Lỗi khi đăng nhập:', error);
       message.destroy();
-      notification.warning({
-        description: 'Sai tên đăng nhập hoặc mật khẩu!',
-      });
+      if (error.response.data.statusCode === 401) {
+        notification.warning({
+          description: 'Sai tên đăng nhập hoặc mật khẩu!',
+        });
+      } else {
+        notification.error({
+          message: 'Lỗi khi đăng nhập',
+          description: `${error.response.data.message}`,
+        });
+      }
     }
   }
 

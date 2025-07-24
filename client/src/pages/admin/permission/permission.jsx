@@ -191,7 +191,7 @@ const PermissionsManagement = () => {
                 ? 'blue'
                 : text === 'delete'
                   ? 'red'
-                  : text === 'view'
+                  : text === 'read'
                     ? 'purple'
                     : 'default'
           }
@@ -332,17 +332,19 @@ const PermissionsManagement = () => {
     { label: 'Permission', value: 'permission' },
     { label: 'Inventory', value: 'inventory' },
     { label: 'Banner', value: 'banner' },
-    { label: 'Cart', value: 'cart' },
     { label: 'Payment', value: 'payment' },
     { label: 'Promotion', value: 'promotion' },
     { label: 'Branch', value: 'branch' },
+    { label: 'Brand', value: 'brand' },
+    { label: 'Transfer', value: 'transfer' },
+    { label: 'Benefit', value: 'benefit' },
   ];
 
   const actionOptions = [
-    { label: 'View', value: 'view' },
-    { label: 'Create', value: 'create' },
-    { label: 'Update', value: 'update' },
-    { label: 'Delete', value: 'delete' },
+    { label: 'Xem', value: 'read' },
+    { label: 'Tạo', value: 'create' },
+    { label: 'Cập Nhật', value: 'update' },
+    { label: 'Xóa', value: 'delete' },
   ];
 
   const statusOptions = [
@@ -419,6 +421,7 @@ const PermissionsManagement = () => {
           </Col>
           <Col xs={24} sm={12} md={4}>
             <Select
+              showSearch
               placeholder="Mô đun"
               value={filters.module}
               onChange={(value) => setFilters({ ...filters, module: value })}
@@ -575,9 +578,6 @@ const PermissionsManagement = () => {
           pagination={{
             defaultPageSize: 10,
             showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} của ${total} quyền`,
           }}
           locale={{
             emptyText: (
@@ -644,7 +644,7 @@ const PermissionsManagement = () => {
                       ? 'blue'
                       : selectedPermission.action === 'delete'
                         ? 'red'
-                        : selectedPermission.action === 'view'
+                        : selectedPermission.action === 'read'
                           ? 'purple'
                           : 'default'
                 }
@@ -734,16 +734,9 @@ const PermissionsManagement = () => {
                     required: true,
                     message: 'Vui lòng nhập tên quyền!',
                   },
-                  {
-                    pattern: /^[a-z_]+$/,
-                    message: 'Chỉ được sử dụng chữ thường và dấu gạch dưới!',
-                  },
                 ]}
               >
-                <Input
-                  placeholder="Ví dụ: view_user, edit_product"
-                  style={{ fontFamily: 'monospace' }}
-                />
+                <Input placeholder="Nhập tên quyền" />
               </Form.Item>
             </Col>
           </Row>
@@ -779,7 +772,7 @@ const PermissionsManagement = () => {
                   },
                 ]}
               >
-                <Select placeholder="Chọn mô-đun">
+                <Select showSearch placeholder="Chọn mô-đun">
                   {moduleOptions.map((option) => (
                     <Select.Option key={option.value} value={option.value}>
                       {option.label}

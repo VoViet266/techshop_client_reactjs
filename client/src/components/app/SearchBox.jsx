@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SearchIcon, TrendingUpIcon, ClockIcon, XIcon, ReceiptCent } from 'lucide-react';
+import {
+  SearchIcon,
+  TrendingUpIcon,
+  ClockIcon,
+  XIcon,
+  ReceiptCent,
+} from 'lucide-react';
 import { List, Spin, Typography, Image } from 'antd';
 import Products from '@/services/products';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +30,7 @@ function SearchBox() {
     const saved = localStorage.getItem('recentSearches');
     return saved ? JSON.parse(saved) : [];
   });
-  console.log(recentSearches)
+
   async function fetchSearchResult() {
     try {
       setLoading(true);
@@ -122,7 +128,6 @@ function SearchBox() {
       if (user) {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
-          console.log(res);
           setRecommentProducts(res);
         } catch (error) {
           console.error('Error fetching recommendations:', error);
@@ -204,7 +209,7 @@ function SearchBox() {
                     </div>
                   </div>
                 )}
-                {recentSearches.length > 0  && (
+                {recentSearches.length > 0 && (
                   <div>
                     <div className="space-y-2">
                       {recentSearches.slice(0, 5).map((term, index) => (

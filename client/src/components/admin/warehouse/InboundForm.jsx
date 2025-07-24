@@ -1,12 +1,16 @@
 import React from 'react';
 import { Form, Row, Col, Select, Input, InputNumber, Button } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { hasPermission } from '@/helpers';
+import { Actions, Subjects } from '@/constants/permissions';
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 const InboundForm = ({
+  permissions,
   form,
+  inbound,
   branches,
   selectedProduct,
   setProductSearchVisible,
@@ -105,6 +109,9 @@ const InboundForm = ({
             <Button
               type="primary"
               icon={<PlusOutlined />}
+              disabled={
+                !hasPermission(permissions, Subjects.Inventory, Actions.Create)
+              }
               onClick={handleAddItem}
               style={{ width: '100%' }}
             >

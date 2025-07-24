@@ -44,13 +44,7 @@ axiosInstance.interceptors.response.use(
             originalRequest.headers["Authorization"] = `Bearer ${res.data.data.access_token}`;
             // Gọi lại request ban đầu với access token mới
             return axiosInstance(originalRequest);
-          } else {
-            // Nếu không nhận được access token mới, logout
-            throw new Error("No access token received");
           }
-        } else {
-          // Nếu không có token trong localStorage, logout
-          throw new Error("No access token found");
         }
       } catch (refreshError) {
         console.log(refreshError);
@@ -116,7 +110,9 @@ export const callUpdateUser = (value) => {
 };
 export const callUpdateRoleUser = (value) => {
   return axiosInstance.patch(`/api/v1/users/${value.userId}`, {
-    ...value
+    role: value.roleId,
+    brand: value.brand
+
   });
 }
 export const callCreateProduct = (value) => {

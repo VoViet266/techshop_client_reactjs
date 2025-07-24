@@ -12,7 +12,15 @@ const InboundSummary = ({
   loading = false,
 }) => {
   return (
-    <Card title={inbound ? 'Chi tiết phiếu nhập' : 'Chi tiết phiêu xuất'}>
+    <Card
+      title={
+        <Space className="py-5!">
+          <Text strong>
+            {inbound ? 'Chi tiết phiếu nhập' : 'Chi tiết phiêu xuất'}
+          </Text>
+        </Space>
+      }
+    >
       <Space direction="vertical" style={{ width: '100%' }}>
         <Row justify="space-between">
           <Text>Tổng sản phẩm:</Text>
@@ -39,7 +47,7 @@ const InboundSummary = ({
           style={{ width: '100%' }}
           loading={loading}
         >
-          {inbound ? 'Xây dựng phiếu nhập kho' : 'Xây dựng xuất kho'}
+          {inbound ? 'Xây dựng phiếu nhập kho' : 'Xây dựng phiếu xuất kho'}
         </Button>
       </Space>
     </Card>
