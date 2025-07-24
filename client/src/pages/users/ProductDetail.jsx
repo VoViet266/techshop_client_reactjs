@@ -77,6 +77,11 @@ function ProductDetail() {
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
 
+  // State cho show more functionality
+  const [showAllPromotions, setShowAllPromotions] = useState(false);
+  const [showAllWarranties, setShowAllWarranties] = useState(false);
+  const ITEMS_TO_SHOW = 4; // Số lượng items hiển thị ban đầu
+
   const fetchProductDetail = async () => {
     try {
       const res = await Products.get(id);
@@ -250,6 +255,17 @@ function ProductDetail() {
   const allImages = [...variantImages, ...galleryImages];
 
   const currentStock = branchStocks[selectBranchs];
+
+  // Helper functions để hiển thị items
+  const getDisplayedPromotions = () => {
+    if (!promotions) return [];
+    return showAllPromotions ? promotions : promotions.slice(0, ITEMS_TO_SHOW);
+  };
+
+  const getDisplayedWarranties = () => {
+    if (!warranties) return [];
+    return showAllWarranties ? warranties : warranties.slice(0, ITEMS_TO_SHOW);
+  };
 
   if (loading) {
     return (
@@ -543,14 +559,27 @@ function ProductDetail() {
               </div>
 
               <div className="my-20 flex flex-col gap-10">
+                {/* Promotions Section với Show More */}
                 <div className="border border-gray-300 rounded-md">
-                  <div className="h-35 bg-[#f3f4f6] border-b rounded-t-md flex items-center border-b-gray-300">
-                    <Typography.Text className="ml-10! font-medium!">
+                  <div className="h-35 bg-[#f3f4f6] border-b rounded-t-md flex items-center justify-between border-b-gray-300 px-10">
+                    <Typography.Text className="font-medium!">
                       Danh sách khuyến mãi
                     </Typography.Text>
+                    {promotions && promotions.length > ITEMS_TO_SHOW && (
+                      <Button
+                        type="link"
+                        size="small"
+                        className="p-0 text-primary! text-xs!"
+                        onClick={() => setShowAllPromotions(!showAllPromotions)}
+                      >
+                        {showAllPromotions
+                          ? 'Thu gọn'
+                          : `Xem thêm (${promotions.length - ITEMS_TO_SHOW})`}
+                      </Button>
+                    )}
                   </div>
                   <div className="p-10">
-                    {promotions.map((promotion, index) => {
+                    {getDisplayedPromotions().map((promotion, index) => {
                       return (
                         <div
                           key={index}
@@ -564,16 +593,32 @@ function ProductDetail() {
                   </div>
                 </div>
 
+                {/* Warranties Section với Show More */}
                 <div className="border border-gray-300 rounded-md">
-                  <div className="h-35 bg-[#f3f4f6] border-b rounded-t-md flex items-center border-b-gray-300">
-                    <Typography.Text className="ml-10! font-medium!">
+                  <div className="h-35 bg-[#f3f4f6] border-b rounded-t-md flex items-center justify-between border-b-gray-300 px-10">
+                    <Typography.Text className="font-medium!">
                       Chính sách bảo hành
                     </Typography.Text>
+                    {warranties && warranties.length > ITEMS_TO_SHOW && (
+                      <Button
+                        type="link"
+                        size="small"
+                        className="p-0 text-primary! text-xs!"
+                        onClick={() => setShowAllWarranties(!showAllWarranties)}
+                      >
+                        {showAllWarranties
+                          ? 'Thu gọn'
+                          : `Xem thêm (${warranties.length - ITEMS_TO_SHOW})`}
+                      </Button>
+                    )}
                   </div>
                   <div className="p-10">
-                    {warranties.map((warranty, index) => {
+                    {getDisplayedWarranties().map((warranty, index) => {
                       return (
-                        <div key={index} className="rounded-md! flex! p-8 gap-8 items-center! shadow-none!">
+                        <div
+                          key={index}
+                          className="rounded-md! flex! p-8 gap-8 items-center! shadow-none!"
+                        >
                           <BsCheckCircleFill className="text-primary!" />
                           <Typography.Text>{warranty?.name}</Typography.Text>
                         </div>

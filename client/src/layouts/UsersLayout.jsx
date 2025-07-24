@@ -98,7 +98,7 @@ function Header() {
             >
               <Text className="text-white! text-base! flex! items-center!">
                 <BsGeoAltFill className="mr-5 font-bold text-2xl" />
-                <Text>Chi nhánh</Text>
+                <Text className="text-white! text-base! flex! items-center!">Chi nhánh</Text>
               </Text>
             </Dropdown>
           </div>
