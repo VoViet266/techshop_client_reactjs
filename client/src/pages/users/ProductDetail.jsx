@@ -77,7 +77,7 @@ function ProductDetail() {
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
 
-  // State cho show more functionality
+  
   const [showAllPromotions, setShowAllPromotions] = useState(false);
   const [showAllWarranties, setShowAllWarranties] = useState(false);
   const ITEMS_TO_SHOW = 4; // Số lượng items hiển thị ban đầu
