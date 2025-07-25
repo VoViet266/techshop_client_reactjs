@@ -38,6 +38,7 @@ const AccountInfoPage = () => {
   const { user, message, logout } = useAppContext();
   const [wards, setWards] = useState([]);
   const [provinces, setProvinces] = useState([]);
+  const [discount, setDiscount] = useState(null);
   const [editingAddressIndex, setEditingAddressIndex] = useState(null);
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedWard, setSelectedWard] = useState([]);
@@ -74,10 +75,23 @@ const AccountInfoPage = () => {
   }, [orders]);
 
   useEffect(() => {
-    if (orders) {
-      console.log(orders);
+    if (selectedOrder && orders) {
+      const selectedOrderDiscount = orders.find(
+        (order) => order._id === selectedOrder.id,
+      )?.appliedPromotions[0];
+      if (selectedOrderDiscount?.valueType === 'percent') {
+        setDiscount(`${selectedOrderDiscount?.value}%`);
+      } else {
+        setDiscount(`${selectedOrderDiscount?.value}VNĐ`);
+      }
     }
-  }, [orders]);
+  }, [selectedOrder]);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      console.log('Selected order items:', selectedOrder.items);
+    }
+  }, [selectedOrder]);
 
   const fetchProvinces = async () => {
     try {
@@ -309,6 +323,68 @@ const AccountInfoPage = () => {
     fetchProvinces();
   }, []);
 
+  const listProductsColumn = [
+    {
+      title: 'Sản phẩm',
+      dataIndex: 'product',
+      key: 'product',
+      render: (product, record) => {
+        return (
+          <>
+            <div>{product.name}</div>
+            <div className="text-xs text-gray-500">{record.variant.name}</div>
+          </>
+        );
+      },
+    },
+    {
+      title: 'Số lượng',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      align: 'center',
+    },
+    {
+      title: 'Giảm giá',
+      dataIndex: 'discount',
+      key: 'discount',
+      align: 'center',
+      render: () => <Typography.Text>{discount}</Typography.Text>,
+    },
+    {
+      title: 'Đơn giá',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price) => (
+        <Typography.Text strong className="text-primary!">
+          {`${price.toLocaleString()}đ`}
+        </Typography.Text>
+      ),
+      align: 'right',
+    },
+    {
+      title: 'Thành tiền',
+      key: 'total',
+      render: (_, record) => {
+        let discountPercent = null;
+        let discountMoney = null;
+        if (discount?.includes('%')) {
+          discountPercent = discount?.slice(0, discount?.length - 1);
+        }
+        if (discount?.includes('VNĐ')) {
+          discountMoney = discount?.slice(0, discount?.length - 3);
+          console.log(discountMoney);
+        }
+        return (
+          <Typography.Text
+            strong
+            className="text-primary!"
+          >{`${(record.price * record.quantity).toLocaleString()}đ`}</Typography.Text>
+        );
+      },
+      align: 'right',
+    },
+  ];
+
   const menuItems = [
     {
       key: 'personal',
@@ -405,7 +481,6 @@ const AccountInfoPage = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status) => {
-        console.log(status);
         return (
           <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
         );
@@ -888,7 +963,6 @@ const AccountInfoPage = () => {
   }
 
   const orderData = orders?.find((o) => o._id === selectedOrder?.id);
-  console.log('Order data:', orderData);
 
   return (
     <div className="w-full mt-24 min-h-screen">
@@ -991,66 +1065,10 @@ const AccountInfoPage = () => {
                     </Typography.Title>
                     <Table
                       bordered
-                      dataSource={
-                        orders.find((o) => o._id === selectedOrder.id)?.items ||
-                        []
-                      }
+                      dataSource={selectedOrder?.items}
                       pagination={false}
                       rowKey="_id"
-                      columns={[
-                        {
-                          title: 'Sản phẩm',
-                          dataIndex: 'product',
-                          key: 'product',
-                          render: (product, record) => {
-                            return (
-                              <>
-                                <div>{product.name}</div>
-                                <div className="text-xs text-gray-500">
-                                  {record.variant.name}
-                                </div>
-                              </>
-                            );
-                          },
-                        },
-                        {
-                          title: 'Số lượng',
-                          dataIndex: 'quantity',
-                          key: 'quantity',
-                          align: 'center',
-                        },
-                        {
-                          title: 'Giảm giá',
-                          dataIndex: 'discount',
-                          key: 'discount',
-                          align: 'center',
-                          render: (_, record) => {
-                            console.log(record);
-                          },
-                        },
-                        {
-                          title: 'Đơn giá',
-                          dataIndex: 'price',
-                          key: 'price',
-                          render: (price) => (
-                            <Typography.Text strong className="text-primary!">
-                              {`${price.toLocaleString()}đ`}
-                            </Typography.Text>
-                          ),
-                          align: 'right',
-                        },
-                        {
-                          title: 'Thành tiền',
-                          key: 'total',
-                          render: (_, record) => (
-                            <Typography.Text
-                              strong
-                              className="text-primary!"
-                            >{`${(record.price * record.quantity).toLocaleString()}đ`}</Typography.Text>
-                          ),
-                          align: 'right',
-                        },
-                      ]}
+                      columns={listProductsColumn}
                     />
                   </div>
                   <Flex
@@ -1066,23 +1084,24 @@ const AccountInfoPage = () => {
                       Tổng cộng:&nbsp;
                       {selectedOrder.total.toLocaleString()}đ
                     </Typography.Text>
-                    {orderData?.paymentMethod === 'momo' && orderData?.paymentStatus !== 'COMPLETED' && (
-                      <Button
-                        type="primary"
-                        onClick={() => {
-                          const paymentInformation = {
-                            order: orderData?._id,
-                            amount: orderData?.totalPrice,
-                            description: `Thanh toán đơn hàng ${orderData?._id}`,
-                          };
+                    {orderData?.paymentMethod === 'momo' &&
+                      orderData?.paymentStatus !== 'COMPLETED' && (
+                        <Button
+                          type="primary"
+                          onClick={() => {
+                            const paymentInformation = {
+                              order: orderData?._id,
+                              amount: orderData?.totalPrice,
+                              description: `Thanh toán đơn hàng ${orderData?._id}`,
+                            };
 
-                          handlePayment(paymentInformation);
-                        }}
-                        className="rounded-md! h-40!"
-                      >
-                        Thanh toán
-                      </Button>
-                    )}
+                            handlePayment(paymentInformation);
+                          }}
+                          className="rounded-md! h-40!"
+                        >
+                          Thanh toán
+                        </Button>
+                      )}
                   </Flex>
                 </Flex>
               )}
