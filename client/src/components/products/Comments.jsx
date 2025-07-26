@@ -263,18 +263,10 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
 
         <div className="p-6">
           <div className="flex items-start gap-8 mt-10">
-            {!user.avatar ? (
-              <div>
-                <AvatarDefault width={40} height={40} />
-              </div>
-            ) : (
-              <Avatar
-                src={user?.avatar}
-                size={30}
-                className="border-2 border-white shadow-md"
-                icon={<AiOutlineUser />}
-              />
-            )}
+            <div>
+              <AvatarDefault width={40} height={40} />
+            </div>
+
             <div className="flex-1">
               {loading ? (
                 <Skeleton height={100} />
@@ -365,18 +357,9 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                   className="bg-white flex items-start p-6 gap-12"
                 >
                   <div className="flex items-center gap-8 mb-4">
-                    {!user.avatar ? (
-                      <div>
-                        <AvatarDefault width={40} height={40} />
-                      </div>
-                    ) : (
-                      <Avatar
-                        src={user?.avatar}
-                        size={30}
-                        className="border-2 border-white shadow-md"
-                        icon={<AiOutlineUser />}
-                      />
-                    )}
+                    <div>
+                      <AvatarDefault width={40} height={40} />
+                    </div>
                   </div>
 
                   <div className="w-full">
@@ -427,18 +410,9 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                             className="rounded-md! w-full! flex items-start gap-8 p-4!"
                           >
                             <div className="flex! items-center! gap-2! mb-2!">
-                              {!user.avatar ? (
-                                <div>
-                                  <AvatarDefault width={40} height={40} />
-                                </div>
-                              ) : (
-                                <Avatar
-                                  src={user?.avatar}
-                                  size={30}
-                                  className="border-2 border-white shadow-md"
-                                  icon={<AiOutlineUser />}
-                                />
-                              )}
+                              <div>
+                                <AvatarDefault width={40} height={40} />
+                              </div>
                             </div>
                             <div className="text-sm text-gray-700 leading-relaxed">
                               <div className="flex items-center">
@@ -459,18 +433,10 @@ function Comments({ className, product, loading: initialLoading, stats = {} }) {
                     {showReplyInput[review._id] && (
                       <div className="ml-8 mt-16 p-10 bg-gray-50 rounded-md min-w-500">
                         <div className="flex gap-8">
-                          {!user.avatar ? (
-                            <div>
-                              <AvatarDefault width={40} height={40} />
-                            </div>
-                          ) : (
-                            <Avatar
-                              src={user?.avatar}
-                              size={30}
-                              className="border-2 border-white shadow-md"
-                              icon={<AiOutlineUser />}
-                            />
-                          )}
+                          <div>
+                            <AvatarDefault width={40} height={40} />
+                          </div>
+
                           <div className="flex-1! space-y-3!">
                             <TextArea
                               rows={4}
