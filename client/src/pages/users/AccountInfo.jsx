@@ -1203,14 +1203,14 @@ const AccountInfoPage = () => {
                   <div className="flex justify-end gap-3">
                     {orderData?.status === 'PENDING' &&
                       orderData?.status !== 'CANCELLED' && (
-                        <Button type="primary" danger onClick={handleCancel}>
+                        <Button type="primary" className='h-40!' danger onClick={handleCancel}>
                           Hủy đơn hàng
                         </Button>
                       )}
 
                     {orderData?.status === 'DELIVERED' &&
                       orderData?.paymentStatus === 'COMPLETED' && (
-                        <Button type="primary" onClick={handleReturn}>
+                        <Button type="primary" className='h-40!' onClick={handleReturn}>
                           Yêu cầu trả hàng
                         </Button>
                       )}
@@ -1220,6 +1220,7 @@ const AccountInfoPage = () => {
                       orderData?.paymentStatus !== 'COMPLETED' && (
                         <Button
                           type="primary"
+                          className='h-40!'
                           onClick={() => {
                             const paymentInformation = {
                               order: orderData?._id,
