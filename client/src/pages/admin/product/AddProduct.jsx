@@ -289,6 +289,7 @@ function AddProduct() {
         <CommonInformation
           brands={brands}
           categories={categories}
+          product={product}
           onCategoryChange={onCategoryChange}
           form={form}
         />

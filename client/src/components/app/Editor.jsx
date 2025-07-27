@@ -4,17 +4,12 @@ import 'suneditor/dist/css/suneditor.min.css';
 
 function Editor({ setProduct, product, ...properties }) {
   const { description } = product || {};
+
   return (
     <div>
       <SunEditor
         defaultValue={description}
         {...properties}
-        onChange={(content) => {
-          setProduct((currentProduct) => ({
-            ...currentProduct,
-            description: content,
-          }));
-        }}
         setOptions={{
           buttonList: [
             ['undo', 'redo'],
