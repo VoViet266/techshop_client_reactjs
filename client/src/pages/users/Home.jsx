@@ -101,7 +101,7 @@ function Home() {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
           setRecommentProducts(res);
-
+          console.log(res);
           setLoading(false);
         } catch (error) {
           setLoading(false);

@@ -188,10 +188,10 @@ const OrderManagement = () => {
   const getStatistics = () => {
     const totalOrders = orders.length;
     const totalRevenue = orders
-      .filter(
-        (order) =>
-          order.status === 'DELIVERED' && order.paymentStatus === 'COMPLETED',
-      )
+      // .filter(
+      //   (order) =>
+      //     order.status === 'DELIVERED' && order.paymentStatus === 'COMPLETED',
+      // )
       .reduce((sum, order) => sum + order.totalPrice, 0);
     const pendingOrders = orders.filter(
       (order) => order.status === 'PENDING',
@@ -688,7 +688,7 @@ const OrderManagement = () => {
               onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
             />
           </Col>
-          <Col span={2}>
+          {/* <Col span={2}>
             <Button
               icon={<ReloadOutlined />}
               onClick={() =>
@@ -704,7 +704,7 @@ const OrderManagement = () => {
             >
               Làm mới
             </Button>
-          </Col>
+          </Col> */}
           <Col span={4}>
             <Button
               type="primary"
