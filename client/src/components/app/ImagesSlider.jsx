@@ -48,7 +48,7 @@ const SliderProduct = ({ images = [] }) => {
             key={index}
             onClick={() => goToSlide(index)}
             className={`w-60 h-60 border-1  rounded-md overflow-hidden ${
-              index === currentSlide ? 'border-blue-500' : 'border-gray-300'
+              index === currentSlide ? 'border-primary' : 'border-gray-300'
             }`}
           >
             <img
