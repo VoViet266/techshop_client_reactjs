@@ -41,6 +41,7 @@ import Address from '@services/address';
 import UserService from '@services/users';
 import { callLogout } from '@/services/apis';
 import Order from './Order';
+import { formatCurrency } from '@/helpers';
 
 const AccountInfoPage = () => {
   const { user, message, logout } = useAppContext();
@@ -349,13 +350,13 @@ const AccountInfoPage = () => {
       key: 'quantity',
       align: 'center',
     },
-    {
-      title: 'Giảm giá',
-      dataIndex: 'discount',
-      key: 'discount',
-      align: 'center',
-      render: () => <Typography.Text>{discount}</Typography.Text>,
-    },
+    // {
+    //   title: 'Giảm giá',
+    //   dataIndex: 'discount',
+    //   key: 'discount',
+    //   align: 'center',
+    //   render: () => <Typography.Text>{discount}</Typography.Text>,
+    // },
     {
       title: 'Đơn giá',
       dataIndex: 'price',
@@ -384,9 +385,7 @@ const AccountInfoPage = () => {
 
         return (
           <Typography.Text strong className="text-primary!">
-            {discountPercent
-              ? `${(record.price * record.quantity - record.price * record.quantity * (parseInt(discountPercent) / 100)).toLocaleString()}đ`
-              : `${(record.price * record.quantity - parseFloat(discountMoney)).toLocaleString()}đ`}
+            {`${(record.price * record.quantity).toLocaleString()}đ`}
           </Typography.Text>
         );
       },
@@ -1193,7 +1192,12 @@ const AccountInfoPage = () => {
                     <div className="flex justify-end">
                       <div className="text-right">
                         <div className="text-lg font-semibold text-primary">
-                          Tổng cộng: {selectedOrder.total.toLocaleString()}đ
+                          Tổng cộng:{' '}
+                          {formatCurrency(
+                            selectedOrder.total -
+                              selectedOrder.total * (parseInt(discount) / 100),
+                          )}
+                          đ
                         </div>
                       </div>
                     </div>
