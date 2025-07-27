@@ -770,7 +770,7 @@ function ProductDetail() {
           </Col>
         </Row>
         <Row gutter={[10, 10]} className="mt-6 sm:mt-8 lg:mt-10">
-          <Col lg={24}>
+          <Col  span={24} lg={24}>
             <Comments
               stats={stats}
               product={product}
