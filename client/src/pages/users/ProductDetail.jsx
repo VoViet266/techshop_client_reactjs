@@ -605,7 +605,6 @@ function ProductDetail() {
                   </div>
                 </div>
 
-                {/* Warranties Section với Show More */}
                 <div className="border border-gray-300 rounded-md">
                   <div className="h-35 bg-[#f3f4f6] border-b rounded-t-md flex items-center justify-between border-b-gray-300 px-10">
                     <Typography.Text className="font-medium!">
@@ -754,11 +753,12 @@ function ProductDetail() {
             </Card>
           </Col>
           <Col lg={10}>
-            <Card className="p-10!">
+            <Card className="p-10!" style={{ position: 'sticky', top: 20 }}>
               <ProductSpecification product={product} />
             </Card>
           </Col>
-
+        </Row>
+        <Row gutter={[10, 10]}>
           <Col lg={24} md={24} sm={24} xs={24}>
             {recommnentProducts && recommnentProducts.length > 0 && (
               <PreviewListProducts
