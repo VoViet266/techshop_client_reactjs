@@ -101,7 +101,6 @@ function Home() {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
           setRecommentProducts(res);
-          console.log(res);
           setLoading(false);
         } catch (error) {
           setLoading(false);
@@ -153,7 +152,6 @@ function Home() {
   );
 
   const handleBannerClick = (banner) => {
-    console.log(banner);
     if (banner.linkTo) {
       window.location.href = banner.linkTo;
     }
@@ -208,7 +206,7 @@ function Home() {
             <div className="flex flex-col h-full gap-6">
               {promoBanners.slice(0, 3).map((banner, index) => (
                 <div
-                  key={banner.id}
+                  key={index}
                   className="h-1/3 cursor-pointer "
                   onClick={() => handleBannerClick(banner)}
                 >

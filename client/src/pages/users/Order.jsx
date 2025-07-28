@@ -18,7 +18,7 @@ import { useAppContext } from '@contexts';
 import { useNavigate } from 'react-router-dom';
 import UserService from '@services/users';
 import CartServices from '@services/carts';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Products from '@/services/products';
 import BranchService from '@services/branches';
 import InventoryService from '@services/inventories';
@@ -27,9 +27,13 @@ function Order() {
   const navigate = useNavigate();
   const { message, user } = useAppContext();
   const [loading, setLoading] = useState(true);
+  const [fullName, setFullName] = useState(user?.name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [branches, setBranches] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
   const [cartItems, setCartItems] = useState([]);
+  const [order, setOrder] = useState(null);
+  const [items, setItems] = useState([]);
   const [inventories, setInventories] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -46,24 +50,68 @@ function Order() {
     return acc + item.price * item.quantity * (item.product.discount / 100);
   }, 0);
 
-  const items = cartItems.map((item) => {
-    return {
-      product: item.product._id,
-      variant: item.variant._id,
-      quantity: item.quantity,
-      price: item.price,
-    };
-  });
-
-  const order = {
-    user: user?._id,
-    totalPrice: total,
-    status: 'pending',
-    branch: selectedBranch,
-    shippingAddress: selectedAddress,
-    paymentMethod:
-      paymentMethod === 'Thanh toán khi nhận hàng' ? 'cash' : 'momo',
+  const checkStock = async (branchId, variantId, productId) => {
+    try {
+      const response = await InventoryService.getStockProduct(
+        branchId,
+        variantId,
+        productId,
+      );
+      if (response.status === 200) {
+        return response.data.data > 0;
+      }
+    } catch (error) {}
   };
+
+  const getItems = async () => {
+    const itemList = await Promise.all(
+      cartItems.map(async (item) => {
+        let branch = null;
+
+        for (const b of branches) {
+          const isInStock = await checkStock(
+            b._id,
+            item.variant._id,
+            item.product._id,
+          );
+          if (isInStock) {
+            branch = b._id;
+            break;
+          }
+        }
+
+        return {
+          product: item.product._id,
+          variant: item.variant._id,
+          quantity: item.quantity,
+          price: item.price,
+          branch,
+        };
+      }),
+    );
+
+    setItems(itemList); // ✅ setState một lần duy nhất
+  };
+
+  useEffect(() => {
+    if (items.length > 0) {
+      setOrder({
+        user: user?._id,
+        totalPrice: total,
+        status: 'pending',
+        recipient: {
+          name: fullName,
+          phone: phone,
+          address: selectedAddress,
+        },
+        items: items,
+        branch: selectedBranch,
+        shippingAddress: selectedAddress,
+        paymentMethod:
+          paymentMethod === 'Thanh toán khi nhận hàng' ? 'cash' : 'momo',
+      });
+    }
+  }, [items]);
 
   const getCart = async () => {
     try {
@@ -75,19 +123,6 @@ function Order() {
     } catch (error) {
       message.error('Không thể lấy giỏ hàng');
       console.error('Lỗi khi lấy giỏ hàng:', error);
-    }
-  };
-
-  const getAllInventories = async () => {
-    try {
-      const inventoryService = new InventoryService();
-      const response = await inventoryService.getAll();
-      if (response.status === 200) {
-        setInventories(response.data.data);
-        return;
-      }
-    } catch (error) {
-      console.error('Không thể lấy danh sách kho hàng.');
     }
   };
 
@@ -190,26 +225,27 @@ function Order() {
   useEffect(() => {
     getCart();
     getAllBranches();
-    getAllInventories();
     if (user && user._id) {
       getUser();
     }
   }, [user]);
 
   useEffect(() => {
+    if (cartItems.length > 0 && branches.length > 0) {
+      getItems();
+    }
+  }, [cartItems, branches]);
+
+  useEffect(() => {
     if (userInfo) {
       const defaultAddress = userInfo.addresses?.find(
         (address) => address.default,
       );
-      setSelectedAddress(defaultAddress.addressDetail);
+      setSelectedAddress(
+        `${defaultAddress?.addressDetail}, ${defaultAddress?.specificAddress}`,
+      );
     }
   }, [userInfo]);
-
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      console.log(cartItems);
-    }
-  }, [cartItems]);
 
   useEffect(() => {
     if (shippingMethod === 'Giao hàng tận nơi' && userInfo) {
@@ -298,8 +334,8 @@ function Order() {
           >
             <Typography.Text strong>Họ và tên</Typography.Text>
             <Input
-              value={user.name}
-              disabled
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full! flex-1 py-8!"
             />
           </Flex>
@@ -314,8 +350,8 @@ function Order() {
               Số điện thoại
             </Typography.Text>
             <Input
-              value={userInfo?.phone}
-              disabled
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="w-full! flex-1 py-8!"
             />
           </Flex>
@@ -367,15 +403,16 @@ function Order() {
                   setSelectedAddress(selectedAddress);
                 }}
                 optionFilterProp="label"
-                defaultValue={
-                  userInfo?.addresses?.filter(
+                defaultValue={() => {
+                  const userAddress = userInfo?.addresses?.filter(
                     (address) => address.default === true,
-                  )[0]?.addressDetail
-                }
+                  )[0];
+                  return `${userAddress?.addressDetail}, ${userAddress?.specificAddress}`;
+                }}
                 options={userInfo?.addresses?.map((address) => {
                   return {
-                    value: address.addressDetail,
-                    label: address.addressDetail,
+                    value: `${address.addressDetail}, ${address.specificAddress}`,
+                    label: `${address.addressDetail}, ${address.specificAddress}`,
                   };
                 })}
               />
@@ -474,7 +511,9 @@ function Order() {
             </Flex>
             <Divider className="my-0!" />
             <Flex justify="space-between">
-              <Typography.Text className="text-sm!">Địa chỉ</Typography.Text>
+              <Typography.Text className="text-sm! w-[20%]!">
+                Địa chỉ
+              </Typography.Text>
               <Typography.Text className="text-sm!">
                 {selectedAddress}
               </Typography.Text>
@@ -508,8 +547,10 @@ function Order() {
 
             <Flex className="w-full!" justify="end" align="center" gap={8}>
               <Button
+                disabled={!order}
                 onClick={() => {
                   handleOrder(order);
+                  // console.log('Order:', order);
                 }}
                 type="primary"
                 className="print:hidden! h-40! rounded-md!"
