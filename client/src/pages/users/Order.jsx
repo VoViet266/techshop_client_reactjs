@@ -10,6 +10,7 @@ import {
   Typography,
   Divider,
   Button,
+  Switch,
 } from 'antd';
 
 import '@styles/order.css';
@@ -22,18 +23,31 @@ import { useState, useEffect, use } from 'react';
 import Products from '@/services/products';
 import BranchService from '@services/branches';
 import InventoryService from '@services/inventories';
+import Address from '@/services/address';
+import { set } from 'react-hook-form';
 
 function Order() {
   const navigate = useNavigate();
   const { message, user } = useAppContext();
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState(user?.name || '');
+  const [canChooseAddress, setCanChooseAddress] = useState(false);
   const [phone, setPhone] = useState(user?.phone || '');
   const [branches, setBranches] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [provinces, setProvinces] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [selectedWard, setSelectedWard] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [order, setOrder] = useState(null);
   const [items, setItems] = useState([]);
+  const [userTypeAddress, setUserTypeAddress] = useState({
+    specificAddress: '',
+    addressDetail: '',
+  });
   const [inventories, setInventories] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -49,6 +63,58 @@ function Order() {
   const discount = cartItems.reduce((acc, item) => {
     return acc + item.price * item.quantity * (item.product.discount / 100);
   }, 0);
+
+  useEffect(() => {
+    document.title = 'TechShop | Đơn hàng';
+  }, []);
+
+  const fetchProvinces = async () => {
+    try {
+      const provincesData = await Address.getAllProvinces();
+      setProvinces(provincesData);
+    } catch (error) {
+      message.error('Không thể tải danh sách tỉnh/thành phố');
+    }
+  };
+
+  useEffect(() => {
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      fetchDistricts(selectedProvince.code);
+      setSelectedDistrict(null);
+      setSelectedWard(null);
+    }
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (selectedDistrict) {
+      fetchWards(selectedDistrict.code);
+      setSelectedWard(null);
+    }
+  }, [selectedDistrict]);
+
+  const fetchDistricts = async (provinceCode) => {
+    try {
+      const districtsData = await Address.getDistricts(provinceCode);
+      setDistricts(districtsData);
+      return districtsData;
+    } catch (error) {
+      message.error('Không thể tải danh sách quận/huyện');
+    }
+  };
+
+  const fetchWards = async (districtCode) => {
+    try {
+      const wardsData = await Address.getWards(districtCode);
+      setWards(wardsData);
+      return wardsData;
+    } catch (error) {
+      message.error('Không thể tải danh sách xã/phường');
+    }
+  };
 
   const checkStock = async (branchId, variantId, productId) => {
     try {
@@ -102,7 +168,9 @@ function Order() {
         recipient: {
           name: fullName,
           phone: phone,
-          address: selectedAddress,
+          address: canChooseAddress
+            ? `${userTypeAddress.addressDetail}, ${userTypeAddress.specificAddress}`
+            : selectedAddress,
         },
         items: items,
         branch: selectedBranch,
@@ -322,7 +390,7 @@ function Order() {
 
         <Card className="w-full! rounded-md border-none!">
           <Typography.Title level={5} className="m-0! mb-8!">
-            Thông tin người đặt hàng
+            Thông tin người nhận hàng
           </Typography.Title>
 
           <Flex
@@ -355,6 +423,122 @@ function Order() {
               className="w-full! flex-1 py-8!"
             />
           </Flex>
+          <Flex vertical>
+            <Flex
+              align="center"
+              justify="space-between"
+              gap={8}
+              className="w-full! mt-20!"
+            >
+              <Typography.Text strong className="">
+                Địa chỉ
+              </Typography.Text>
+              <Switch
+                checked={canChooseAddress}
+                onChange={(checked) => {
+                  setCanChooseAddress(checked);
+                  if (checked) {
+                    setShippingMethod('Giao hàng tận nơi');
+                  }
+                }}
+                size="default"
+              />
+            </Flex>
+            <Flex gap={4} vertical justify="center" className="w-full! mt-4!">
+              <Flex gap={8}>
+                <Flex vertical className="w-1/3!">
+                  <Typography.Text strong className="mb-4">
+                    Tỉnh/Thành phố
+                  </Typography.Text>
+                  <Select
+                    disabled={!canChooseAddress}
+                    className="w-full!"
+                    value={selectedProvince?.code}
+                    placeholder="Chọn Tỉnh/Thành phố"
+                    options={provinces.map((province) => {
+                      return { label: province.name, value: province.code };
+                    })}
+                    onChange={(value) => {
+                      const province = provinces.find((p) => p.code === value);
+                      setSelectedProvince(province);
+                      setUserTypeAddress({
+                        ...userTypeAddress,
+                        addressDetail: province.name,
+                      });
+                      // Reset District/Ward khi chọn Tỉnh mới
+                      setSelectedDistrict(null);
+                      setSelectedWard(null);
+                      fetchDistricts(value);
+                    }}
+                  />
+                </Flex>
+
+                <Flex vertical className="w-1/3!">
+                  <Typography.Text strong className="mb-4">
+                    Quận/Huyện
+                  </Typography.Text>
+                  <Select
+                    disabled={!canChooseAddress}
+                    className="w-full!"
+                    value={selectedDistrict?.code}
+                    placeholder="Chọn Quận/Huyện"
+                    options={districts.map((district) => {
+                      return { label: district.name, value: district.code };
+                    })}
+                    onChange={(value) => {
+                      const district = districts.find((d) => d.code === value);
+                      setSelectedDistrict(district);
+                      setUserTypeAddress({
+                        ...userTypeAddress,
+                        addressDetail: `${selectedProvince.name}, ${district.name}`,
+                      });
+                      setSelectedWard(null);
+                      fetchWards(value);
+                    }}
+                  />
+                </Flex>
+
+                <Flex vertical className="flex-1!">
+                  <Typography.Text strong className="mb-4">
+                    Xã/Phường
+                  </Typography.Text>
+                  <Select
+                    disabled={!canChooseAddress}
+                    value={selectedWard?.code}
+                    placeholder="Chọn Xã/Phường"
+                    options={wards.map((ward) => {
+                      return { label: ward.name, value: ward.code };
+                    })}
+                    onChange={(value) => {
+                      const ward = wards.find((w) => w.code === value);
+                      setUserTypeAddress({
+                        ...userTypeAddress,
+                        addressDetail: `${selectedProvince.name}, ${selectedDistrict.name}, ${ward.name}`,
+                      });
+                      setSelectedWard(ward);
+                    }}
+                  />
+                </Flex>
+              </Flex>
+              <Flex vertical className="mt-8! w-full!">
+                <Typography.Text strong className="mb-4">
+                  Địa chỉ chi tiết
+                </Typography.Text>
+                <Input.TextArea
+                  disabled={!canChooseAddress}
+                  placeholder="Nhập địa chỉ chi tiết"
+                  value={userTypeAddress.specificAddress}
+                  onChange={(event) => {
+                    setUserTypeAddress({
+                      ...userTypeAddress,
+                      specificAddress: event.target.value,
+                    });
+                  }}
+                  className="min-h-70!"
+                ></Input.TextArea>
+              </Flex>
+            </Flex>
+          </Flex>
         </Card>
 
         <Card className="w-full! rounded-md border-none!">
@@ -375,8 +559,11 @@ function Order() {
               onChange={(event) => {
                 const shippingMethod = event.target.value;
                 setShippingMethod(shippingMethod);
+                if (shippingMethod === 'Nhận tại cửa hàng') {
+                  setCanChooseAddress(false);
+                }
               }}
-              defaultValue="Giao hàng tận nơi"
+              value={shippingMethod}
               options={[
                 { value: 'Giao hàng tận nơi', label: 'Giao hàng tận nơi' },
                 { value: 'Nhận tại cửa hàng', label: 'Nhận tại cửa hàng' },
@@ -395,6 +582,7 @@ function Order() {
                 Địa chỉ
               </Typography.Text>
               <Select
+                disabled={canChooseAddress}
                 showSearch
                 className="w-full! flex-1!"
                 placeholder="Chọn địa chỉ"
@@ -515,7 +703,9 @@ function Order() {
                 Địa chỉ
               </Typography.Text>
               <Typography.Text className="text-sm!">
-                {selectedAddress}
+                {canChooseAddress
+                  ? `${userTypeAddress.addressDetail}, ${userTypeAddress.specificAddress}`
+                  : selectedAddress}
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
@@ -550,7 +740,6 @@ function Order() {
                 disabled={!order}
                 onClick={() => {
                   handleOrder(order);
-                  // console.log('Order:', order);
                 }}
                 type="primary"
                 className="print:hidden! h-40! rounded-md!"
