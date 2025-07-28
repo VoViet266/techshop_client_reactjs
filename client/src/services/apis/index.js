@@ -257,13 +257,13 @@ export const callFetchOrderByUserId = (userId) => {
   return axiosInstance.get(`/api/v1/orders/user/${userId}`);
 };
 export const callCreateOrder = (value) => {
-  ;
+  console.log(value);
   return axiosInstance.post(`/api/v1/orders`, {
     ...value,
   });
 };
 
-export const callUpdateOrder = (id, value) => {
+export const  callUpdateOrder = (id, value) => {
   return axiosInstance.patch(`/api/v1/orders/${id}`, {
     ...value,
   });
