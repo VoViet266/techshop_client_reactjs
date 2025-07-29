@@ -47,8 +47,8 @@ const SliderProduct = ({ images = [] }) => {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-60 h-60 border-1  rounded-md overflow-hidden ${
-              index === currentSlide ? 'border-blue-500' : 'border-gray-300'
+            className={`w-60 h-60 border-1 cursor-pointer rounded-md overflow-hidden ${
+              index === currentSlide ? 'border-primary' : 'border-gray-300'
             }`}
           >
             <img
@@ -61,13 +61,13 @@ const SliderProduct = ({ images = [] }) => {
       </div>
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-45 h-45 bg-[#090d1466]  shadow-md rounded-full flex items-center justify-center"
+        className="absolute cursor-pointer left-4 top-1/2 -translate-y-1/2 w-45 h-45 bg-[#090d1466]  shadow-md rounded-full flex items-center justify-center"
       >
         <LeftOutlined className="font-medium! text-white! text-xl" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-45 h-45 bg-[#090d1466] shadow-md rounded-full flex items-center justify-center"
+        className="absolute cursor-pointer right-4 top-1/2 -translate-y-1/2 w-45 h-45 bg-[#090d1466] shadow-md rounded-full flex items-center justify-center"
       >
         <RightOutlined className=" font-medium! text-white! text-xl" />
       </button>

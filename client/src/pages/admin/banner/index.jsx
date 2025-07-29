@@ -15,6 +15,8 @@ import {
   Divider,
   Flex,
   Image,
+  Tooltip,
+  Badge,
 } from 'antd';
 import {
   PlusOutlined,
@@ -145,9 +147,12 @@ const BannerManagement = () => {
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive) => (
-        <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? 'Đang hoạt động' : 'Ngưng hoạt động'}
-        </Tag>
+        <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
+          <Badge
+            status={isActive ? 'success' : 'default'}
+            text={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          />
+        </Tooltip>
       ),
     },
     {

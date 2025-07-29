@@ -101,7 +101,6 @@ function Home() {
         try {
           const res = await Recomment.getRecommendationsByUser(user._id);
           setRecommentProducts(res);
-
           setLoading(false);
         } catch (error) {
           setLoading(false);
@@ -153,7 +152,6 @@ function Home() {
   );
 
   const handleBannerClick = (banner) => {
-    console.log(banner);
     if (banner.linkTo) {
       window.location.href = banner.linkTo;
     }
@@ -208,7 +206,7 @@ function Home() {
             <div className="flex flex-col h-full gap-6">
               {promoBanners.slice(0, 3).map((banner, index) => (
                 <div
-                  key={banner.id}
+                  key={index}
                   className="h-1/3 cursor-pointer "
                   onClick={() => handleBannerClick(banner)}
                 >
@@ -238,15 +236,18 @@ function Home() {
             </div>
 
             <Flex className="w-full mx-auto">
-              {recommentProducts?.map((product, index) => (
-                <div key={index} className="w-1/5 px-8">
-                  <CardProduct
-                    product={product}
-                    loading={loading}
-                    className="transform transition-all duration-300"
-                  />
-                </div>
-              ))}
+              {recommentProducts?.map((product, index) => {
+                if (index > 4) return;
+                return (
+                  <div key={index} className="w-1/5 px-8">
+                    <CardProduct
+                      product={product}
+                      loading={loading}
+                      className="transform transition-all duration-300"
+                    />
+                  </div>
+                );
+              })}
             </Flex>
           </>
         </section>

@@ -47,13 +47,9 @@ axiosInstance.interceptors.response.use(
           }
         }
       } catch (refreshError) {
-        console.log(refreshError);
 
         // Nếu token refresh thất bại, yêu cầu người dùng đăng nhập lại
         if (refreshError.response && refreshError.response.status === 401) {
-          // Clear localStorage trước khi redirect để tránh loop
-          localStorage.clear();
-          callLogout();
           window.location.href = "/";
         }
 
@@ -261,13 +257,13 @@ export const callFetchOrderByUserId = (userId) => {
   return axiosInstance.get(`/api/v1/orders/user/${userId}`);
 };
 export const callCreateOrder = (value) => {
-  ;
+  console.log(value);
   return axiosInstance.post(`/api/v1/orders`, {
     ...value,
   });
 };
 
-export const callUpdateOrder = (id, value) => {
+export const  callUpdateOrder = (id, value) => {
   return axiosInstance.patch(`/api/v1/orders/${id}`, {
     ...value,
   });

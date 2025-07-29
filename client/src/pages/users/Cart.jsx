@@ -1,38 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import CartServices from '@services/carts';
-import { useAppContext } from '@/contexts';
 import {
-  Table,
-  Button,
-  InputNumber,
-  Typography,
-  Empty,
-  Flex,
-  Modal,
-  Divider,
-  Spin,
-  Card,
-  Space,
   Tag,
-  Image,
-  Tooltip,
   Row,
   Col,
+  Card,
+  Flex,
+  Spin,
+  Image,
+  Table,
+  Empty,
+  Modal,
+  Button,
+  Divider,
+  Tooltip,
+  Typography,
+  InputNumber,
 } from 'antd';
 import { Link } from 'react-router-dom';
-import {
-  DeleteOutlined,
-  ShoppingCartOutlined,
-  CreditCardOutlined,
-  MinusOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-
-const { Title, Text } = Typography;
+import CartServices from '@services/carts';
+import { useAppContext } from '@/contexts';
+import React, { useEffect, useState } from 'react';
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 
 function Cart() {
-  const { message, user } = useAppContext();
+  const { Title, Text } = Typography;
   const [open, setOpen] = useState(false);
+  const { message, user } = useAppContext();
   const [modalText, setModalText] = useState();
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);

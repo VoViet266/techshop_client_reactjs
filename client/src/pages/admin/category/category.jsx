@@ -14,6 +14,7 @@ import {
   Flex,
   Modal,
   Image,
+  Badge,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -127,17 +128,16 @@ const CategoryManagement = () => {
     },
     {
       title: 'Trạng thái',
-      key: 'status',
-      render: (s) =>
-        s.isActive ? (
-          <Tooltip title="Đang hoạt động">
-            <Tag color="green">Đang hoạt động</Tag>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Ngưng hoạt động">
-            <Tag color="red">Ngưng hoạt động</Tag>
-          </Tooltip>
-        ),
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (isActive) => (
+        <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
+          <Badge
+            status={isActive ? 'success' : 'default'}
+            text={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          />
+        </Tooltip>
+      ),
     },
   ];
 

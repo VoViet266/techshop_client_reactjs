@@ -77,7 +77,6 @@ function ProductDetail() {
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
 
-  
   const [showAllPromotions, setShowAllPromotions] = useState(false);
   const [showAllWarranties, setShowAllWarranties] = useState(false);
   const ITEMS_TO_SHOW = 4; // Số lượng items hiển thị ban đầu
@@ -208,13 +207,26 @@ function ProductDetail() {
           content: 'Thêm sản phẩm vào giỏ hàng thành công',
           key: 'loading',
         });
-        navigate('/cart');
       }
     } catch (error) {
       console.error('Error adding items to cart:', error);
       message.error('Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
     }
   };
+
+  const handleBuy = async (items) => {
+    const cartServices = new CartServices();
+    try {
+      const response = await cartServices.add(items);
+      if (response.status === 201) {
+        navigate('/order');
+      }
+    } catch (error) {
+      console.error('Error adding items to cart:', error);
+      message.error('Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
+    }
+  };
+
   const selectedVariant = product?.variants?.find(
     (v) =>
       v.memory?.ram === selectedMemory?.ram &&
@@ -593,7 +605,6 @@ function ProductDetail() {
                   </div>
                 </div>
 
-                {/* Warranties Section với Show More */}
                 <div className="border border-gray-300 rounded-md">
                   <div className="h-35 bg-[#f3f4f6] border-b rounded-t-md flex items-center justify-between border-b-gray-300 px-10">
                     <Typography.Text className="font-medium!">
@@ -652,7 +663,7 @@ function ProductDetail() {
                           return;
                         }
 
-                        await handleAddItemsToCart([
+                        await handleBuy([
                           {
                             product: product._id,
                             variant: selectedVariant._id,
@@ -742,11 +753,12 @@ function ProductDetail() {
             </Card>
           </Col>
           <Col lg={10}>
-            <Card className="p-10!">
+            <Card className="p-10!" style={{ position: 'sticky', top: 20 }}>
               <ProductSpecification product={product} />
             </Card>
           </Col>
-
+        </Row>
+        <Row gutter={[10, 10]}>
           <Col lg={24} md={24} sm={24} xs={24}>
             {recommnentProducts && recommnentProducts.length > 0 && (
               <PreviewListProducts
@@ -758,7 +770,7 @@ function ProductDetail() {
           </Col>
         </Row>
         <Row gutter={[10, 10]} className="mt-6 sm:mt-8 lg:mt-10">
-          <Col lg={24}>
+          <Col  span={24} lg={24}>
             <Comments
               stats={stats}
               product={product}

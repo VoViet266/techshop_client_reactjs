@@ -17,59 +17,51 @@ function Variants({ product, setProduct, form, setImagesToDelete }) {
     if (product) {
       form?.setFieldsValue({ variants: product.variants });
     }
-  }, [product, form]);
+  }, [form]);
 
   const handleFileChange = ({ fileList }, variantIndex) => {
-    setProduct((currentProduct) => {
-      const newProduct = { ...currentProduct };
-      const updatedVariants = [...newProduct.variants];
+    const currentVariants = form.getFieldValue('variants') || [];
+    const updatedVariants = [...currentVariants];
 
-      const filesToKeep = fileList
-        .map((file) => {
-          if (file.originFileObj) return file.originFileObj;
-          if (file.url) return file.url;
-          return null;
-        })
-        .filter(Boolean);
+    const filesToKeep = fileList
+      .map((file) => (file.originFileObj ? file.originFileObj : file.url))
+      .filter(Boolean);
 
-      updatedVariants[variantIndex] = {
-        ...updatedVariants[variantIndex],
-        images: filesToKeep,
-      };
+    updatedVariants[variantIndex] = {
+      ...updatedVariants[variantIndex],
+      images: filesToKeep,
+    };
 
-      return { ...newProduct, variants: updatedVariants };
-    });
+    form.setFieldsValue({ variants: updatedVariants });
   };
 
   const handleDraggerRemove = (file, variantIndex) => {
-    setProduct((currentProduct) => {
-      const newProduct = { ...currentProduct };
-      const updatedVariants = [...newProduct.variants];
-      const currentVariantImages = [...updatedVariants[variantIndex].images];
+    const currentVariants = form.getFieldValue('variants') || [];
+    const updatedVariants = [...currentVariants];
 
-      const removedUid = file.uid;
+    const currentVariantImages = [...updatedVariants[variantIndex].images];
+    const removedUid = file.uid;
 
-      const imageIndex = currentVariantImages.findIndex((img) => {
-        let imgUid = '';
-        if (img instanceof File) {
-          imgUid = `new-file-${variantIndex}-${img.name}-${img.size}-${img.lastModified}`;
-        } else if (typeof img === 'string') {
-          imgUid = `existing-url-${variantIndex}-${img}`;
-        }
-        return imgUid === removedUid;
-      });
-
-      if (imageIndex !== -1) {
-        const removedImage = currentVariantImages[imageIndex];
-        if (typeof removedImage === 'string') {
-          setImagesToDelete((prev) => [...prev, removedImage]);
-        }
-        currentVariantImages.splice(imageIndex, 1);
-        updatedVariants[variantIndex].images = currentVariantImages;
+    const imageIndex = currentVariantImages.findIndex((img) => {
+      let imgUid = '';
+      if (img instanceof File) {
+        imgUid = `new-file-${variantIndex}-${img.name}-${img.size}-${img.lastModified}`;
+      } else if (typeof img === 'string') {
+        imgUid = `existing-url-${variantIndex}-${img}`;
       }
-
-      return { ...newProduct, variants: updatedVariants };
+      return imgUid === removedUid;
     });
+
+    if (imageIndex !== -1) {
+      const removedImage = currentVariantImages[imageIndex];
+      if (typeof removedImage === 'string') {
+        setImagesToDelete((prev) => [...prev, removedImage]);
+      }
+      currentVariantImages.splice(imageIndex, 1);
+      updatedVariants[variantIndex].images = currentVariantImages;
+    }
+
+    form.setFieldsValue({ variants: updatedVariants });
     return true;
   };
 

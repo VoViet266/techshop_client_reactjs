@@ -98,8 +98,9 @@ const Dashboard = () => {
     try {
       const response = await axiosInstance.get(
         `/api/v1/dashboard/stats/${period}/current`,
-        { timeout: 5000 },
+        { timeout: 3000 },
       );
+      console.log(response.data.data);
       return response.data?.data || {};
     } catch (error) {
       console.error(`Error fetching ${period} stats:`, error);
@@ -225,7 +226,7 @@ const Dashboard = () => {
                 ? 'MM/YYYY'
                 : 'YYYY',
         ),
-        revenue: Math.round(item.totalRevenue / 1_000_000),
+        revenue: item.totalRevenue,
         orders: item.totalOrders,
         customers: item.totalCustomers || 0,
         aov: Math.round(item.averageOrderValue / 1000),
@@ -339,20 +340,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '60vh',
-          backgroundColor: '#f5f7fa',
-        }}
-      >
-        <Space direction="vertical" align="center">
-          <Spin size="large" />
-          <Text type="secondary">Đang tải dữ liệu...</Text>
-        </Space>
-      </div>
+      <Space direction="vertical" align="center">
+        <Spin size="large" fullscreen />
+        <Text type="secondary">Đang tải dữ liệu...</Text>
+      </Space>
     );
   }
 
@@ -395,27 +386,26 @@ const Dashboard = () => {
             <Title level={2} style={{ margin: 0 }}>
               Dashboard
             </Title>
-            <Text style={{ fontSize: '16px' }}>
+            <Text type="secondary" style={{ fontSize: '16px' }}>
               Tổng quan hiệu suất kinh doanh{' '}
-              {currentStats?.date &&
-                dayjs(currentStats.date).format('DD/MM/YYYY')}
             </Text>
           </Col>
           <Col>
-            <Space size="middle">
+            <Space size="middle" align="center">
               <Segmented
                 value={selectedPeriod}
                 onChange={handlePeriodChange}
                 options={[
                   { label: 'Hôm nay', value: 'daily' },
-                  { label: 'Tuần này', value: 'weekly' },
-                  { label: 'Tháng này', value: 'monthly' },
-                  { label: 'Năm nay', value: 'yearly' },
+                  { label: 'Tuần', value: 'weekly' },
+                  { label: 'Tháng', value: 'monthly' },
+                  { label: 'Năm', value: 'yearly' },
                 ]}
+                autoFocus={false}
                 style={{
                   backgroundColor: '#f5f5f5',
                   borderRadius: '8px',
-                  padding: '8px',
+                  height: '32px', 
                   fontSize: '14px',
                   fontWeight: '500',
                 }}
@@ -559,7 +549,10 @@ const Dashboard = () => {
             bodyStyle={{ padding: '24px' }}
           >
             <ResponsiveContainer width="100%" height={450}>
-              <ComposedChart data={chartData}>
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 10, right: 10, bottom: 10, left: 60 }}
+              >
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#667eea" stopOpacity={4} />
@@ -576,11 +569,22 @@ const Dashboard = () => {
                 />
                 <YAxis
                   yAxisId="left"
+                  dataKey="revenue"
                   stroke="#8c8c8c"
                   fontSize={12}
                   axisLine={true}
                   tickLine={true}
+                  width={80}
+                  tickFormatter={(value) => `${value.toLocaleString()} đ`}
+                  label={{
+                    value: 'Doanh thu (VNĐ)',
+                    angle: -90,
+                    position: 'insideLeft',
+                    offset: -25,
+                    style: { textAnchor: 'middle' },
+                  }}
                 />
+
                 <YAxis
                   yAxisId="right"
                   orientation="right"
@@ -599,10 +603,7 @@ const Dashboard = () => {
                   }}
                   formatter={(value, name, props) => {
                     if (props.dataKey === 'revenue') {
-                      return [
-                        `${formatCurrency(value * 1000000)} VNĐ`,
-                        'Doanh thu',
-                      ];
+                      return [`${formatCurrency(value)} VNĐ`, 'Doanh thu'];
                     } else if (props.dataKey === 'orders') {
                       return [value.toLocaleString(), 'Số đơn hàng'];
                     }
@@ -613,7 +614,7 @@ const Dashboard = () => {
                 <Area
                   yAxisId="left"
                   type="monotone"
-                  dataKey="revenue" 
+                  dataKey="revenue"
                   stroke="#667eea"
                   strokeWidth={3}
                   fill="url(#colorRevenue)"
@@ -650,6 +651,7 @@ const Dashboard = () => {
             }
             style={{
               borderRadius: '16px',
+              height: '100%',
             }}
           >
             <ResponsiveContainer width="100%" height={380}>
@@ -711,7 +713,7 @@ const Dashboard = () => {
         </Col>
       </Row>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[10]}>
         <Col xs={24} lg={12}>
           <Card
             title={
@@ -731,13 +733,12 @@ const Dashboard = () => {
             style={{
               height: '100%',
             }}
-            bodyStyle={{ padding: '24px' }}
           >
             <Table
+              bordered={true}
               dataSource={currentStats?.topSellingProducts || []}
               columns={topProductsColumns}
               pagination={false}
-              size="middle"
               rowKey="productId"
             />
           </Card>
@@ -763,13 +764,12 @@ const Dashboard = () => {
               height: '100%',
               borderRadius: '16px',
             }}
-            bodyStyle={{ padding: '24px' }}
           >
             <Table
+              bordered={true}
               dataSource={currentStats?.mostViewedProducts || []}
               columns={topViewCountColumns}
               pagination={false}
-              size="middle"
               rowKey="productId"
             />
           </Card>

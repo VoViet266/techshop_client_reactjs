@@ -21,6 +21,7 @@ import {
   Switch,
   Progress,
   Tooltip,
+  Badge,
 } from 'antd';
 import {
   PlusOutlined,
@@ -271,7 +272,7 @@ const PromotionManagement = () => {
       inactive: { color: 'gray', text: 'Vô hiệu hóa' },
     };
     const config = configs[status];
-    return <Tag color={config.color}>{config.text}</Tag>;
+    return <Badge color={config.color} text={config.text} />;
   };
 
   const columns = [
@@ -372,7 +373,7 @@ const PromotionManagement = () => {
 
   return (
     <div className="p-6  min-h-screen">
-      <div >
+      <div>
         <div className="mb-6">
           <Title level={2} className="!mb-2">
             <GiftOutlined className="mr-2" />

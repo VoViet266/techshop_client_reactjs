@@ -22,13 +22,9 @@ import {
 } from 'antd';
 import {
   PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
   EyeOutlined,
-  CheckOutlined,
-  CloseOutlined,
   PrinterOutlined,
-  FileTextOutlined,
   SearchOutlined,
   SaveOutlined,
   CheckCircleOutlined,
@@ -43,7 +39,9 @@ import { useAppContext } from '@/contexts';
 import Branchs from '@/services/branches';
 import Warehouse from '@/services/warehouse';
 import Products from '@/services/products';
-import { User } from 'lucide-react';
+import Inventory from '@/services/inventories';
+import { hasPermission } from '@/helpers';
+import { Actions, Subjects } from '@/constants/permissions';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -59,15 +57,15 @@ const WarehouseTransferManagement = () => {
   const [viewingTransfer, setViewingTransfer] = useState(null);
   const [items, setItems] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [productSearchVisible, setProductSearchVisible] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const { message, user } = useAppContext();
+  const { message, user, permissions } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
   const [rejectNote, setRejectNote] = useState('');
   const [products, setProducts] = useState([]);
-  const printRef = useRef();
+  const [fromWarehouse, setFromWarehouse] = useState(null);
+  const [toWarehouse, setToWarehouse] = useState(null);
+  const [inventory, setInventory] = useState([]);
 
   const [warehouses, setWarehouses] = useState([]);
   const [newStatus, setNewStatus] = useState(null);
@@ -94,6 +92,15 @@ const WarehouseTransferManagement = () => {
     }
   };
 
+  const fetchInventory = async () => {
+    try {
+      const response = await Inventory.getAll();
+      setInventory(response.data.data);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       const response = await Products.getAll();
@@ -109,6 +116,7 @@ const WarehouseTransferManagement = () => {
     fetchTransfers();
     fetchWarehouses();
     fetchProducts();
+    fetchInventory();
   }, []);
 
   const handleAddTransfer = () => {
@@ -135,11 +143,6 @@ const WarehouseTransferManagement = () => {
     setViewingTransfer(transfer);
     setNewStatus(transfer.status); // Set initial status
     setIsViewModalVisible(true);
-  };
-
-  const handleDeleteTransfer = (id) => {
-    setTransfers(transfers.filter((t) => t.id !== id));
-    message.success('Xóa phiếu chuyển kho thành công');
   };
 
   const handleUpdateStatus = async () => {
@@ -298,13 +301,13 @@ const WarehouseTransferManagement = () => {
       }
 
       const selectedVariant = selectedProduct.variants.find(
-        (v) => v._id === values.variantId,
+        (v) => v.variantId._id === values.variantId,
       );
 
       const newItem = {
         productId: values.productId,
         variantId: values.variantId,
-        name: `${selectedProduct.name} - ${selectedVariant.name}`,
+        name: `${selectedProduct.product.name} - ${selectedVariant.variantId.name}`,
         quantity: values.quantity,
         unit: values.unit || selectedVariant.unit || 'cái',
       };
@@ -475,6 +478,11 @@ const WarehouseTransferManagement = () => {
   const availableOptions = statusOptions.filter((option) =>
     allowedNextStatuses[viewingTransfer?.status]?.includes(option.value),
   );
+
+  const productInInventory = inventory.filter(
+    (product) => product.branch?._id.toString() === fromWarehouse?.toString(),
+  );
+
   return (
     <div className="p-6 bg-gray-50 ">
       <Card>
@@ -483,8 +491,12 @@ const WarehouseTransferManagement = () => {
             <SwapOutlined className="mr-4!" />
             Quản lý chuyển kho hàng hóa
           </Title>
+
           <Button
             type="primary"
+            disabled={
+              !hasPermission(permissions, Subjects.Transfer, Actions.Create)
+            }
             icon={<PlusOutlined />}
             onClick={handleAddTransfer}
             size="large"
@@ -512,7 +524,14 @@ const WarehouseTransferManagement = () => {
           editingTransfer ? 'Sửa phiếu chuyển kho' : 'Tạo phiếu chuyển kho'
         }
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => (
+          setIsModalVisible(false),
+          form.resetFields(),
+          setItems([]),
+          setSelectedProduct(null),
+          setFromWarehouse(null),
+          setToWarehouse(null)
+        )}
         footer={
           <>
             <Button onClick={() => setIsModalVisible(false)}>Hủy</Button>
@@ -531,8 +550,15 @@ const WarehouseTransferManagement = () => {
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item label="Từ kho" name="fromWarehouse">
-                <Select placeholder="Chọn kho xuất">
+              <Form.Item
+                label="Từ kho"
+                name="fromWarehouse"
+                rules={[{ required: true, message: 'Vui lòng chọn kho xuất' }]}
+              >
+                <Select
+                  placeholder="Chọn kho xuất"
+                  onChange={(value) => setFromWarehouse(value)}
+                >
                   {warehouses.map((warehouse) => (
                     <Option key={warehouse._id} value={warehouse._id}>
                       {warehouse.name}
@@ -547,12 +573,17 @@ const WarehouseTransferManagement = () => {
                 name="toWarehouse"
                 rules={[{ required: true, message: 'Vui lòng chọn kho nhập' }]}
               >
-                <Select placeholder="Chọn kho nhập">
-                  {warehouses.map((warehouse) => (
-                    <Option key={warehouse._id} value={warehouse._id}>
-                      {warehouse.name}
-                    </Option>
-                  ))}
+                <Select
+                  placeholder="Chọn kho nhập"
+                  onChange={(value) => setToWarehouse(value)}
+                >
+                  {warehouses
+                    .filter((w) => w._id !== fromWarehouse)
+                    .map((warehouse) => (
+                      <Option key={warehouse._id} value={warehouse._id}>
+                        {warehouse.name}
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -563,7 +594,7 @@ const WarehouseTransferManagement = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item label="Sản phẩm" name="productId">
-                <Form.Item name="productId" style={{ display: 'none' }}>
+                {/* <Form.Item name="productId" style={{ display: 'none' }}>
                   <Input type="hidden" />
                 </Form.Item>
                 <Input
@@ -573,15 +604,34 @@ const WarehouseTransferManagement = () => {
                   value={selectedProduct?.name || ''}
                   suffix={<SearchOutlined />}
                   style={{ cursor: 'pointer' }}
-                />
+                /> */}
+                <Select
+                  showSearch
+                  placeholder="Chọn sản phẩm"
+                  disabled={!fromWarehouse}
+                  onChange={(value) =>
+                    setSelectedProduct(
+                      inventory.find((p) => p.product._id === value),
+                    )
+                  }
+                >
+                  {productInInventory.map((p) => (
+                    <Option key={p.product._id} value={p.product._id}>
+                      {p.product.name}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="variantId" label="Biến thể">
                 <Select placeholder="Chọn biến thể" disabled={!selectedProduct}>
                   {selectedProduct?.variants?.map((variant) => (
-                    <Option key={variant._id} value={variant._id}>
-                      {variant.name}
+                    <Option
+                      key={variant.variantId._id}
+                      value={variant.variantId._id}
+                    >
+                      {variant.variantId.name} - Tồn {variant.stock}
                     </Option>
                   ))}
                 </Select>
@@ -801,7 +851,14 @@ const WarehouseTransferManagement = () => {
                     icon={<SaveOutlined />}
                     loading={statusLoading}
                     onClick={handleUpdateStatus}
-                    disabled={newStatus === viewingTransfer.status}
+                    disabled={
+                      newStatus === viewingTransfer.status ||
+                      !hasPermission(
+                        permissions,
+                        Subjects.Transfer,
+                        Actions.Update,
+                      )
+                    }
                   >
                     Cập nhật
                   </Button>
@@ -882,13 +939,13 @@ const WarehouseTransferManagement = () => {
         )}
       </Modal>
 
-      <ModalSearchProduct
+      {/* <ModalSearchProduct
         productSearchVisible={isProductSearchVisible}
         setProductSearchVisible={setIsProductSearchVisible}
         handleSelectProduct={handleSelectProduct}
         products={products}
         filteredProducts={filteredProducts}
-      />
+      /> */}
     </div>
   );
 };

@@ -175,9 +175,9 @@ const ProductSpecification = ({ product }) => {
 
   return (
     <div>
-      <Typography.Title level={3} className="mb-20!">
+      {/* <Typography.Title level={3} className="mb-20!">
         Thông số cấu hình
-      </Typography.Title>
+      </Typography.Title> */}
       {renderGroups()}
       {renderExtraFields()}
     </div>

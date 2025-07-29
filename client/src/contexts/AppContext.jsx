@@ -44,8 +44,10 @@ function AppProvider({ children }) {
           setPermissions(response.data.data.role.permissions);
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          return;
+        }
         console.error('Error verifying token:', error);
-        localStorage.removeItem('access_token');
       } finally {
         setLoading(false);
       }

@@ -45,7 +45,7 @@ function SearchProductResult() {
         key: 'search',
       });
       const result = await Products.search(query);
-      message.success({ content: 'Tìm kiếm thành công', key: 'search' });
+      message.destroy();
       setResult(result);
       setLoading(false);
     } catch (error) {
@@ -288,9 +288,9 @@ function SearchProductResult() {
               <Card>
                 <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:justify-between sm:items-center ">
                   <Text strong>{sortedProducts.length} sản phẩm</Text>
-                  <Space.Compact className='mb-10!'>
+                  <Space.Compact className="mb-10!">
                     <Segmented
-                    className='p-6!'
+                      className="p-6!"
                       options={['Nổi bật', 'Giá tăng dần', 'Giá giảm dần']}
                       onChange={(value) => {
                         switch (value) {
@@ -336,7 +336,14 @@ function SearchProductResult() {
                 ) : (
                   <Row gutter={[10, 10]}>
                     {sortedProducts.map((product) => (
-                      <Col key={product.id} xs={24} sm={12} md={8} lg={6} xl={8}>
+                      <Col
+                        key={product.id}
+                        xs={24}
+                        sm={12}
+                        md={8}
+                        lg={6}
+                        xl={8}
+                      >
                         <CardProduct product={product} />
                       </Col>
                     ))}

@@ -1,5 +1,11 @@
 import { UsersLayout, AdminLayout } from '@layouts';
-import { Cart, ListProducts, Order, AccountInfo } from '@pages/users';
+import {
+  Cart,
+  ListProducts,
+  Order,
+  AccountInfo,
+  PaymentSuccess,
+} from '@pages/users';
 import BranchManagement from '@/pages/admin/branch';
 import Dashboard from '@/pages/admin/dashboard/Dashboard';
 import { Home, ProductDetail, SearchProductResult } from '@/pages/users';
@@ -27,6 +33,7 @@ import ForgotPasswordPage from '@/pages/app/forgotPassword';
 import GoogleSuccess from '@/pages/app/googleSucces';
 import WarrantyPolicyManagement from '@/pages/admin/Policy/warrantyPolicy';
 import PromotionManagement from '@/pages/admin/Policy/promotion';
+import PaymentFailure from '@/pages/users/PaymentFailure';
 
 const router = createBrowserRouter([
   {
@@ -44,6 +51,14 @@ const router = createBrowserRouter([
       {
         path: 'account-info',
         element: <AccountInfo />,
+      },
+      {
+        path: 'payment-success',
+        element: <PaymentSuccess />,
+      },
+      {
+        path: 'payment-failure',
+        element: <PaymentFailure />,
       },
       {
         path: 'order',

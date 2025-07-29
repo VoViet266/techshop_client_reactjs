@@ -104,7 +104,7 @@ function EditProduct() {
 
         form.setFieldsValue({
           ...fetchedProduct,
-          category: fetchedProduct.category._id, 
+          category: fetchedProduct.category._id,
           brand: fetchedProduct.brand._id,
           attributes: fetchedProduct.attributes || {},
           variants: fetchedProduct.variants || [],
@@ -329,9 +329,11 @@ function EditProduct() {
       }
 
       const productToSubmit = { ...product, ...validatedValues };
+      console.log('productToSubmit', productToSubmit);
       productToSubmit._id = product._id;
       productToSubmit.category = validatedValues.category;
       productToSubmit.brand = validatedValues.brand;
+      productToSubmit.description = validatedValues.description || '';
       productToSubmit.attributes = validatedValues.attributes || {};
       productToSubmit.variants = validatedValues.variants || [];
 
@@ -437,7 +439,7 @@ function EditProduct() {
           categories={categories}
           onCategoryChange={onCategoryChange}
           form={form}
-          initialProductData={product}
+          product={product}
         />
 
         {fieldsToShow.specifications && (
