@@ -22,6 +22,7 @@ import {
   Switch,
   Popconfirm,
   Checkbox,
+  Badge,
 } from 'antd';
 import {
   UserOutlined,
@@ -335,10 +336,13 @@ const UserManagement = () => {
       title: 'Trạng thái',
       key: 'isActive',
       align: 'center',
-      render: (record) => (
-        <Tag color={record.isActive ? 'green' : 'red'} className="p-5! w-full">
-          {record.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
-        </Tag>
+      render: (isActive) => (
+        <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
+          <Badge
+            status={isActive ? 'success' : 'default'}
+            text={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          />
+        </Tooltip>
       ),
     },
     {

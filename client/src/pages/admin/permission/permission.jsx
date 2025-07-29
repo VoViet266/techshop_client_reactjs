@@ -18,6 +18,7 @@ import {
   Popconfirm,
   Select,
   Switch,
+  Badge,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -224,18 +225,27 @@ const PermissionsManagement = () => {
       title: 'Mô tả',
       dataIndex: 'description',
       key: 'description',
-      render: (text) =>
-        text ? (
-          text.length > 100 ? (
-            <Tooltip title={text}>{text.substring(0, 100)}...</Tooltip>
+      render: (text) => (
+        <div
+          style={{
+            maxWidth: 400,
+            overflow: 'auto',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {text ? (
+            text.length > 100 ? (
+              <Tooltip title={text}>{text.substring(0, 100)}...</Tooltip>
+            ) : (
+              text
+            )
           ) : (
-            text
-          )
-        ) : (
-          <Text type="secondary" italic>
-            No description
-          </Text>
-        ),
+            <Text type="secondary" italic>
+              No description
+            </Text>
+          )}
+        </div>
+      ),
     },
     {
       title: 'Ngày tạo',
@@ -250,10 +260,13 @@ const PermissionsManagement = () => {
       title: 'Trạng thái',
       key: 'isActive',
       align: 'center',
-      render: (_, record) => (
-        <Tag color={record.isActive ? 'green' : 'red'}>
-          {record.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
-        </Tag>
+      render: (isActive) => (
+        <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
+          <Badge
+            status={isActive ? 'success' : 'default'}
+            text={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          />
+        </Tooltip>
       ),
     },
     {

@@ -1,6 +1,7 @@
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useAppContext } from '@/contexts';
 import { formatCurrency } from '@/helpers';
-import useMessage from '@/hooks/useMessage';
+
 import {
   callCreateOrder,
   callFetchBranches,
@@ -9,16 +10,13 @@ import {
   callUpdateOrder,
 } from '@/services/apis';
 import Inventory from '@/services/inventories';
+import Products from '@/services/products';
 import {
   EyeOutlined,
-  EditOutlined,
   ShoppingCartOutlined,
-  UserOutlined,
   EnvironmentOutlined,
-  CreditCardOutlined,
   SearchOutlined,
   ReloadOutlined,
-  HomeOutlined,
   DollarOutlined,
   PlusOutlined,
   MinusOutlined,
@@ -33,7 +31,6 @@ import {
   DatePicker,
   Descriptions,
   Divider,
-  Form,
   Input,
   InputNumber,
   Modal,
@@ -46,68 +43,53 @@ import {
   Popconfirm,
   Empty,
   Steps,
+  Form,
+  message,
+  notification,
 } from 'antd';
-import { useEffect, useState } from 'react';
 import { BsCartCheck } from 'react-icons/bs';
+import OrderDetailsModal from '@/components/admin/order/orderDetailModal';
+import CreateOrderModal from '@/components/admin/order/orderCreateModal';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const OrderManagement = () => {
+
+
+
+const STATUS_OPTIONS = [
+  { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
+  { value: 'PROCESSING', label: 'Đang xử lý', color: 'cyan' },
+  { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
+  { value: 'SHIPPING', label: 'Đang giao hàng', color: 'purple' },
+  { value: 'DELIVERED', label: 'Đã giao hàng', color: 'green' },
+  { value: 'CANCELLED', label: 'Đã hủy', color: 'red' },
+  { value: 'RETURNED', label: 'Đã trả hàng', color: 'gray' },
+];
+
+const PAYMENT_STATUS_OPTIONS = [
+  { value: 'PENDING', label: 'Đang chờ thanh toán', color: 'orange' },
+  { value: 'COMPLETED', label: 'Đã thanh toán', color: 'green' },
+  { value: 'FAILED', label: 'Thanh toán thất bại', color: 'red' },
+  { value: 'CANCELLED', label: 'Đã hủy', color: 'gray' },
+  { value: 'REFUNDED', label: 'Đã hoàn tiền', color: 'blue' },
+];
+
+
+
+const useOrderData = () => {
   const [orders, setOrders] = useState([]);
   const [branches, setBranches] = useState([]);
   const [products, setProducts] = useState([]);
   const [productsInInventory, setProductsInInventory] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState(orders);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { message, notification } = useAppContext();
-  const [filters, setFilters] = useState({
-    branch: '',
-    searchText: '',
-    dateRange: null,
-  });
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedVariant, setSelectedVariant] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const { user } = useAppContext();
-  const [createOrderData, setCreateOrderData] = useState({
-    name: '',
-    phone: '',
-    items: [],
-    paymentMethod: 'cash',
-    branch: user.branch,
-  });
-
-  const paymentMethods = [
-    {
-      value: 'cash',
-      label: <>Thanh toán tiền mặt</>,
-    },
-    {
-      value: 'momo',
-      label: <>Thanh toán qua MOMO</>,
-    },
-    {
-      value: 'bank',
-      label: <>Thanh toán qua chuyển khoản</>,
-    },
-    {
-      value: 'cod',
-      label: <>Thanh toán khi nhận hàng</>,
-    },
-  ];
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await callFetchOrders();
       setOrders(res.data.data);
-      setFilteredOrders(res.data.data);
-      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
       notification.error({
@@ -115,33 +97,30 @@ const OrderManagement = () => {
         description: `Lỗi: ${error}`,
         duration: 4.5,
       });
+    } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const res = await callFetchProducts();
       setProducts(res.data.data.result);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       notification.error({
         message: 'Lỗi tải dữ liệu sản phẩm',
-        description: `Lỗi: ${error}s`,
+        description: `Lỗi: ${error}`,
         duration: 4.5,
       });
       console.error('Failed to fetch products:', error);
     }
-  };
+  }, []);
 
-  const fetchBranches = async () => {
+  const fetchBranches = useCallback(async () => {
     try {
       const res = await callFetchBranches();
       setBranches(res.data.data);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       notification.error({
         message: 'Lỗi tải dữ liệu chi nhánh',
         description: `Lỗi: ${error}`,
@@ -149,15 +128,13 @@ const OrderManagement = () => {
       });
       console.error('Failed to fetch branches:', error);
     }
-  };
+  }, []);
 
-  const fetchProductsInInventory = async () => {
+  const fetchProductsInInventory = useCallback(async () => {
     try {
       const res = await Inventory.getAll();
       setProductsInInventory(res.data.data);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       notification.error({
         message: 'Lỗi tải dữ liệu sản phẩm',
         description: `Lỗi: ${error}`,
@@ -165,10 +142,40 @@ const OrderManagement = () => {
       });
       console.error('Failed to fetch products:', error);
     }
-  };
+  }, []);
 
-  useEffect(() => {
+  const reloadData = useCallback(async () => {
+    await Promise.all([
+      fetchOrders(),
+      fetchProducts(),
+      fetchBranches(),
+      fetchProductsInInventory(),
+    ]);
+  }, [fetchOrders, fetchProducts, fetchBranches, fetchProductsInInventory]);
+
+  return {
+    orders,
+    branches,
+    products,
+    productsInInventory,
+    loading,
+    setLoading,
+    reloadData,
+    fetchOrders,
+  };
+};
+
+const useOrderFilters = (orders) => {
+  const [filters, setFilters] = useState({
+    branch: '',
+    searchText: '',
+    dateRange: null,
+    status: '',
+  });
+
+  const filteredOrders = useMemo(() => {
     let filtered = [...orders];
+
     if (filters.branch) {
       filtered = filtered.filter((order) =>
         order.items.some(
@@ -176,13 +183,18 @@ const OrderManagement = () => {
         ),
       );
     }
+
     if (filters.searchText) {
-      const searchLower = filters?.searchText.toLowerCase();
+      const searchLower = filters.searchText.toLowerCase();
       filtered = filtered.filter(
         (order) =>
-          order.items.product?.name?.toLowerCase().includes(searchLower) ||
-          order.createdBy.email?.toLowerCase().includes(searchLower) ||
-          order.createdBy.name?.toLowerCase().includes(searchLower),
+          order.buyer?.name?.toLowerCase().includes(searchLower) ||
+          order.buyer?.phone?.toLowerCase().includes(searchLower) ||
+          order.createdBy?.email?.toLowerCase().includes(searchLower) ||
+          order.createdBy?.name?.toLowerCase().includes(searchLower) ||
+          order.items.some((item) =>
+            item.product?.name?.toLowerCase().includes(searchLower),
+          ),
       );
     }
 
@@ -200,17 +212,20 @@ const OrderManagement = () => {
       );
     }
 
-    setFilteredOrders(filtered);
+    return filtered;
   }, [orders, filters]);
 
-  const getStatistics = () => {
+  return { filters, setFilters, filteredOrders };
+};
+
+// Components
+const OrderStatistics = ({ orders }) => {
+  const stats = useMemo(() => {
     const totalOrders = orders.length;
-    const totalRevenue = orders
-      // .filter(
-      //   (order) =>
-      //     order.status === 'DELIVERED' && order.paymentStatus === 'COMPLETED',
-      // )
-      .reduce((sum, order) => sum + order.totalPrice, 0);
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + order.totalPrice,
+      0,
+    );
     const pendingOrders = orders.filter(
       (order) => order.status === 'PENDING',
     ).length;
@@ -219,203 +234,270 @@ const OrderManagement = () => {
     ).length;
 
     return { totalOrders, totalRevenue, pendingOrders, unpaidOrders };
-  };
+  }, [orders]);
 
-  const stats = getStatistics();
+  return (
+    <Row gutter={10} style={{ marginBottom: '10px' }}>
+      <Col span={6}>
+        <Card>
+          <Statistic
+            title="Tổng đơn hàng"
+            value={stats.totalOrders}
+            prefix={<ShoppingCartOutlined />}
+          />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic
+            title="Tổng doanh thu"
+            value={stats.totalRevenue}
+            formatter={(value) => formatCurrency(value)}
+            prefix={<DollarOutlined />}
+          />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic
+            title="Đơn chờ xử lý"
+            value={stats.pendingOrders}
+            valueStyle={{ color: '#faad14' }}
+            prefix={<Badge status="warning" />}
+          />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic
+            title="Chưa thanh toán"
+            value={stats.unpaidOrders}
+            valueStyle={{ color: '#ff4d4f' }}
+            prefix={<Badge status="error" />}
+          />
+        </Card>
+      </Col>
+    </Row>
+  );
+};
 
-  const showOrderDetails = (order) => {
+const OrderFilters = ({ filters, setFilters, branches, onCreateOrder }) => (
+  <Card style={{ marginBottom: '10px' }}>
+    <Row gutter={16}>
+      <Col span={6}>
+        <Input
+          placeholder="Tìm kiếm theo tên, SĐT, sản phẩm..."
+          prefix={<SearchOutlined />}
+          value={filters.searchText}
+          onChange={(e) =>
+            setFilters({ ...filters, searchText: e.target.value })
+          }
+        />
+      </Col>
+      <Col span={4}>
+        <Select
+          placeholder="Trạng thái"
+          style={{ width: '100%' }}
+          value={filters.status}
+          onChange={(value) => setFilters({ ...filters, status: value })}
+          allowClear
+        >
+          {STATUS_OPTIONS.map((option) => (
+            <Option key={option.value} value={option.value}>
+              {option.label}
+            </Option>
+          ))}
+        </Select>
+      </Col>
+      <Col span={4}>
+        <Select
+          placeholder="Chi nhánh"
+          style={{ width: '100%' }}
+          value={filters.branch}
+          onChange={(value) => setFilters({ ...filters, branch: value })}
+          allowClear
+        >
+          {branches.map((branch) => (
+            <Option key={branch._id} value={branch._id}>
+              {branch.name}
+            </Option>
+          ))}
+        </Select>
+      </Col>
+      <Col span={4}>
+        <RangePicker
+          style={{ width: '100%' }}
+          placeholder={['Từ ngày', 'Đến ngày']}
+          value={filters.dateRange}
+          onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
+        />
+      </Col>
+      <Col span={2}>
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={() =>
+            setFilters({
+              status: '',
+              branch: '',
+              searchText: '',
+              dateRange: null,
+            })
+          }
+        >
+          Reset
+        </Button>
+      </Col>
+      <Col span={4}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={onCreateOrder}>
+          Tạo Đơn Hàng Tại Quầy
+        </Button>
+      </Col>
+    </Row>
+  </Card>
+);
+
+
+
+
+// Main Component
+const OrderManagement = () => {
+  const { user } = useAppContext();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+  const {
+    orders,
+    branches,
+    products,
+    productsInInventory,
+    loading,
+    setLoading,
+    reloadData,
+    fetchOrders,
+  } = useOrderData();
+
+  const { filters, setFilters, filteredOrders } = useOrderFilters(orders);
+
+  useEffect(() => {
+    reloadData();
+  }, [reloadData]);
+
+  const showOrderDetails = useCallback((order) => {
     setSelectedOrder(order);
     setIsModalVisible(true);
-  };
+  }, []);
 
-  const addProductToCart = () => {
-    if (!selectedProduct || !selectedVariant || quantity <= 0) {
-      notification.warning({
-        message: 'Thông tin chưa đầy đủ',
-        description:
-          'Vui lòng chọn sản phẩm, phân loại và nhập số lượng hợp lệ trước khi thêm vào giỏ hàng.',
-        duration: 4,
-      });
-      return;
-    }
-
-    const existingItemIndex = createOrderData.items.findIndex(
-      (item) =>
-        item.product === selectedProduct._id &&
-        item.variant === selectedVariant._id,
-    );
-
-    let newItems;
-    if (existingItemIndex >= 0) {
-      newItems = [...createOrderData.items];
-      newItems[existingItemIndex].quantity += quantity;
-    } else {
-      const newItem = {
-        product: selectedProduct._id,
-        productName: selectedProduct.name,
-        variant: selectedVariant._id,
-        variantName: selectedVariant.name,
-        quantity: quantity,
-        price: selectedVariant.salePrice || selectedVariant.price,
-      };
-      newItems = [...createOrderData.items, newItem];
-    }
-
-    setCreateOrderData({
-      ...createOrderData,
-      items: newItems,
-    });
-
-    setSelectedProduct(null);
-    setSelectedVariant(null);
-    setQuantity(1);
-
-    message.success('Sản phẩm đã được thêm vào đơn hàng thành công');
-  };
-
-  const removeProductFromCart = (index) => {
-    const newItems = createOrderData.items.filter((_, i) => i !== index);
-    setCreateOrderData({
-      ...createOrderData,
-      items: newItems,
-    });
-  };
-
-  const updateCartItemQuantity = (index, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeProductFromCart(index);
-      return;
-    }
-
-    const newItems = [...createOrderData.items];
-    newItems[index].quantity = newQuantity;
-
-    setCreateOrderData({
-      ...createOrderData,
-      items: newItems,
-    });
-  };
-
-  const calculateTotal = () => {
-    return createOrderData.items.reduce((total, item) => {
-      return total + item.price * item.quantity;
-    }, 0);
-  };
-
-  const reloadTable = async () => {
-    try {
-      const res = await callFetchOrders();
-      setOrders(res.data.data);
-      setFilteredOrders(res.data.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-      notification.error({
-        message: 'Lỗi làm mới dữ liệu',
-        description:
-          'Không thể tải lại danh sách đơn hàng. Vui lòng thử lại sau.',
-        duration: 4,
-      });
-    }
-  };
-
-  const handleCreateOrderSubmit = async () => {
-    if (!createOrderData.phone) {
-      notification.warning({
-        message: 'Thiếu thông tin bắt buộc',
-        description:
-          'Vui lòng nhập số điện thoại khách hàng để tiếp tục tạo đơn hàng.',
-        duration: 4,
-      });
-      return;
-    }
-
-    if (createOrderData.items.length === 0) {
-      notification.warning({
-        message: 'Giỏ hàng trống',
-        description:
-          'Vui lòng thêm ít nhất một sản phẩm vào đơn hàng trước khi tạo.',
-        duration: 4,
-      });
-      return;
-    }
-
-    if (
-      createOrderData.items.some(
-        (item) => item.quantity <= 0 || item.price <= 0,
-      )
-    ) {
-      notification.error({
-        message: 'Dữ liệu không hợp lệ',
-        description:
-          'Phát hiện sản phẩm có số lượng hoặc giá không hợp lệ. Vui lòng kiểm tra lại.',
-        duration: 4.5,
-      });
-      return;
-    }
-
+  const handleCreateOrderSubmit = async (orderData) => {
     setLoading(true);
 
-    const orderData = {
+    const submitData = {
       buyer: {
-        name: createOrderData.name,
-        phone: createOrderData.phone,
+        name: orderData.name,
+        phone: orderData.phone,
       },
       recipient: {
-        name: createOrderData.name,
-        phone: createOrderData.phone,
-        address: `Nhận tại quầy, ${branches.find((b) => b._id === user?.branch)?.name}`,
+        name: orderData.name,
+        phone: orderData.phone,
+        address: `Nhận tại quầy, ${branches.find((b) => b._id === user?.branch)?.name || 'Chi nhánh'}`,
       },
-      items: createOrderData.items.map((item) => ({
+      items: orderData.items.map((item) => ({
         product: item.product,
         variant: item.variant,
         quantity: item.quantity,
         price: item.price,
-        branch: createOrderData.branch,
+        branch: orderData.branch,
       })),
-      paymentMethod: createOrderData.paymentMethod,
+      paymentMethod: orderData.paymentMethod,
     };
 
     try {
-      await callCreateOrder(orderData);
+      await callCreateOrder(submitData);
       setIsCreateModalVisible(false);
-      setCreateOrderData({
-        phone: '',
-        items: [],
-        paymentMethod: 'cash',
-        branch: user?.branch,
-      });
+
+      const total = orderData.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
 
       notification.success({
         message: 'Tạo đơn hàng thành công',
-        description: `Đơn hàng đã được tạo thành công với tổng giá trị ${formatCurrency(calculateTotal())}.`,
+        description: `Đơn hàng đã được tạo thành công với tổng giá trị ${formatCurrency(total)}.`,
         duration: 4.5,
       });
 
-      reloadTable();
-      setLoading(false);
+      await fetchOrders();
     } catch (err) {
+      console.error('Create order error:', err);
+
       if (err.response?.status === 404) {
         notification.error({
           message: 'Không đủ hàng trong kho',
           description:
-            'Một hoặc nhiều sản phẩm trong đơn hàng không đủ số lượng tồn kho. Vui lòng kiểm tra lại và điều chỉnh số lượng.',
+            'Một hoặc nhiều sản phẩm trong đơn hàng không đủ số lượng tồn kho.',
           duration: 5,
         });
-        setLoading(false);
-        return;
       } else {
         notification.error({
           message: 'Lỗi tạo đơn hàng',
           description:
             err.response?.data?.message ||
-            'Đã xảy ra lỗi không xác định khi tạo đơn hàng. Vui lòng thử lại.',
+            'Đã xảy ra lỗi không xác định khi tạo đơn hàng.',
           duration: 5,
         });
       }
-      console.error(err);
+    } finally {
       setLoading(false);
-      return;
+    }
+  };
+
+  const handleUpdateOrder = async (orderId, data) => {
+    try {
+      setLoading(true);
+      await callUpdateOrder(orderId, data);
+      await fetchOrders();
+
+      notification.success({
+        message: 'Cập nhật đơn hàng thành công',
+        description: 'Thông tin đơn hàng đã được cập nhật và lưu vào hệ thống.',
+        duration: 4,
+      });
+    } catch (error) {
+      console.error('Failed to update order:', error);
+      notification.error({
+        message: 'Cập nhật đơn hàng thất bại',
+        description:
+          error.response?.data?.message ||
+          'Đã xảy ra lỗi khi cập nhật đơn hàng.',
+        duration: 4,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmReturn = async (status) => {
+    try {
+      setLoading(true);
+      await Products.confirmReturn(selectedOrder._id, status);
+      await fetchOrders();
+
+      notification.success({
+        message: 'Cập nhật đơn hàng thành công',
+        description: 'Thông tin đơn hàng đã được cập nhật và lưu vào hệ thống.',
+        duration: 4,
+      });
+    } catch (error) {
+      console.error('Failed to confirm return:', error);
+      notification.error({
+        message: 'Cập nhật đơn hàng thất bại',
+        description:
+          error.response?.data?.message ||
+          'Đã xảy ra lỗi khi cập nhật đơn hàng.',
+        duration: 4,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -427,7 +509,7 @@ const OrderManagement = () => {
       width: 140,
       render: (text) => (
         <Text code copyable={{ text }}>
-          #{text.slice(-8)}
+          #{text?.slice(-8) || ''}
         </Text>
       ),
     },
@@ -438,9 +520,22 @@ const OrderManagement = () => {
       width: 180,
       render: (_, record) => (
         <div>
-          <div>{record.createdBy.name || 'Không có'}</div>
+          <div>{record.createdBy?.name || 'Không có'}</div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            {record.createdBy.email}
+            {record.createdBy?.email || ''}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Khách hàng',
+      key: 'buyer',
+      width: 150,
+      render: (_, record) => (
+        <div>
+          <div>{record.buyer?.name || 'Không có'}</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>
+            {record.buyer?.phone || ''}
           </div>
         </div>
       ),
@@ -452,7 +547,8 @@ const OrderManagement = () => {
       render: (_, record) => (
         <div>
           {record.items
-            .map((item) => item.branch.name || 'Không có')
+            ?.map((item) => item.branch?.name || 'Không có')
+            .filter((name, index, self) => self.indexOf(name) === index)
             .join(', ')}
         </div>
       ),
@@ -463,17 +559,20 @@ const OrderManagement = () => {
       width: 200,
       render: (_, record) => (
         <div>
-          {record.items.map((item, index) => (
+          {record.items?.map((item, index) => (
             <div
-              key={index}
+              key={`${item.product?._id}-${item.variant?._id}-${index}`}
               style={{ marginBottom: index < record.items.length - 1 ? 4 : 0 }}
             >
-              <div style={{ fontSize: '13px' }}>{item.product?.name}</div>
+              <div style={{ fontSize: '13px' }}>
+                {item.product?.name || 'Không có tên'}
+              </div>
               <div style={{ fontSize: '11px', color: '#666' }}>
-                {item.variant?.name} x {item.quantity}
+                {item.variant?.name || 'Không có phân loại'} x{' '}
+                {item.quantity || 0}
               </div>
             </div>
-          ))}
+          )) || 'Không có sản phẩm'}
         </div>
       ),
     },
@@ -484,7 +583,7 @@ const OrderManagement = () => {
       width: 120,
       render: (price) => (
         <Text strong style={{ color: '#1890ff' }}>
-          {formatCurrency(price)}
+          {formatCurrency(price || 0)}
         </Text>
       ),
     },
@@ -494,17 +593,34 @@ const OrderManagement = () => {
       key: 'status',
       width: 120,
       render: (status) => {
-        const statusLabel =
-          statusOptions.find((opt) => opt.value === status)?.label || status;
-        const statusColor =
-          statusOptions.find((opt) => opt.value === status)?.color || 'default';
-        return <Tag color={statusColor}>{statusLabel}</Tag>;
+        const statusOption = STATUS_OPTIONS.find((opt) => opt.value === status);
+        return (
+          <Tag color={statusOption?.color || 'default'}>
+            {statusOption?.label || status}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Thanh toán',
+      dataIndex: 'paymentStatus',
+      key: 'paymentStatus',
+      width: 120,
+      render: (paymentStatus) => {
+        const statusOption = PAYMENT_STATUS_OPTIONS.find(
+          (opt) => opt.value === paymentStatus,
+        );
+        return (
+          <Tag color={statusOption?.color || 'default'}>
+            {statusOption?.label || paymentStatus}
+          </Tag>
+        );
       },
     },
     {
       title: 'Hành động',
       key: 'actions',
-      width: 50,
+      width: 80,
       render: (_, record) => (
         <Space>
           <Button
@@ -512,116 +628,12 @@ const OrderManagement = () => {
             size="small"
             icon={<EyeOutlined />}
             onClick={() => showOrderDetails(record)}
-          ></Button>
+            title="Xem chi tiết"
+          />
         </Space>
       ),
     },
   ];
-
-  const handleUpdateOrder = async (orderId, data) => {
-    try {
-      setLoading(true);
-      await callUpdateOrder(orderId, data);
-      reloadTable();
-
-      notification.success({
-        message: 'Cập nhật đơn hàng thành công',
-        description: 'Thông tin đơn hàng đã được cập nhật và lưu vào hệ thống.',
-        duration: 4,
-      });
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to update order:', error);
-      if (error.response?.data?.statusCode === 404) {
-        notification.error({
-          message: 'Cập nhật đơn hàng',
-          description: error.response?.data?.message,
-          duration: 4,
-        });
-      }
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrders();
-    fetchBranches();
-    fetchProducts();
-    fetchProductsInInventory();
-  }, []);
-
-  const statusOptions = [
-    { value: 'PENDING', label: 'Chờ xử lý', color: 'orange' },
-    { value: 'PROCESSING', label: 'Đang xử lý', color: 'cyan' },
-    { value: 'CONFIRMED', label: 'Đã xác nhận', color: 'blue' },
-    { value: 'SHIPPING', label: 'Đang giao hàng', color: 'purple' },
-    { value: 'DELIVERED', label: 'Đã giao hàng', color: 'green' },
-    { value: 'CANCELLED', label: 'Đã hủy', color: 'red' },
-    { value: 'RETURNED', label: 'Đã trả hàng', color: 'gray' },
-  ];
-
-  const paymentStatusOptions = [
-    { value: 'PENDING', label: 'Đang chờ thanh toán', color: 'orange' },
-    { value: 'COMPLETED', label: 'Đã thanh toán', color: 'green' },
-    { value: 'FAILED', label: 'Thanh toán thất bại', color: 'red' },
-    { value: 'CANCELLED', label: 'Đã hủy', color: 'gray' },
-    { value: 'REFUNDED', label: 'Đã hoàn tiền', color: 'blue' },
-  ];
-
-  const getStatusSteps = (status) => {
-    const steps = [
-      { title: 'Tạo đơn hàng' },
-      { title: 'Xử lý đơn hàng' },
-      { title: 'Xác nhận đơn hàng' },
-      { title: 'Vận chuyển' },
-      { title: 'Đã nhận' },
-    ];
-
-    let current;
-    switch (status) {
-      case 'PENDING':
-        current = 0;
-        break;
-      case 'PROCESSING':
-        current = 1;
-        break;
-      case 'CONFIRMED':
-        current = 2;
-        break;
-      case 'SHIPPING':
-        current = 3;
-        break;
-      case 'DELIVERED':
-        current = 4;
-        break;
-      default:
-        break;
-    }
-
-    return { steps, current };
-  };
-
-  const paymentMethod = {
-    cash: 'Thanh toán tiền mặt',
-    momo: 'Thanh toán qua MoMo',
-    bank_transfer: 'Thanh toán qua chuyển khoản',
-    cod: 'Thanh toán khi nhận hàng',
-  };
-
-  const allowedNextStatuses = {
-    PENDING: ['PROCESSING', 'CANCELLED', 'CONFIRMED'],
-    PROCESSING: ['CONFIRMED', 'CANCELLED', 'SHIPPING'],
-    CONFIRMED: ['SHIPPING', 'CANCELLED'],
-    SHIPPING: ['DELIVERED', 'RETURNED'],
-    DELIVERED: [],
-    CANCELLED: [],
-    RETURNED: [],
-  };
-
-  const availableOptions = statusOptions.filter((option) =>
-    allowedNextStatuses[selectedOrder?.status]?.includes(option.value),
-  );
 
   return (
     <div style={{ padding: '24px' }}>
@@ -630,134 +642,22 @@ const OrderManagement = () => {
           level={3}
           style={{ margin: 0, display: 'flex', alignItems: 'center' }}
         >
-          <BsCartCheck /> Quản lý đơn hàng
+          <BsCartCheck style={{ marginRight: '8px' }} />
+          Quản lý đơn hàng
         </Title>
         <p style={{ margin: '8px 0 0 0', color: '#666' }}>
           Quản lý các đơn hàng và thêm đơn hàng mới
         </p>
       </Col>
 
-      <Row gutter={16} style={{ marginBottom: '10px' }}>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Tổng đơn hàng"
-              value={stats.totalOrders}
-              prefix={<ShoppingCartOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Tổng doanh thu"
-              value={stats.totalRevenue}
-              formatter={(value) => formatCurrency(value)}
-              prefix={<DollarOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Đơn chờ xử lý"
-              value={stats.pendingOrders}
-              valueStyle={{ color: '#faad14' }}
-              prefix={<Badge status="warning" />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Chưa thanh toán"
-              value={stats.unpaidOrders}
-              valueStyle={{ color: '#ff4d4f' }}
-              prefix={<Badge status="error" />}
-            />
-          </Card>
-        </Col>
-      </Row>
-      <Card style={{ marginBottom: '10px' }}>
-        <Row gutter={16}>
-          <Col span={6}>
-            <Input
-              placeholder="Tìm kiếm..."
-              prefix={<SearchOutlined />}
-              value={filters.searchText}
-              onChange={(e) =>
-                setFilters({ ...filters, searchText: e.target.value })
-              }
-            />
-          </Col>
-          <Col span={4}>
-            <Select
-              placeholder="Trạng thái"
-              style={{ width: '100%', height: '80%' }}
-              value={filters.status}
-              onChange={(value) => setFilters({ ...filters, status: value })}
-              allowClear
-            >
-              <Option value="">All</Option>
-              {statusOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={4}>
-            <Select
-              placeholder="Chi nhánh"
-              style={{ width: '100%', height: '80%' }}
-              value={filters.branch}
-              onChange={(value) => setFilters({ ...filters, branch: value })}
-              allowClear
-            >
-              <Option value="">All</Option>
-              {branches.map((branch) => (
-                <Option key={branch._id} value={branch._id}>
-                  {branch.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={4}>
-            <RangePicker
-              style={{ width: '100%' }}
-              placeholder={['Từ ngày', 'Đến ngày']}
-              value={filters.dateRange}
-              onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
-            />
-          </Col>
-          {/* <Col span={2}>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() =>
-                setFilters({
-                  status: '',
-                  paymentStatus: '',
-                  paymentMethod: '',
-                  branch: '',
-                  searchText: '',
-                  dateRange: null,
-                })
-              }
-            >
-              Làm mới
-            </Button>
-          </Col> */}
-          <Col span={4}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setIsCreateModalVisible(true)}
-            >
-              Tạo Đơn Hàng Tại Quầy
-            </Button>
-          </Col>
-        </Row>
-      </Card>
+      <OrderStatistics orders={orders} />
+
+      <OrderFilters
+        filters={filters}
+        setFilters={setFilters}
+        branches={branches}
+        onCreateOrder={() => setIsCreateModalVisible(true)}
+      />
 
       <Card>
         <Table
@@ -766,6 +666,10 @@ const OrderManagement = () => {
           rowKey="_id"
           pagination={{
             pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} của ${total} đơn hàng`,
           }}
           loading={loading}
           locale={{
@@ -779,498 +683,24 @@ const OrderManagement = () => {
         />
       </Card>
 
-      <Modal
-        title={`Chi tiết đơn hàng #${selectedOrder?._id.slice(-8)}`}
-        open={isModalVisible}
+      <OrderDetailsModal
+        visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
-            Đóng
-          </Button>,
-          <Button
-            key="save"
-            type="primary"
-            loading={loading}
-            onClick={() => {
-              handleUpdateOrder(selectedOrder._id, {
-                status: selectedOrder.status,
-                paymentStatus: selectedOrder.paymentStatus,
-                paymentMethod: selectedOrder.paymentMethod,
-                branch: selectedOrder.items[0].branch,
-              });
+        order={selectedOrder}
+        onUpdate={handleUpdateOrder}
+        onConfirmReturn={handleConfirmReturn}
+        loading={loading}
+      />
 
-              message.success('Cập nhật đơn hàng thành công!');
-              setIsModalVisible(false);
-            }}
-          >
-            Lưu thay đổi
-          </Button>,
-        ]}
-        width={950}
-      >
-        {selectedOrder && (
-          <div>
-            <Steps
-              current={getStatusSteps(selectedOrder.status).current}
-              items={getStatusSteps(selectedOrder.status).steps}
-              className="mb-10!"
-            />
-            <Descriptions bordered column={2}>
-              <Descriptions.Item label="Mã đơn hàng" span={2}>
-                <Text code copyable={{ text: selectedOrder._id }}>
-                  {selectedOrder._id}
-                </Text>
-              </Descriptions.Item>
-              <Descriptions.Item label="Khách hàng người mua" span={1}>
-                <div>
-                  <div>{selectedOrder?.buyer?.name}</div>
-                </div>
-              </Descriptions.Item>
-              <Descriptions.Item label="Số điện thoại người mua" span={1}>
-                {selectedOrder?.buyer?.phone}
-              </Descriptions.Item>
-              <Descriptions.Item label="Người nhận hàng" span={1}>
-                <div>
-                  <div>{selectedOrder?.recipient?.name}</div>
-                </div>
-              </Descriptions.Item>
-              <Descriptions.Item label="Số điện thoại người nhận" span={1}>
-                {selectedOrder?.recipient?.phone}
-              </Descriptions.Item>
-              <Descriptions.Item label="Chi nhánh">
-                {selectedOrder?.items
-                  .map((item) => item.branch.name)
-                  .join(', ')}
-              </Descriptions.Item>
-              <Descriptions.Item label="Phương thức thanh toán" span={2}>
-                {paymentMethod[selectedOrder.paymentMethod]}
-              </Descriptions.Item>
-              <Descriptions.Item label="Trạng thái đơn hàng">
-                <Select
-                  value={selectedOrder?.status}
-                  style={{ width: '100%', border: 'none', minWidth: '150px' }}
-                  onChange={(value) => {
-                    setSelectedOrder({ ...selectedOrder, status: value });
-                  }}
-                >
-                  {availableOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      <Text>{option.label}</Text>
-                    </Option>
-                  ))}
-                </Select>
-              </Descriptions.Item>
-              <Descriptions.Item label="Trạng thái thanh toán">
-                <Select
-                  value={selectedOrder.paymentStatus}
-                  style={{ width: '100%' }}
-                  onChange={(value) => {
-                    setSelectedOrder({
-                      ...selectedOrder,
-                      paymentStatus: value,
-                    });
-                  }}
-                >
-                  {paymentStatusOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      <Text>{option.label}</Text>
-                    </Option>
-                  ))}
-                </Select>
-              </Descriptions.Item>
-
-              <Descriptions.Item label="Địa chỉ giao hàng" span={2}>
-                <Input.TextArea
-                  value={selectedOrder?.recipient?.address}
-                  disabled
-                  rows={2}
-                  prefix={<EnvironmentOutlined />}
-                />
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngày tạo">
-                {new Date(selectedOrder.createdAt).toLocaleString('vi-VN')}
-              </Descriptions.Item>
-              <Descriptions.Item label="Cập nhật lần cuối">
-                {new Date(selectedOrder.updatedAt).toLocaleString('vi-VN')}
-              </Descriptions.Item>
-            </Descriptions>
-
-            <Divider>Sản phẩm đặt hàng</Divider>
-
-            <Table
-              dataSource={selectedOrder.items}
-              pagination={false}
-              size="small"
-              columns={[
-                {
-                  title: 'Sản phẩm',
-                  render: (_, item) => (
-                    <div>
-                      <div>{item.product?.name}</div>
-                      <div style={{ fontSize: '12px', color: '#666' }}>
-                        {item.variant?.name}
-                      </div>
-                    </div>
-                  ),
-                },
-                {
-                  title: 'Số lượng',
-                  dataIndex: 'quantity',
-                  align: 'center',
-                },
-                {
-                  title: 'Đơn giá',
-                  dataIndex: 'price',
-                  render: (price) => formatCurrency(price),
-                  align: 'right',
-                },
-                {
-                  title: 'Thành tiền',
-                  render: (_, item) =>
-                    formatCurrency(item.price * item.quantity),
-                  align: 'right',
-                },
-              ]}
-            />
-
-            <div style={{ marginTop: 16, textAlign: 'right' }}>
-              <Text strong style={{ fontSize: '16px' }}>
-                Tổng cộng: {formatCurrency(selectedOrder.totalPrice)}
-              </Text>
-            </div>
-          </div>
-        )}
-      </Modal>
-      <Modal
-        title="Tạo Đơn Hàng Tại Quầy"
-        open={isCreateModalVisible}
-        onCancel={() => {
-          setIsCreateModalVisible(false);
-          setCreateOrderData({
-            name: '',
-            phone: '',
-            items: [],
-            paymentMethod: 'cash',
-            branch: '',
-          });
-          setSelectedProduct(null);
-          setSelectedVariant(null);
-          setQuantity(1);
-        }}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => {
-              setIsCreateModalVisible(false);
-              setCreateOrderData({
-                phone: '',
-                items: [],
-                paymentMethod: 'cash',
-                branch: '',
-              });
-              setSelectedProduct(null);
-              setSelectedVariant(null);
-              setQuantity(1);
-            }}
-          >
-            Hủy
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            loading={loading}
-            onClick={handleCreateOrderSubmit}
-          >
-            Tạo Đơn Hàng
-          </Button>,
-        ]}
-        width={900}
-      >
-        <div>
-          <Row gutter={16} style={{ marginBottom: 16 }}>
-            <Col span={8}>
-              <div style={{ marginBottom: 8 }}>
-                <Text strong>Khách hàng</Text>
-                <Text style={{ color: '#ff4d4f' }}> *</Text>
-              </div>
-              <Input
-                placeholder="Nhập tên khách hàng"
-                value={createOrderData.name}
-                onChange={(e) =>
-                  setCreateOrderData({
-                    ...createOrderData,
-                    name: e.target.value,
-                  })
-                }
-              />
-            </Col>
-            <Col span={8}>
-              <div style={{ marginBottom: 8 }}>
-                <Text strong>Số điện thoại</Text>
-                <Text style={{ color: '#ff4d4f' }}> *</Text>
-              </div>
-              <Input
-                placeholder="Nhập số điện thoại"
-                value={createOrderData.phone}
-                onChange={(e) =>
-                  setCreateOrderData({
-                    ...createOrderData,
-                    phone: e.target.value,
-                  })
-                }
-              />
-            </Col>
-            <Col span={8}>
-              <div style={{ marginBottom: 8 }}>
-                <Text strong>Phương thức thanh toán</Text>
-              </div>
-              <Select
-                style={{ width: '100%' }}
-                value={createOrderData.paymentMethod}
-                onChange={(value) =>
-                  setCreateOrderData({
-                    ...createOrderData,
-                    paymentMethod: value,
-                  })
-                }
-              >
-                {paymentMethods.map((method) => (
-                  <Option key={method.value} value={method.value}>
-                    {method.label}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-          </Row>
-
-          <Divider>Chọn sản phẩm</Divider>
-
-          <Card
-            size="small"
-            style={{ marginBottom: 16, backgroundColor: '#fafafa' }}
-          >
-            <Row gutter={16} align="bottom">
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>
-                  <Text strong>Sản phẩm</Text>
-                  <Text style={{ color: '#ff4d4f' }}> *</Text>
-                </div>
-                <Select
-                  showSearch
-                  placeholder="Tìm và chọn sản phẩm"
-                  style={{ width: '100%' }}
-                  value={selectedProduct?._id}
-                  onChange={(value) => {
-                    const product = products?.find((p) => p._id === value);
-                    setSelectedProduct(product);
-                    setSelectedVariant(null);
-                  }}
-                  filterOption={(input, option) =>
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {productsInInventory.map((inventory) => (
-                    <Option key={inventory._id} value={inventory.product?._id}>
-                      {inventory.product.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-
-              <Col span={6}>
-                <div style={{ marginBottom: 8 }}>
-                  <Text strong>Phân loại</Text>
-                  <Text style={{ color: '#ff4d4f' }}> *</Text>
-                </div>
-                <Select
-                  placeholder="Chọn biến thể"
-                  style={{ width: '100%' }}
-                  value={selectedVariant?._id}
-                  onChange={(value) => {
-                    const variant = selectedProduct?.variants.find(
-                      (v) => v._id === value,
-                    );
-                    setSelectedVariant(variant);
-                  }}
-                  disabled={!selectedProduct}
-                >
-                  {selectedProduct?.variants.map((variant) => (
-                    <Option key={variant._id} value={variant._id}>
-                      {variant.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-
-              {/* Nhập số lượng */}
-              <Col span={4}>
-                <div style={{ marginBottom: 8 }}>
-                  <Text strong>Số lượng</Text>
-                  <Text style={{ color: '#ff4d4f' }}> *</Text>
-                </div>
-                <InputNumber
-                  min={1}
-                  style={{ width: '100%' }}
-                  value={quantity}
-                  onChange={(value) => setQuantity(value || 1)}
-                />
-              </Col>
-
-              {/* Giá bán (nếu có) */}
-              <Col span={4}>
-                <div style={{ marginBottom: 8 }}>
-                  <Text strong>Giá bán</Text>
-                </div>
-                <Input
-                  value={
-                    selectedVariant ? formatCurrency(selectedVariant.price) : ''
-                  }
-                  disabled
-                  style={{ width: '100%' }}
-                />
-              </Col>
-
-              {/* Nút thêm */}
-              <Col span={2}>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={addProductToCart}
-                  disabled={!selectedProduct || !selectedVariant}
-                  style={{ width: '100%', padding: '0 8px' }}
-                ></Button>
-              </Col>
-            </Row>
-          </Card>
-
-          <Divider>Giỏ hàng ({createOrderData.items.length} sản phẩm)</Divider>
-
-          {createOrderData.items.length === 0 ? (
-            <div
-              style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}
-            >
-              <ShoppingCartOutlined
-                style={{ fontSize: '48px', marginBottom: '16px' }}
-              />
-              <div>Chưa có sản phẩm nào trong giỏ hàng</div>
-              <div>Vui lòng chọn sản phẩm ở trên để thêm vào đơn hàng</div>
-            </div>
-          ) : (
-            <Table
-              dataSource={createOrderData.items}
-              pagination={false}
-              size="small"
-              rowKey="id"
-              columns={[
-                {
-                  title: 'Sản phẩm',
-                  render: (_, item) => (
-                    <div>
-                      <div style={{ fontWeight: 500 }}>{item.productName}</div>
-                      <div style={{ fontSize: '12px', color: '#666' }}>
-                        {item.variantName}
-                      </div>
-                    </div>
-                  ),
-                  width: '40%',
-                },
-                {
-                  title: 'Đơn giá',
-                  render: (_, item) => formatCurrency(item.price),
-                  align: 'right',
-                  width: '20%',
-                },
-                {
-                  title: 'Số lượng',
-                  render: (_, item, index) => (
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Button
-                        size="small"
-                        icon={<MinusOutlined />}
-                        onClick={() =>
-                          updateCartItemQuantity(index, item.quantity - 1)
-                        }
-                        disabled={item.quantity <= 1}
-                      />
-                      <InputNumber
-                        size="small"
-                        min={1}
-                        value={item.quantity}
-                        onChange={(value) =>
-                          updateCartItemQuantity(index, value || 1)
-                        }
-                        style={{ width: '60px', margin: '0 8px' }}
-                      />
-                      <Button
-                        size="small"
-                        icon={<PlusOutlined />}
-                        onClick={() =>
-                          updateCartItemQuantity(index, item.quantity + 1)
-                        }
-                      />
-                    </div>
-                  ),
-                  align: 'center',
-                  width: '25%',
-                },
-                {
-                  title: 'Thành tiền',
-                  render: (_, item) => (
-                    <Text strong style={{ color: '#1890ff' }}>
-                      {formatCurrency(item.price * item.quantity)}
-                    </Text>
-                  ),
-                  align: 'right',
-                  width: '20%',
-                },
-                {
-                  title: '',
-                  render: (_, item, index) => (
-                    <Popconfirm
-                      title="Bạn có chắc muốn xóa sản phẩm này?"
-                      onConfirm={() => removeProductFromCart(index)}
-                      okText="Có"
-                      cancelText="Không"
-                    >
-                      <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        size="small"
-                      />
-                    </Popconfirm>
-                  ),
-                  width: '10%',
-                },
-              ]}
-            />
-          )}
-
-          {createOrderData.items.length > 0 && (
-            <div
-              style={{
-                marginTop: 16,
-                padding: 16,
-                backgroundColor: '#f5f5f5',
-                borderRadius: 6,
-                textAlign: 'right',
-              }}
-            >
-              <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-                Tổng cộng: {formatCurrency(calculateTotal())}
-              </Text>
-            </div>
-          )}
-        </div>
-      </Modal>
+      <CreateOrderModal
+        visible={isCreateModalVisible}
+        onCancel={() => setIsCreateModalVisible(false)}
+        onSubmit={handleCreateOrderSubmit}
+        loading={loading}
+        branches={branches}
+        productsInInventory={productsInInventory}
+        user={user}
+      />
     </div>
   );
 };

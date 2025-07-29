@@ -18,6 +18,7 @@ import {
   Row,
   Col,
   Divider,
+  Form,
 } from 'antd';
 import Products from '@/services/products';
 import { useAppContext } from '@/contexts';
@@ -67,7 +68,8 @@ const AccountInfoPage = () => {
   const [orders, setOrders] = useState(null);
   const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
+  const [isReturned, setIsReturned] = useState(false);
+  const [form] = Form.useForm();
   useEffect(() => {
     if (orders) {
       const ordersToShow = orders.map((order) => {
@@ -479,11 +481,16 @@ const AccountInfoPage = () => {
     }
   };
 
-  const handleReturn = async () => {
+  const handleReturnSubmit = async () => {
     try {
+      const values = await form.validateFields();
       message.loading('Đang xử lý yêu cầu trả hàng...');
-
-      const response = await Products.refundOrder(selectedOrder.id);
+      console.log(values.returnReason);
+      const response = await Products.requestReturn(selectedOrder.id, {
+        returnReason: values.returnReason,
+        returnStatus: 'requested',
+        isReturned: true,
+      });
 
       message.destroy();
 
@@ -491,6 +498,8 @@ const AccountInfoPage = () => {
         await getAllOrders();
         setSelectedOrder(null);
         setIsOrderDetailModalOpen(false);
+
+        form.resetFields();
         message.success('Yêu cầu trả hàng đã được gửi thành công');
       } else {
         throw new Error('Không thể tạo yêu cầu trả hàng');
@@ -1172,7 +1181,40 @@ const AccountInfoPage = () => {
                       </Card>
                     </Col>
                   </Row>
+                  {isReturned === true && (
+                    <Card title="Lý do trả hàng" size="small" className="mb-6!">
+                      <Form
+                        layout="vertical"
+                        form={form}
+                        onFinish={handleReturnSubmit}
+                        initialValues={{
+                          returnReason: orderData?.returnReason || '',
+                        }} // 👈 Thêm giá trị khởi tạo
+                      >
+                        <Form.Item
+                          label="Nhập lý do trả hàng"
+                          name="returnReason"
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Vui lòng nhập lý do trả hàng!',
+                            },
+                          ]}
+                        >
+                          <Input.TextArea
+                            placeholder="Ví dụ: Sản phẩm lỗi, giao sai màu..."
+                            rows={3}
+                          />
+                        </Form.Item>
 
+                        <div className="flex justify-end">
+                          <Button type="primary" htmlType="submit">
+                            Gửi yêu cầu trả hàng
+                          </Button>
+                        </div>
+                      </Form>
+                    </Card>
+                  )}
                   <Card
                     title="Danh sách sản phẩm"
                     size="small"
@@ -1217,16 +1259,15 @@ const AccountInfoPage = () => {
                         </Button>
                       )}
 
-                    {orderData?.status === 'DELIVERED' &&
-                      orderData?.paymentStatus === 'COMPLETED' && (
-                        <Button
-                          type="primary"
-                          className="h-40!"
-                          onClick={handleReturn}
-                        >
-                          Yêu cầu trả hàng
-                        </Button>
-                      )}
+                    {orderData?.status === 'DELIVERED' && (
+                      <Button
+                        type="primary"
+                        className="h-40!"
+                        onClick={() => setIsReturned(true)}
+                      >
+                        Yêu cầu trả hàng
+                      </Button>
+                    )}
 
                     {orderData?.paymentMethod === 'momo' &&
                       orderData?.status !== 'DELIVERED' &&

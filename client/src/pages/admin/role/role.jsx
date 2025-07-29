@@ -19,6 +19,7 @@ import {
   Checkbox,
   Collapse,
   Divider,
+  Badge,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -221,12 +222,14 @@ const RoleManagement = () => {
       dataIndex: 'isActive',
       key: 'isActive',
       align: 'center',
-      render: (isActive) =>
-        isActive ? (
-          <Tag icon={<CheckOutlined />}>Còn hoạt động</Tag>
-        ) : (
-          <Tag icon={<CloseOutlined />}>Ngưng hoạt động</Tag>
-        ),
+      render: (isActive) => (
+        <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
+          <Badge
+            status={isActive ? 'success' : 'default'}
+            text={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          />
+        </Tooltip>
+      ),
     },
     {
       title: 'Hành động',

@@ -119,7 +119,7 @@ function AdminLayout() {
               setDrawerVisible(false);
             },
           },
-          hasPermission(permissions, Subjects.Transfer, Actions.Create) && {
+          hasPermission(permissions, Subjects.Transfer, Actions.Read) && {
             key: 'transferinventory',
             label: 'Chuyển kho',
             onClick: () => {

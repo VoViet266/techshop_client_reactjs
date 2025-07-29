@@ -17,6 +17,7 @@ import {
   Select,
   Flex,
   Tooltip,
+  Badge,
 } from 'antd';
 import {
   PlusOutlined,
@@ -207,9 +208,10 @@ const BranchManagement = () => {
       align: 'center',
       render: (isActive) => (
         <Tooltip title={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}>
-          <Tag color={isActive ? 'green' : 'red'}>
-            {isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
-          </Tag>
+          <Badge
+            status={isActive ? 'success' : 'default'}
+            text={isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
+          />
         </Tooltip>
       ),
     },
