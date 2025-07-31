@@ -592,20 +592,19 @@ function Signup() {
             />
             <Button
               onClick={async () => {
-                console.log(user.email);
-                // try {
-                //   message.loading('Đang gửi lại mã OTP.');
-                //   const userServices = new Users();
-                //   const response = await userServices.resendOtp(user.email);
-                //   if (response.status === 201) {
-                //     message.destroy();
-                //     message.success('Mã OTP đã được gửi lại thành công!');
-                //   }
-                // } catch (error) {
-                //   message.error('Gửi lại mã OTP thất bại. Vui lòng thử lại!');
-                //   console.error('Lỗi gửi lại mã OTP:', error.message);
-                //   return;
-                // }
+                try {
+                  message.loading('Đang gửi lại mã OTP.');
+                  const userServices = new Users();
+                  const response = await userServices.resendOtp(user.email);
+                  if (response.status === 201) {
+                    message.destroy();
+                    message.success('Mã OTP đã được gửi lại thành công!');
+                  }
+                } catch (error) {
+                  message.error('Gửi lại mã OTP thất bại. Vui lòng thử lại!');
+                  console.error('Lỗi gửi lại mã OTP:', error);
+                  return;
+                }
               }}
               className="absolute! right-8! border-none! font-medium! shadow-none! top-1/2! -translate-y-[50%]!"
             >
