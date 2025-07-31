@@ -2,9 +2,6 @@ import axiosInstance from '@services/apis';
 
 class UserService {
   login(user) {
-
-
-
     return axiosInstance.post('/api/v1/auth/login', {
       username: user.email,
       password: user.password,
@@ -25,6 +22,14 @@ class UserService {
 
   signup(user) {
     return axiosInstance.post('/api/v1/auth/register', user);
+  }
+
+  verifyOtp(otp) {
+    return axiosInstance.post('/api/v1/auth/verify-otp', { ...otp });
+  }
+
+  resendOtp(email) {
+    return axiosInstance.post('/api/v1/auth/resend-otp', { email: email });
   }
 
   getAll() {
