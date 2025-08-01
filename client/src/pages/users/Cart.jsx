@@ -53,7 +53,7 @@ function Cart() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'TechShop | Giỏ hàng';
+    document.title = 'Giỏ hàng';
   }, []);
 
   const updateQuantity = (id, value) => {

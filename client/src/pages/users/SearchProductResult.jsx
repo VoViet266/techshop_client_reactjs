@@ -146,7 +146,7 @@ function SearchProductResult() {
 
   const sliderPriceRange = { maxPrice: 100000000, minPrice: 0 };
   useEffect(() => {
-    document.title = `Tìm thấy ${sortedProducts.length} kết quả cho từ khóa ${query}`;
+    document.title = `Kết quả tìm kiếm cho "${query}"`;
   });
   return (
     <div className="w-full ">

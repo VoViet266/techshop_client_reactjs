@@ -65,7 +65,7 @@ function Order() {
   }, 0);
 
   useEffect(() => {
-    document.title = 'TechShop | Đơn hàng';
+    document.title = 'Đặt hàng';
   }, []);
 
   const fetchProvinces = async () => {

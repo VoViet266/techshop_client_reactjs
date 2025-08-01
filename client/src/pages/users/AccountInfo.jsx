@@ -326,11 +326,19 @@ const AccountInfoPage = () => {
   };
 
   useEffect(() => {
-    document.title = 'Thông tin cá nhân';
     getUser();
     getAllOrders();
     fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    if (selectedMenu === 'personal') {
+      document.title = 'Thông tin cá nhân';
+    }
+    if (selectedMenu === 'orders') {
+      document.title = 'Danh sách đơn hàng';
+    }
+  }, [selectedMenu]);
 
   const listProductsColumn = [
     {
@@ -1026,6 +1034,7 @@ const AccountInfoPage = () => {
   }
 
   const orderData = orders?.find((o) => o._id === selectedOrder?.id);
+  console.log(orderData);
   const paymentStatus = {
     PENDING: 'Chờ xử lý',
     COMPLETED: 'Đã hoàn thành',
@@ -1165,12 +1174,12 @@ const AccountInfoPage = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <PhoneOutlined className="text-gray-400" />
-                            <span>{orderData.phone}</span>
+                            <span>{orderData.recipient.phone}</span>
                           </div>
                           <div className="flex items-start gap-2">
                             <EnvironmentOutlined className="text-gray-400 mt-1" />
                             <span className="flex-1">
-                              {orderData.shippingAddress}
+                              {orderData.recipient.address}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
