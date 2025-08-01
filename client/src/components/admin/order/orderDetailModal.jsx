@@ -69,10 +69,17 @@ const OrderDetailsModal = ({
   ];
 
   const ALLOWED_NEXT_STATUSES = {
-    PENDING: ['PROCESSING', 'CANCELLED', 'CONFIRMED'],
-    PROCESSING: ['CONFIRMED', 'CANCELLED', 'SHIPPING'],
-    CONFIRMED: ['SHIPPING', 'CANCELLED'],
-    SHIPPING: ['DELIVERED', 'RETURNED'],
+    PENDING: [
+      { value: 'PROCESSING', label: 'Đang xử lý' },
+      { value: 'CANCELLED', label: 'Đã hủy' },
+      { value: 'CONFIRMED', label: 'Đã xác nhận' },
+    ],
+    PROCESSING: [
+      { value: 'CONFIRMED', label: 'Đã xác nhận' },
+      { value: 'CANCELLED', label: 'Đã hủy' },
+    ],
+    CONFIRMED: [{ value: 'SHIPPING', label: 'Đang giao hàng' }],
+    SHIPPING: [{ value: 'DELIVERED', label: 'Đã giao hàng' }],
     DELIVERED: [],
     CANCELLED: [],
     RETURNED: [],
@@ -129,19 +136,14 @@ const OrderDetailsModal = ({
   };
 
   const availableStatusOptions = STATUS_OPTIONS.filter((option) =>
-    ALLOWED_NEXT_STATUSES[editableOrder.status]?.includes(option.value),
+    ALLOWED_NEXT_STATUSES[editableOrder.status]?.some(
+      (allowed) => allowed.value === option.value,
+    ),
   );
 
   const getStatusColor = (status) => {
     return (
       STATUS_OPTIONS.find((option) => option.value === status)?.color ||
-      'default'
-    );
-  };
-
-  const getPaymentStatusColor = (status) => {
-    return (
-      PAYMENT_STATUS_OPTIONS.find((option) => option.value === status)?.color ||
       'default'
     );
   };
@@ -157,14 +159,17 @@ const OrderDetailsModal = ({
   };
 
   const stepInfo = getStatusSteps(editableOrder.status);
-
+console.log(editableOrder);
   return (
     <Modal
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* <PackageOutlined style={{ color: '#1890ff', fontSize: '20px' }} /> */}
           <span>Chi tiết đơn hàng #{editableOrder._id.slice(-8)}</span>
-          <Tag color={getStatusColor(editableOrder.status)}>
+          <Tag
+            color={getStatusColor(editableOrder.status)}
+            className="p-5! rounded-2xl!"
+          >
             {
               STATUS_OPTIONS.find((s) => s.value === editableOrder.status)
                 ?.label
@@ -191,8 +196,7 @@ const OrderDetailsModal = ({
       width={1100}
       style={{ top: 10 }}
     >
-      <div style={{ maxHeight: '90vh' }}>
-        {/* Order Progress */}
+      <div style={{ maxHeight: '100vh' }}>
         <Card style={{ marginBottom: 20, backgroundColor: '#fafafa' }}>
           <Steps
             current={stepInfo.current}
@@ -202,7 +206,6 @@ const OrderDetailsModal = ({
           />
         </Card>
 
-        {/* Return Alert */}
         {editableOrder.isReturned &&
           editableOrder.returnStatus === 'requested' && (
             <Alert
@@ -293,10 +296,8 @@ const OrderDetailsModal = ({
                     </>
                   }
                 >
-                  <Tag color="blue">
-                    {PAYMENT_METHOD_LABELS[editableOrder.paymentMethod] ||
-                      editableOrder.paymentMethod}
-                  </Tag>
+                  {PAYMENT_METHOD_LABELS[editableOrder.paymentMethod] ||
+                    editableOrder.paymentMethod}
                 </Descriptions.Item>
               </Descriptions>
             </Card>
@@ -385,13 +386,13 @@ const OrderDetailsModal = ({
                     value={editableOrder.status}
                     style={{ width: '100%' }}
                     size="large"
-                    onChange={(value) => {
-                      setEditableOrder({ ...editableOrder, status: value });
-                    }}
+                    onChange={(value) =>
+                      setEditableOrder({ ...editableOrder, status: value })
+                    }
                   >
                     {availableStatusOptions.map((option) => (
                       <Option key={option.value} value={option.value}>
-                        <Tag color={option.color}>{option.label}</Tag>
+                        <Text strong>{option.label}</Text>
                       </Option>
                     ))}
                   </Select>
@@ -405,6 +406,7 @@ const OrderDetailsModal = ({
                     value={editableOrder.paymentStatus}
                     style={{ width: '100%' }}
                     size="large"
+                    disabled
                     onChange={(value) => {
                       setEditableOrder({
                         ...editableOrder,
@@ -414,7 +416,7 @@ const OrderDetailsModal = ({
                   >
                     {PAYMENT_STATUS_OPTIONS.map((option) => (
                       <Option key={option.value} value={option.value}>
-                        <Tag color={option.color}>{option.label}</Tag>
+                        <Text strong>{option.label}</Text>
                       </Option>
                     ))}
                   </Select>

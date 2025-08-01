@@ -27,24 +27,15 @@ import {
   Button,
   Card,
   Col,
-  Tag,
   DatePicker,
-  Descriptions,
-  Divider,
   Input,
-  InputNumber,
-  Modal,
   Row,
   Select,
   Space,
   Statistic,
   Table,
   Typography,
-  Popconfirm,
   Empty,
-  Steps,
-  Form,
-  message,
   notification,
 } from 'antd';
 import { BsCartCheck } from 'react-icons/bs';
@@ -652,9 +643,9 @@ const OrderManagement = () => {
       render: (status) => {
         const statusOption = STATUS_OPTIONS.find((opt) => opt.value === status);
         return (
-          <Tag color={statusOption?.color || 'default'}>
+          <Text color={statusOption?.color || 'default'}>
             {statusOption?.label || status}
-          </Tag>
+          </Text>
         );
       },
     },
@@ -668,9 +659,9 @@ const OrderManagement = () => {
           (opt) => opt.value === paymentStatus,
         );
         return (
-          <Tag color={statusOption?.color || 'default'}>
+          <Text color={statusOption?.color || 'default'}>
             {statusOption?.label || paymentStatus}
-          </Tag>
+          </Text>
         );
       },
     },
@@ -693,7 +684,7 @@ const OrderManagement = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '0px' }}>
       <Col>
         <Title
           level={3}

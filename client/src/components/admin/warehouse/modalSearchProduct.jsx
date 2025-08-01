@@ -54,12 +54,13 @@ const ModalSearchProduct = ({
     },
     {
       title: 'Trạng thái',
-      key: 'status',
+      key: 'isActive',
       width: 100,
       render: (_, record) => (
-        <Tag color={record.status === 'active' ? 'green' : 'red'}>
-          {record.status === 'active' ? 'Hoạt động' : 'Ngừng bán'}
-        </Tag>
+        <Badge
+          status={record.isActive ? 'success' : 'error'}
+          text={record.isActive ? 'Hoạt động' : 'Ngừng bán'}
+        />
       ),
     },
     {
@@ -69,6 +70,7 @@ const ModalSearchProduct = ({
       render: (_, record) => (
         <Button
           type="primary"
+          className='rounded-lg!'
           size="small"
           onClick={() => {
             handleSelectProduct(record);
