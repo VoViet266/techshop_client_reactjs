@@ -60,6 +60,10 @@ function EditProduct() {
   };
 
   useEffect(() => {
+    document.title = 'Cập nhật sản phẩm';
+  }, []);
+
+  useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);

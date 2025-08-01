@@ -292,6 +292,10 @@ const RoleManagement = () => {
     }
   };
 
+  useEffect(() => {
+    document.title = 'Quản lý vai trò';
+  }, []);
+
   const handleCancel = () => {
     form.resetFields();
     setOpenModal(false);

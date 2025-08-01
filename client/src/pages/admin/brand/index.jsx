@@ -65,6 +65,10 @@ const BrandManagement = () => {
     fetchBrands();
   }, []);
 
+  useEffect(() => {
+    document.title = 'Quản lý thương hiệu';
+  }, []);
+
   const fetchBrands = async () => {
     setLoading(true);
     try {

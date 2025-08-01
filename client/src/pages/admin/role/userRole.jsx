@@ -293,6 +293,10 @@ const UserRoleManagement = () => {
     }
   };
 
+  useEffect(() => {
+    document.title = 'Quản lý vai trò người dùng';
+  }, []);
+
   const handleAddUser = async (values) => {
     setLoading(true);
     try {

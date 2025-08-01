@@ -167,6 +167,10 @@ const PromotionManagement = () => {
     }
   };
 
+  useEffect(() => {
+    document.title = 'Quản lý chương trình khuyến mãi';
+  }, []);
+
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
@@ -377,7 +381,7 @@ const PromotionManagement = () => {
         <div className="mb-6">
           <Title level={2} className="!mb-2">
             <GiftOutlined className="mr-2" />
-            Quản lý trường trình khuyến mãi
+            Quản lý chương trình khuyến mãi
           </Title>
           <Text type="secondary">
             Quản lý các chương trình khuyến mãi và ưu đãi

@@ -92,6 +92,10 @@ const WarehouseOutbound = () => {
     }
   };
 
+  useEffect(() => {
+    document.title = 'Xuất kho';
+  }, []);
+
   const fetchBranches = async () => {
     try {
       const response = await callFetchBranches();

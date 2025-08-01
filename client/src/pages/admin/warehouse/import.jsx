@@ -82,6 +82,10 @@ const WarehouseInbound = () => {
   const { message, notification, permissions } = useAppContext();
   const { RangePicker } = DatePicker;
 
+  useEffect(() => {
+    document.title = 'Nhập kho';
+  }, []);
+
   const fetchProducts = async () => {
     try {
       const response = await callFetchProducts();

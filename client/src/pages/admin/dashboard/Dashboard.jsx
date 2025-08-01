@@ -112,6 +112,10 @@ const Dashboard = () => {
   const historicalData = allHistorical[selectedPeriod];
   const currentBranchData = allBranchData[selectedPeriod];
 
+  useEffect(() => {
+    document.title = 'Dashboard';
+  }, []);
+
   const fetchStats = async (period) => {
     try {
       const response = await axiosInstance.get(

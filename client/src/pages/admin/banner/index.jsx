@@ -71,6 +71,10 @@ const BannerManagement = () => {
   };
 
   useEffect(() => {
+    document.title = 'Quản lý banner';
+  }, []);
+
+  useEffect(() => {
     fetchBanners();
   }, []);
 

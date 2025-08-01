@@ -42,6 +42,10 @@ const CategoryManagement = () => {
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
   useEffect(() => {
+    document.title = 'Quản lý danh mục';
+  }, []);
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 

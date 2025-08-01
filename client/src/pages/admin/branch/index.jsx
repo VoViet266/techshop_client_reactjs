@@ -51,6 +51,10 @@ const BranchManagement = () => {
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    document.title = 'Quản lý chi nhánh';
+  }, []);
+
   const FetchBranchs = async () => {
     setLoading(true);
     try {

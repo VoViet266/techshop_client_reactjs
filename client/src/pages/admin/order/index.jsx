@@ -88,6 +88,10 @@ const useOrderData = () => {
     }
   }, []);
 
+  useEffect(() => {
+    document.title = 'Quản lý đơn hàng';
+  }, []);
+
   const fetchProducts = useCallback(async () => {
     try {
       const res = await callFetchProducts();

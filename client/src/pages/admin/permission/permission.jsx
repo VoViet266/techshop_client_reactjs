@@ -64,6 +64,10 @@ const PermissionsManagement = () => {
   const { message } = useAppContext();
 
   useEffect(() => {
+    document.title = 'Quản lý quyền hạn';
+  }, []);
+
+  useEffect(() => {
     fetchPermissions();
   }, []);
 

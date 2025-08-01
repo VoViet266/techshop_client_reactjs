@@ -90,6 +90,10 @@ const WarehouseManagement = () => {
   }, []);
 
   useEffect(() => {
+    document.title = 'Danh sách kho hàng';
+  }, []);
+
+  useEffect(() => {
     let filtered = warehouses;
 
     if (searchText) {
@@ -351,6 +355,7 @@ const WarehouseManagement = () => {
   const uniqueBranchNames = Array.from(
     new Set(warehouses.map((warehouse) => warehouse.branch.name)),
   );
+
   return (
     <div className=" min-h-screen">
       <div className="mb-5">
@@ -359,7 +364,9 @@ const WarehouseManagement = () => {
             <FaWarehouse className="mr-2" />
             Quản lý kho hàng
           </Title>
-          <Text type="secondary">Quản lý kho: {uniqueBranchNames.join(', ')} </Text>
+          <Text type="secondary">
+            Quản lý kho: {uniqueBranchNames.join(', ')}{' '}
+          </Text>
         </div>
       </div>
       <Row gutter={[16, 16]} style={{ marginBottom: '10px' }}>

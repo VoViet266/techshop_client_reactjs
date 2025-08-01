@@ -55,6 +55,10 @@ const WarrantyPolicyManagement = () => {
     fetchWarrantyPolicies();
   }, []);
 
+  useEffect(() => {
+    document.title = 'Quản lý chính sách bảo hành';
+  }, []);
+
   const handleAdd = () => {
     setEditingRecord(null);
     form.resetFields();
@@ -210,7 +214,7 @@ const WarrantyPolicyManagement = () => {
 
   return (
     <div className="p-6  min-h-screen">
-      <div >
+      <div>
         <div className="mb-6">
           <Title level={2} className="!mb-2">
             <SettingOutlined className="mr-2" />

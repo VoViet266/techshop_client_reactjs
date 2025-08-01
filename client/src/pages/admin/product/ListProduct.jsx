@@ -97,6 +97,10 @@ function ListProduct() {
     brand: null,
   });
 
+  useEffect(() => {
+    document.title = 'Danh sách sản phẩm';
+  }, []);
+
   const fetchProducts = async () => {
     try {
       const fetchedProducts = await Products.getAll(_page, _limit);

@@ -64,6 +64,10 @@ function AddProduct() {
   });
 
   useEffect(() => {
+    document.title = 'Thêm sản phẩm';
+  }, []);
+
+  useEffect(() => {
     fetchInitialData();
   }, []);
 

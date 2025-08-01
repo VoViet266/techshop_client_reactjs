@@ -74,6 +74,10 @@ const WarehouseTransferManagement = () => {
     setItems(items.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    document.title = 'Chuyển kho';
+  }, []);
+
   const fetchTransfers = async () => {
     try {
       const response = await Warehouse.transferInventory();

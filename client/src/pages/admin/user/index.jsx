@@ -118,6 +118,10 @@ const UserManagement = () => {
     });
   }, [users, filters, searchText]);
 
+  useEffect(() => {
+    document.title = 'Quản lý  người dùng';
+  }, []);
+
   const fetchUsers = useCallback(async () => {
     try {
       const response = await callFetchUsers();
