@@ -238,20 +238,7 @@ function AddProduct() {
           <Row key={index} gutter={16}>
             {pair.map((field) => (
               <Col span={12} key={field.name}>
-                <Form.Item
-                  name={[group, field.name]}
-                  label={field.label}
-                  rules={
-                    field.required
-                      ? [
-                          {
-                            required: true,
-                            message: `${field.label} là bắt buộc`,
-                          },
-                        ]
-                      : []
-                  }
-                >
+                <Form.Item name={[group, field.name]} label={field.label}>
                   {field.type === 'text' || field.type === 'number' ? (
                     <Input
                       type={field.type}

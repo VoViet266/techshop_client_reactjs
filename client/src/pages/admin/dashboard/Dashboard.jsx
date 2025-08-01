@@ -17,12 +17,6 @@ import {
   Segmented,
 } from 'antd';
 import {
-  UserOutlined,
-  BarChartOutlined,
-  PieChartOutlined,
-  LineChartOutlined,
-  TrophyOutlined,
-  EyeOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
   MinusOutlined,
@@ -55,31 +49,32 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
-// Bảng màu gradient hiện đại
 const CHART_COLORS = [
-  '#667eea',
-  '#764ba2',
-  '#f093fb',
-  '#f5576c',
-  '#4facfe',
-  '#43e97b',
-  '#fa709a',
-  '#fee140',
+  '#6366f1', // Indigo
+  '#8b5cf6', // Violet
+  '#06b6d4', // Cyan
+  '#10b981', // Emerald
+  '#f59e0b', // Amber
+  '#ef4444', // Red
+  '#ec4899', // Pink
+  '#84cc16', // Lime
 ];
+
 const BRANCH_COLORS = [
-  '#1890ff',
-  '#52c41a',
-  '#faad14',
-  '#f5222d',
-  '#722ed1',
-  '#13c2c2',
-  '#eb2f96',
-  '#fa541c',
-  '#2f54eb',
-  '#a0d911',
-  '#fadb14',
-  '#f759ab',
+  '#6366f1',
+  '#8b5cf6',
+  '#06b6d4',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#ec4899',
+  '#84cc16',
+  '#3b82f6',
+  '#14b8a6',
+  '#f97316',
+  '#a855f7',
 ];
+
 const Dashboard = () => {
   const [allStats, setAllStats] = useState({
     daily: null,
@@ -116,7 +111,6 @@ const Dashboard = () => {
   const comparisonData = allComparison[selectedPeriod];
   const historicalData = allHistorical[selectedPeriod];
   const currentBranchData = allBranchData[selectedPeriod];
-  console.log('currentBranchData', currentBranchData);
 
   useEffect(() => {
     document.title = 'Dashboard';
@@ -161,6 +155,7 @@ const Dashboard = () => {
       return [];
     }
   };
+
   const fetchBranch = async () => {
     try {
       const response = await Branchs.getAll();
@@ -170,6 +165,7 @@ const Dashboard = () => {
       return [];
     }
   };
+
   useEffect(() => {
     fetchBranch();
     const loadAllDashboardData = async () => {
@@ -212,7 +208,6 @@ const Dashboard = () => {
         setAllBranchData(newAllBranchData);
       } catch (err) {
         console.error('Dashboard error:', err);
-
         setError(err.message || 'Đã xảy ra lỗi khi tải dữ liệu');
       } finally {
         setLoading(false);
@@ -230,7 +225,7 @@ const Dashboard = () => {
     const isPositive = change > 0;
     const isNegative = change < 0;
 
-    const color = isPositive ? '#52c41a' : isNegative ? '#f5222d' : '#8c8c8c';
+    const color = isPositive ? '#10b981' : isNegative ? '#ef4444' : '#6b7280';
     const Icon = isPositive
       ? ArrowUpOutlined
       : isNegative
@@ -240,15 +235,16 @@ const Dashboard = () => {
     return (
       <Space size={4} style={{ marginTop: 8 }}>
         {showIcon && <Icon style={{ color, fontSize: '12px' }} />}
-        <Text style={{ color, fontSize: '13px', fontWeight: 500 }}>
+        <Text style={{ color, fontSize: '12px', fontWeight: 500 }}>
           {Math.abs(change).toFixed(1)}%
         </Text>
-        <Text type="secondary" style={{ fontSize: '12px' }}>
+        <Text type="secondary" style={{ fontSize: '11px' }}>
           vs kỳ trước
         </Text>
       </Space>
     );
   };
+
   const BranchOverview = () => {
     const [selectedBranch, setSelectedBranch] = useState(branch?.[0]?._id);
     const [selectedDate, setSelectedDate] = useState(null);
@@ -256,19 +252,15 @@ const Dashboard = () => {
     const branchStats = currentBranchData || [];
 
     const filteredBranchStats = useMemo(() => {
-      // Chuyển branchStats sang array để xử lý dễ hơn
       let data = Object.values(branchStats);
-
       data = data.filter((b) =>
         b?.branchOverview?.branchStats?.some(
           (bs) => bs.branchId === selectedBranch,
         ),
       );
-
       return data;
     }, [branchStats, selectedBranch, selectedDate]);
 
-    console.log('filteredBranchStats', filteredBranchStats);
     const branchChartData = useMemo(() => {
       return filteredBranchStats?.flatMap((branch, index) => {
         const formattedDate = dayjs(branch.date).format(
@@ -279,18 +271,6 @@ const Dashboard = () => {
               : 'YYYY',
         );
 
-        // Nếu chọn tất cả chi nhánh → map từng branchStats ra chart data
-        // if (selectedBranch === 'all') {
-        //   return branch.branchOverview?.branchStats.map((bs, bsIndex) => ({
-        //     branchId: bs.branchId,
-        //     branchName: bs.branchName,
-        //     totalRevenueBranch: bs.totalRevenue,
-        //     totalOrdersBranch: bs.totalOrders,
-        //     date: formattedDate,
-        //     color: BRANCH_COLORS[(index + bsIndex) % BRANCH_COLORS.length],
-        //   }));
-        // }
-
         const branchData = branch.branchOverview?.branchStats.find(
           (bs) => bs.branchId === selectedBranch,
         );
@@ -298,6 +278,7 @@ const Dashboard = () => {
         return {
           branchId: selectedBranch,
           branchName: branchData?.branchName,
+          profitBranch: branchData?.totalProfit || 0,
           totalRevenueBranch: branchData?.totalRevenue,
           totalOrdersBranch: branchData?.totalOrders,
           date: formattedDate,
@@ -310,7 +291,6 @@ const Dashboard = () => {
       if (!filteredBranchStats) return [];
 
       const branchMap = {};
-
       filteredBranchStats.forEach((day) => {
         day.branchOverview?.branchStats.forEach((branch) => {
           const id = branch.branchId;
@@ -321,60 +301,107 @@ const Dashboard = () => {
               totalRevenue: 0,
             };
           }
-          branchMap[id].totalRevenue += branch.totalRevenue; // cộng dồn doanh thu
+          branchMap[id].totalRevenue += branch.totalRevenue;
         });
       });
 
       return Object.values(branchMap);
     }, [filteredBranchStats]);
+
     if (!branchStats || branchStats.length === 0) {
-      return <Empty description="Chưa có dữ liệu chi nhánh" />;
+      return (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+          Chưa có dữ liệu chi nhánh
+        </div>
+      );
     }
-    console.log('branchChartData', branchChartData);
-    console.log('pieChartData', pieChartData);
+
     return (
-      <div>
+      <div style={{ marginBottom: '10px' }}>
         <Row gutter={[10, 10]}>
           <Col xs={24} lg={16}>
             <Card
+              style={{
+                borderRadius: '12px',
+                border: 'none',
+              }}
               title={
-                <Space
-                  size="middle"
-                  className="w-full! flex! justify-between py-10!"
-                >
-                  <Typography.Text className="text-lg!" strong>
-                    Doanh thu theo chi nhánh
-                  </Typography.Text>
+                <div className="flex justify-between items-center py-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
+                    <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
+                      Doanh thu theo chi nhánh
+                    </Text>
+                  </div>
                   <Select
                     size="middle"
-                    style={{ width: 300 }}
+                    style={{
+                      width: 280,
+                      borderRadius: '8px',
+                    }}
                     value={selectedBranch}
                     onChange={(value) => setSelectedBranch(value)}
                   >
-                    {branch.map((branch, index) => (
+                    {branch?.map((branch) => (
                       <Option key={branch._id} value={branch._id}>
                         {branch.name}
                       </Option>
                     ))}
                   </Select>
-                </Space>
+                </div>
               }
             >
-              <ResponsiveContainer width="100%" height={400}>
+              <ResponsiveContainer width="100%" height={380}>
                 <ComposedChart
-                  data={branchChartData}
-                  margin={{ top: 5, right: 20, bottom: 60, left: 30 }}
+                  data={branchChartData?.length ? branchChartData : [{}]}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 40 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f2f5" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e5e7eb"
+                    opacity={0.6}
+                  />
+                  <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
 
-                  <Legend />
-                  <Area
+                  {/* Y bên trái */}
+                  <YAxis
+                    yAxisId="left"
+                    orientation="left"
+                    stroke="#6b7280"
+                    fontSize={12}
+                    tickFormatter={(value) =>
+                      `${(value / 1000000).toFixed(0)}M`
+                    }
+                  />
+
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                    formatter={(value) => [
+                      `${formatCurrency(value)} vnđ`,
+                      'Doanh thu',
+                    ]}
+                  />
+                  <Bar
+                    yAxisId="left"
                     dataKey="totalRevenueBranch"
-                    fill="#82ca9d"
-                    stroke="#82ca9d"
+                    fill="#10b981"
                     name="Doanh thu"
+                    radius={[6, 6, 0, 0]}
+                    opacity={0.8}
+                  />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="profitBranch"
+                    fill="#0000FF"
+                    name="Lợi nhuận"
+                    radius={[6, 6, 0, 0]}
+                    opacity={0.8}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -383,13 +410,21 @@ const Dashboard = () => {
 
           <Col xs={24} lg={8}>
             <Card
+              style={{
+                height: '100%',
+                borderRadius: '12px',
+                border: 'none',
+              }}
               title={
-                <Space size="middle" className="w-full! py-17!">
-                  Doanh thu theo chi nhánh
-                </Space>
+                <div className="flex items-center gap-3 py-2">
+                  <div className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
+                  <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
+                    Phân bổ doanh thu
+                  </Text>
+                </div>
               }
             >
-              <ResponsiveContainer width="100%" height={400}>
+              <ResponsiveContainer width="100%" height={320}>
                 <PieChart>
                   <Pie
                     data={pieChartData}
@@ -397,8 +432,8 @@ const Dashboard = () => {
                     nameKey="branchName"
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
+                    innerRadius={50}
+                    outerRadius={90}
                     label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                   >
                     {pieChartData.map((entry, index) => (
@@ -408,21 +443,73 @@ const Dashboard = () => {
                       />
                     ))}
                   </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                    formatter={(value, name, props) => {
+                      if (props.dataKey === 'totalRevenueBranch') {
+                        return [`${formatCurrency(value)} vnđ`, 'Doanh thu'];
+                      } else if (props.dataKey === 'profitBranch') {
+                        return [`${formatCurrency(value)} vnđ`, 'Lợi nhuận'];
+                      }
+                      return [value, name];
+                    }}
+                  />
+
+                  {/* <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      border: 'none',
+                      borderRadius: '12px',
+                    }}
+                    formatter={(props, value) => {
+                      if (props.dataKey === 'totalRevenue') {
+                        return [`${formatCurrency(value)} VNĐ`, 'Doanh thu'];
+                      } else if (props.dataKey === 'profitBranch') {
+                        return [`${formatCurrency(value)} VNĐ`, 'Lợi nhuận'];
+                      }
+                      return [value, props.dataKey];
+                    }}
+                  /> */}
                 </PieChart>
               </ResponsiveContainer>
+              <div style={{ marginTop: '20px' }}>
+                {pieChartData.map((item, index) => (
+                  <div
+                    key={item.branchName}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '12px',
+                        height: '12px',
+                        borderRadius: '50%',
+                        backgroundColor:
+                          BRANCH_COLORS[index % BRANCH_COLORS.length],
+                        marginRight: '8px',
+                      }}
+                    ></div>
+                    <Text strong style={{ fontSize: '14px' }}>
+                      {item.branchName}
+                    </Text>
+                    <Text style={{ fontSize: '14px', marginLeft: 'auto' }}>
+                      {formatCurrency(item.totalRevenue)} VNĐ
+                    </Text>
+                  </div>
+                ))}
+              </div>
             </Card>
           </Col>
         </Row>
-
-        {/* Table */}
-        {/* <Card style={{ marginTop: '24px' }} title="Chi tiết chi nhánh">
-          <Table
-            dataSource={filteredBranchStats}
-            columns={branchColumns}
-            rowKey={(record) => record.branchId}
-            pagination={{ pageSize: 10 }}
-          />
-        </Card> */}
       </div>
     );
   };
@@ -444,6 +531,7 @@ const Dashboard = () => {
                 : 'YYYY',
         ),
         revenue: item.totalRevenue,
+        profit: item.totalProfit || 0,
         orders: item.totalOrders,
         customers: item.totalCustomers || 0,
         aov: Math.round(item.averageOrderValue / 1000),
@@ -469,16 +557,22 @@ const Dashboard = () => {
       key: 'index',
       width: 50,
       render: (_, __, index) => (
-        <Avatar
-          size="small"
+        <div
           style={{
-            backgroundColor: index < 3 ? '#faad14' : '#f0f0f0',
-            color: index < 3 ? '#fff' : '#8c8c8c',
-            fontWeight: 'bold',
+            width: '28px',
+            height: '28px',
+            borderRadius: '8px',
+            backgroundColor: index < 3 ? '#f59e0b' : '#f3f4f6',
+            color: index < 3 ? '#ffffff' : '#6b7280',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            fontWeight: '600',
           }}
         >
           {index + 1}
-        </Avatar>
+        </div>
       ),
     },
     {
@@ -486,7 +580,11 @@ const Dashboard = () => {
       dataIndex: 'productName',
       key: 'productName',
       ellipsis: true,
-      render: (text) => <Text strong>{text}</Text>,
+      render: (text) => (
+        <Text strong style={{ color: '#1f2937' }}>
+          {text}
+        </Text>
+      ),
     },
     {
       title: 'Đã bán',
@@ -495,7 +593,16 @@ const Dashboard = () => {
       align: 'right',
       width: 100,
       render: (value) => (
-        <Tag color="blue" style={{ margin: 0 }}>
+        <Tag
+          style={{
+            margin: 0,
+            borderRadius: '6px',
+            backgroundColor: '#dbeafe',
+            color: '#1e40af',
+            border: 'none',
+            fontWeight: '500',
+          }}
+        >
           {value?.toLocaleString()}
         </Tag>
       ),
@@ -507,14 +614,13 @@ const Dashboard = () => {
       align: 'right',
       width: 130,
       render: (value) => (
-        <Text strong style={{ color: '#52c41a' }}>
+        <Text strong style={{ color: '#10b981' }}>
           {formatCurrency(value || 0)}
         </Text>
       ),
     },
   ];
 
-  // Cột bảng sản phẩm được xem nhiều
   const topViewCountColumns = [
     {
       title: '#',
@@ -522,16 +628,22 @@ const Dashboard = () => {
       key: 'index',
       width: 50,
       render: (_, __, index) => (
-        <Avatar
-          size="small"
+        <div
           style={{
-            backgroundColor: '#1890ff',
-            color: '#fff',
-            fontWeight: 'bold',
+            width: '28px',
+            height: '28px',
+            borderRadius: '8px',
+            backgroundColor: '#6366f1',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            fontWeight: '600',
           }}
         >
           {index + 1}
-        </Avatar>
+        </div>
       ),
     },
     {
@@ -539,7 +651,11 @@ const Dashboard = () => {
       dataIndex: 'productName',
       key: 'productName',
       ellipsis: true,
-      render: (text) => <Text strong>{text}</Text>,
+      render: (text) => (
+        <Text strong style={{ color: '#1f2937' }}>
+          {text}
+        </Text>
+      ),
     },
     {
       title: 'Lượt xem',
@@ -548,7 +664,16 @@ const Dashboard = () => {
       align: 'right',
       width: 100,
       render: (value) => (
-        <Tag color="purple" style={{ margin: 0 }}>
+        <Tag
+          style={{
+            margin: 0,
+            borderRadius: '6px',
+            backgroundColor: '#f3e8ff',
+            color: '#7c3aed',
+            border: 'none',
+            fontWeight: '500',
+          }}
+        >
           {value?.toLocaleString()}
         </Tag>
       ),
@@ -557,21 +682,29 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Space direction="vertical" align="center">
-        <Spin size="large" fullscreen />
-        <Text type="secondary">Đang tải dữ liệu...</Text>
-      </Space>
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        }}
+      >
+        <Spin size="large" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '40px' }}>
         <Alert
           message="Lỗi tải dữ liệu"
           description={error}
           type="error"
           showIcon
+          style={{ borderRadius: '12px' }}
           action={
             <Space>
               <a onClick={() => window.location.reload()}>Thử lại</a>
@@ -584,243 +717,262 @@ const Dashboard = () => {
 
   if (!currentStats) {
     return (
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '40px' }}>
         <Alert
           message="Chưa có dữ liệu"
           description={`Dữ liệu cho ${selectedPeriod} chưa được tải`}
           type="warning"
           showIcon
+          style={{ borderRadius: '12px' }}
         />
       </div>
     );
   }
 
   return (
-    <div>
-      <Card style={{ marginBottom: '10px' }}>
+    <div
+      style={{
+        padding: '10px',
+
+        minHeight: '100vh',
+      }}
+    >
+      {/* Header */}
+      <Card
+        style={{
+          marginBottom: '10px',
+          borderRadius: '12px',
+        }}
+      >
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={2} style={{ margin: 0 }}>
+            <Title level={2} style={{ margin: 0, color: '#111827' }}>
               Dashboard
             </Title>
-            <Text type="secondary" style={{ fontSize: '16px' }}>
-              Tổng quan hiệu suất kinh doanh{' '}
+            <Text
+              type="secondary"
+              style={{ fontSize: '16px', color: '#6b7280' }}
+            >
+              Tổng quan hiệu suất kinh doanh
             </Text>
           </Col>
           <Col>
-            <Space size="middle" align="center">
-              <Segmented
-                value={selectedPeriod}
-                onChange={handlePeriodChange}
-                options={[
-                  { label: 'Hôm nay', value: 'daily' },
-                  { label: 'Tuần', value: 'weekly' },
-                  { label: 'Tháng', value: 'monthly' },
-                  { label: 'Năm', value: 'yearly' },
-                ]}
-                autoFocus={false}
-                style={{
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '8px',
-                  height: '32px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                }}
-              />
-            </Space>
+            <Segmented
+              value={selectedPeriod}
+              onChange={handlePeriodChange}
+              options={[
+                { label: 'Hôm nay', value: 'daily' },
+                { label: 'Tuần', value: 'weekly' },
+                { label: 'Tháng', value: 'monthly' },
+                { label: 'Năm', value: 'yearly' },
+              ]}
+              scrolling="false"
+              style={{
+                borderRadius: '12px',
+                padding: '4px',
+                border: '1px solid #e5e7eb',
+              }}
+            />
           </Col>
         </Row>
       </Card>
 
-      <Row gutter={[10]} style={{ marginBottom: '10px' }}>
+      {/* Stats Cards */}
+      <Row gutter={[10, 10]} style={{ marginBottom: '10px' }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title={
-                <Text
-                  type="secondary"
-                  style={{ fontSize: '14px', fontWeight: 500 }}
-                >
-                  Tổng doanh thu
-                </Text>
-              }
-              value={currentStats?.totalRevenue || 0}
-              formatter={(value) => formatCurrency(Number(value))}
-              valueStyle={{
-                color: '#262626',
-                fontSize: '28px',
-                fontWeight: 'bold',
-                lineHeight: 1.2,
-              }}
-            />
-            {comparisonData?.comparison && (
-              <ChangeIndicator
-                change={comparisonData.comparison.revenueChange}
-              />
-            )}
+          <Card
+            style={{
+              borderRadius: '16px',
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <div style={{ paddingLeft: '10px' }}>
+                <Statistic
+                  title={
+                    <Text
+                      style={{
+                        fontSize: '14px',
+                        color: '#6b7280',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Tổng doanh thu
+                    </Text>
+                  }
+                  value={currentStats?.totalRevenue || 0}
+                  formatter={(value) => formatCurrency(Number(value))}
+                  valueStyle={{
+                    color: '#111827',
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    lineHeight: 1.2,
+                  }}
+                />
+                {comparisonData?.comparison && (
+                  <ChangeIndicator
+                    change={comparisonData.comparison.revenueChange}
+                  />
+                )}
+              </div>
+            </div>
           </Card>
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title={
-                <Text
-                  type="secondary"
-                  style={{ fontSize: '14px', fontWeight: 500 }}
-                >
-                  Tổng đơn hàng
-                </Text>
-              }
-              value={currentStats?.totalOrders || 0}
-              valueStyle={{
-                color: '#262626',
-                fontSize: '28px',
-                fontWeight: 'bold',
-                lineHeight: 1.2,
-              }}
-            />
-            {comparisonData?.comparison && (
-              <ChangeIndicator
-                change={comparisonData.comparison.ordersChange}
-              />
-            )}
+          <Card
+            style={{
+              borderRadius: '16px',
+
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <div style={{ paddingLeft: '16px' }}>
+                <Statistic
+                  title={
+                    <Text
+                      style={{
+                        fontSize: '14px',
+                        color: '#6b7280',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Tổng đơn hàng
+                    </Text>
+                  }
+                  value={currentStats?.totalOrders || 0}
+                  valueStyle={{
+                    color: '#111827',
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    lineHeight: 1.2,
+                  }}
+                />
+                {comparisonData?.comparison && (
+                  <ChangeIndicator
+                    change={comparisonData.comparison.ordersChange}
+                  />
+                )}
+              </div>
+            </div>
           </Card>
         </Col>
-
         <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title={
-                <Text
-                  type="secondary"
-                  style={{ fontSize: '14px', fontWeight: 500 }}
-                >
-                  Giá trị đơn hàng TB
-                </Text>
-              }
-              value={currentStats?.averageOrderValue || 0}
-              formatter={(value) => formatCurrency(Number(value))}
-              valueStyle={{
-                color: '#262626',
-                fontSize: '28px',
-                fontWeight: 'bold',
-                lineHeight: 1.2,
-              }}
-            />
-            {comparisonData?.comparison && (
-              <ChangeIndicator change={comparisonData.comparison.aovChange} />
-            )}
-          </Card>
-        </Col>
+          <Card
+            style={{
+              borderRadius: '16px',
 
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title={
-                <Text
-                  type="secondary"
-                  style={{ fontSize: '14px', fontWeight: 500 }}
-                >
-                  Khách hàng mới
-                </Text>
-              }
-              value={currentStats?.newCustomers || 0}
-              valueStyle={{
-                color: '#262626',
-                fontSize: '28px',
-                fontWeight: 'bold',
-                lineHeight: 1.2,
-              }}
-            />
-            {comparisonData?.comparison && (
-              <ChangeIndicator
-                change={comparisonData.comparison.customersChange || 0}
-              />
-            )}
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <div style={{ paddingLeft: '16px' }}>
+                <Statistic
+                  title={
+                    <Text
+                      style={{
+                        fontSize: '14px',
+                        color: '#6b7280',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Tổng lợi nhuận
+                    </Text>
+                  }
+                  value={currentStats?.totalProfit || 0}
+                  valueStyle={{
+                    color: '#111827',
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    lineHeight: 1.2,
+                  }}
+                />
+                {comparisonData?.comparison && (
+                  <ChangeIndicator
+                    change={comparisonData.comparison.ordersChange}
+                  />
+                )}
+              </div>
+            </div>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[10]} style={{ marginBottom: '10px' }}>
+      {/* Charts */}
+      <Row gutter={[10, 10]} style={{ marginBottom: '10px' }}>
         <Col xs={24} lg={16}>
           <Card
-            title={
-              <Space
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '10px 0',
-                }}
-              >
-                <LineChartOutlined style={{ color: '#667eea' }} />
-                <Text strong style={{ fontSize: '16px' }}>
-                  Doanh thu & đơn hàng
-                </Text>
-              </Space>
-            }
             style={{
               borderRadius: '16px',
-              height: '100%',
             }}
-            bodyStyle={{ padding: '24px' }}
+            title={
+              <div className="flex items-center gap-3 py-2">
+                <div className="w-2 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
+                <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
+                  Doanh thu & lợi nhuận & đơn hàng
+                </Text>
+              </div>
+            }
           >
-            <ResponsiveContainer width="100%" height={450}>
+            <ResponsiveContainer width="100%" height={420}>
               <ComposedChart
                 data={chartData}
-                margin={{ top: 10, right: 10, bottom: 10, left: 60 }}
+                margin={{ top: 20, right: 30, bottom: 20, left: 40 }}
               >
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#667eea" stopOpacity={4} />
-                    <stop offset="95%" stopColor="#667eea" stopOpacity={0.2} />
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.09} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="4 4" stroke="#f0f2f5" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#e5e7eb"
+                  opacity={0.6}
+                />
                 <XAxis
                   dataKey="date"
-                  stroke="#8c8c8c"
+                  stroke="#6b7280"
                   fontSize={12}
-                  axisLine={true}
-                  tickLine={true}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <YAxis
                   yAxisId="left"
-                  dataKey="revenue"
-                  stroke="#8c8c8c"
+                  stroke="#6b7280"
                   fontSize={12}
-                  axisLine={true}
-                  tickLine={true}
-                  width={80}
-                  tickFormatter={(value) => `${value.toLocaleString()} đ`}
-                  label={{
-                    value: 'Doanh thu (VNĐ)',
-                    angle: -90,
-                    position: 'insideLeft',
-                    offset: -25,
-                    style: { textAnchor: 'middle' },
-                  }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
                 />
-
+                <YAxis
+                  yAxisId="left"
+                  stroke="#6b7280"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
+                />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  stroke="#8c8c8c"
+                  stroke="#6b7280"
                   fontSize={12}
-                  axisLine={true}
-                  tickLine={true}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'rgba(255,255,255,0.95)',
                     border: 'none',
                     borderRadius: '12px',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
                     backdropFilter: 'blur(10px)',
                   }}
                   formatter={(value, name, props) => {
                     if (props.dataKey === 'revenue') {
-                      return [`${formatCurrency(value)} VNĐ`, 'Doanh thu'];
+                      return [`${formatCurrency(value)}`, 'Doanh thu'];
                     } else if (props.dataKey === 'orders') {
                       return [value.toLocaleString(), 'Số đơn hàng'];
                     }
@@ -832,17 +984,26 @@ const Dashboard = () => {
                   yAxisId="left"
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#667eea"
+                  stroke="#6366f1"
                   strokeWidth={3}
                   fill="url(#colorRevenue)"
-                  name="Doanh thu (triệu ₫)"
+                  name="Doanh thu"
+                />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="profit"
+                  stroke="#FF0000"
+                  strokeWidth={3}
+                  fill="url(#colorRevenue)"
+                  name="Lợi nhuận"
                 />
                 <Bar
                   yAxisId="right"
                   dataKey="orders"
-                  fill="#4facfe"
+                  fill="#10b981"
                   name="Số đơn hàng"
-                  radius={[4, 4, 0, 0]}
+                  radius={[6, 6, 0, 0]}
                   opacity={0.8}
                 />
               </ComposedChart>
@@ -852,55 +1013,51 @@ const Dashboard = () => {
 
         <Col xs={24} lg={8}>
           <Card
-            title={
-              <Space
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '10px 0',
-                }}
-              >
-                <PieChartOutlined style={{ color: '#667eea' }} />
-                <Text strong style={{ fontSize: '16px' }}>
-                  Phương thức thanh toán
-                </Text>
-              </Space>
-            }
             style={{
               borderRadius: '16px',
+
               height: '100%',
             }}
+            title={
+              <div className="flex items-center gap-3 py-2">
+                <div className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
+                <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
+                  Phương thức thanh toán
+                </Text>
+              </div>
+            }
           >
-            <ResponsiveContainer width="100%" height={380}>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
                 <Pie
                   data={paymentMethodData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={100}
-                  innerRadius={40}
+                  outerRadius={90}
+                  innerRadius={45}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percentage }) => `${percentage.toFixed(1)}%`}
+                  label={({ percentage }) => `${percentage.toFixed(1)}%`}
                 >
                   {paymentMethodData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => `${formatCurrency(Number(value))} VNĐ`}
                   contentStyle={{
                     backgroundColor: 'rgba(255,255,255,0.95)',
                     border: 'none',
                     borderRadius: '12px',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                    backdropFilter: 'blur(50px)',
                   }}
+                  formatter={(value) => [
+                    `${formatCurrency(value)} VNĐ`,
+                    'Giá trị',
+                  ]}
                 />
               </PieChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '16px' }}>
+            <div style={{ marginTop: '20px' }}>
               {paymentMethodData.map((item, index) => (
                 <div
                   key={index}
@@ -908,10 +1065,20 @@ const Dashboard = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    margin: '8px 0',
+                    padding: '8px 0',
+                    borderBottom:
+                      index < paymentMethodData.length - 1
+                        ? '1px solid #f3f4f6'
+                        : 'none',
                   }}
                 >
-                  <Space>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
                     <div
                       style={{
                         width: '12px',
@@ -920,74 +1087,113 @@ const Dashboard = () => {
                         backgroundColor: item.color,
                       }}
                     />
-                    <Text>{item.name}</Text>
-                  </Space>
-                  <Text strong>{`${formatCurrency(item.value)} VNĐ`}</Text>
+                    <Text style={{ color: '#374151', fontWeight: '500' }}>
+                      {item.name}
+                    </Text>
+                  </div>
+                  <Text strong style={{ color: '#1f2937' }}>
+                    {formatCurrency(item.value)} VNĐ
+                  </Text>
                 </div>
               ))}
             </div>
           </Card>
         </Col>
       </Row>
+
+      {/* Branch Overview */}
       <BranchOverview />
-      <Row gutter={[10]}>
+
+      {/* Product Tables */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} lg={12}>
           <Card
-            title={
-              <Space
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '10px 0',
-                }}
-              >
-                <TrophyOutlined style={{ color: '#faad14' }} />
-                <Text strong style={{ fontSize: '16px' }}>
-                  Top sản phẩm bán chạy
-                </Text>
-              </Space>
-            }
             style={{
+              borderRadius: '16px',
+              border: 'none',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              background:
+                'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
               height: '100%',
             }}
+            bodyStyle={{ padding: '24px' }}
+            title={
+              <div className="flex items-center gap-3 py-3">
+                <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full"></div>
+                <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
+                  Top sản phẩm bán chạy
+                </Text>
+              </div>
+            }
           >
             <Table
-              bordered={true}
               dataSource={currentStats?.topSellingProducts || []}
               columns={topProductsColumns}
               pagination={false}
               rowKey="productId"
+              style={{
+                '& .ant-table': {
+                  borderRadius: '12px',
+                },
+                '& .ant-table-thead > tr > th': {
+                  backgroundColor: '#f9fafb',
+                  borderBottom: '1px solid #e5e7eb',
+                  color: '#374151',
+                  fontWeight: '600',
+                },
+                '& .ant-table-tbody > tr': {
+                  borderBottom: '1px solid #f3f4f6',
+                },
+                '& .ant-table-tbody > tr:hover': {
+                  backgroundColor: '#f8fafc',
+                },
+              }}
             />
           </Card>
         </Col>
 
         <Col xs={24} lg={12}>
           <Card
+            style={{
+              borderRadius: '16px',
+              border: 'none',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              background:
+                'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+              height: '100%',
+            }}
+            bodyStyle={{ padding: '24px' }}
             title={
-              <Space
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '10px 0',
-                }}
-              >
-                <EyeOutlined style={{ color: '#722ed1' }} />
-                <Text strong style={{ fontSize: '16px' }}>
+              <div className="flex items-center gap-3 py-3">
+                <div className="w-2 h-8 bg-gradient-to-b from-violet-500 to-purple-600 rounded-full"></div>
+                <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
                   Sản phẩm được quan tâm
                 </Text>
-              </Space>
+              </div>
             }
-            style={{
-              height: '100%',
-              borderRadius: '16px',
-            }}
           >
             <Table
-              bordered={true}
               dataSource={currentStats?.mostViewedProducts || []}
               columns={topViewCountColumns}
               pagination={false}
               rowKey="productId"
+              style={{
+                '& .ant-table': {
+                  borderRadius: '12px',
+                },
+                '& .ant-table-thead > tr > th': {
+                  backgroundColor: '#f9fafb',
+                  borderBottom: '1px solid #e5e7eb',
+                  color: '#374151',
+                  fontWeight: '600',
+                },
+                '& .ant-table-tbody > tr': {
+                  borderBottom: '1px solid #f3f4f6',
+                },
+                '& .ant-table-tbody > tr:hover': {
+                  backgroundColor: '#f8fafc',
+                },
+              }}
             />
           </Card>
         </Col>
@@ -996,16 +1202,18 @@ const Dashboard = () => {
       {currentStats?.lastUpdated && (
         <Card
           style={{
-            marginTop: '24px',
-            textAlign: 'center',
-            borderRadius: '16px',
+            borderRadius: '12px',
             border: 'none',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            background:
+              'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,250,252,0.8) 100%)',
+            textAlign: 'center',
           }}
-          bodyStyle={{ padding: '16px' }}
+          bodyStyle={{ padding: '20px' }}
         >
-          <Text type="secondary" style={{ fontSize: '13px' }}>
-            Dữ liệu được cập nhật lần cuối:{' '}
-            <Text strong>
+          <Text style={{ fontSize: '13px', color: '#6b7280' }}>
+            Cập nhật lần cuối:{' '}
+            <Text strong style={{ color: '#374151' }}>
               {dayjs(currentStats.lastUpdated).format('DD/MM/YYYY - HH:mm:ss')}
             </Text>
           </Text>

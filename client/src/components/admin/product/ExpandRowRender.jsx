@@ -2,14 +2,12 @@ import { CameraOutlined, WifiOutlined } from '@ant-design/icons';
 import { Avatar, Card, Descriptions, Space, Tag, Typography } from 'antd';
 const { Text } = Typography;
 export const ExpandedRowRender = ({ record }) => {
-  // Mapping tên nhóm từ tiếng Anh sang tiếng Việt
   const groupNameMapping = {
     specifications: 'Thông số kỹ thuật',
     connectivity: 'Kết nối',
     'camera.front': 'Camera trước',
     'camera.rear': 'Camera sau',
   };
-  console.log(record.category);
 
   const getAttributeValue = (key) => {
     const value = record.attributes?.[key];
@@ -19,7 +17,7 @@ export const ExpandedRowRender = ({ record }) => {
     }
     return null;
   };
-  console.log(record?.category);
+
   const createFieldGroups = () => {
     const fieldGroups = {};
 
@@ -97,71 +95,15 @@ export const ExpandedRowRender = ({ record }) => {
         size="small"
         bordered
         column={1}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 10 }}
       >
         {groupData.map((item) => (
-          <Descriptions.Item key={item.key} label={item.label} span={1}>
-            {renderSpecialFields(item.key, item.value)}
+          <Descriptions.Item key={item.key} label={item.label}>
+            {item.value}
           </Descriptions.Item>
         ))}
       </Descriptions>
     );
-  };
-
-  const renderSpecialFields = (key, value) => {
-    // Xử lý kết nối
-    if (key === 'wifi' || key === 'bluetooth' || key === 'cellular') {
-      const colorMap = {
-        wifi: 'blue',
-        bluetooth: 'green',
-        cellular: 'red',
-      };
-
-      return (
-        <Tag
-          icon={key === 'wifi' ? <WifiOutlined /> : null}
-          color={colorMap[key]}
-        >
-          {key === 'bluetooth' ? `Bluetooth ${value}` : value}
-        </Tag>
-      );
-    }
-
-    // Xử lý GPS, NFC
-    if ((key === 'gps' || key === 'nfc') && value === 'Có') {
-      const colorMap = {
-        gps: 'purple',
-        nfc: 'orange',
-      };
-
-      return <Tag color={colorMap[key]}>{key.toUpperCase()}</Tag>;
-    }
-
-    // Xử lý camera features và video recording
-    if (key.includes('Features') || key.includes('VideoRecording')) {
-      const features =
-        typeof value === 'string'
-          ? value.split(',')
-          : Array.isArray(value)
-            ? value
-            : [value];
-      const isVideo = key.includes('VideoRecording');
-
-      return (
-        <Space wrap>
-          {features.map((feature, index) => (
-            <Tag
-              key={index}
-              size="small"
-              color={isVideo ? 'volcano' : 'default'}
-            >
-              {feature.trim()}
-            </Tag>
-          ))}
-        </Space>
-      );
-    }
-    return <Text>{value}</Text>;
   };
 
   // Hàm render các field chưa được sử dụng
@@ -210,9 +152,9 @@ export const ExpandedRowRender = ({ record }) => {
 
     if (extraFields.length > 0) {
       return (
-        <Descriptions title="Thông tin khác" size="small" bordered column={1}>
+        <Descriptions title="Thông tin khác" size="default" bordered column={1}>
           {extraFields.map((item) => (
-            <Descriptions.Item key={item.key} label={item.label} span={1}>
+            <Descriptions.Item key={item.key} label={item.label}>
               <Text>{item.value}</Text>
             </Descriptions.Item>
           ))}
@@ -229,11 +171,8 @@ export const ExpandedRowRender = ({ record }) => {
     <Card
       size="small"
       style={{
-        margin: '16px 0',
-        backgroundColor: '#F8FAFC',
-        border: `1px solid #E2E8F0`,
+        margin: '10px 0',
         borderRadius: 12,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}
     >
       <Descriptions title="Mô tả sản phẩm" size="small" column={1} bordered>

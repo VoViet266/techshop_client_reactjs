@@ -172,7 +172,7 @@ const WarehouseInbound = () => {
 
     if (filters.searchText) {
       const searchLower = filters.searchText.toLowerCase();
-      console.log(inbound.productId?.name);
+     
       isMatch =
         isMatch &&
         (inbound.productId?.name.toLowerCase().includes(searchLower) ||
