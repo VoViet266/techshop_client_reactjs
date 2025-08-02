@@ -278,6 +278,7 @@ const Dashboard = () => {
         return {
           branchId: selectedBranch,
           branchName: branchData?.branchName,
+          profitBranch: branchData?.totalProfit || 0,
           totalRevenueBranch: branchData?.totalRevenue,
           totalOrdersBranch: branchData?.totalOrders,
           date: formattedDate,
@@ -394,6 +395,14 @@ const Dashboard = () => {
                     radius={[6, 6, 0, 0]}
                     opacity={0.8}
                   />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="profitBranch"
+                    fill="#0000FF"
+                    name="Lợi nhuận"
+                    radius={[6, 6, 0, 0]}
+                    opacity={0.8}
+                  />
                 </ComposedChart>
               </ResponsiveContainer>
             </Card>
@@ -439,12 +448,34 @@ const Dashboard = () => {
                       backgroundColor: 'rgba(255,255,255,0.95)',
                       border: 'none',
                       borderRadius: '12px',
+                      boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                      backdropFilter: 'blur(10px)',
                     }}
-                    formatter={(value) => [
-                      `${formatCurrency(value)} VNĐ`,
-                      'Doanh thu',
-                    ]}
+                    formatter={(value, name, props) => {
+                      if (props.dataKey === 'totalRevenueBranch') {
+                        return [`${formatCurrency(value)} vnđ`, 'Doanh thu'];
+                      } else if (props.dataKey === 'profitBranch') {
+                        return [`${formatCurrency(value)} vnđ`, 'Lợi nhuận'];
+                      }
+                      return [value, name];
+                    }}
                   />
+
+                  {/* <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      border: 'none',
+                      borderRadius: '12px',
+                    }}
+                    formatter={(props, value) => {
+                      if (props.dataKey === 'totalRevenue') {
+                        return [`${formatCurrency(value)} VNĐ`, 'Doanh thu'];
+                      } else if (props.dataKey === 'profitBranch') {
+                        return [`${formatCurrency(value)} VNĐ`, 'Lợi nhuận'];
+                      }
+                      return [value, props.dataKey];
+                    }}
+                  /> */}
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ marginTop: '20px' }}>
@@ -500,6 +531,7 @@ const Dashboard = () => {
                 : 'YYYY',
         ),
         revenue: item.totalRevenue,
+        profit: item.totalProfit || 0,
         orders: item.totalOrders,
         customers: item.totalCustomers || 0,
         aov: Math.round(item.averageOrderValue / 1000),
@@ -826,6 +858,45 @@ const Dashboard = () => {
             </div>
           </Card>
         </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card
+            style={{
+              borderRadius: '16px',
+
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <div style={{ paddingLeft: '16px' }}>
+                <Statistic
+                  title={
+                    <Text
+                      style={{
+                        fontSize: '14px',
+                        color: '#6b7280',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Tổng lợi nhuận
+                    </Text>
+                  }
+                  value={currentStats?.totalProfit || 0}
+                  valueStyle={{
+                    color: '#111827',
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    lineHeight: 1.2,
+                  }}
+                />
+                {comparisonData?.comparison && (
+                  <ChangeIndicator
+                    change={comparisonData.comparison.ordersChange}
+                  />
+                )}
+              </div>
+            </div>
+          </Card>
+        </Col>
       </Row>
 
       {/* Charts */}
@@ -839,7 +910,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-3 py-2">
                 <div className="w-2 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
                 <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
-                  Doanh thu & đơn hàng
+                  Doanh thu & lợi nhuận & đơn hàng
                 </Text>
               </div>
             }
@@ -866,6 +937,14 @@ const Dashboard = () => {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
+                />
+                <YAxis
+                  yAxisId="left"
+                  stroke="#6b7280"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
                 />
                 <YAxis
                   yAxisId="left"
@@ -909,6 +988,15 @@ const Dashboard = () => {
                   strokeWidth={3}
                   fill="url(#colorRevenue)"
                   name="Doanh thu"
+                />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="profit"
+                  stroke="#FF0000"
+                  strokeWidth={3}
+                  fill="url(#colorRevenue)"
+                  name="Lợi nhuận"
                 />
                 <Bar
                   yAxisId="right"

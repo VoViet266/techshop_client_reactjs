@@ -157,6 +157,10 @@ function ProductsList() {
         });
     }
   }, [category, currentBrand, currentPage]);
+
+  useEffect(() => {
+    document.title = 'Danh mục sản phẩm';
+  }, []);
   
   return (
     <div className="w-full mt-10">
