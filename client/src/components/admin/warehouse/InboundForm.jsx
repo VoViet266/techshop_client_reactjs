@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Select, Input, InputNumber, Button } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { hasPermission } from '@/helpers';
@@ -16,6 +16,40 @@ const InboundForm = ({
   setProductSearchVisible,
   handleAddItem,
 }) => {
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
+  // Reset variant và màu khi đổi sản phẩm
+  useEffect(() => {
+    if (!selectedProduct) {
+      setSelectedVariant(null);
+      form.setFieldsValue({
+        variant: undefined,
+        variantColor: undefined,
+      });
+    }
+  }, [selectedProduct, form]);
+
+  // Xử lý khi chọn biến thể
+  const handleVariantChange = (variantId, option) => {
+    const variant = option.variantData;
+    setSelectedVariant(variant);
+
+    // Reset màu đã chọn khi đổi biến thể
+    form.setFieldsValue({
+      variantColor: undefined,
+    });
+
+    console.log('Selected variant:', variant);
+  };
+
+  // Lấy các màu của biến thể đã chọn
+  const getColorsForSelectedVariant = () => {
+    if (!selectedVariant || !selectedVariant.color) {
+      return [];
+    }
+    return selectedVariant.color;
+  };
+
   return (
     <Form form={form} layout="vertical">
       <Row gutter={16}>
@@ -34,9 +68,6 @@ const InboundForm = ({
             </Select>
           </Form.Item>
         </Col>
-      </Row>
-
-      <Row gutter={16}>
         <Col span={12}>
           <Form.Item label="Sản phẩm" name="productId">
             <Form.Item name="productId" style={{ display: 'none' }}>
@@ -52,16 +83,72 @@ const InboundForm = ({
             />
           </Form.Item>
         </Col>
+      </Row>
+
+      <Row gutter={16}>
         <Col span={12}>
           <Form.Item
-            name="variantId"
+            name="variant"
             label="Biến thể"
             rules={[{ required: true, message: 'Vui lòng chọn biến thể' }]}
           >
-            <Select placeholder="Chọn biến thể" disabled={!selectedProduct}>
+            <Select
+              placeholder="Chọn biến thể"
+              disabled={!selectedProduct}
+              onChange={handleVariantChange}
+              value={selectedVariant?._id}
+            >
               {selectedProduct?.variants?.map((variant) => (
-                <Option key={variant._id} value={variant._id}>
-                  {variant.name}
+                <Option
+                  key={variant._id}
+                  value={variant._id}
+                  variantData={variant}
+                >
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                  >
+                    <span>{variant.name}</span>
+                    {variant.memory && (
+                      <span style={{ color: '#666', fontSize: '12px' }}>
+                        ({variant.memory.ram}/{variant.memory.storage})
+                      </span>
+                    )}
+                  </div>
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
+            name="variantColor"
+            label="Màu biến thể"
+            rules={[{ required: true, message: 'Vui lòng chọn màu' }]}
+          >
+            <Select
+              placeholder="Chọn màu"
+              disabled={!selectedVariant}
+              allowClear
+            >
+              {getColorsForSelectedVariant().map((color, index) => (
+                <Option
+                  key={`${selectedVariant._id}-${index}`}
+                  value={color.colorName}
+                >
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                  >
+                    <span
+                      style={{
+                        width: 16,
+                        height: 16,
+                        backgroundColor: color.colorHex,
+                        border: '1px solid #ccc',
+                        borderRadius: '50%',
+                      }}
+                    />
+                    {color.colorName}
+                  </div>
                 </Option>
               ))}
             </Select>

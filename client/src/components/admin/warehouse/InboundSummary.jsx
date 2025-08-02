@@ -28,7 +28,7 @@ const InboundSummary = ({
         </Row>
         <Row justify="space-between">
           <Text>Tổng số lượng:</Text>
-          <Badge count={totalQuantity} style={{ backgroundColor: '#52c41a' }} />
+          <Text strong>{totalQuantity}</Text>
         </Row>
         <Row justify="space-between">
           <Text>Tổng giá trị:</Text>

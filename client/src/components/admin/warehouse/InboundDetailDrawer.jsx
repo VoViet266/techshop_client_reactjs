@@ -20,6 +20,7 @@ const InboundDetailDrawer = ({
   onClose,
   selectedInboundDetail,
 }) => {
+  
   const handlePrint = () => {
     if (!selectedInboundDetail) return;
 
@@ -157,7 +158,22 @@ const InboundDetailDrawer = ({
             margin-bottom: 4px;
           }
           
-          .sku-text {
+          .color-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+          }
+          
+          .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            display: inline-block;
+          }
+          
+          .color-text {
             color: #888;
             font-size: 11px;
           }
@@ -337,8 +353,10 @@ const InboundDetailDrawer = ({
                 <tr>
                   <td>
                     <div class="variant-tag">${record.variantId?.name || 'N/A'}</div>
-                    <br>
-                    <div class="sku-text">SKU: ${record.variantId?.sku || 'N/A'}</div>
+                    <div class="color-info">
+                      <span class="color-dot" style="background-color: ${record.variantColorHex || '#ccc'};"></span>
+                      <span class="color-text">${record.variantColor || 'N/A'}</span>
+                    </div>
                   </td>
                   <td class="text-center">
                     <span class="quantity-badge">${record.quantity || 0}</span>
@@ -487,11 +505,29 @@ const InboundDetailDrawer = ({
                 key: 'variant',
                 render: (_, record) => (
                   <div>
-                    <Tag color="blue">{record.variantId?.name}</Tag>
+                    <Tag color="blue">{record.variantId?.name || 'N/A'}</Tag>
                     <br />
-                    <Text type="secondary" style={{ fontSize: '11px' }}>
-                      SKU: {record.variantId?.sku}
-                    </Text>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        marginTop: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 12,
+                          height: 12,
+                          backgroundColor: record.variantColorHex || '#ccc',
+                          border: '1px solid #ccc',
+                          borderRadius: '50%',
+                        }}
+                      />
+                      <Text type="secondary" style={{ fontSize: '11px' }}>
+                        {record.variantColor || 'N/A'}
+                      </Text>
+                    </div>
                   </div>
                 ),
               },
@@ -528,7 +564,9 @@ const InboundDetailDrawer = ({
               },
             ]}
             dataSource={selectedInboundDetail.variants || []}
-            rowKey={(record) => record.variantId?._id || record.variantId}
+            rowKey={(record, index) =>
+              `${record.variantId?._id || record.variantId}-${record.variantColor}-${index}`
+            }
             pagination={false}
             size="small"
             summary={(pageData) => {

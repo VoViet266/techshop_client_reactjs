@@ -667,6 +667,7 @@ function ProductDetail() {
                           {
                             product: product._id,
                             variant: selectedVariant._id,
+                            color: selectedColor,
                             branch: selectBranchs,
                             quantity: 1,
                           },
@@ -709,6 +710,7 @@ function ProductDetail() {
                             product: product._id,
                             variant: selectedVariant?._id,
                             branch: selectBranchs,
+                            color: selectedColor,
                             quantity: 1,
                           },
                         ]);
