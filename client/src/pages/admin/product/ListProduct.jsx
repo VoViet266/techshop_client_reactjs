@@ -221,7 +221,7 @@ function ListProduct() {
       render: (text, record) => (
         <Space size={12}>
           <Image
-            src={record.variants?.[0]?.images?.[0]}
+            src={record.variants?.[0]?.color?.[0]?.images?.[0]}
             height={60}
             width={60}
             style={{

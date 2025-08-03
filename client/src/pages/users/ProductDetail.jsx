@@ -85,8 +85,15 @@ function ProductDetail() {
     try {
       const res = await Products.get(id);
       setProduct(res);
-      setSelectedColor(res.variants[0].color?.name);
-      setSelectedMemory(res.variants[0].memory);
+
+      // Khởi tạo với variant đầu tiên nhưng không chọn màu
+      if (res.variants?.length > 0) {
+        const firstVariant = res.variants[0];
+        setSelectedMemory(firstVariant.memory);
+        //tự động chọn màu đầu tiên
+
+        setSelectedColor(firstVariant.color);
+      }
     } catch (error) {
       console.error('Đã có lỗi xảy ra:', error);
     } finally {
@@ -127,6 +134,7 @@ function ProductDetail() {
       console.error('Đã có lỗi xảy ra:', error);
     }
   };
+
   const fetchRecommentProducts = async () => {
     try {
       setLoading(true);
@@ -160,6 +168,7 @@ function ProductDetail() {
       console.error(error);
     }
   };
+
   useEffect(() => {
     fetchRecommentProducts();
   }, [id]);
@@ -213,6 +222,7 @@ function ProductDetail() {
       message.error('Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
     }
   };
+  // Tìm thông tin màu được chọn
 
   const handleBuy = async (items) => {
     const cartServices = new CartServices();
@@ -227,11 +237,15 @@ function ProductDetail() {
     }
   };
 
+  // Tìm variant được chọn - chỉ khi đã chọn cả memory và color
   const selectedVariant = product?.variants?.find(
-    (v) =>
-      v.memory?.ram === selectedMemory?.ram &&
-      v.memory?.storage === selectedMemory?.storage &&
-      v.color?.name === selectedColor,
+    (variant) =>
+      variant.memory?.ram === selectedMemory?.ram &&
+      variant.memory?.storage === selectedMemory?.storage,
+  );
+
+  const selectedColorData = selectedVariant?.color?.find(
+    (color) => color.colorName === selectedColor,
   );
 
   useEffect(() => {
@@ -261,7 +275,7 @@ function ProductDetail() {
     fetchBranchStocks();
   }, [selectedVariant?._id, id, branchs]);
 
-  const variantImages = selectedVariant?.images || [];
+  const variantImages = selectedColorData?.images || [];
   const galleryImages = product.galleryImages || [];
 
   const allImages = [...variantImages, ...galleryImages];
@@ -416,7 +430,7 @@ function ProductDetail() {
                 </div>
               </div>
 
-              {/* Chỉ hiển thị phần Bộ nhớ nếu sản phẩm có memory */}
+              {/* Cập nhật phần Bộ nhớ theo cấu trúc mới */}
               {product.variants?.some(
                 (v) => v.memory?.ram || v.memory?.storage,
               ) && (
@@ -449,22 +463,8 @@ function ProductDetail() {
                             }`}
                             onClick={() => {
                               setSelectedMemory(variant.memory);
-                              const matchedVariants = product.variants.filter(
-                                (v) =>
-                                  v.memory?.ram === variant.memory?.ram &&
-                                  v.memory?.storage === variant.memory?.storage,
-                              );
 
-                              if (matchedVariants.length > 0) {
-                                const colorNames = matchedVariants.map(
-                                  (v) => v.color?.name,
-                                );
-                                if (!colorNames.includes(selectedColor)) {
-                                  setSelectedColor(
-                                    matchedVariants[0].color?.name,
-                                  );
-                                }
-                              }
+                              setSelectedColor(variant.color[0]?.colorName);
                             }}
                           >
                             <Text className="text-sm! sm:text-sm!">
@@ -482,93 +482,88 @@ function ProductDetail() {
                 </div>
               )}
 
-              <div className="mb-6">
-                <Title level={5} className="mb-2 text-sm sm:text-base">
-                  Màu sắc
-                </Title>
-                <Row gutter={[8, 8]}>
-                  {product.variants
-                    ?.filter((variant) => {
-                      // Nếu sản phẩm không có memory, hiển thị tất cả variants
-                      if (
-                        !product.variants?.some(
-                          (v) => v.memory?.ram || v.memory?.storage,
-                        )
-                      ) {
-                        return true;
-                      }
+              {/* Phần Màu sắc - chỉ hiển thị khi đã chọn bộ nhớ */}
+              {selectedMemory?.ram &&
+                selectedMemory?.storage &&
+                selectedVariant && (
+                  <div className="mb-6">
+                    <Title level={5} className="mb-2 text-sm sm:text-base">
+                      Màu sắc
+                    </Title>
+                    <Row gutter={[8, 8]}>
+                      {selectedVariant?.color?.map((color, index) => {
+                        const isSelected = selectedColor === color.colorName;
 
-                      // Nếu có memory, filter theo selectedMemory
-                      if (selectedMemory) {
                         return (
-                          variant.memory?.ram === selectedMemory?.ram &&
-                          variant.memory?.storage === selectedMemory?.storage
-                        );
-                      }
-
-                      // Nếu chưa chọn memory, không hiển thị variants nào
-                      return false;
-                    })
-                    .map((variant, index) => {
-                      const isSelected = selectedColor === variant.color?.name;
-
-                      return (
-                        <Col span={12} key={`color-${index}`}>
-                          <div
-                            className={
-                              'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 text-xs bg-white! rounded-md! sm:text-sm cursor-pointer hover:bg-gray-50 ' +
-                              (isSelected
-                                ? 'border border-primary bg-blue-50'
-                                : 'border border-gray-200')
-                            }
-                            onClick={() =>
-                              setSelectedColor(variant.color?.name)
-                            }
-                          >
-                            <div className="w-50 h-50 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                              <Image
-                                preview={false}
-                                src={
-                                  variant.images?.[0] ||
-                                  'https://dummyimage.com/200x200/ccc/000&text=No+Image'
-                                }
-                                className="w-full! h-full! object-contain!"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <Typography.Text
-                                strong
-                                className="block text-xs sm:text-sm truncate"
-                              >
-                                {variant.color?.name}
-                              </Typography.Text>
-                              <Typography.Text
-                                type="secondary"
-                                className="text-xs sm:text-sm"
-                              >
-                                {formatCurrency(variant.price)}đ
-                              </Typography.Text>
-                              {/* Hiển thị thông tin memory nếu có */}
-                              {(variant.memory?.ram ||
-                                variant.memory?.storage) && (
+                          <Col span={12} key={`color-${index}`}>
+                            <div
+                              className={
+                                'flex items-center gap-4 py-10 sm:py-4 px-8 sm:px-4 text-xs bg-white! rounded-md! sm:text-sm cursor-pointer hover:bg-gray-50 ' +
+                                (isSelected
+                                  ? 'border border-primary bg-blue-50'
+                                  : 'border border-gray-200')
+                              }
+                              onClick={() => setSelectedColor(color.colorName)}
+                            >
+                              <div className="w-50 h-50 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                <Image
+                                  preview={false}
+                                  src={
+                                    color.images?.[0] ||
+                                    'https://dummyimage.com/200x200/ccc/000&text=No+Image'
+                                  }
+                                  className="w-full! h-full! object-contain!"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <Typography.Text
+                                  strong
+                                  className="block text-xs sm:text-sm truncate"
+                                >
+                                  {color.colorName}
+                                </Typography.Text>
+                                <Typography.Text
+                                  type="secondary"
+                                  className="text-xs sm:text-sm"
+                                >
+                                  {formatCurrency(selectedVariant.price)}đ
+                                </Typography.Text>
+                                {/* Hiển thị thông tin memory */}
                                 <Typography.Text
                                   type="secondary"
                                   className="block text-xs mt-1"
                                 >
-                                  {variant.memory?.storage &&
-                                  variant.memory?.ram
-                                    ? `${variant.memory.storage} - ${variant.memory.ram}`
-                                    : variant.memory?.storage ||
-                                      variant.memory?.ram}
+                                  {selectedVariant.memory?.storage &&
+                                  selectedVariant.memory?.ram
+                                    ? `${selectedVariant.memory.storage} - ${selectedVariant.memory.ram}`
+                                    : selectedVariant.memory?.storage ||
+                                      selectedVariant.memory?.ram}
                                 </Typography.Text>
-                              )}
+                              </div>
                             </div>
-                          </div>
-                        </Col>
-                      );
-                    })}
-                </Row>
-              </div>
+                          </Col>
+                        );
+                      })}
+                    </Row>
+                  </div>
+                )}
+
+              {/* Thông báo khi chưa chọn bộ nhớ */}
+              {(!selectedMemory?.ram || !selectedMemory?.storage) && (
+                <div className="mb-6">
+                  <Title
+                    level={5}
+                    className="mb-2 text-sm sm:text-base text-gray-400"
+                  >
+                    Màu sắc
+                  </Title>
+                  <div className="p-4 border border-dashed border-gray-300 rounded-md text-center">
+                    <Text type="secondary" className="text-sm">
+                      Vui lòng chọn bộ nhớ trước để xem các màu sắc có sẵn
+                    </Text>
+                  </div>
+                </div>
+              )}
 
               <div className="my-20 flex flex-col gap-10">
                 {/* Promotions Section với Show More */}
@@ -646,13 +641,18 @@ function ProductDetail() {
                       type="primary"
                       size="large"
                       block
-                      disabled={!currentStock}
+                      disabled={!currentStock || !selectedColor}
                       className="bg-red-600 hover:bg-red-700 border-red-600 font-semibold hover:shadow-md shadow-md h-40! rounded-md! py-2 sm:py-3 text-xs sm:text-sm"
                       icon={<ShoppingCartOutlined />}
                       onClick={async () => {
                         if (!user) {
                           message.warning('Vui lòng đăng nhập để đặt hàng!!');
                           setShowLogin(true);
+                          return;
+                        }
+
+                        if (!selectedColor) {
+                          message.warning('Vui lòng chọn màu sắc');
                           return;
                         }
 
@@ -667,6 +667,7 @@ function ProductDetail() {
                           {
                             product: product._id,
                             variant: selectedVariant._id,
+                            color: selectedColor,
                             branch: selectBranchs,
                             quantity: 1,
                           },
@@ -680,7 +681,7 @@ function ProductDetail() {
                     <Button
                       size="large"
                       block
-                      disabled={!currentStock}
+                      disabled={!currentStock || !selectedColor}
                       className=" py-2! sm:py-3! rounded-md! text-xs! h-40! sm:text-sm!"
                       icon={<BsCartPlusFill />}
                       onClick={async () => {
@@ -689,6 +690,11 @@ function ProductDetail() {
                             'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
                           );
                           setShowLogin(true);
+                          return;
+                        }
+
+                        if (!selectedColor) {
+                          message.warning('Vui lòng chọn màu sắc');
                           return;
                         }
 
@@ -704,6 +710,7 @@ function ProductDetail() {
                             product: product._id,
                             variant: selectedVariant?._id,
                             branch: selectBranchs,
+                            color: selectedColor,
                             quantity: 1,
                           },
                         ]);
@@ -715,7 +722,14 @@ function ProductDetail() {
                       <span className="sm:hidden!">Thêm vào giỏ</span>
                     </Button>
                   </Col>
-                  {!currentStock && (
+                  {!selectedColor && selectedVariant && (
+                    <Col span={24}>
+                      <Text className="text-orange-500! text-sm! sm:text-base! text-center! font-medium!">
+                        Vui lòng chọn màu sắc để tiếp tục
+                      </Text>
+                    </Col>
+                  )}
+                  {!currentStock && selectedColor && (
                     <Col span={24}>
                       <Text className="text-primary! text-sm! sm:text-base! text-center! font-medium!">
                         Sản phẩm đang tạm hết hàng ở khu vực này. Vui lòng chọn
@@ -770,7 +784,7 @@ function ProductDetail() {
           </Col>
         </Row>
         <Row gutter={[10, 10]} className="mt-6 sm:mt-8 lg:mt-10">
-          <Col  span={24} lg={24}>
+          <Col span={24} lg={24}>
             <Comments
               stats={stats}
               product={product}

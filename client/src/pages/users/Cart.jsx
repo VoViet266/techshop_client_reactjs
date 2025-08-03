@@ -14,6 +14,7 @@ import {
   Tooltip,
   Typography,
   InputNumber,
+  Space,
 } from 'antd';
 import { Link } from 'react-router-dom';
 import CartServices from '@services/carts';
@@ -142,6 +143,22 @@ function Cart() {
     const discountAmount = originalPrice * (item.product.discount / 100);
     return originalPrice - discountAmount;
   };
+  console.log(cartItems);
+  // const colorItem = cartItems.map((item) => );
+  // console.log(colorItem);
+  // const colorVariant = cartItems.variant.color.map(
+  //   (item) => item.colorName === colorItem,
+  // );
+  // console.log(colorVariant);
+  const variantItem = cartItems.map((item) => {
+    const selectedColor = item.variant.color.find(
+      (color) => color.colorName === item.color,
+    );
+    return {
+      ...item,
+      color: selectedColor,
+    };
+  });
 
   const columns = [
     {
@@ -151,10 +168,10 @@ function Cart() {
       width: '35%',
       render: (_, item) => {
         return (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center  gap-3 ">
             <div className=" bg-gray-100 my-2.5 rounded-lg flex items-center justify-center overflow-hidden">
               <Image
-                src={item?.variant?.images[0] || '/placeholder-image.jpg'}
+                src={item?.color?.images[0] || '/placeholder-image.jpg'}
                 alt={item?.variant?.name}
                 width={64}
                 height={64}
@@ -164,17 +181,15 @@ function Cart() {
             </div>
             <div className="flex-1">
               <Link to={`/product/${item.product._id}`}>
-                <Text className="text-gray-900 font-medium text-base hover:text-blue-600 hover:underline cursor-pointer">
-                  {item?.variant?.name}
-                </Text>
+                <Space direction="vertical" className="p-0! ">  
+                  <Text className="text-gray-900 font-medium line-clamp-1 text-base hover:text-blue-600 hover:underline cursor-pointer">
+                    {item?.product?.name}
+                  </Text>
+                  <Text type="secondary" className="text-gray-500 text-sm mt-1">
+                    {item?.variant?.name}
+                  </Text>
+                </Space>
               </Link>
-              {item.product.discount > 0 && (
-                <div className="mt-1">
-                  <Tag color="red" className="text-xs">
-                    -{item.product.discount}%
-                  </Tag>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -400,7 +415,7 @@ function Cart() {
                 }
                 columns={columns}
                 pagination={false}
-                dataSource={cartItems}
+                dataSource={variantItem}
                 bordered
                 className="w-full! rounded-md!"
                 rowSelection={Object.assign({ type: 'checkbox' }, rowSelection)}

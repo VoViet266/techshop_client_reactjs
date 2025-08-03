@@ -149,6 +149,7 @@ function Order() {
         return {
           product: item.product._id,
           variant: item.variant._id,
+
           quantity: item.quantity,
           price: item.price,
           branch,
@@ -347,6 +348,10 @@ function Order() {
           </Typography.Title>
 
           {cartItems.map((item, index) => {
+            const color = item.variant.color.find(
+              (color) => color.colorName === item.color,
+            );
+
             return (
               <Card key={index} className="rounded-xl! border-none!">
                 <div className="flex gap-12 items-center">
@@ -354,25 +359,30 @@ function Order() {
                     width={70}
                     height={70}
                     preview={false}
-                    src={item.variant.images[0]}
+                    src={color.images[0]}
                     className=" ! flex! items-center! justify-center!"
                   />
 
                   <div className="flex-1">
-                    <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
+                    <Typography.Text className="font-bold  text-[12px] flex! gap-8 items-center! text-base leading-5">
                       {item.variant.name}
                     </Typography.Text>
-                    <Typography.Text className="font-medium flex! gap-8 items-center! text-base leading-5">
-                      Số lượng: {item?.quantity}
-                    </Typography.Text>
-                    <Flex align="center" className="mt-4!">
-                      <Tag color="default" className="mt-4!">
-                        {`Màu: ${item.variant.color.name}`}
-                      </Tag>
+
+                    <Flex
+                      align="start"
+                      className="mt-4 flex! flex-col!"
+                      gap={4}
+                    >
+                      <Typography.Text type="secondary">
+                        Số lượng: {item?.quantity}
+                      </Typography.Text>
+                      <Typography.Text type="secondary">
+                        {`Màu sắc: ${color.colorName}`}
+                      </Typography.Text>
                       {item.variant.memory && (
-                        <Tag color="default" className="mt-4! ml-4!">
+                        <Typography.Text type="secondary">
                           {`Biến thể: ${item.variant.memory.ram}, ${item.variant.memory.storage}`}
-                        </Tag>
+                        </Typography.Text>
                       )}
                     </Flex>
                   </div>

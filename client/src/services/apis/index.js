@@ -177,7 +177,7 @@ export const callFetchProductDetail = (id) => {
 };
 
 export const callUpdateProduct = (value) => {
-
+  console.log('sca', value);
   return axiosInstance.patch(`/api/v1/products/${value._id}`, {
     ...value,
   });

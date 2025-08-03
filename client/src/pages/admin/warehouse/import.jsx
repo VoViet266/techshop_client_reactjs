@@ -64,6 +64,7 @@ const WarehouseInbound = () => {
   const [inboundItems, setInboundItems] = useState([]);
   const [inboundHistory, setInboundHistory] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
@@ -172,7 +173,7 @@ const WarehouseInbound = () => {
 
     if (filters.searchText) {
       const searchLower = filters.searchText.toLowerCase();
-     
+
       isMatch =
         isMatch &&
         (inbound.productId?.name.toLowerCase().includes(searchLower) ||
@@ -193,10 +194,12 @@ const WarehouseInbound = () => {
 
   const handleSelectProduct = (product) => {
     setSelectedProduct(product);
+    setSelectedVariant(null); // Reset variant khi đổi sản phẩm
 
     form.setFieldsValue({
       productId: product._id,
-      variantId: undefined,
+      variant: undefined,
+      variantColor: undefined,
     });
     setProductSearchVisible(false);
     message.success(`Đã chọn sản phẩm: ${product.name}`);
@@ -204,21 +207,32 @@ const WarehouseInbound = () => {
 
   const handleAddItem = () => {
     form
-      .validateFields(['productId', 'variantId', 'quantity', 'cost'])
+      .validateFields([
+        'branchId',
+        'productId',
+        'variant',
+        'variantColor',
+        'quantity',
+      ])
       .then((values) => {
         const product = products.find((p) => p._id === values.productId);
-        const variant = product.variants.find(
-          (v) => v._id === values.variantId,
+        const variant = product.variants.find((v) => v._id === values.variant);
+
+        // Tìm thông tin màu đã chọn
+        const selectedColor = variant.color.find(
+          (c) => c.colorName === values.variantColor,
         );
+
         const existingItem = inboundItems.find(
           (item) =>
             item.productId === values.productId &&
-            item.variantId === values.variantId,
+            item.variantId === values.variant &&
+            item.variantColor === values.variantColor,
         );
 
         if (existingItem) {
           message.warning(
-            'Sản phẩm này đã có trong danh sách. Vui lòng chỉnh sửa số lượng.',
+            'Sản phẩm với biến thể và màu này đã có trong danh sách. Vui lòng chỉnh sửa số lượng.',
           );
           return;
         }
@@ -230,24 +244,26 @@ const WarehouseInbound = () => {
           productName: product.name,
           productCode: product.code,
           variantName: variant.name,
-          variantId: values.variantId,
-          variantSku: variant.sku,
+          variantId: values.variant,
+          variantColor: values.variantColor,
+          variantColorHex: selectedColor?.colorHex || '#ccc',
           quantity: values.quantity,
-          cost: values.cost || variant.cost,
-          total: values.quantity * (values.cost || variant.cost),
+          cost: values.cost || variant.price || 0,
+          total: values.quantity * (values.cost || variant.price || 0),
         };
 
         setInboundItems([...inboundItems, newItem]);
         form.setFieldsValue({
-          productId: undefined,
-          variantId: undefined,
+          variant: undefined,
+          variantColor: undefined,
           quantity: undefined,
           cost: undefined,
         });
-        setSelectedProduct(null);
+        setSelectedVariant(null);
         message.success('Đã thêm sản phẩm vào danh sách nhập kho');
       })
       .catch((errorInfo) => {
+        console.log('Validation failed:', errorInfo);
         message.error('Vui lòng điền đầy đủ thông tin');
       });
   };
@@ -319,6 +335,7 @@ const WarehouseInbound = () => {
         }
         importRequests[item.productId].variants.push({
           variantId: String(item.variantId),
+          variantColor: item.variantColor,
           quantity: item.quantity,
           cost: item.cost,
         });
@@ -330,6 +347,8 @@ const WarehouseInbound = () => {
 
       message.success('Nhập kho thành công!');
       setInboundItems([]);
+      setSelectedProduct(null);
+      setSelectedVariant(null);
       form.resetFields();
       setIsModalVisible(false);
       await fetchInboundHistory();
@@ -373,10 +392,25 @@ const WarehouseInbound = () => {
       render: (_, record) => (
         <div>
           <Tag color="blue">{record.variantName}</Tag>
-          <br />
-          <Text type="secondary" style={{ fontSize: '11px' }}>
-            SKU: {record.variantSku}
-          </Text>
+        </div>
+      ),
+    },
+    {
+      title: 'Màu sắc',
+      key: 'color',
+      width: 200,
+      render: (_, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span
+            style={{
+              width: 16,
+              height: 16,
+              backgroundColor: record.variantColorHex,
+              border: '1px solid #ccc',
+              borderRadius: '50%',
+            }}
+          />
+          <Text style={{ fontSize: '13px' }}>{record.variantColor}</Text>
         </div>
       ),
     },
@@ -586,7 +620,9 @@ const WarehouseInbound = () => {
             title={
               <Space className="py-5!">
                 <ImportOutlined />
-                <Text strong className="text-[16px]!">Tạo phiếu nhập kho</Text>
+                <Text strong className="text-[16px]!">
+                  Tạo phiếu nhập kho
+                </Text>
               </Space>
             }
           >
@@ -596,6 +632,8 @@ const WarehouseInbound = () => {
               inbound={inbound}
               branches={branches}
               selectedProduct={selectedProduct}
+              selectedVariant={selectedVariant}
+              setSelectedVariant={setSelectedVariant}
               setProductSearchVisible={setProductSearchVisible}
               handleAddItem={handleAddItem}
             />
@@ -645,6 +683,7 @@ const WarehouseInbound = () => {
                       padding: '16px',
                       border: '1px solid #f0f0f0',
                       borderRadius: '8px',
+                      marginBottom: '8px',
                     }}
                   >
                     <Row justify="space-between" align="middle">
@@ -656,13 +695,9 @@ const WarehouseInbound = () => {
                           {item.productName}
                         </Text>
                         <br />
-                        <Tag
-                          color="blue"
-                          size="small"
-                          style={{ marginTop: '4px' }}
-                        >
+                        <Text type="secondary" style={{ marginTop: '4px' }}>
                           {item.variantName}
-                        </Tag>
+                        </Text>
                         <Text
                           type="secondary"
                           style={{ fontSize: '11px', marginLeft: '8px' }}
@@ -670,9 +705,27 @@ const WarehouseInbound = () => {
                           × {item.quantity}
                         </Text>
                         <br />
-                        <Text type="secondary" style={{ fontSize: '10px' }}>
-                          SKU: {item.variantSku}
-                        </Text>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            marginTop: '4px',
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 12,
+                              height: 12,
+                              backgroundColor: item.variantColorHex,
+                              border: '1px solid #ccc',
+                              borderRadius: '50%',
+                            }}
+                          />
+                          <Text type="secondary" style={{ fontSize: '12px' }}>
+                            {item.variantColor}
+                          </Text>
+                        </div>
                       </Col>
                       <Col span={6} style={{ textAlign: 'right' }}>
                         <Text

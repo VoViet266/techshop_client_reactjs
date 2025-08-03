@@ -350,6 +350,7 @@ const AccountInfoPage = () => {
           <>
             <div>{product.name}</div>
             <div className="text-xs text-gray-500">{record.variant.name}</div>
+            <div className="text-xs text-gray-500">{record.variantColor}</div>
           </>
         );
       },

@@ -1,10 +1,4 @@
-import {
-  Variants,
-  Specifications,
-  CommonInformation,
-  CameraInformations,
-  ConnectionInformation,
-} from '@pages/admin/product';
+import { Variants, CommonInformation } from '@pages/admin/product';
 
 import Files from '@services/files';
 import Brands from '@services/brands';
@@ -23,6 +17,7 @@ import {
   Select,
   Typography,
   Upload,
+  Image,
   message as antMessage,
   notification,
 } from 'antd';
@@ -55,10 +50,18 @@ function AddProduct() {
     variants: [
       {
         name: '',
-        price: '',
-        color: { name: '', hex: '' },
+        price: 0,
+        color: [
+          {
+            colorName: '',
+            colorHex: '#000000',
+            images: [],
+          },
+        ],
         memory: { ram: '', storage: '' },
-        images: [],
+
+        weight: 0,
+        isActive: true,
       },
     ],
   });
@@ -107,7 +110,7 @@ function AddProduct() {
   const beforeUpload = (file) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
-      notification.warrning({
+      notification.warning({
         message: 'Chỉ có thể upload file hình ảnh!',
         duration: 4.5,
       });
@@ -115,7 +118,7 @@ function AddProduct() {
     }
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      notification.warrning({
+      notification.warning({
         message: 'Kích thước file phải nhỏ hơn 5MB!',
         duration: 4.5,
       });
@@ -137,11 +140,14 @@ function AddProduct() {
 
   const onSubmit = async () => {
     try {
-      setProduct(form.getFieldsValue());
+      // Validate form first
+      await form.validateFields();
+
+      const productToSubmit = form.getFieldsValue();
 
       message.loading({ content: 'Đang thêm sản phẩm', key: 'adding-product' });
 
-      const productToSubmit = form.getFieldsValue();
+      // Process attributes
       productToSubmit.attributes = {
         ...productToSubmit.attributes,
         ...fieldsToShow.extraFields?.reduce((acc, field) => {
@@ -150,6 +156,7 @@ function AddProduct() {
         }, {}),
       };
 
+      // Upload gallery images
       if (galleryImages.length > 0) {
         const uploadedGalleryUrls = [];
         for (let i = 0; i < galleryImages.length; i++) {
@@ -164,14 +171,32 @@ function AddProduct() {
         productToSubmit.galleryImages = uploadedGalleryUrls;
       }
 
-      for (let i = 0; i < productToSubmit.variants.length; i++) {
-        const variant = productToSubmit.variants[i];
-        const uploadedUrls = [];
-        for (let j = 0; j < variant.images.length; j++) {
-          const imageUrl = await Files.upload(variant.images[j]);
-          uploadedUrls.push(imageUrl);
+      // Upload variant images
+      if (productToSubmit.variants && productToSubmit.variants.length > 0) {
+        for (let i = 0; i < productToSubmit.variants.length; i++) {
+          const variant = productToSubmit.variants[i];
+
+          // Upload color-specific images
+          if (variant.color && variant.color.length > 0) {
+            for (let j = 0; j < variant.color.length; j++) {
+              const color = variant.color[j];
+              if (color.images && color.images.length > 0) {
+                const uploadedColorImages = [];
+                for (let k = 0; k < color.images.length; k++) {
+                  const image = color.images[k];
+                  if (image instanceof File) {
+                    const imageUrl = await Files.upload(image);
+                    uploadedColorImages.push(imageUrl);
+                  } else if (typeof image === 'string') {
+                    uploadedColorImages.push(image);
+                  }
+                }
+                productToSubmit.variants[i].color[j].images =
+                  uploadedColorImages;
+              }
+            }
+          }
         }
-        productToSubmit.variants[i].images = uploadedUrls;
       }
 
       const addProduct = await Products.add(productToSubmit);
@@ -185,10 +210,18 @@ function AddProduct() {
       }
     } catch (error) {
       console.error('Đã có lỗi xảy ra khi thêm sản phẩm:', error);
-      message.error({
-        content: 'Thêm sản phẩm thất bại',
-        key: 'adding-product',
-      });
+
+      if (error.errorFields && error.errorFields.length > 0) {
+        message.error({
+          content: 'Vui lòng kiểm tra lại thông tin đã nhập',
+          key: 'adding-product',
+        });
+      } else {
+        message.error({
+          content: 'Thêm sản phẩm thất bại',
+          key: 'adding-product',
+        });
+      }
     }
   };
 
@@ -198,6 +231,7 @@ function AddProduct() {
     'camera.front': 'Camera trước',
     'camera.rear': 'Camera sau',
   };
+
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -213,6 +247,7 @@ function AddProduct() {
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
   };
+
   const renderExtraFields = (group) => {
     const fields =
       fieldsToShow.extraFields?.filter((f) => f.group === group) || [];
@@ -231,7 +266,7 @@ function AddProduct() {
             </span>
           </div>
           <div className="flex-1 relative">
-            <div className="border-t border-r-300 opacity-60 text-primary"></div>
+            <div className="border-t border-gray-300 opacity-60"></div>
           </div>
         </div>
         {chunks.map((pair, index) => (
@@ -306,7 +341,7 @@ function AddProduct() {
               </span>
             </div>
             <div className="flex-1 relative">
-              <div className="border-t border-r-300 opacity-60 text-primary"></div>
+              <div className="border-t border-gray-300 opacity-60"></div>
             </div>
           </div>
 
@@ -353,7 +388,12 @@ function AddProduct() {
           </Form.Item>
         </div>
 
-        <Variants form={form} product={product} setProduct={setProduct} />
+        <Variants
+          form={form}
+          product={product}
+          setProduct={setProduct}
+          setImagesToDelete={setImagesToDelete}
+        />
 
         <div className="px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-end">

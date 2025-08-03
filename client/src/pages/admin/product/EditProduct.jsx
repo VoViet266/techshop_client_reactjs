@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react'; // useRef is not strictly needed here
+import { useState, useEffect } from 'react';
 import {
   Button,
   Col,
@@ -77,7 +77,7 @@ function EditProduct() {
 
         setCategories(cats);
         setBrands(brs);
-        setProduct(fetchedProduct); // Store original product data
+        setProduct(fetchedProduct);
 
         // Set gallery images from existing product
         if (
@@ -143,7 +143,7 @@ function EditProduct() {
   const beforeUpload = (file) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
-      notification.warrning({
+      notification.warning({
         message: 'Chỉ có thể upload file hình ảnh!',
         duration: 4.5,
       });
@@ -151,7 +151,7 @@ function EditProduct() {
     }
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      notification.warrning({
+      notification.warning({
         message: 'Kích thước file phải nhỏ hơn 5MB!',
         duration: 4.5,
       });
@@ -189,38 +189,6 @@ function EditProduct() {
     }));
   };
 
-  const handleDraggerRemove = (file, variantIndex) => {
-    setProduct((currentProduct) => {
-      const newProduct = { ...currentProduct };
-      const updatedVariants = [...newProduct.variants];
-      const currentVariantImages = [...updatedVariants[variantIndex].images];
-
-      const removedUid = file.uid;
-
-      const imageIndex = currentVariantImages.findIndex((img) => {
-        let imgUid = '';
-        if (img instanceof File) {
-          imgUid = `new-file-${variantIndex}-${img.name}-${img.size}-${img.lastModified}`;
-        } else if (typeof img === 'string') {
-          imgUid = `existing-url-${variantIndex}-${img}`;
-        }
-        return imgUid === removedUid;
-      });
-
-      if (imageIndex !== -1) {
-        const removedImage = currentVariantImages[imageIndex];
-        if (typeof removedImage === 'string') {
-          setImagesToDelete((prev) => [...prev, removedImage]);
-        }
-        currentVariantImages.splice(imageIndex, 1);
-        updatedVariants[variantIndex].images = currentVariantImages;
-      }
-
-      return { ...newProduct, variants: updatedVariants };
-    });
-    return true;
-  };
-
   const uploadButton = (
     <div className="flex flex-col items-center justify-center p-6">
       <InboxOutlined className="text-4xl text-gray-400 mb-3" />
@@ -250,7 +218,7 @@ function EditProduct() {
             </span>
           </div>
           <div className="flex-1 relative">
-            <div className="border-t border-r-300 opacity-60 text-primary"></div>
+            <div className="border-t border-gray-300 opacity-60"></div>
           </div>
         </div>
         {chunks.map((pair, index) => (
@@ -302,10 +270,13 @@ function EditProduct() {
 
   const onSubmit = async () => {
     try {
-      const validatedValues = await form.getFieldsValue();
+      const validatedValues = form.getFieldsValue();
+      console.log(validatedValues);
 
       setToastLoading(true);
       message.loading({ content: 'Đang cập nhật sản phẩm...', key: 'update' });
+
+      // Delete old gallery images
       if (galleryImagesToDelete.length > 0) {
         await Promise.all(
           galleryImagesToDelete.map(async (imgUrl) => {
@@ -319,6 +290,7 @@ function EditProduct() {
         );
       }
 
+      // Delete old variant images
       if (imagesToDelete.length > 0) {
         await Promise.all(
           imagesToDelete.map(async (imgUrl) => {
@@ -333,7 +305,6 @@ function EditProduct() {
       }
 
       const productToSubmit = { ...product, ...validatedValues };
-      console.log('productToSubmit', productToSubmit);
       productToSubmit._id = product._id;
       productToSubmit.category = validatedValues.category;
       productToSubmit.brand = validatedValues.brand;
@@ -358,26 +329,35 @@ function EditProduct() {
         productToSubmit.galleryImages = [];
       }
 
-      for (let i = 0; i < productToSubmit.variants.length; i++) {
-        const variant = productToSubmit.variants[i];
-        const newImgs = [];
-        for (let j = 0; j < variant.images.length; j++) {
-          const img = variant.images[j];
-          if (
-            img instanceof File ||
-            (img && img.originFileObj instanceof File)
-          ) {
-            const uploadedUrl = await Files.upload(img.originFileObj || img);
-            newImgs.push(uploadedUrl);
-          } else if (typeof img === 'string') {
-            newImgs.push(img);
+      // Handle variant images upload - Updated for new schema
+      if (productToSubmit.variants && productToSubmit.variants.length > 0) {
+        for (let i = 0; i < productToSubmit.variants.length; i++) {
+          const variant = productToSubmit.variants[i];
+
+          // Upload color-specific images
+          if (variant.color && variant.color.length > 0) {
+            for (let j = 0; j < variant.color.length; j++) {
+              const color = variant.color[j];
+              if (color.images && color.images.length > 0) {
+                const uploadedColorImages = [];
+                for (let k = 0; k < color.images.length; k++) {
+                  const image = color.images[k];
+                  if (image instanceof File) {
+                    const imageUrl = await Files.upload(image);
+                    uploadedColorImages.push(imageUrl);
+                  } else if (typeof image === 'string') {
+                    uploadedColorImages.push(image);
+                  }
+                }
+                productToSubmit.variants[i].color[j].images =
+                  uploadedColorImages;
+              }
+            }
           }
         }
-        productToSubmit.variants[i].images = newImgs;
       }
 
       await callUpdateProduct(productToSubmit);
-
       message.success({
         content: 'Cập nhật sản phẩm thành công!',
         key: 'update',
@@ -387,17 +367,18 @@ function EditProduct() {
       navigate('/admin/product');
     } catch (errInfo) {
       console.error('Đã có lỗi xảy ra khi cập nhật sản phẩm:', errInfo);
-      notification.error({
-        message: 'Đã có lỗi xảy ra khi cập nhật sản phẩm. Vui lí kiểm tra.',
-        description: errInfo.message,
-        duration: 4.5,
-        key: 'update',
-      });
+
       setToastLoading(false);
       setLoadingError(true);
-      if (errInfo.errorFields) {
+
+      if (errInfo.errorFields && errInfo.errorFields.length > 0) {
+        message.error({
+          content: 'Vui lòng kiểm tra lại thông tin đã nhập',
+          key: 'update',
+        });
+      } else {
         notification.error({
-          message: 'Lỗi cập nhật sản phẩm',
+          message: 'Đã có lỗi xảy ra khi cập nhật sản phẩm. Vui lòng kiểm tra.',
           description: errInfo.message,
           duration: 4.5,
           key: 'update',
@@ -405,6 +386,7 @@ function EditProduct() {
       }
     }
   };
+
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -420,6 +402,7 @@ function EditProduct() {
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
   };
+
   if (loading || !product) {
     return <Skeleton height={600} />;
   }
@@ -463,11 +446,11 @@ function EditProduct() {
           <div className="flex gap-4 items-center mb-6 relative">
             <div className="flex items-center gap-3">
               <span className="text-sm text-primary font-semibold tracking-wide uppercase letter-spacing-0.5 relative">
-                Hình ảnh Quản bá
+                Hình ảnh quảng bá
               </span>
             </div>
             <div className="flex-1 relative">
-              <div className="border-t border-r-300 opacity-60 text-primary"></div>
+              <div className="border-t border-gray-300 opacity-60"></div>
             </div>
           </div>
 
@@ -512,7 +495,6 @@ function EditProduct() {
           product={product}
           setProduct={setProduct}
           setImagesToDelete={setImagesToDelete}
-          handleDraggerRemove={handleDraggerRemove}
         />
 
         <div className="px-4 py-4 sm:px-6 lg:px-8">
