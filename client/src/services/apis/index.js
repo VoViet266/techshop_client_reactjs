@@ -83,7 +83,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         // Refresh token thất bại -> Xóa token và đưa user về chủ
         localStorage.removeItem(ACCESS_TOKEN_KEY);
-        window.location.href = "/";
+
         processQueue(refreshError, null); // Thông báo lỗi cho tất cả request đang chờ
         return Promise.reject(refreshError);
       } finally {
