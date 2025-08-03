@@ -13,11 +13,14 @@ import {
   Space,
   Tag,
   Segmented,
+  Button,
 } from 'antd';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   MinusOutlined,
+  CalendarOutlined,
+  FilterOutlined,
 } from '@ant-design/icons';
 import {
   LineChart,
@@ -36,6 +39,7 @@ import {
   AreaChart,
   Area,
   ComposedChart,
+  Brush,
 } from 'recharts';
 import dayjs from 'dayjs';
 
@@ -106,6 +110,10 @@ const Dashboard = () => {
   const [dateRange, setDateRange] = useState(null);
   const [branch, setBranch] = useState(null);
 
+  // Thêm state cho date range filter
+  const [chartDateRange, setChartDateRange] = useState(null);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+
   const currentStats = allStats[selectedPeriod];
   const comparisonData = allComparison[selectedPeriod];
   const historicalData = allHistorical[selectedPeriod];
@@ -114,6 +122,23 @@ const Dashboard = () => {
   useEffect(() => {
     document.title = 'Dashboard';
   }, []);
+
+  // Hàm để lấy preset date ranges phổ biến
+  const getDatePresets = () => {
+    const today = dayjs();
+    return {
+      'Hôm nay': [today, today],
+      '7 ngày qua': [today.subtract(6, 'day'), today],
+      '30 ngày qua': [today.subtract(29, 'day'), today],
+      '3 tháng qua': [today.subtract(3, 'month'), today],
+      '6 tháng qua': [today.subtract(6, 'month'), today],
+      'Năm nay': [today.startOf('year'), today],
+      'Năm trước': [
+        today.subtract(1, 'year').startOf('year'),
+        today.subtract(1, 'year').endOf('year'),
+      ],
+    };
+  };
 
   const fetchStats = async (period) => {
     try {
@@ -142,12 +167,20 @@ const Dashboard = () => {
     }
   };
 
-  const fetchHistoricalData = async (period) => {
+  const fetchHistoricalData = async (
+    period,
+    startDate = null,
+    endDate = null,
+  ) => {
     try {
-      const response = await axiosInstance.get(
-        `/api/v1/dashboard/stats/${period}/historical?limit=30`,
-        { timeout: 15000 },
-      );
+      let url = `/api/v1/dashboard/stats/${period}/historical?limit=30`;
+
+      // Thêm date range nếu có
+      if (startDate && endDate) {
+        url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+      }
+
+      const response = await axiosInstance.get(url, { timeout: 15000 });
       return response.data?.data || [];
     } catch (error) {
       console.error(`Error fetching ${period} historical data:`, error);
@@ -174,12 +207,16 @@ const Dashboard = () => {
       try {
         const periods = ['daily', 'weekly', 'monthly', 'yearly'];
 
+        // Sử dụng chartDateRange cho historical data nếu có
+        const startDate = chartDateRange?.[0];
+        const endDate = chartDateRange?.[1];
+
         const statsPromises = periods.map((period) => fetchStats(period));
         const comparisonPromises = periods.map((period) =>
           fetchStatsWithComparison(period, dateRange?.[0]),
         );
         const historicalPromises = periods.map((period) =>
-          fetchHistoricalData(period),
+          fetchHistoricalData(period, startDate, endDate),
         );
 
         const [statsResults, comparisonResults, historicalResults] =
@@ -214,10 +251,20 @@ const Dashboard = () => {
     };
 
     loadAllDashboardData();
-  }, [dateRange]);
+  }, [dateRange, chartDateRange]); // Thêm chartDateRange vào dependency
 
   const handlePeriodChange = (value) => {
     setSelectedPeriod(value);
+  };
+
+  // Hàm xử lý thay đổi date range cho biểu đồ
+  const handleChartDateRangeChange = (dates) => {
+    setChartDateRange(dates);
+  };
+
+  // Hàm reset date filter
+  const handleResetDateFilter = () => {
+    setChartDateRange(null);
   };
 
   const ChangeIndicator = ({ change, showIcon = true }) => {
@@ -385,7 +432,7 @@ const Dashboard = () => {
                     if (name === 'Doanh thu' || name === 'Lợi nhuận') {
                       return [`${formatCurrency(value)} VNĐ`, name];
                     }
-                    return [value.toLocaleString(), name];    
+                    return [value.toLocaleString(), name];
                   }}
                 />
                 <Bar
@@ -508,28 +555,41 @@ const Dashboard = () => {
     );
   };
 
+  // Filtered chart data dựa trên date range
   const chartData = useMemo(() => {
     if (!historicalData || historicalData.length === 0) return [];
 
-    return historicalData
+    let filteredData = historicalData
       .slice()
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .map((item) => ({
-        date: dayjs(item.date).format(
-          selectedPeriod === 'daily'
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Áp dụng date range filter nếu có
+    if (chartDateRange && chartDateRange[0] && chartDateRange[1]) {
+      const startDate = chartDateRange[0].startOf('day');
+      const endDate = chartDateRange[1].endOf('day');
+
+      filteredData = filteredData.filter((item) => {
+        const itemDate = dayjs(item.date);
+        return itemDate.isAfter(startDate) && itemDate.isBefore(endDate);
+      });
+    }
+
+    return filteredData.map((item) => ({
+      date: dayjs(item.date).format(
+        selectedPeriod === 'daily'
+          ? 'DD/MM'
+          : selectedPeriod === 'weekly'
             ? 'DD/MM'
-            : selectedPeriod === 'weekly'
-              ? 'DD/MM'
-              : selectedPeriod === 'monthly'
-                ? 'MM/YYYY'
-                : 'YYYY',
-        ),
-        revenue: item.totalRevenue,
-        profit: item.totalProfit || 0,
-        orders: item.totalOrders,
-        customers: item.totalCustomers || 0,
-      }));
-  }, [historicalData, selectedPeriod]);
+            : selectedPeriod === 'monthly'
+              ? 'MM/YYYY'
+              : 'YYYY',
+      ),
+      revenue: item.totalRevenue,
+      profit: item.totalProfit || 0,
+      orders: item.totalOrders,
+      customers: item.totalCustomers || 0,
+    }));
+  }, [historicalData, selectedPeriod, chartDateRange]);
 
   const paymentMethodData = useMemo(() => {
     if (!currentStats?.paymentMethods) return [];
@@ -751,24 +811,25 @@ const Dashboard = () => {
             </Text>
           </Col>
           <Col>
-            <Segmented
-              value={selectedPeriod}
-              onChange={handlePeriodChange}
-              options={[
-                { label: 'Hôm nay', value: 'daily' },
-                { label: 'Tuần', value: 'weekly' },
-                { label: 'Tháng', value: 'monthly' },
-                { label: 'Năm', value: 'yearly' },
-              ]}
-              style={{
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
-              }}
-            />
+            <Space size="middle">
+              <Segmented
+                value={selectedPeriod}
+                onChange={handlePeriodChange}
+                options={[
+                  { label: 'Hôm nay', value: 'daily' },
+                  { label: 'Tuần', value: 'weekly' },
+                  { label: 'Tháng', value: 'monthly' },
+                  { label: 'Năm', value: 'yearly' },
+                ]}
+                style={{
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                }}
+              />
+            </Space>
           </Col>
         </Row>
       </Card>
-
       {/* Stats Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
         <Col xs={24} sm={8}>
@@ -879,8 +940,7 @@ const Dashboard = () => {
         </Col>
       </Row>
 
-      {/* Charts */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+      <Row gutter={[10, 10]} style={{ marginBottom: '10px' }}>
         <Col xs={24} lg={16}>
           <Card
             style={{
@@ -889,47 +949,92 @@ const Dashboard = () => {
             }}
             title={
               <div
-                style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '5px 0px',
+                }}
               >
                 <div
                   style={{
-                    width: '4px',
-                    height: '24px',
-                    backgroundColor: '#6366f1',
-                    borderRadius: '2px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '12px',
                   }}
-                ></div>
-                <Text strong style={{ fontSize: '16px', color: '#1f2937' }}>
-                  Doanh thu & Lợi nhuận & Đơn hàng
-                </Text>
+                >
+                  <Text strong style={{ fontSize: '16px', color: '#1f2937' }}>
+                    Doanh thu & Lợi nhuận & Đơn hàng
+                  </Text>
+                </div>
+                <RangePicker
+                  value={chartDateRange}
+                  onChange={handleChartDateRangeChange}
+                  presets={getDatePresets()}
+                  format="DD/MM/YYYY"
+                  placeholder={['Từ ngày', 'Đến ngày']}
+                  style={{
+                    borderRadius: '6px',
+                    minWidth: '280px',
+                  }}
+                  allowClear
+                />
               </div>
             }
           >
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={450}>
               <ComposedChart
                 data={chartData}
-                margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
+                margin={{ top: 30, right: 10, bottom: 40, left: 10 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+
+                {/* Trục X */}
+                <XAxis
+                  dataKey="date"
+                  stroke="#374151"
+                  fontSize={13}
+                  tick={{ fill: '#6b7280' }}
+                  padding={{ left: 10, right: 10 }}
+                />
+
+                {/* Brush cho phép zoom / filter */}
+                <Brush
+                  dataKey="date"
+                  height={15}
+                  stroke="#4f46e5"
+                  travellerWidth={10}
+                  traveller={false}
+                  strokeDasharray="3 3"
+                />
+
+                {/* Trục Y bên trái */}
                 <YAxis
                   yAxisId="left"
-                  stroke="#6b7280"
-                  fontSize={12}
+                  stroke="#374151"
+                  fontSize={13}
                   tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
+                  tick={{ fill: '#6b7280' }}
                 />
+
+                {/* Trục Y bên phải */}
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  stroke="#6b7280"
-                  fontSize={12}
+                  stroke="#374151"
+                  fontSize={13}
+                  tick={{ fill: '#6b7280' }}
                 />
+
+                {/* Tooltip đẹp hơn */}
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#fff',
+                    backgroundColor: '#ffffff',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '10px',
+                    padding: '10px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                   }}
                   formatter={(value, name) => {
                     if (name === 'Doanh thu' || name === 'Lợi nhuận') {
@@ -938,34 +1043,58 @@ const Dashboard = () => {
                     return [value.toLocaleString(), name];
                   }}
                 />
-                <Legend />
+
+                {/* Legend đẹp hơn */}
+                <Legend
+                  wrapperStyle={{
+                    paddingTop: 10,
+                    fontSize: 13,
+                    color: '#374151',
+                  }}
+                />
+
+                {/* Gradient cho Area */}
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+
+                {/* Area - Doanh thu */}
                 <Area
                   yAxisId="left"
                   type="monotone"
                   dataKey="revenue"
                   stroke="#6366f1"
-                  fill="#6366f1"
-                  fillOpacity={0.1}
+                  fill="url(#colorRevenue)"
                   strokeWidth={2}
                   name="Doanh thu"
                 />
+
+                {/* Area - Lợi nhuận */}
                 <Area
                   yAxisId="left"
                   type="monotone"
                   dataKey="profit"
                   stroke="#10b981"
-                  fill="#10b981"
-                  fillOpacity={0.1}
+                  fill="url(#colorProfit)"
                   strokeWidth={2}
                   name="Lợi nhuận"
                 />
+
+                {/* Bar - Số đơn hàng */}
                 <Bar
                   yAxisId="right"
                   dataKey="orders"
                   fill="#f59e0b"
                   name="Số đơn hàng"
-                  radius={[4, 4, 0, 0]}
-                  opacity={0.8}
+                  radius={[5, 5, 0, 0]}
+                  opacity={0.85}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -976,7 +1105,6 @@ const Dashboard = () => {
           <Card
             style={{
               borderRadius: '16px',
-
               height: '100%',
             }}
             title={
@@ -1061,10 +1189,8 @@ const Dashboard = () => {
           </Card>
         </Col>
       </Row>
-
       {/* Branch Overview */}
       <BranchOverview />
-
       {/* Product Tables */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} lg={12}>
@@ -1159,7 +1285,6 @@ const Dashboard = () => {
           </Card>
         </Col>
       </Row>
-
       {currentStats?.lastUpdated && (
         <Card
           style={{
