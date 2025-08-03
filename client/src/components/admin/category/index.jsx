@@ -2,6 +2,7 @@
 
 import { useAppContext } from '@/contexts';
 import { callCreateCategory, callUpdateCategory } from '@/services/apis';
+import Files from '@/services/files';
 import { PlusOutlined } from '@ant-design/icons';
 import {
   Button,
