@@ -199,7 +199,7 @@ function SearchBox() {
                           className="flex items-center gap-2 bg-gradient-to-r h-[60px] min-w-[1/5] max-w-[2/5] p-10 rounded-md text-sm hover:from-orange-100 hover:to-red-100 transition-all duration-300 transform hover:scale-105"
                         >
                           <img
-                            src={term?.variants[0]?.images[0]}
+                            src={term?.variants[0]?.color[0]?.images[0]}
                             alt={term.name}
                             className="w-70 h-50 object-contain"
                           />

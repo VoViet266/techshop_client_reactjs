@@ -90,9 +90,11 @@ function ProductDetail() {
       if (res.variants?.length > 0) {
         const firstVariant = res.variants[0];
         setSelectedMemory(firstVariant.memory);
-        //tự động chọn màu đầu tiên
 
-        setSelectedColor(firstVariant.color);
+        // Tự động chọn màu đầu tiên của variant đầu tiên
+        if (firstVariant.color?.length > 0) {
+          setSelectedColor(firstVariant.color[0].colorName);
+        }
       }
     } catch (error) {
       console.error('Đã có lỗi xảy ra:', error);
@@ -463,7 +465,6 @@ function ProductDetail() {
                             }`}
                             onClick={() => {
                               setSelectedMemory(variant.memory);
-
                               setSelectedColor(variant.color[0]?.colorName);
                             }}
                           >
@@ -482,7 +483,6 @@ function ProductDetail() {
                 </div>
               )}
 
-              {/* Phần Màu sắc - chỉ hiển thị khi đã chọn bộ nhớ */}
               {selectedVariant && (
                 <div className="mb-6">
                   <Title level={5} className="mb-2 text-sm sm:text-base">
@@ -491,7 +491,7 @@ function ProductDetail() {
                   <Row gutter={[8, 8]}>
                     {selectedVariant?.color?.map((color, index) => {
                       const isSelected = selectedColor === color.colorName;
-
+                      console.log(isSelected);
                       return (
                         <Col span={12} key={`color-${index}`}>
                           <div
