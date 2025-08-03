@@ -5,7 +5,6 @@ import {
   callCreateBrand,
   callFetchBrands,
   callUpdateBrand,
-  callUploadSingleImage,
 } from '@/services/apis';
 import Files from '@/services/files';
 
@@ -15,6 +14,7 @@ const ModalBrand = (props) => {
   const [, setBrands] = useState([]);
   const [loadingUpload] = useState(false);
   const [logoImage, setLogoImage] = useState([]);
+  const [imagesDelete, setImagesDelete] = useState([]);
 
   useEffect(() => {
     const fetchBrands = async () => {
@@ -31,6 +31,8 @@ const ModalBrand = (props) => {
   const handleReset = () => {
     form.resetFields();
     setDataInit(null);
+    setLogoImage([]);
+    setImagesDelete([]);
     setOpenModal(false);
   };
 
@@ -60,26 +62,53 @@ const ModalBrand = (props) => {
       brandData._id = dataInit._id;
     }
 
-    if (logoImage[0]?.originFileObj) {
+    // Xóa ảnh cũ từ storage nếu có
+    if (imagesDelete.length > 0) {
+      await Promise.all(
+        imagesDelete.map(async (image) => {
+          try {
+            await Files.callDelete(image.url);
+          } catch (error) {
+            console.error('Xóa ảnh thất bại', error);
+          }
+        }),
+      );
+    }
+
+    // Xử lý logo
+    if (logoImage.length === 0) {
+      // Không có ảnh nào được chọn - xóa logo trong DB
+      brandData.logo = null;
+    } else if (logoImage[0]?.originFileObj) {
+      // Upload ảnh mới
       const filePathLogo = await Files.upload(logoImage[0]?.originFileObj);
       brandData.logo = filePathLogo.data.data.filePath;
     } else if (logoImage[0]?.url) {
+      // Giữ nguyên ảnh cũ
       brandData.logo = logoImage[0]?.url;
     }
 
-    const res = dataInit?._id
-      ? await callUpdateBrand(brandData)
-      : await callCreateBrand(brandData);
-    if (res.data) {
-      message.success(
-        dataInit?._id
-          ? 'Brand updated successfully.'
-          : 'Brand created successfully.',
+    try {
+      // Gọi API update hoặc create
+      const res = dataInit?._id
+        ? await callUpdateBrand(brandData)
+        : await callCreateBrand(brandData);
+
+      if (res.data) {
+        message.success(
+          dataInit?._id
+            ? 'Thương hiệu cập nhật thành công.'
+            : 'Thêm thương hiệu thành công.',
+        );
+
+        handleReset();
+        reloadTable();
+      }
+    } catch (error) {
+      console.error(error);
+      message.error(
+        dataInit?._id ? 'Update brand failed.' : 'Create brand failed.',
       );
-      setOpenModal(false);
-      reloadTable();
-    } else {
-      message.error('Failed to create brand.');
     }
   };
 
@@ -101,7 +130,7 @@ const ModalBrand = (props) => {
 
   return (
     <Modal
-      title={dataInit?._id ? 'Update Brand' : 'Create Brand'}
+      title={dataInit?._id ? 'Cập nhật thương hiệu' : 'Tạo thương hiệu'}
       open={visible}
       onCancel={() => handleReset()}
       onOk={form.submit}
@@ -119,7 +148,10 @@ const ModalBrand = (props) => {
             listType="picture-card"
             maxCount={1}
             beforeUpload={beforeUpload}
-            onRemove={() => setLogoImage([])}
+            // Chỉ lưu file vào imagesDelete, không xóa ngay trên cloud
+            onRemove={(file) => {
+              setImagesDelete((prev) => [...prev, file]);
+            }}
             onChange={({ fileList }) => handleUploadFile(fileList)}
             fileList={logoImage}
             customRequest={({ onSuccess }) => onSuccess('ok')}
@@ -134,7 +166,7 @@ const ModalBrand = (props) => {
           rules={[
             {
               required: true,
-              message: 'Please input the name of the brand!',
+              message: 'Vui lòng nhập tên thương hiệu!',
             },
           ]}
         >
@@ -146,7 +178,7 @@ const ModalBrand = (props) => {
           rules={[
             {
               required: true,
-              message: 'Please input the description of the brand!',
+              message: 'Vui lòng nhập mô tả của thương hiệu!',
             },
           ]}
         >

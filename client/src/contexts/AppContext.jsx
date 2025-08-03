@@ -41,10 +41,11 @@ function AppProvider({ children }) {
 
         if (response.data) {
           setUser(response.data.data);
-          setPermissions(response.data.data.role.permissions);
+          setPermissions(response.data.data.role?.permissions);
         }
       } catch (error) {
-        if (error.response.status === 401) {
+        console.error(error);
+        if (error.response.data.statusCode === 401) {
           return;
         }
         console.error('Error verifying token:', error);

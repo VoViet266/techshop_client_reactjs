@@ -28,6 +28,7 @@ const ModalCategory = (props) => {
   const [extraFields, setExtraFields] = useState([
     { label: '', name: '', type: 'text', group: 'specifications' },
   ]);
+  const [imagesDelete, setImagesDelete] = useState([]);
 
   const fieldTypes = [
     { label: 'Văn bản', value: 'text' },
@@ -91,14 +92,34 @@ const ModalCategory = (props) => {
 
     if (dataInit?._id) categoryData._id = dataInit._id;
 
-    if (logoImage[0]?.originFileObj) {
+    // Xóa ảnh cũ từ storage nếu có
+    if (imagesDelete.length > 0) {
+      await Promise.all(
+        imagesDelete.map(async (image) => {
+          try {
+            await Files.callDelete(image.url);
+          } catch (error) {
+            console.error('Xóa ảnh thất bại', error);
+          }
+        }),
+      );
+    }
+
+    // Xử lý logo
+    if (logoImage.length === 0) {
+      // Không có ảnh nào được chọn - xóa logo trong DB
+      categoryData.logo = null;
+    } else if (logoImage[0]?.originFileObj) {
+      // Upload ảnh mới
       const filePathLogo = await Files.upload(logoImage[0]?.originFileObj);
       categoryData.logo = filePathLogo;
     } else if (logoImage[0]?.url) {
+      // Giữ nguyên ảnh cũ
       categoryData.logo = logoImage[0]?.url;
     }
 
     try {
+      console.log('categoryData', categoryData);
       const res = dataInit?._id
         ? await callUpdateCategory(categoryData)
         : await callCreateCategory(categoryData);
@@ -180,7 +201,7 @@ const ModalCategory = (props) => {
                 listType="picture-card"
                 maxCount={1}
                 beforeUpload={beforeUpload}
-                onRemove={() => setLogoImage([])}
+                onRemove={(file) => setImagesDelete([...imagesDelete, file])}
                 onChange={({ fileList }) => handleUploadFile(fileList)}
                 fileList={logoImage}
                 customRequest={({ onSuccess }) => onSuccess('ok')}

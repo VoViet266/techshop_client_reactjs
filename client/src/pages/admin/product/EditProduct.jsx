@@ -356,7 +356,7 @@ function EditProduct() {
           }
         }
       }
-      console.log('Product to submit:', productToSubmit);
+  
       await callUpdateProduct(productToSubmit);
       message.success({
         content: 'Cập nhật sản phẩm thành công!',

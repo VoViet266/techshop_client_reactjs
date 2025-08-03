@@ -20,6 +20,7 @@ function CommonInformation({
       if (!file) throw new Error('No file selected');
 
       const imageUrl = await Files.upload(file);
+
       if (typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
         uploadHandler({
           result: [{ url: imageUrl, name: file.name, size: file.size }],
@@ -32,6 +33,7 @@ function CommonInformation({
       console.error('Image upload failed:', error);
     }
   }, []);
+  
   useEffect(() => {
     if (product) {
       form.setFieldsValue({ description: product.description });
@@ -107,7 +109,7 @@ function CommonInformation({
         <Editor
           product={product}
           setProduct={(val) => form.setFieldValue('description', val)}
-          value={form.getFieldValue('description')} // Lấy value từ form
+          value={form.getFieldValue('description')}
           height="300px"
           onImageUploadBefore={handleImageUpload}
         />

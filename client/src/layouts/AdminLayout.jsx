@@ -66,30 +66,32 @@ function AdminLayout() {
           setDrawerVisible(false);
         },
       },
-      { type: 'divider' },
-      hasPermission(permissions, Subjects.Product, Actions.Read) && {
-        key: 'product',
-        label: 'Sản phẩm',
-        icon: <ProductOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
-        children: [
-          {
-            key: 'allproducts',
-            label: 'Danh sách sản phẩm',
-            onClick: () => {
-              navigate('/admin/product');
-              setDrawerVisible(false);
+
+      hasPermission(permissions, Subjects.Product, Actions.Read) &&
+        ({ type: 'divider' },
+        {
+          key: 'product',
+          label: 'Sản phẩm',
+          icon: <ProductOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
+          children: [
+            {
+              key: 'allproducts',
+              label: 'Danh sách sản phẩm',
+              onClick: () => {
+                navigate('/admin/product');
+                setDrawerVisible(false);
+              },
             },
-          },
-          hasPermission(permissions, Subjects.Product, Actions.Create) && {
-            key: 'addproduct',
-            label: 'Thêm sản phẩm',
-            onClick: () => {
-              navigate('/admin/product/add');
-              setDrawerVisible(false);
+            hasPermission(permissions, Subjects.Product, Actions.Create) && {
+              key: 'addproduct',
+              label: 'Thêm sản phẩm',
+              onClick: () => {
+                navigate('/admin/product/add');
+                setDrawerVisible(false);
+              },
             },
-          },
-        ],
-      },
+          ],
+        }),
       hasPermission(permissions, Subjects.Inventory, Actions.Read) && {
         key: 'inventory',
         label: 'Kho hàng',
@@ -138,16 +140,20 @@ function AdminLayout() {
           setDrawerVisible(false);
         },
       },
-      { type: 'divider' },
-      hasPermission(permissions, Subjects.Branch, Actions.Read) && {
-        key: 'branch',
-        label: 'Chi nhánh',
-        icon: <BranchesOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
-        onClick: () => {
-          navigate('/admin/branch/management');
-          setDrawerVisible(false);
+
+      hasPermission(permissions, Subjects.Branch, Actions.Read) &&
+        ({
+          type: 'divider',
         },
-      },
+        {
+          key: 'branch',
+          label: 'Chi nhánh',
+          icon: <BranchesOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
+          onClick: () => {
+            navigate('/admin/branch/management');
+            setDrawerVisible(false);
+          },
+        }),
       hasPermission(permissions, Subjects.Category, Actions.Read) && {
         key: 'category',
         label: 'Danh mục',
@@ -166,16 +172,20 @@ function AdminLayout() {
           setDrawerVisible(false);
         },
       },
-      { type: 'divider' },
-      hasPermission(permissions, Subjects.User, Actions.Read) && {
-        key: 'user',
-        label: 'Người dùng',
-        icon: <UserOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
-        onClick: () => {
-          navigate('/admin/user/management');
-          setDrawerVisible(false);
+
+      hasPermission(permissions, Subjects.User, Actions.Read) &&
+        ({
+          type: 'divider',
         },
-      },
+        {
+          key: 'user',
+          label: 'Người dùng',
+          icon: <UserOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
+          onClick: () => {
+            navigate('/admin/user/management');
+            setDrawerVisible(false);
+          },
+        }),
       {
         key: 'permissions',
         label: 'Phân quyền',

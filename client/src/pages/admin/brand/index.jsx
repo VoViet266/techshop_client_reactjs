@@ -111,7 +111,6 @@ const BrandManagement = () => {
     }
   };
   useEffect(() => {
-    console.log(dataInit);
     if (dataInit?._id) {
       form.setFieldsValue({
         _id: dataInit._id,
