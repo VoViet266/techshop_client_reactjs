@@ -348,9 +348,9 @@ const AccountInfoPage = () => {
       render: (product, record) => {
         return (
           <>
-            <div>{product.name}</div>
-            <div className="text-xs text-gray-500">{record.variant.name}</div>
-            <div className="text-xs text-gray-500">{record.variantColor}</div>
+            <div>{product?.name}</div>
+            <div className="text-xs text-gray-500">{record?.variant?.name}</div>
+            <div className="text-xs text-gray-500">{record?.variantColor}</div>
           </>
         );
       },
@@ -539,7 +539,9 @@ const AccountInfoPage = () => {
       dataIndex: 'items',
       key: 'items',
       render: (item) => {
-        return item[0].product.name;
+        if (!item) return 'Không có sản phẩm';
+        console.log(item);
+        return item.map((i) => i?.product?.name).join(', ');
       },
     },
     {
@@ -1175,7 +1177,7 @@ const AccountInfoPage = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <PhoneOutlined className="text-gray-400" />
-                            <span>{orderData.recipient.phone}</span>
+                            <span>{orderData?.recipient?.phone}</span>
                           </div>
                           <div className="flex items-start gap-2">
                             <EnvironmentOutlined className="text-gray-400 mt-1" />
