@@ -349,8 +349,8 @@ const AccountInfoPage = () => {
         return (
           <>
             <div>{product.name}</div>
-            <div className="text-xs text-gray-500">{record.variant.name}</div>
-            <div className="text-xs text-gray-500">{record.variantColor}</div>
+            <div className="text-xs text-gray-500">{record?.variant?.name}</div>
+            <div className="text-xs text-gray-500">{record?.variantColor}</div>
           </>
         );
       },
@@ -494,7 +494,6 @@ const AccountInfoPage = () => {
     try {
       const values = await form.validateFields();
       message.loading('Đang xử lý yêu cầu trả hàng...');
-      console.log(values.returnReason);
       const response = await Products.requestReturn(selectedOrder.id, {
         returnReason: values.returnReason,
         returnStatus: 'requested',
@@ -1034,8 +1033,9 @@ const AccountInfoPage = () => {
     );
   }
 
+  console.log('Selected Order:', selectedOrder);
+
   const orderData = orders?.find((o) => o._id === selectedOrder?.id);
-  console.log(orderData);
   const paymentStatus = {
     PENDING: 'Chờ xử lý',
     COMPLETED: 'Đã hoàn thành',
