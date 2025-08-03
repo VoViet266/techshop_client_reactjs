@@ -11,6 +11,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { BsChatLeftFill, BsSearch } from 'react-icons/bs';
+import axiosInstance from '@/services/apis';
 
 const { Text } = Typography;
 
@@ -77,7 +78,7 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8080/chat', {
+      const response = await axiosInstance.post(`/chat`, {
         message: input,
       });
 
