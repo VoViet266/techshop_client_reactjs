@@ -501,27 +501,14 @@ function AdminLayout() {
         type="primary"
       >
         <FloatButton
-          icon={<SettingOutlined />}
-          tooltip="Cài đặt"
-          style={{
-            backgroundColor: '#06B6D4',
-            borderColor: '#06B6D4',
-          }}
-          onClick={() => {
-            console.log('Cài đặt');
-          }}
-        />
-        <FloatButton
           shape="circle"
           icon={<UserOutlined />}
-          tooltip="Trang người dùng"
           type="default"
           onClick={() => navigate('/')}
         />
         <FloatButton
           shape="circle"
           icon={<LogoutOutlined />}
-          tooltip="Đăng xuất"
           onClick={handleLogout}
         />
       </FloatButton.Group>
