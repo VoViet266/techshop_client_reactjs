@@ -92,12 +92,14 @@ function AdminLayout() {
             },
           ],
         }),
-      hasPermission(permissions, Subjects.Inventory, Actions.Read) && {
+      (hasPermission(permissions, Subjects.Inventory, Actions.Read) ||
+        hasPermission(permissions, Subjects.Transfer, Actions.Read) ||
+        hasPermission(permissions, Subjects.StockMovement, Actions.Read)) && {
         key: 'inventory',
         label: 'Kho hàng',
         icon: <ContainerOutlined style={{ color: '#dc2626', fontSize: 15 }} />,
         children: [
-          {
+          hasPermission(permissions, Subjects.Inventory, Actions.Read) && {
             key: 'allinventory',
             label: 'Danh sách kho hàng',
             onClick: () => {
@@ -105,7 +107,12 @@ function AdminLayout() {
               setDrawerVisible(false);
             },
           },
-          hasPermission(permissions, Subjects.Inventory, Actions.Create) && {
+          (hasPermission(permissions, Subjects.StockMovement, Actions.Create) ||
+            hasPermission(
+              permissions,
+              Subjects.StockMovement,
+              Actions.Read,
+            )) && {
             key: 'importinventory',
             label: 'Nhập hàng',
             onClick: () => {
@@ -113,7 +120,12 @@ function AdminLayout() {
               setDrawerVisible(false);
             },
           },
-          hasPermission(permissions, Subjects.Inventory, Actions.Create) && {
+          (hasPermission(permissions, Subjects.StockMovement, Actions.Create) ||
+            hasPermission(
+              permissions,
+              Subjects.StockMovement,
+              Actions.Read,
+            )) && {
             key: 'exportinventory',
             label: 'Xuất hàng',
             onClick: () => {
@@ -121,7 +133,8 @@ function AdminLayout() {
               setDrawerVisible(false);
             },
           },
-          hasPermission(permissions, Subjects.Transfer, Actions.Read) && {
+          (hasPermission(permissions, Subjects.Transfer, Actions.Read) ||
+            hasPermission(permissions, Subjects.Transfer, Actions.Create)) && {
             key: 'transferinventory',
             label: 'Chuyển kho',
             onClick: () => {

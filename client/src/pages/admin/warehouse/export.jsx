@@ -931,7 +931,7 @@ const WarehouseOutbound = () => {
                       disabled={
                         !hasPermission(
                           permissions,
-                          Subjects.Inventory,
+                          Subjects.StockMovement,
                           Actions.Create,
                         )
                       }
@@ -1079,7 +1079,7 @@ const WarehouseOutbound = () => {
       )}
 
       {/* Lịch sử xuất kho */}
-      {hasPermission(permissions, Subjects.Inventory, Actions.Read) && (
+      {hasPermission(permissions, Subjects.StockMovement, Actions.Read) && (
         <Card
           title={
             <Space>

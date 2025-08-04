@@ -369,6 +369,7 @@ const OrderFilters = ({ filters, setFilters, branches, onCreateOrder }) => (
           placeholder="Chi nhánh"
           style={{ width: '100%' }}
           value={filters.branch}
+          defaultValue={filters.branch}
           onChange={(value) => setFilters({ ...filters, branch: value })}
           allowClear
         >

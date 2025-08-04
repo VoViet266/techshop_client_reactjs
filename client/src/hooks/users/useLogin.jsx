@@ -30,6 +30,7 @@ function useLogin(message) {
         }
       } else {
         message.error({
+          message: 'Đăng nhập thất bại',
           content: `Đăng nhập không thành công do sai tài khoản/mật khẩu!!`,
           key: 'login',
         });
@@ -37,16 +38,18 @@ function useLogin(message) {
     } catch (error) {
       console.log('Lỗi khi đăng nhập:', error);
       message.destroy();
-      if (error.response.data.statusCode === 401) {
+
+      if (
+        error.response.data.statusCode === 401 ||
+        error.response.data.statusCode === 400
+      ) {
         notification.warning({
+          message: 'Đăng nhập thất bại',
           description: 'Sai tên đăng nhập hoặc mật khẩu!',
         });
-      } else {
-        notification.error({
-          message: 'Lỗi khi đăng nhập',
-          description: `${error.response.data.message}`,
-        });
       }
+    } finally {
+      message.destroy();
     }
   }
 

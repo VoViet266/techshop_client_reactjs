@@ -341,20 +341,21 @@ const PermissionsManagement = () => {
   };
 
   const moduleOptions = [
-    { label: 'Product', value: 'product' },
-    { label: 'Category', value: 'category' },
-    { label: 'Order', value: 'order' },
-    { label: 'User', value: 'user' },
-    { label: 'Role', value: 'role' },
-    { label: 'Permission', value: 'permission' },
-    { label: 'Inventory', value: 'inventory' },
+    { label: 'Sản phẩm', value: 'product' },
+    { label: 'Danh mục', value: 'category' },
+    { label: 'Đơn hàng', value: 'order' },
+    { label: 'Người dùng', value: 'user' },
+    { label: 'Vai trò', value: 'role' },
+    { label: 'Quyền', value: 'permission' },
+    { label: 'Kho', value: 'inventory' },
     { label: 'Banner', value: 'banner' },
-    { label: 'Payment', value: 'payment' },
-    { label: 'Promotion', value: 'promotion' },
-    { label: 'Branch', value: 'branch' },
-    { label: 'Brand', value: 'brand' },
-    { label: 'Transfer', value: 'transfer' },
-    { label: 'Benefit', value: 'benefit' },
+    { label: 'Thanh toán', value: 'payment' },
+    { label: 'Khuyến mãi', value: 'promotion' },
+    { label: 'Chi nhánh', value: 'branch' },
+    { label: 'Thương hiệu', value: 'brand' },
+    { label: 'Chuyển kho', value: 'transfer' },
+    { label: 'Quyền lợi', value: 'benefit' },
+    { label: 'Chuyển động hàng hóa', value: 'stockmovement' },
   ];
 
   const actionOptions = [
