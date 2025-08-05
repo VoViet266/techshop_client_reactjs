@@ -175,14 +175,6 @@ export const ExpandedRowRender = ({ record }) => {
         borderRadius: 12,
       }}
     >
-      <Descriptions title="Mô tả sản phẩm" size="small" column={1} bordered>
-        <Descriptions.Item label="Mô tả">
-          <Text style={{ fontSize: '14px', color: '#475569' }}>
-            {record.description || 'Chưa có mô tả cho sản phẩm này.'}
-          </Text>
-        </Descriptions.Item>
-      </Descriptions>
-
       {/* Render các nhóm từ category config */}
       {Object.entries(fieldGroups).map(([groupName, groupConfig]) =>
         renderFieldGroup(groupName, groupConfig),
