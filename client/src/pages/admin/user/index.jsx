@@ -661,21 +661,7 @@ const UserManagement = () => {
               <Descriptions.Item label="Email">
                 <Text code>{previewUser.email}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="Loại người dùng">
-                <Text
-                  color={
-                    previewUser.userType === 'VIP'
-                      ? 'gold'
-                      : previewUser.userType === 'MEMBER'
-                        ? 'blue'
-                        : previewUser.userType === 'NEW'
-                          ? 'green'
-                          : 'default'
-                  }
-                >
-                  {previewUser.userType || 'GUEST'}
-                </Text>
-              </Descriptions.Item>
+              
               <Descriptions.Item label="Số điện thoại">
                 {previewUser.phone ? (
                   <Text>{previewUser.phone}</Text>
