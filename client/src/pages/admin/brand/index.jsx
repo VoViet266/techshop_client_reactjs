@@ -18,6 +18,7 @@ import {
   Form,
   Upload,
   Image,
+  Badge,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -188,9 +189,10 @@ const BrandManagement = () => {
       align: 'center',
       width: 120,
       render: (record) => (
-        <Tooltip title="Đang hoạt động">
-          {record.isActive ? ' Còn hoạt động' : 'Ngưng hoạt động'}
-        </Tooltip>
+        <Badge
+          status={record.isActive ? 'success' : 'default'}
+          text={record.isActive ? 'Còn hoạt động' : 'Ngưng hoạt động'}
+        />
       ),
     },
     {
