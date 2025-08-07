@@ -28,7 +28,7 @@ function Cart() {
   const { message, user } = useAppContext();
   const [modalText, setModalText] = useState();
   const [loading, setLoading] = useState(true);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartData, setCartData] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleteType, setDeleteType] = useState('item');
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -36,10 +36,9 @@ function Cart() {
 
   const getCart = async () => {
     try {
-      const cartServices = new CartServices();
-      const response = await cartServices.get();
+      const response = await CartServices.get();
       if (response.status === 200) {
-        setCartItems(response.data.data?.items);
+        setCartData(response.data.data);
         setLoading(false);
       }
     } catch (error) {
@@ -57,13 +56,41 @@ function Cart() {
     document.title = 'Giỏ hàng';
   }, []);
 
-  const updateQuantity = (id, value) => {
-    if (value < 1) return;
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.product._id === id ? { ...item, quantity: value } : item,
-      ),
-    );
+  // Fixed: Update quantity function
+  const updateQuantity = async (productId, variantId, newQuantity) => {
+    if (newQuantity < 1) return;
+
+    try {
+      const updatedCartData = {
+        ...cartData,
+        items: cartData.items.map((item) =>
+          item.product._id === productId && item.variant._id === variantId
+            ? { ...item, quantity: newQuantity }
+            : item,
+        ),
+      };
+      console.log('Updated cart data:', updatedCartData);
+      setCartData(updatedCartData);
+      const response = await CartServices.update(
+        cartData._id,
+        updatedCartData.items,
+      );
+
+      if (response.status === 200) {
+        console.log('Cập nhật số lượng thành công');
+
+        await getCart();
+      } else {
+        // Revert on failure
+        await getCart();
+        message.error('Cập nhật số lượng thất bại');
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật số lượng:', error);
+      // Revert on error
+      await getCart();
+      message.error('Không thể cập nhật số lượng sản phẩm');
+    }
   };
 
   const handleRemoveItems = async (productId, variantId) => {
@@ -83,6 +110,7 @@ function Cart() {
     } catch (error) {
       message.error('Xóa sản phẩm khỏi giỏ hàng thất bại');
       console.error('Lỗi khi xóa sản phẩm khỏi giỏ hàng:', error);
+      setConfirmLoading(false);
     }
   };
 
@@ -105,6 +133,7 @@ function Cart() {
       message.destroy();
       message.error('Xóa tất cả sản phẩm khỏi giỏ hàng thất bại');
       console.error('Lỗi khi xóa tất cả sản phẩm khỏi giỏ hàng:', error);
+      setConfirmLoading(false);
     }
   };
 
@@ -132,20 +161,26 @@ function Cart() {
     setOpen(false);
   };
 
-  const total = cartItems?.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  // Fixed: Access cartData.items
+  const cartItems = cartData?.items || [];
+
+  const total = cartItems.reduce(
+    (sum, item) => sum + (item.price || 0) * item.quantity,
     0,
   );
   const shippingFee = 0;
 
   const calculateDiscountedPrice = (item) => {
     const originalPrice = item?.variant?.price * item.quantity;
-    const discountAmount = originalPrice * (item.product.discount / 100);
+    const discountAmount =
+      originalPrice * ((item.product?.discount || 0) / 100);
     return originalPrice - discountAmount;
   };
-  
-  const variantItem = cartItems?.map((item) => {
-    const selectedColor = item.variant.color.find(
+
+
+
+  const variantItem = cartItems.map((item) => {
+    const selectedColor = item.variant?.color?.find(
       (color) => color.colorName === item.color,
     );
     return {
@@ -153,6 +188,8 @@ function Cart() {
       color: selectedColor,
     };
   });
+
+  
 
   const columns = [
     {
@@ -165,7 +202,7 @@ function Cart() {
           <div className="flex items-center  gap-3 ">
             <div className=" bg-gray-100 my-2.5 rounded-lg flex items-center justify-center overflow-hidden">
               <Image
-                src={item?.color?.images[0] || '/placeholder-image.jpg'}
+                src={item?.color?.images?.[0] || '/placeholder-image.jpg'}
                 alt={item?.variant?.name}
                 width={64}
                 height={64}
@@ -175,7 +212,7 @@ function Cart() {
             </div>
             <div className="flex-1">
               <Link to={`/product/${item.product._id}`}>
-                <Space direction="vertical" className="p-0! ">  
+                <Space direction="vertical" className="p-0! ">
                   <Text className="text-gray-900 font-medium line-clamp-1 text-base hover:text-blue-600 hover:underline cursor-pointer">
                     {item?.product?.name}
                   </Text>
@@ -213,21 +250,35 @@ function Cart() {
           <Button
             size="small"
             icon={<MinusOutlined />}
-            onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
+            onClick={() =>
+              updateQuantity(
+                item.product._id,
+                item.variant._id,
+                item.quantity - 1,
+              )
+            }
             disabled={item.quantity <= 1}
             className="flex items-center justify-center w-8 h-8"
           />
           <InputNumber
             min={1}
             value={item.quantity}
-            onChange={(value) => updateQuantity(item.product._id, value)}
+            onChange={(value) =>
+              updateQuantity(item.product._id, item.variant._id, value)
+            }
             className="w-16 text-center"
             controls={false}
           />
           <Button
             size="small"
             icon={<PlusOutlined />}
-            onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
+            onClick={() =>
+              updateQuantity(
+                item.product._id,
+                item.variant._id,
+                item.quantity + 1,
+              )
+            }
             className="flex items-center justify-center w-8 h-8"
           />
         </div>
@@ -247,7 +298,7 @@ function Cart() {
             <Text className="text-gray-900 font-semibold text-base">
               {`${discountedPrice?.toLocaleString()}₫`}
             </Text>
-            {item.product.discount > 0 && (
+            {(item.product?.discount || 0) > 0 && (
               <div className="text-xs text-gray-500 line-through mt-1">
                 {`${originalPrice?.toLocaleString()}₫`}
               </div>
@@ -321,7 +372,8 @@ function Cart() {
         <p className="text-gray-700 py-4">{modalText}</p>
       </Modal>
 
-      {cartItems?.length === 0 || !cartItems ? (
+      {/* Fixed: Check cartItems length instead of cartData */}
+      {cartItems.length === 0 || !cartData ? (
         <Flex justify="space-between" className="bg-white rounded-xl p-30!">
           <Flex vertical gap={20}>
             <Title level={1} className="font-medium! mb-0!">
@@ -374,8 +426,8 @@ function Cart() {
                       Giỏ hàng của bạn
                     </Title>
                     <Text className="text-gray-600! mt-4! flex! items-center!">
-                      {cartItems?.length > 0
-                        ? `${cartItems?.length} sản phẩm`
+                      {cartItems.length > 0
+                        ? `${cartItems.length} sản phẩm`
                         : null}
                     </Text>
                   </Flex>
@@ -392,8 +444,8 @@ function Cart() {
                     }}
                     disabled={
                       !(
-                        selectedRowKeys.length === cartItems?.length &&
-                        cartItems?.length > 0
+                        selectedRowKeys.length === cartItems.length &&
+                        cartItems.length > 0
                       )
                     }
                     className="hover:bg-red-50"
@@ -404,9 +456,6 @@ function Cart() {
               </div>
 
               <Table
-                rowKey={(record) =>
-                  `${record.product._id}-${record.variant._id}`
-                }
                 columns={columns}
                 pagination={false}
                 dataSource={variantItem}
@@ -460,7 +509,7 @@ function Cart() {
                       type="primary"
                       size="large"
                       className="w-full rounded-md! h-12 font-medium!"
-                      disabled={cartItems?.length === 0}
+                      disabled={cartItems.length === 0}
                     >
                       Tiến hành thanh toán
                     </Button>

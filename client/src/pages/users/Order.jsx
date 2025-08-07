@@ -51,9 +51,7 @@ function Order() {
   const [inventories, setInventories] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(
-    'cash',
-  );
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [shippingMethod, setShippingMethod] = useState('Giao hàng tận nơi');
 
   const total = cartItems.reduce((acc, item) => {
@@ -156,7 +154,7 @@ function Order() {
       }),
     );
 
-    setItems(itemList); // ✅ setState một lần duy nhất
+    setItems(itemList);
   };
 
   console.log('Order:', order);
@@ -188,8 +186,7 @@ function Order() {
 
   const getCart = async () => {
     try {
-      const cartServices = new CartServices();
-      const response = await cartServices.get();
+      const response = await CartServices.get();
       if (response.status === 200) {
         setCartItems(response.data.data.items);
       }
@@ -337,7 +334,8 @@ function Order() {
 
   const canOrder =
     (order && order?.recipient.phone && order?.recipient.address) ||
-    order?.buyer.phone || selectedAddress;
+    order?.buyer.phone ||
+    selectedAddress;
 
   let addressDisplay;
 

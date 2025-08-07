@@ -5,7 +5,7 @@ class CartServices {
     return axiosInstance.post('/api/v1/carts', { items });
   }
 
-  get() {
+  static  get() {
     return axiosInstance.get('/api/v1/carts');
   }
 
@@ -13,8 +13,9 @@ class CartServices {
     return axiosInstance.delete(`/api/v1/carts/remove-all?id=${id}`);
   }
 
-  update(id, cartItems) {
-    return axiosInstance.patch(`/api/v1/carts/${id}`, { user: id, items: cartItems });
+  static update(id, cartItems) {
+    console.log('Updating cart items', id, cartItems.quantity);
+    return axiosInstance.patch(`/api/v1/carts/${id}`, {  items: cartItems });
   }
 
   deleteOne(productId, variantId) {
