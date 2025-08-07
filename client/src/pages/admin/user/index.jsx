@@ -58,7 +58,7 @@ const { Option } = Select;
 
 const UserManagement = () => {
   const [form] = Form.useForm();
-  const { message: contextMessage } = useAppContext();
+  const { message } = useAppContext();
 
   // State management
   const [users, setUsers] = useState([]);
@@ -128,9 +128,9 @@ const UserManagement = () => {
       setUsers(response.data.data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      contextMessage?.error('Không thể tải danh sách người dùng');
+      message.error('Không thể tải danh sách người dùng');
     }
-  }, [contextMessage]);
+  }, [message]);
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -138,9 +138,9 @@ const UserManagement = () => {
       setRoles(response.data.data || []);
     } catch (error) {
       console.error('Error fetching roles:', error);
-      contextMessage?.error('Không thể tải danh sách vai trò');
+      message.error('Không thể tải danh sách vai trò');
     }
-  }, [contextMessage]);
+  }, [message]);
 
   const fetchBranches = useCallback(async () => {
     try {
@@ -148,18 +148,18 @@ const UserManagement = () => {
       setBranches(response.data.data || []);
     } catch (error) {
       console.error('Error fetching branches:', error);
-      contextMessage?.error('Không thể tải danh sách chi nhánh');
+      message.error('Không thể tải danh sách chi nhánh');
     }
-  }, [contextMessage]);
+  }, [message]);
 
   const fetchProvinces = useCallback(async () => {
     try {
       const provincesData = await Address.getAllProvinces();
       setAddressStates((prev) => ({ ...prev, provinces: provincesData }));
     } catch (error) {
-      contextMessage?.error('Không thể tải danh sách tỉnh/thành phố');
+      message.error('Không thể tải danh sách tỉnh/thành phố');
     }
-  }, [contextMessage]);
+  }, [message]);
 
   const fetchDistricts = useCallback(
     async (provinceCode) => {
@@ -167,10 +167,10 @@ const UserManagement = () => {
         const districtsData = await Address.getDistricts(provinceCode);
         setAddressStates((prev) => ({ ...prev, districts: districtsData }));
       } catch (error) {
-        contextMessage?.error('Không thể tải danh sách quận/huyện');
+        message.error('Không thể tải danh sách quận/huyện');
       }
     },
-    [contextMessage],
+    [message],
   );
 
   const fetchWards = useCallback(
@@ -179,10 +179,10 @@ const UserManagement = () => {
         const wardsData = await Address.getWards(districtCode);
         setAddressStates((prev) => ({ ...prev, wards: wardsData }));
       } catch (error) {
-        contextMessage?.error('Không thể tải danh sách xã/phường');
+        message.error('Không thể tải danh sách xã/phường');
       }
     },
-    [contextMessage],
+    [message],
   );
 
   const handleProvinceSelect = useCallback(
@@ -330,14 +330,14 @@ const UserManagement = () => {
     setLoading(true);
     try {
       await Promise.all([fetchUsers(), fetchRoles(), fetchBranches()]);
-      contextMessage?.success('Dữ liệu tải lại thành công!');
+      message.success('Dữ liệu tải lại thành công!');
     } catch (error) {
       console.error('Failed to reload data:', error);
-      contextMessage?.error('Không thể tải lại dữ liệu');
+      message.error('Không thể tải lại dữ liệu');
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers, fetchRoles, fetchBranches, contextMessage]);
+  }, [fetchUsers, fetchRoles, fetchBranches, message]);
 
   const handleCreateUser = useCallback(() => {
     setSelectedUser(null);
@@ -346,27 +346,29 @@ const UserManagement = () => {
 
   const handleSubmit = useCallback(
     async (values) => {
+      console.log('Submitting user data:', values);
+      console.log('Selected user:', selectedUser);
       setSubmitLoading(true);
       try {
         let response;
         if (!selectedUser) {
           response = await UserService.create(values);
           setUsers((prev) => [...prev, response.data.data]);
-          contextMessage?.success('Tạo người dùng thành công');
+          message.success('Tạo người dùng thành công');
         } else {
-          response = await UserService.update(selectedUser._id, values);
+          response = await UserService.update(values);
           setUsers((prev) =>
             prev.map((user) =>
               user._id === selectedUser._id ? response.data.data : user,
             ),
           );
-          contextMessage?.success('Cập nhật người dùng thành công');
+          message.success('Cập nhật người dùng thành công');
         }
         handleCancel();
         await fetchUsers();
       } catch (error) {
         console.error('Failed to save user:', error);
-        contextMessage?.error(
+        message.error(
           selectedUser
             ? 'Cập nhật người dùng thất bại'
             : 'Tạo người dùng thất bại',
@@ -375,7 +377,7 @@ const UserManagement = () => {
         setSubmitLoading(false);
       }
     },
-    [selectedUser, contextMessage, fetchUsers],
+    [selectedUser, message, fetchUsers],
   );
 
   const handleCancel = useCallback(() => {
@@ -659,7 +661,7 @@ const UserManagement = () => {
               <Descriptions.Item label="Email">
                 <Text code>{previewUser.email}</Text>
               </Descriptions.Item>
-              
+
               <Descriptions.Item label="Số điện thoại">
                 {previewUser.phone ? (
                   <Text>{previewUser.phone}</Text>
@@ -709,8 +711,8 @@ const UserManagement = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái">
                 <Badge
-                  color={previewUser.isActive  ? 'green' : 'red'}
-                  text={previewUser.isActive  ? 'Hoạt động' : 'Khóa'}
+                  color={previewUser.isActive ? 'green' : 'red'}
+                  text={previewUser.isActive ? 'Hoạt động' : 'Khóa'}
                 />
               </Descriptions.Item>
             </Descriptions>
