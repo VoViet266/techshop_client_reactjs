@@ -1,16 +1,4 @@
-import {
-  Carousel,
-  Image,
-  Spin,
-  Typography,
-  Flex,
-  Row,
-  Col,
-  Card,
-  Button,
-  Empty,
-  Skeleton,
-} from 'antd';
+import { Carousel, Image, Spin, Typography, Flex, Row, Col } from 'antd';
 import Products from '@services/products';
 import { useState, useEffect } from 'react';
 import Categories from '@services/categories';
@@ -23,7 +11,6 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { callFetchBanners } from '@/services/apis';
-import { DotDuration } from 'antd/es/carousel/style';
 import { useAppContext } from '@/contexts';
 import Recomment from '@/services/recommend';
 import CardProduct from '@/components/products/Card';

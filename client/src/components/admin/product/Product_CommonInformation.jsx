@@ -23,9 +23,7 @@ function CommonInformation({
 
       if (typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
         console.log('Chạy vô đây nè', imageUrl);
-        uploadHandler({
-          result: [{ url: imageUrl, name: file.name, size: file.size }],
-        });
+        uploadHandler(imageUrl, file.name);
       } else {
         throw new Error('Invalid image URL');
       }
@@ -34,7 +32,7 @@ function CommonInformation({
       console.error('Image upload failed:', error);
     }
   }, []);
-  
+
   useEffect(() => {
     if (product) {
       form.setFieldsValue({ description: product.description });
