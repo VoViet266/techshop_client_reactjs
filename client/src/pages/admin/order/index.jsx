@@ -690,7 +690,7 @@ const OrderManagement = () => {
 
   return (
     <div style={{ padding: '0px' }}>
-      <Col>
+      <Card className='mb-10!'>
         <Title
           level={3}
           style={{ margin: 0, display: 'flex', alignItems: 'center' }}
@@ -701,7 +701,7 @@ const OrderManagement = () => {
         <p style={{ margin: '8px 0 0 0', color: '#666' }}>
           Quản lý các đơn hàng và thêm đơn hàng mới
         </p>
-      </Col>
+      </Card>
 
       <OrderStatistics orders={orders} filters={filters} branches={branches} />
 
