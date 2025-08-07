@@ -307,10 +307,7 @@ const CreateOrderModal = ({
                   setSelectedVariant(null);
                   setSelectedColor(null);
                 }}
-                filterOption={(input, option) =>
-                  option.children?.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                }
+               
               >
                 {productsInInventory?.map((inventory) => (
                   <Option key={inventory._id} value={inventory.product?._id}>
@@ -374,7 +371,7 @@ const CreateOrderModal = ({
                           width: 16,
                           height: 16,
                           borderRadius: '50%',
-                          backgroundColor: color.toLowerCase(),
+                          backgroundColor: color?.toLowerCase(),
                           border: '1px solid #d9d9d9',
                         }}
                       />
