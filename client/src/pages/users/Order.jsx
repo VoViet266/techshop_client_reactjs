@@ -52,7 +52,7 @@ function Order() {
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(
-    'Thanh toán khi nhận hàng',
+    'cash',
   );
   const [shippingMethod, setShippingMethod] = useState('Giao hàng tận nơi');
 
@@ -159,6 +159,8 @@ function Order() {
     setItems(itemList); // ✅ setState một lần duy nhất
   };
 
+  console.log('Order:', order);
+
   useEffect(() => {
     if (items.length > 0) {
       setOrder({
@@ -179,11 +181,10 @@ function Order() {
         items: items,
         branch: selectedBranch,
         shippingAddress: selectedAddress || '',
-        paymentMethod:
-          paymentMethod === 'Thanh toán khi nhận hàng' ? 'cash' : 'momo',
+        paymentMethod: paymentMethod,
       });
     }
-  }, [items, phone]);
+  }, [items, phone, paymentMethod]);
 
   const getCart = async () => {
     try {
@@ -437,7 +438,7 @@ function Order() {
               Số điện thoại
             </Typography.Text>
             <Input
-              value={phone}
+              value={phone || userInfo?.phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full! flex-1 py-8!"
             />
@@ -670,15 +671,16 @@ function Order() {
               onChange={(event) => {
                 const paymentMethod = event.target.value;
                 setPaymentMethod(paymentMethod);
+                console.log('Payment Method:', paymentMethod);
               }}
-              defaultValue="Thanh toán khi nhận hàng"
+              defaultValue="cash"
               options={[
                 {
-                  value: 'Thanh toán khi nhận hàng',
+                  value: 'cash',
                   label: 'Thanh toán khi nhận hàng',
                 },
                 {
-                  value: 'Thanh toán qua Momo',
+                  value: 'momo',
                   label: 'Thanh toán qua Momo',
                 },
               ]}
@@ -724,7 +726,9 @@ function Order() {
               </Typography.Text>
               <Typography.Text className="text-sm!">
                 {!canChooseAddress
-                  ? 'Chưa có'
+                  ? selectedAddress
+                    ? selectedAddress
+                    : 'Chưa có'
                   : `${userTypeAddress.addressDetail || ''}, ${userTypeAddress.specificAddress || ''}`}
               </Typography.Text>
             </Flex>
