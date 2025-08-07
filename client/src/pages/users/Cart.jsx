@@ -132,7 +132,7 @@ function Cart() {
     setOpen(false);
   };
 
-  const total = cartItems.reduce(
+  const total = cartItems?.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
@@ -144,7 +144,7 @@ function Cart() {
     return originalPrice - discountAmount;
   };
   
-  const variantItem = cartItems.map((item) => {
+  const variantItem = cartItems?.map((item) => {
     const selectedColor = item.variant.color.find(
       (color) => color.colorName === item.color,
     );
@@ -198,7 +198,7 @@ function Cart() {
       render: (_, item) => (
         <div className="text-center">
           <Text className="text-gray-900 font-medium text-base">
-            {`${item?.variant?.price.toLocaleString()}₫`}
+            {`${item?.variant?.price?.toLocaleString()}₫`}
           </Text>
         </div>
       ),
@@ -245,11 +245,11 @@ function Cart() {
         return (
           <div className="text-center">
             <Text className="text-gray-900 font-semibold text-base">
-              {`${discountedPrice.toLocaleString()}₫`}
+              {`${discountedPrice?.toLocaleString()}₫`}
             </Text>
             {item.product.discount > 0 && (
               <div className="text-xs text-gray-500 line-through mt-1">
-                {`${originalPrice.toLocaleString()}₫`}
+                {`${originalPrice?.toLocaleString()}₫`}
               </div>
             )}
           </div>
@@ -321,7 +321,7 @@ function Cart() {
         <p className="text-gray-700 py-4">{modalText}</p>
       </Modal>
 
-      {cartItems.length === 0 ? (
+      {cartItems?.length === 0 || !cartItems ? (
         <Flex justify="space-between" className="bg-white rounded-xl p-30!">
           <Flex vertical gap={20}>
             <Title level={1} className="font-medium! mb-0!">
@@ -374,8 +374,8 @@ function Cart() {
                       Giỏ hàng của bạn
                     </Title>
                     <Text className="text-gray-600! mt-4! flex! items-center!">
-                      {cartItems.length > 0
-                        ? `${cartItems.length} sản phẩm`
+                      {cartItems?.length > 0
+                        ? `${cartItems?.length} sản phẩm`
                         : null}
                     </Text>
                   </Flex>
@@ -392,8 +392,8 @@ function Cart() {
                     }}
                     disabled={
                       !(
-                        selectedRowKeys.length === cartItems.length &&
-                        cartItems.length > 0
+                        selectedRowKeys.length === cartItems?.length &&
+                        cartItems?.length > 0
                       )
                     }
                     className="hover:bg-red-50"
@@ -432,7 +432,7 @@ function Cart() {
                 <Flex justify="space-between" align="center" className="mb-6!">
                   <Text className="text-gray-600! text-sm!">Tạm tính</Text>
                   <Text className="text-lg! font-medium!">
-                    {total.toLocaleString()}₫
+                    {total?.toLocaleString()}₫
                   </Text>
                 </Flex>
                 <Divider className="my-0!" />
@@ -450,7 +450,7 @@ function Cart() {
                 <Flex justify="space-between" align="center" className="my-6!">
                   <Text className="text-sm! font-medium!">Tổng cộng</Text>
                   <Text className="text-lg! font-medium!">
-                    {total.toLocaleString()}₫
+                    {total?.toLocaleString()}₫
                   </Text>
                 </Flex>
 
@@ -460,7 +460,7 @@ function Cart() {
                       type="primary"
                       size="large"
                       className="w-full rounded-md! h-12 font-medium!"
-                      disabled={cartItems.length === 0}
+                      disabled={cartItems?.length === 0}
                     >
                       Tiến hành thanh toán
                     </Button>
