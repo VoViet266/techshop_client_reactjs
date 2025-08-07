@@ -225,7 +225,7 @@ const WarrantyPolicyManagement = () => {
           </Text>
         </div>
 
-        <Row gutter={16} className="mb-6">
+        {/* <Row gutter={16} className="mb-6">
           <Col span={6}>
             <Card>
               <Statistic
@@ -263,10 +263,10 @@ const WarrantyPolicyManagement = () => {
               />
             </Card>
           </Col>
-        </Row>
+        </Row> */}
 
-        <Card className="mb-6">
-          <Row gutter={[16, 16]} align="middle">
+        <Card className="mb-10!">
+          <Row gutter={[10, 10]} align="middle">
             <Col flex="auto">
               <Form form={searchForm} onFinish={handleSearch} layout="inline">
                 <Form.Item name="search" className="mb-0">

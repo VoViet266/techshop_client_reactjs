@@ -149,7 +149,6 @@ function Order() {
         return {
           product: item.product._id,
           variant: item.variant._id,
-
           quantity: item.quantity,
           price: item.price,
           branch,
@@ -171,11 +170,11 @@ function Order() {
           phone: phone,
           address: canChooseAddress
             ? `${userTypeAddress.addressDetail}, ${userTypeAddress.specificAddress}`
-            : selectedAddress,
+            : selectedAddress || '',
         },
         items: items,
         branch: selectedBranch,
-        shippingAddress: selectedAddress,
+        shippingAddress: selectedAddress || '',
         paymentMethod:
           paymentMethod === 'Thanh toán khi nhận hàng' ? 'cash' : 'momo',
       });

@@ -2,6 +2,7 @@ import { CameraOutlined, WifiOutlined } from '@ant-design/icons';
 import { Avatar, Card, Descriptions, Space, Tag, Typography } from 'antd';
 const { Text } = Typography;
 export const ExpandedRowRender = ({ record }) => {
+  console.log('ExpandedRowRender record:', record);
   const groupNameMapping = {
     specifications: 'Thông số kỹ thuật',
     connectivity: 'Kết nối',
@@ -208,7 +209,7 @@ export const ExpandedRowRender = ({ record }) => {
                 <Avatar
                   shape="square"
                   size={160}
-                  src={variant.images?.[0]}
+                  src={variant.color[0]?.images[0] || ''}
                   alt={`Variant ${index + 1}`}
                   style={{
                     borderRadius: 12,
@@ -245,26 +246,23 @@ export const ExpandedRowRender = ({ record }) => {
                     {variant.color && (
                       <Space>
                         <Text>Màu:</Text>
-                        <Tag
+                        <Text
                           style={{
-                            backgroundColor: variant.color.hex,
-                            color: '#FEFEFE',
                             border: 'none',
                             borderRadius: 6,
                           }}
                         >
-                          {variant.color.name}
-                        </Tag>
-                        <Tag
-                          style={{
-                            backgroundColor: '#F1F5F9',
-                            color: '#0F172A',
-                            border: `1px solid #CBD5E1`,
-                            borderRadius: 6,
-                          }}
-                        >
-                          {variant.color.hex}
-                        </Tag>
+                          {variant.color.map((color) => (
+                            <Tag
+                              key={color.id}
+                              style={{
+                                borderRadius: 6,
+                              }}
+                            >
+                              {color.colorName}
+                            </Tag>
+                          ))}
+                        </Text>
                       </Space>
                     )}
 
