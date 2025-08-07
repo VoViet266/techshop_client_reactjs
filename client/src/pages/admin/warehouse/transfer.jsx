@@ -10,7 +10,6 @@ import {
   Space,
   Tag,
   Card,
-  Popconfirm,
   Steps,
   Descriptions,
   Divider,
@@ -18,7 +17,7 @@ import {
   Col,
   Typography,
   Badge,
-  message,
+  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -486,6 +485,14 @@ const WarehouseTransferManagement = () => {
   const productInInventory = inventory.filter(
     (product) => product.branch?._id.toString() === fromWarehouse?.toString(),
   );
+
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div>

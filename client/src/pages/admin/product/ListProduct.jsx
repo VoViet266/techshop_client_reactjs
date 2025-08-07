@@ -104,7 +104,6 @@ function ListProduct() {
   const fetchProducts = async () => {
     try {
       const fetchedProducts = await Products.getAll(_page, _limit);
-      setLoading(false);
       setTotal(fetchedProducts.meta.total);
       setProducts(fetchedProducts.result);
     } catch (error) {
@@ -117,6 +116,8 @@ function ListProduct() {
       setLoading(false);
     }
   };
+
+  console.log('Loading:', loading);
 
   // ham(module, action) && button
 
@@ -151,15 +152,33 @@ function ListProduct() {
   };
 
   useEffect(() => {
-    const fetchAll = () => {
+    const fetchAll = async () => {
       try {
-        Promise.all([fetchProducts(), fetchCategories(), fetchBrands()]);
+        setLoading(true); // Bắt đầu loading
+        await Promise.all([fetchProducts(), fetchCategories(), fetchBrands()]);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể tải dữ liệu.',
+        });
       } finally {
-        setLoading(false);
+        setLoading(false); // Kết thúc loading sau khi tất cả các Promise hoàn thành
       }
     };
     fetchAll();
   }, [_page, _limit]);
+
+  // useEffect(() => {
+  //   const fetchAll = () => {
+  //     try {
+  //       Promise.all([fetchProducts(), fetchCategories(), fetchBrands()]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchAll();
+  // }, [_page, _limit]);
 
   const handleDeleteProducts = async () => {
     setModalText('The modal will be closed after two seconds');
@@ -315,215 +334,13 @@ function ListProduct() {
     },
   };
 
-  // const expandedRowRender = (record) => {
-  //   return (
-  //     <Card
-  //       size="small"
-  //       style={{
-  //         margin: '16px 0',
-  //         backgroundColor: '#F8FAFC',
-  //         border: `1px solid #E2E8F0"`,
-  //         borderRadius: 12,
-  //         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-  //       }}
-  //     >
-  //       <Descriptions title="Mô tả sản phẩm" size="small" column={1} bordered>
-  //         <Descriptions.Item label="Mô tả">
-  //           <Text style={{ fontSize: '14px', color: '#475569' }}>
-  //             {record.description || 'Chưa có mô tả cho sản phẩm này.'}
-  //           </Text>
-  //         </Descriptions.Item>
-  //       </Descriptions>
-  //       <Descriptions title="Chi tiết kỹ thuật" size="small" bordered>
-  //         <Descriptions.Item label="Màn hình" span={1}>
-  //           <Space>
-  //             {record.specifications?.displaySize}{' '}
-  //             {record.specifications?.displayStyle}
-  //           </Space>
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Chip xử lý" span={1}>
-  //           <Space>{record.specifications?.processor}</Space>
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Hệ điều hành" span={1}>
-  //           {record.specifications?.operatingSystem}
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Pin" span={1}>
-  //           <Space>{record.specifications?.battery}</Space>
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Trọng lượng" span={1}>
-  //           {record.specifications?.weight}
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Kết nối" span={3}>
-  //           <Space wrap>
-  //             <Tag icon={<WifiOutlined />} color="blue">
-  //               {record.connectivity?.wifi}
-  //             </Tag>
-  //             <Tag color="green">
-  //               Bluetooth {record.connectivity?.bluetooth}
-  //             </Tag>
-  //             <Tag color="red">{record.connectivity?.cellular}</Tag>
-  //             {record.connectivity?.nfc === 'Yes' && (
-  //               <Tag color="orange">NFC</Tag>
-  //             )}
-  //             {record.connectivity?.gps === 'Yes' && (
-  //               <Tag color="purple">GPS</Tag>
-  //             )}
-  //           </Space>
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Camera trước" span={2}>
-  //           <Space direction="vertical" size="small">
-  //             <Text strong>
-  //               <CameraOutlined /> {record.camera?.front?.resolution}
-  //             </Text>
-  //             <div>
-  //               <Text type="secondary">Tính năng: </Text>
-  //               {record.camera?.front?.features?.map((feature, index) => (
-  //                 <Tag key={index} size="small">
-  //                   {feature}
-  //                 </Tag>
-  //               ))}
-  //             </div>
-  //             <div>
-  //               <Text type="secondary">Video: </Text>
-  //               {record.camera?.front?.videoRecording?.map((video, index) => (
-  //                 <Tag key={index} size="small" color="volcano">
-  //                   {video}
-  //                 </Tag>
-  //               ))}
-  //             </div>
-  //           </Space>
-  //         </Descriptions.Item>
-
-  //         <Descriptions.Item label="Camera sau" span={2}>
-  //           <Space direction="vertical" size="small">
-  //             <Text strong>
-  //               <CameraOutlined />
-  //               {record.camera?.rear?.resolution}
-  //             </Text>
-  //             <div>
-  //               <Text type="secondary">Tính năng: </Text>
-  //               {record.camera?.rear?.features?.map((feature, index) => (
-  //                 <Tag key={index} size="small">
-  //                   {feature}
-  //                 </Tag>
-  //               ))}
-  //             </div>
-
-  //             <div>
-  //               <Text type="secondary">Video: </Text>
-  //               {record.camera?.rear?.videoRecording?.map((video, index) => (
-  //                 <Tag key={index} size="small" color="volcano">
-  //                   {video}
-  //                 </Tag>
-  //               ))}
-  //             </div>
-  //           </Space>
-  //         </Descriptions.Item>
-  //         <Descriptions.Item label="Cổng kết nối" span={1}>
-  //           <Space wrap>
-  //             {record.connectivity?.ports?.map((port, index) => (
-  //               <Tag key={index} color="geekblue">
-  //                 {port}
-  //               </Tag>
-  //             ))}
-  //           </Space>
-  //         </Descriptions.Item>
-  //       </Descriptions>
-  //       {record.variants?.length > 0 && (
-  //         <Descriptions title="Các phiên bản" size="small" bordered column={1}>
-  //           {record.variants.map((variant, index) => (
-  //             <Descriptions.Item
-  //               key={index}
-  //               label={
-  //                 <Avatar
-  //                   shape="square"
-  //                   size={160}
-  //                   src={variant.images?.[0]}
-  //                   alt={`Variant ${index + 1}`}
-  //                   style={{
-  //                     borderRadius: 12,
-  //                     border: `2px solid #E2E8F0"`,
-  //                   }}
-  //                 />
-  //               }
-  //               labelStyle={{
-  //                 width: 100,
-  //                 padding: 20,
-  //                 textAlign: 'center',
-  //               }}
-  //             >
-  //               <Space size="large" align="start">
-  //                 <div>
-  //                   <Space direction="vertical" size="small">
-  //                     <Text strong style={{ fontSize: 16, color: '#0F172A' }}>
-  //                       {variant.name}
-  //                     </Text>
-  //                     <Tag
-  //                       style={{
-  //                         fontSize: 14,
-  //                         padding: '4px 12px',
-  //                         backgroundColor: '#EF4444',
-  //                         color: '#FEFEFE',
-  //                         border: 'none',
-  //                         borderRadius: 6,
-  //                         fontWeight: 600,
-  //                       }}
-  //                     >
-  //                       {`${variant.price?.toLocaleString()} VND`}
-  //                     </Tag>
-
-  //                     {variant.color && (
-  //                       <Space>
-  //                         <Text>Màu:</Text>
-  //                         <Tag
-  //                           style={{
-  //                             backgroundColor: variant.color.hex,
-  //                             color: '#FEFEFE',
-  //                             border: 'none',
-  //                             borderRadius: 6,
-  //                           }}
-  //                         >
-  //                           {variant.color.name}
-  //                         </Tag>
-  //                         <Tag
-  //                           style={{
-  //                             backgroundColor: '#F1F5F9',
-  //                             color: '#0F172A',
-  //                             border: `1px solid "#CBD5E1"`,
-  //                             borderRadius: 6,
-  //                           }}
-  //                         >
-  //                           {variant.color.hex}
-  //                         </Tag>
-  //                       </Space>
-  //                     )}
-
-  //                     {variant.memory && (
-  //                       <Space direction="vertical" size={1}>
-  //                         <Text style={{ color: '#475569' }}>
-  //                           RAM: {variant.memory.ram}
-  //                         </Text>
-  //                         <Text style={{ color: '#475569' }}>
-  //                           Storage: {variant.memory.storage}
-  //                         </Text>
-  //                       </Space>
-  //                     )}
-  //                   </Space>
-  //                 </div>
-  //               </Space>
-  //             </Descriptions.Item>
-  //           ))}
-  //         </Descriptions>
-  //       )}
-  //     </Card>
-  //   );
-  // };
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -729,57 +546,54 @@ function ListProduct() {
             border: `1px solid #E2E8F0"`,
           }}
         >
-          <Spin spinning={loading} size="large">
-            {filteredProducts.length === 0 ? (
-              <Empty
-                description={
-                  <span style={{ color: '#475569' }}>
-                    Không tìm thấy sản phẩm nào
-                  </span>
-                }
-                style={{ padding: '48px 0' }}
-              />
-            ) : (
-              <Table
-                rowKey="_id"
-                rowSelection={rowSelection}
-                columns={columns}
-                bordered
-                dataSource={filteredProducts}
-                expandable={{
-                  expandedRowRender: (record) => (
-                    <ExpandedRowRender record={record} />
-                  ),
-                  expandIcon: ({ expanded, onExpand, record }) => (
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={
-                        expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />
-                      }
-                      onClick={(e) => onExpand(record, e)}
-                    />
-                  ),
-                  rowExpandable: (record) => record._id,
-                }}
-                pagination={{
-                  current: Number(_page),
-                  pageSize: Number(_limit),
-                  total: total,
-                  showSizeChanger: false,
-                  onChange: (page) => {
-                    setSearchParams({
-                      _page: page.toString(),
-                    });
-                  },
-                }}
-                size="middle"
-                style={{
-                  backgroundColor: '#FEFEFE',
-                }}
-              />
-            )}
-          </Spin>
+          {filteredProducts.length === 0 ? (
+            <Empty
+              description={
+                <span style={{ color: '#475569' }}>
+                  Không tìm thấy sản phẩm nào
+                </span>
+              }
+              style={{ padding: '48px 0' }}
+            />
+          ) : (
+            <Table
+              rowKey="_id"
+              Empty
+              rowSelection={rowSelection}
+              columns={columns}
+              bordered
+              dataSource={filteredProducts}
+              expandable={{
+                expandedRowRender: (record) => (
+                  <ExpandedRowRender record={record} />
+                ),
+                expandIcon: ({ expanded, onExpand, record }) => (
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={expanded ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                    onClick={(e) => onExpand(record, e)}
+                  />
+                ),
+                rowExpandable: (record) => record._id,
+              }}
+              pagination={{
+                current: Number(_page),
+                pageSize: Number(_limit),
+                total: total,
+                showSizeChanger: false,
+                onChange: (page) => {
+                  setSearchParams({
+                    _page: page.toString(),
+                  });
+                },
+              }}
+              size="middle"
+              style={{
+                backgroundColor: '#FEFEFE',
+              }}
+            />
+          )}
         </Card>
       </div>
     </div>

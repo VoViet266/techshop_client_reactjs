@@ -139,13 +139,12 @@ function AddProduct() {
   };
 
   const onSubmit = async () => {
+    message.loading('Đang thêm sản phẩm');
     try {
       // Validate form first
       await form.validateFields();
 
       const productToSubmit = form.getFieldsValue();
-
-      message.loading({ content: 'Đang thêm sản phẩm', key: 'adding-product' });
 
       // Process attributes
       productToSubmit.attributes = {
@@ -202,13 +201,12 @@ function AddProduct() {
       const addProduct = await Products.add(productToSubmit);
 
       if (addProduct) {
-        message.success({
-          content: 'Thêm sản phẩm thành công',
-          key: 'adding-product',
-        });
+        message.destroy();
+        message.success('Thêm sản phẩm thành công!');
         navigate('/admin/product');
       }
     } catch (error) {
+        message.destroy();
       console.error('Đã có lỗi xảy ra khi thêm sản phẩm:', error);
 
       if (error.errorFields && error.errorFields.length > 0) {

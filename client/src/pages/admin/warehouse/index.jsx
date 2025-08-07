@@ -342,13 +342,11 @@ const WarehouseManagement = () => {
       });
     }
   }, [outOfStockProducts.length]);
+
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div className="h-screen flex items-center justify-center">
         <Spin size="large" />
-        <div style={{ marginTop: '16px' }}>
-          <Text>Đang tải dữ liệu kho hàng...</Text>
-        </div>
       </div>
     );
   }
@@ -541,18 +539,6 @@ const WarehouseManagement = () => {
               </Checkbox>
             </Space>
           </Col>
-          {/* <Col xs={24} sm={12} md={2}></Col> */}
-          {/* <Col xs={24} sm={24} md={4}>
-            <Space>
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={fetchInventory}
-                loading={loading}
-              >
-                Làm mới
-              </Button>
-            </Space>
-          </Col> */}
         </Row>
       </Card>
 
@@ -586,7 +572,6 @@ const WarehouseManagement = () => {
             pageSize: 20,
           }}
           bordered
-          loading={loading}
           locale={{
             emptyText: (
               <Empty

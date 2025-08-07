@@ -18,6 +18,7 @@ import {
   Flex,
   Tooltip,
   Badge,
+  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -228,6 +229,15 @@ const BranchManagement = () => {
       setSelectedRows(selectedRows);
     },
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div style={{}}>
       <Modal

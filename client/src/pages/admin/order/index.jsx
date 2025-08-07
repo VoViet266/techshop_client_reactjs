@@ -36,6 +36,7 @@ import {
   Typography,
   Empty,
   notification,
+  Spin,
 } from 'antd';
 import { BsCartCheck } from 'react-icons/bs';
 import OrderDetailsModal from '@/components/admin/order/orderDetailModal';
@@ -712,6 +713,14 @@ const OrderManagement = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '0px' }}>
       <Card className='mb-10!'>
@@ -744,7 +753,6 @@ const OrderManagement = () => {
           pagination={{
             pageSize: 10,
           }}
-          loading={loading}
           locale={{
             emptyText: (
               <Empty

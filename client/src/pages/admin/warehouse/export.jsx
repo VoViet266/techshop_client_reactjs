@@ -715,14 +715,7 @@ const WarehouseOutbound = () => {
 
   if (pageLoading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '60vh',
-        }}
-      >
+      <div className="h-screen flex items-center justify-center">
         <Spin size="large" />
       </div>
     );
@@ -963,7 +956,6 @@ const WarehouseOutbound = () => {
             totalQuantity={totalQuantity}
             totalValue={totalValue}
             handleSubmitInbound={handleSubmitOutbound}
-            loading={loading}
           />
 
           <Card

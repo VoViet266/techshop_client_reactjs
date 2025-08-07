@@ -506,12 +506,10 @@ const UserManagement = () => {
     [],
   );
 
-  // Loading spinner
-  if (loading && users.length === 0) {
+  if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <Spin size="large" indicator={<LoadingOutlined spin />} />
-        <div style={{ marginTop: 16 }}>Đang tải dữ liệu...</div>
+      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+        <Spin size="large" />
       </div>
     );
   }
