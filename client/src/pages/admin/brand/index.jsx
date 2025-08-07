@@ -524,7 +524,7 @@ const BrandManagement = () => {
               style={{ objectFit: 'contain', borderRadius: 8 }}
             />
             <Title level={4}>{selectedBrand.name}</Title>
-            <Text type="secondary">{selectedBrand._id}</Text>
+
             <div style={{ width: '100%' }}>
               <Title level={5}>Mô tả</Title>
               <Paragraph>
