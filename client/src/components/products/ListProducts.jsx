@@ -127,14 +127,6 @@ function ListProducts(properties) {
     }).format(amount);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spin size="large" />
-      </div>
-    );
-  }
-
   // Kiểm tra xem có sản phẩm nào có memory không
   const hasMemoryProducts = products.some((product) =>
     product?.variants?.some(
@@ -616,14 +608,14 @@ function ListProducts(properties) {
                   </Row>
                 ) : paginatedProducts.length > 0 ? (
                   <>
-                    <Row gutter={[10, 10]} className=''>
+                    <Row gutter={[10, 10]} className="">
                       {paginatedProducts.map((product, index) => (
                         <Col key={index} xs={24} sm={12} lg={12} xl={8} xxl={6}>
                           <CardProduct product={product} loading={loading} />
                         </Col>
                       ))}
                     </Row>
-                    {!loading && filteredProducts.length > 0 && (
+                    {filteredProducts.length > 0 && (
                       <div className="bg-white rounded-lg shadow-none p-2 md:p-4 w-full md:w-[50%] mx-auto mt-10">
                         <Flex justify="center">
                           <Pagination

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Categories from '@services/categories';
 import { callFetchProducts } from '@services/apis';
+import { Spin } from 'antd';
 
 function ProductsList() {
   const { id } = useParams();
@@ -144,7 +145,6 @@ function ProductsList() {
 
   useEffect(() => {
     if (category) {
-      setLoading(true);
       callFetchProducts(currentPage, 10, category.name, currentBrand)
         .then((response) => {
           setProducts(response.data.data.result);
@@ -161,7 +161,13 @@ function ProductsList() {
   useEffect(() => {
     document.title = 'Danh mục sản phẩm';
   }, []);
-  
+  if (loading) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="w-full mt-10">
       <ListProducts

@@ -333,14 +333,13 @@ function ListProduct() {
       setSelectedRows(selectedRows);
     },
   };
-
-  if (loading) {
-    return (
-      <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
-        <Spin size="large" />
-      </div>
-    );
-  }
+ if (loading) {
+   return (
+     <div className="w-full h-[calc(100vh-60px)] flex justify-center items-center">
+       <Spin size="large" />
+     </div>
+   );
+ }
 
   return (
     <div>
