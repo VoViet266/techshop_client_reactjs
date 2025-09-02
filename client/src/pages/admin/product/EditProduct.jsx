@@ -271,7 +271,6 @@ function EditProduct() {
   const onSubmit = async () => {
     try {
       const validatedValues = form.getFieldsValue();
-      console.log(validatedValues);
 
       setToastLoading(true);
       message.loading({ content: 'Đang cập nhật sản phẩm...', key: 'update' });
@@ -281,7 +280,6 @@ function EditProduct() {
         await Promise.all(
           galleryImagesToDelete.map(async (imgUrl) => {
             try {
-              console.log('Deleting gallery image:', imgUrl);
               await Files.callDelete(imgUrl);
             } catch (e) {
               console.warn('Không thể xóa ảnh gallery (bỏ qua):', imgUrl, e);
@@ -295,7 +293,6 @@ function EditProduct() {
         await Promise.all(
           imagesToDelete.map(async (imgUrl) => {
             try {
-              console.log('Deleting variant image:', imgUrl);
               await Files.callDelete(imgUrl);
             } catch (e) {
               console.warn('Không thể xóa ảnh variant (bỏ qua):', imgUrl, e);

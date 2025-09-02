@@ -9,7 +9,7 @@ async function getProductDetail(id) {
     }
     return response.data.data;
   } catch (error) {
-    console.log(error.message);
+    throw error;
   }
 }
 

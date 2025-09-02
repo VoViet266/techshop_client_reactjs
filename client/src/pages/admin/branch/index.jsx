@@ -64,7 +64,6 @@ const BranchManagement = () => {
       setLoading(false);
       message.success('Lấy danh sách chi nhánh thành công!');
     } catch (error) {
-      console.log(error);
       setLoading(false);
       message.error('Lấy danh sách chi nhánh thất bại!');
     }

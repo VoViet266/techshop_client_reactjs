@@ -22,7 +22,6 @@ function CommonInformation({
       const imageUrl = await Files.upload(file);
 
       if (typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
-        console.log('Chạy vô đây nè', imageUrl);
         uploadHandler({
           result: [{ url: imageUrl, name: file.name, size: file.size }],
         });

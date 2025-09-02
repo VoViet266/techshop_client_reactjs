@@ -24,7 +24,6 @@ function Login() {
       window.location.href = `${import.meta.env.VITE_SERVER_URL}/api/v1/auth/google`;
     } catch (error) {
       message.error('Đăng ký bằng google thất bại!');
-      console.log(error);
     }
   };
   return (

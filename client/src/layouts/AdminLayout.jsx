@@ -8,7 +8,6 @@ import {
   Button,
   Tooltip,
   FloatButton,
-  
   Drawer,
 } from 'antd';
 import {
@@ -28,7 +27,22 @@ import { callLogout } from '@/services/apis';
 import { hasPermission } from '@/helpers';
 import { Actions, Subjects } from '@/constants/permissions';
 import { AvatarDefault } from '@/components/app';
-import { BsArrowRightCircleFill, BsBagFill, BsFillBoxSeamFill, BsFillCheckCircleFill, BsFillGridFill, BsFillHouseFill, BsFillHouseLockFill, BsFillImageFill, BsFillLockFill, BsFillPeopleFill, BsFillTagsFill, BsPieChartFill, BsPinMapFill, BsTools } from 'react-icons/bs';
+import {
+  BsArrowRightCircleFill,
+  BsBagFill,
+  BsFillBoxSeamFill,
+  BsFillCheckCircleFill,
+  BsFillGridFill,
+  BsFillHouseFill,
+  BsFillHouseLockFill,
+  BsFillImageFill,
+  BsFillLockFill,
+  BsFillPeopleFill,
+  BsFillTagsFill,
+  BsPieChartFill,
+  BsPinMapFill,
+  BsTools,
+} from 'react-icons/bs';
 
 function AdminLayout() {
   const { Title, Text } = Typography;
@@ -48,7 +62,7 @@ function AdminLayout() {
       {
         key: 'dashboard',
         label: 'Tổng quan',
-        icon: <BsPieChartFill className='text-primary! text-xl!' />,
+        icon: <BsPieChartFill className="text-primary! text-xl!" />,
         onClick: () => {
           navigate('/admin/dashboard');
           setDrawerVisible(false);
@@ -56,36 +70,36 @@ function AdminLayout() {
       },
 
       hasPermission(permissions, Subjects.Product, Actions.Read) &&
-      ({ type: 'divider' },
-      {
-        key: 'product',
-        label: 'Sản phẩm',
-        icon: <BsFillBoxSeamFill className='text-primary! text-xl!' />,
-        children: [
-          {
-            key: 'allproducts',
-            label: 'Danh sách sản phẩm',
-            onClick: () => {
-              navigate('/admin/product');
-              setDrawerVisible(false);
+        ({ type: 'divider' },
+        {
+          key: 'product',
+          label: 'Sản phẩm',
+          icon: <BsFillBoxSeamFill className="text-primary! text-xl!" />,
+          children: [
+            {
+              key: 'allproducts',
+              label: 'Danh sách sản phẩm',
+              onClick: () => {
+                navigate('/admin/product');
+                setDrawerVisible(false);
+              },
             },
-          },
-          hasPermission(permissions, Subjects.Product, Actions.Create) && {
-            key: 'addproduct',
-            label: 'Thêm sản phẩm',
-            onClick: () => {
-              navigate('/admin/product/add');
-              setDrawerVisible(false);
+            hasPermission(permissions, Subjects.Product, Actions.Create) && {
+              key: 'addproduct',
+              label: 'Thêm sản phẩm',
+              onClick: () => {
+                navigate('/admin/product/add');
+                setDrawerVisible(false);
+              },
             },
-          },
-        ],
-      }),
+          ],
+        }),
       (hasPermission(permissions, Subjects.Inventory, Actions.Read) ||
         hasPermission(permissions, Subjects.Transfer, Actions.Read) ||
         hasPermission(permissions, Subjects.StockMovement, Actions.Read)) && {
         key: 'inventory',
         label: 'Kho hàng',
-        icon: <BsFillHouseLockFill className='text-primary! text-xl!' />,
+        icon: <BsFillHouseLockFill className="text-primary! text-xl!" />,
         children: [
           hasPermission(permissions, Subjects.Inventory, Actions.Read) && {
             key: 'allinventory',
@@ -135,7 +149,7 @@ function AdminLayout() {
       hasPermission(permissions, Subjects.Order, Actions.Read) && {
         key: 'order',
         label: 'Đơn hàng',
-        icon: <BsBagFill className='text-primary! text-xl!' />,
+        icon: <BsBagFill className="text-primary! text-xl!" />,
         onClick: () => {
           navigate('/admin/order');
           setDrawerVisible(false);
@@ -143,22 +157,22 @@ function AdminLayout() {
       },
 
       hasPermission(permissions, Subjects.Branch, Actions.Read) &&
-      ({
-        type: 'divider',
-      },
-      {
-        key: 'branch',
-        label: 'Chi nhánh',
-        icon: <BsPinMapFill  className='text-primary! text-xl!' />,
-        onClick: () => {
-          navigate('/admin/branch/management');
-          setDrawerVisible(false);
+        ({
+          type: 'divider',
         },
-      }),
+        {
+          key: 'branch',
+          label: 'Chi nhánh',
+          icon: <BsPinMapFill className="text-primary! text-xl!" />,
+          onClick: () => {
+            navigate('/admin/branch/management');
+            setDrawerVisible(false);
+          },
+        }),
       hasPermission(permissions, Subjects.Category, Actions.Read) && {
         key: 'category',
         label: 'Danh mục',
-        icon: <BsFillGridFill  className='text-primary! text-xl!' />,
+        icon: <BsFillGridFill className="text-primary! text-xl!" />,
         onClick: () => {
           navigate('/admin/category/management');
           setDrawerVisible(false);
@@ -167,7 +181,7 @@ function AdminLayout() {
       hasPermission(permissions, Subjects.Brand, Actions.Read) && {
         key: 'brand',
         label: 'Thương hiệu',
-        icon: <BsFillTagsFill className='text-primary! text-xl!' />,
+        icon: <BsFillTagsFill className="text-primary! text-xl!" />,
         onClick: () => {
           navigate('/admin/brand/management');
           setDrawerVisible(false);
@@ -175,22 +189,22 @@ function AdminLayout() {
       },
 
       hasPermission(permissions, Subjects.User, Actions.Read) &&
-      ({
-        type: 'divider',
-      },
-      {
-        key: 'user',
-        label: 'Người dùng',
-        icon: <BsFillPeopleFill className='text-primary! text-xl!' />,
-        onClick: () => {
-          navigate('/admin/user/management');
-          setDrawerVisible(false);
+        ({
+          type: 'divider',
         },
-      }),
+        {
+          key: 'user',
+          label: 'Người dùng',
+          icon: <BsFillPeopleFill className="text-primary! text-xl!" />,
+          onClick: () => {
+            navigate('/admin/user/management');
+            setDrawerVisible(false);
+          },
+        }),
       {
         key: 'permissions',
         label: 'Phân quyền',
-        icon: <BsFillLockFill className='text-primary! text-xl!' />,
+        icon: <BsFillLockFill className="text-primary! text-xl!" />,
         children: [
           {
             key: 'role',
@@ -220,36 +234,36 @@ function AdminLayout() {
       },
 
       hasPermission(permissions, Subjects.Benefit, Actions.Read) &&
-      ({
-        type: 'divider',
-      },
-      {
-        key: 'policy',
-        label: 'Chính sách ',
-        icon: <BsFillCheckCircleFill className='text-primary! text-xl!' />,
-        children: [
-          {
-            key: 'warranty',
-            label: 'Chính sách bảo hành',
-            onClick: () => {
-              navigate('/admin/policy/warranty/management');
-              setDrawerVisible(false);
+        ({
+          type: 'divider',
+        },
+        {
+          key: 'policy',
+          label: 'Chính sách ',
+          icon: <BsFillCheckCircleFill className="text-primary! text-xl!" />,
+          children: [
+            {
+              key: 'warranty',
+              label: 'Chính sách bảo hành',
+              onClick: () => {
+                navigate('/admin/policy/warranty/management');
+                setDrawerVisible(false);
+              },
             },
-          },
-          {
-            key: 'promotion',
-            label: 'Khuyến mãi',
-            onClick: () => {
-              navigate('/admin/policy/promotion/management');
-              setDrawerVisible(false);
+            {
+              key: 'promotion',
+              label: 'Khuyến mãi',
+              onClick: () => {
+                navigate('/admin/policy/promotion/management');
+                setDrawerVisible(false);
+              },
             },
-          },
-        ],
-      }),
+          ],
+        }),
       hasPermission(permissions, Subjects.Banner, Actions.Read) && {
         key: 'banner',
         label: 'Banner',
-        icon: <BsFillImageFill  className='text-primary! text-xl!'/>,
+        icon: <BsFillImageFill className="text-primary! text-xl!" />,
         onClick: () => {
           navigate('/admin/banner/management');
           setDrawerVisible(false);
@@ -494,13 +508,13 @@ function AdminLayout() {
       >
         <FloatButton
           shape="circle"
-          icon={<BsFillHouseFill  className='text-primary!' />}
+          icon={<BsFillHouseFill className="text-primary!" />}
           type="default"
           onClick={() => navigate('/')}
         />
         <FloatButton
           shape="circle"
-          icon={<BsArrowRightCircleFill className='text-primary!'  />}
+          icon={<BsArrowRightCircleFill className="text-primary!" />}
           onClick={handleLogout}
         />
       </FloatButton.Group>

@@ -70,7 +70,6 @@ const ForgotPasswordModal = () => {
       setLoading(false);
       setCurrentStep(1);
     } catch (error) {
-      console.log(error);
       setLoading(false);
       message.error('Gữi mã xác nhận thất bại');
     }
@@ -93,7 +92,6 @@ const ForgotPasswordModal = () => {
       setLoading(false);
       setCurrentStep(3);
     } catch (error) {
-      console.log(error);
       message.error('Cập nhật mật khẩu thất bại');
     }
   };

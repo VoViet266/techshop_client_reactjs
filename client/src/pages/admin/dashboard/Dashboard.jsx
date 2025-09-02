@@ -360,8 +360,8 @@ const Dashboard = () => {
           <Card
             className="rounded-xl! h-full!"
             title={
-              <div className='flex items-center justify-between md:gap-10 max-sm:flex-col max-sm:items-start py-10'>
-                <Text strong className='block! py-10! text-lg! text-[#1e293b]!'>
+              <div className="flex items-center justify-between md:gap-10 max-sm:flex-col max-sm:items-start py-10">
+                <Text strong className="block! py-10! text-lg! text-[#1e293b]!">
                   Doanh thu theo chi nhánh
                 </Text>
                 <Select
@@ -380,7 +380,6 @@ const Dashboard = () => {
               </div>
             }
           >
-
             <ResponsiveContainer width="100%" height={350}>
               <ComposedChart
                 data={branchChartData?.length ? branchChartData : []}
@@ -818,10 +817,7 @@ const Dashboard = () => {
             <Title level={2} style={{ margin: 0, color: '#111827' }}>
               Dashboard
             </Title>
-            <Text
-              type="secondary"
-              className='text-sm! text-[#6b7280]! '
-            >
+            <Text type="secondary" className="text-sm! text-[#6b7280]! ">
               Tổng quan hiệu suất kinh doanh
             </Text>
           </Col>
@@ -938,8 +934,11 @@ const Dashboard = () => {
           <Card
             className="rounded-xl!"
             title={
-              <div className='flex items-center justify-between md:gap-10 max-sm:flex-col max-sm:items-start py-10'>
-                <Text strong className='text-[16px]! block! py-10! text-[#1f2937]!'>
+              <div className="flex items-center justify-between md:gap-10 max-sm:flex-col max-sm:items-start py-10">
+                <Text
+                  strong
+                  className="text-[16px]! block! py-10! text-[#1f2937]!"
+                >
                   Doanh thu & Lợi nhuận & Đơn hàng
                 </Text>
                 <RangePicker
@@ -948,7 +947,7 @@ const Dashboard = () => {
                   presets={getDatePresets()}
                   format="DD/MM/YYYY"
                   placeholder={['Từ ngày', 'Đến ngày']}
-                  className='h-35!'
+                  className="h-35!"
                   allowClear
                 />
               </div>
@@ -1167,7 +1166,7 @@ const Dashboard = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} lg={12}>
           <Card
-            className='rounded-xl! h-full!'
+            className="rounded-xl! h-full!"
             title={
               <div className="flex items-center gap-3 py-3">
                 <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
@@ -1182,15 +1181,14 @@ const Dashboard = () => {
               pagination={false}
               bordered
               rowKey="productId"
-              className='w-full! h-full!'
+              className="w-full! h-full!"
             />
           </Card>
-
         </Col>
 
         <Col xs={24} lg={12}>
           <Card
-            className='rounded-xl! h-full!'
+            className="rounded-xl! h-full!"
             title={
               <div className="flex items-center gap-3 py-3">
                 <Text strong style={{ fontSize: '18px', color: '#1f2937' }}>
@@ -1205,16 +1203,14 @@ const Dashboard = () => {
               pagination={false}
               rowKey="productId"
               bordered
-              className='w-full! h-full!'
+              className="w-full! h-full!"
             />
           </Card>
         </Col>
       </Row>
       {currentStats?.lastUpdated && (
-        <Card
-          className='text-center! border-none! bg-transparent!'
-        >
-          <Text className='text-[#6b7280]! text-sm!'>
+        <Card className="text-center! border-none! bg-transparent!">
+          <Text className="text-[#6b7280]! text-sm!">
             Cập nhật lần cuối:{' '}
             <Text strong style={{ color: '#374151' }}>
               {dayjs(currentStats.lastUpdated).format('DD/MM/YYYY - HH:mm:ss')}

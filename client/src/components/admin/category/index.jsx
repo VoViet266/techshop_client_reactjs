@@ -119,7 +119,6 @@ const ModalCategory = (props) => {
     }
 
     try {
-      console.log('categoryData', categoryData);
       const res = dataInit?._id
         ? await callUpdateCategory(categoryData)
         : await callCreateCategory(categoryData);

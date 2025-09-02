@@ -69,7 +69,7 @@ function Cart() {
             : item,
         ),
       };
-      console.log('Updated cart data:', updatedCartData);
+
       setCartData(updatedCartData);
       const response = await CartServices.update(
         cartData._id,
@@ -77,8 +77,6 @@ function Cart() {
       );
 
       if (response.status === 200) {
-        console.log('Cập nhật số lượng thành công');
-
         await getCart();
       } else {
         // Revert on failure

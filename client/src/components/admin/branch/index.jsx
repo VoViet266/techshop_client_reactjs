@@ -26,7 +26,6 @@ const ModalBranch = (props) => {
     try {
       const response = await callFetchUsers();
       const allUsers = response.data.data;
-      console.log('allUsers', allUsers);
 
       const onlyManagers = allUsers.filter((user) => {
         return user.role;

@@ -45,7 +45,12 @@ import {
 import { useAppContext } from '@/contexts';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ExpandedRowRender } from '@/components/admin/product/ExpandRowRender';
-import { BsCheckCircleFill, BsFillGridFill, BsFillStopCircleFill, BsTagFill } from 'react-icons/bs';
+import {
+  BsCheckCircleFill,
+  BsFillGridFill,
+  BsFillStopCircleFill,
+  BsTagFill,
+} from 'react-icons/bs';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -113,8 +118,6 @@ function ListProduct() {
       setLoading(false);
     }
   };
-
-  console.log('Loading:', loading);
 
   // ham(module, action) && button
 
@@ -366,29 +369,46 @@ function ListProduct() {
         <Row gutter={16} style={{ marginBottom: '10px' }}>
           <Col xs={12} sm={6}>
             <Card>
-              <span className='text-[#475569]!'>Tổng sản phẩm</span>
-              <div className='flex! items-center! gap-4! mt-6!'><BsFillGridFill className='text-[#4F46E5]! text-2xl!' /><span className='text-2xl! text-[#4F46E5]! font-bold!'>{stats.total}</span></div>
+              <span className="text-[#475569]!">Tổng sản phẩm</span>
+              <div className="flex! items-center! gap-4! mt-6!">
+                <BsFillGridFill className="text-[#4F46E5]! text-2xl!" />
+                <span className="text-2xl! text-[#4F46E5]! font-bold!">
+                  {stats.total}
+                </span>
+              </div>
             </Card>
           </Col>
           <Col xs={12} sm={6}>
             <Card>
-              <span className='text-[#475569]!'>Đang bán</span>
-              <div className='flex! items-center! gap-4! mt-6!'><BsCheckCircleFill className='text-[#8B5CF6]! text-2xl!' /><span className='text-2xl! text-[#8B5CF6]! font-bold!'>{stats.active}</span></div>
-              
+              <span className="text-[#475569]!">Đang bán</span>
+              <div className="flex! items-center! gap-4! mt-6!">
+                <BsCheckCircleFill className="text-[#8B5CF6]! text-2xl!" />
+                <span className="text-2xl! text-[#8B5CF6]! font-bold!">
+                  {stats.active}
+                </span>
+              </div>
             </Card>
           </Col>
           <Col xs={12} sm={6}>
             <Card>
-              <span className='text-[#475569]!'>Ngừng bán</span>
-              <div className='flex! items-center! gap-4! mt-6!'><BsFillStopCircleFill className='text-[#94A3B8]! text-2xl!' /><span className='text-2xl! text-[#94A3B8]! font-bold!'>{stats.inactive}</span></div>
-              
+              <span className="text-[#475569]!">Ngừng bán</span>
+              <div className="flex! items-center! gap-4! mt-6!">
+                <BsFillStopCircleFill className="text-[#94A3B8]! text-2xl!" />
+                <span className="text-2xl! text-[#94A3B8]! font-bold!">
+                  {stats.inactive}
+                </span>
+              </div>
             </Card>
           </Col>
           <Col xs={12} sm={6}>
             <Card>
-              <span className='text-[#475569]!'>Có giảm giá</span>
-              <div className='flex! items-center! gap-4! mt-6!'><BsTagFill className='text-[#EF4444]! text-2xl!' /><span className='text-2xl! text-[#EF4444]! font-bold!'>{stats.discounted}</span></div>
-              
+              <span className="text-[#475569]!">Có giảm giá</span>
+              <div className="flex! items-center! gap-4! mt-6!">
+                <BsTagFill className="text-[#EF4444]! text-2xl!" />
+                <span className="text-2xl! text-[#EF4444]! font-bold!">
+                  {stats.discounted}
+                </span>
+              </div>
             </Card>
           </Col>
         </Row>
@@ -407,7 +427,7 @@ function ListProduct() {
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
-                className='h-40!'
+                className="h-40!"
               />
             </Col>
 
@@ -449,7 +469,7 @@ function ListProduct() {
                 <Button
                   onClick={handleClearFilters}
                   icon={<ReloadOutlined />}
-                  className='h-40!'
+                  className="h-40!"
                 >
                   Xóa bộ lọc
                 </Button>
@@ -463,7 +483,7 @@ function ListProduct() {
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => navigate('/admin/product/add')}
-                  className='h-40!'
+                  className="h-40!"
                 >
                   Thêm sản phẩm
                 </Button>
@@ -473,7 +493,7 @@ function ListProduct() {
                   onClick={handleEditProduct}
                   disabled={!(selectedRowKeys.length === 1 && canUpdateProduct)}
                   icon={<EditOutlined />}
-                  className='h-40!'
+                  className="h-40!"
                   style={{
                     boxShadow:
                       selectedRowKeys.length === 1
@@ -489,7 +509,7 @@ function ListProduct() {
                   onClick={() => setOpen(true)}
                   disabled={selectedRowKeys.length === 0 || !canDeleteProduct}
                   icon={<DeleteOutlined />}
-                  className='h-40!'
+                  className="h-40!"
                   style={{
                     fontWeight: 500,
                   }}

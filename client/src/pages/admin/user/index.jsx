@@ -346,8 +346,6 @@ const UserManagement = () => {
 
   const handleSubmit = useCallback(
     async (values) => {
-      console.log('Submitting user data:', values);
-      console.log('Selected user:', selectedUser);
       setSubmitLoading(true);
       try {
         let response;

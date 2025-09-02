@@ -153,47 +153,40 @@ const ChatBot = () => {
               </div>
             )}
 
-            {chatHistory.map(
-              (msg, index) => (
-                console.log(msg),
-                (
+            {chatHistory.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in px-4 fade-in-0 slide-in-from-bottom-2 duration-300`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div
+                  className={`flex items-start gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
+                >
                   <div
-                    key={index}
-                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in px-4 fade-in-0 slide-in-from-bottom-2 duration-300`}
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    className={`px-15 py-10 rounded-lg my-10 shadow-none ${
+                      msg.sender === 'user'
+                        ? 'bg-primary! text-white'
+                        : 'bg-white text-gray-800 border border-gray-200'
+                    }`}
                   >
-                    <div
-                      className={`flex items-start gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
-                    >
-                      <div
-                        className={`px-15 py-10 rounded-lg my-10 shadow-none ${
-                          msg.sender === 'user'
-                            ? 'bg-primary! text-white'
-                            : 'bg-white text-gray-800 border border-gray-200'
-                        }`}
-                      >
-                        {msg.loading ? (
-                          <div className="flex items-center gap-8">
-                            <Spin size="small" />
-                            <span className="text-sm text-gray-500">
-                              Đang trả lời...
-                            </span>
-                          </div>
-                        ) : msg.sender === 'bot' ? (
-                          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                            {msg.text}
-                          </ReactMarkdown>
-                        ) : (
-                          <span className="whitespace-pre-line">
-                            {msg.text}
-                          </span>
-                        )}
+                    {msg.loading ? (
+                      <div className="flex items-center gap-8">
+                        <Spin size="small" />
+                        <span className="text-sm text-gray-500">
+                          Đang trả lời...
+                        </span>
                       </div>
-                    </div>
+                    ) : msg.sender === 'bot' ? (
+                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                        {msg.text}
+                      </ReactMarkdown>
+                    ) : (
+                      <span className="whitespace-pre-line">{msg.text}</span>
+                    )}
                   </div>
-                )
-              ),
-            )}
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="p-10 border-t border-gray-200 bg-white">

@@ -2,7 +2,6 @@ import { CameraOutlined, WifiOutlined } from '@ant-design/icons';
 import { Avatar, Card, Descriptions, Space, Tag, Typography } from 'antd';
 const { Text } = Typography;
 export const ExpandedRowRender = ({ record }) => {
-  console.log('ExpandedRowRender record:', record);
   const groupNameMapping = {
     specifications: 'Thông số kỹ thuật',
     connectivity: 'Kết nối',

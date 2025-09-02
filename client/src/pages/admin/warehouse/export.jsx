@@ -225,7 +225,6 @@ const WarehouseOutbound = () => {
         cost: v.cost || 0,
       }));
   };
-  console.log(getAvailableColors());
 
   // Lấy thông tin chi tiết của variant với màu cụ thể
   const getVariantColorInfo = (variantId, color) => {
@@ -351,7 +350,6 @@ const WarehouseOutbound = () => {
         setSelectedVariant(null);
       })
       .catch((errorInfo) => {
-        console.log('Validation failed:', errorInfo);
         notification.error({
           message: 'Vui lòng kiểm tra lại thông tin',
           description: 'Vui lòng điền đầy đủ thông tin bắt buộc',

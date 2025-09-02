@@ -237,7 +237,7 @@ const WarehouseInbound = () => {
           );
           return;
         }
-        console.log(values);
+
         const newItem = {
           id: Date.now(),
           productId: values.productId,
@@ -264,7 +264,6 @@ const WarehouseInbound = () => {
         message.success('Đã thêm sản phẩm vào danh sách nhập kho');
       })
       .catch((errorInfo) => {
-        console.log('Validation failed:', errorInfo);
         message.error('Vui lòng điền đầy đủ thông tin');
       });
   };
@@ -571,7 +570,7 @@ const WarehouseInbound = () => {
     0,
   );
   const totalValue = inboundItems.reduce((sum, item) => sum + item.total, 0);
-  console.log('Inbound Items:', totalValue);
+
   if (pageLoading) {
     return (
       <div

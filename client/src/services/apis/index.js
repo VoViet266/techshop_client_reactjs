@@ -136,13 +136,11 @@ export const callDeleteUser = (id) => {
   return axiosInstance.delete(`/api/v1/users/${id}`);
 };
 export const callUpdateUser = (value) => {
-  console.log('sca', value);
   return axiosInstance.patch(`/api/v1/users/${value._id}`, {
     ...value,
   });
 };
 export const callUpdateRoleUser = (value) => {
-  console.log('sca', value);
   return axiosInstance.patch(`/api/v1/users/${value.userId}`, {
     role: value.roleId,
     branch: value.branchId,
@@ -174,7 +172,6 @@ export const callFetchProductDetail = (id) => {
 };
 
 export const callUpdateProduct = (value) => {
-  console.log('sca', value);
   return axiosInstance.patch(`/api/v1/products/${value._id}`, {
     ...value,
   });
@@ -292,7 +289,6 @@ export const callFetchOrderByUserId = (userId) => {
   return axiosInstance.get(`/api/v1/orders/user/${userId}`);
 };
 export const callCreateOrder = (value) => {
-  console.log(value);
   return axiosInstance.post(`/api/v1/orders`, {
     ...value,
   });

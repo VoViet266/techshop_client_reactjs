@@ -36,8 +36,8 @@ function useLogin(message) {
         });
       }
     } catch (error) {
-      console.log('Lỗi khi đăng nhập:', error);
       message.destroy();
+      message.error('Đăng nhập thất bại');
 
       if (
         error.response.data.statusCode === 401 ||

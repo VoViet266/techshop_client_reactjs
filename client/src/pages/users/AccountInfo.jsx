@@ -535,7 +535,7 @@ const AccountInfoPage = () => {
       key: 'items',
       render: (item) => {
         if (!item) return 'Không có sản phẩm';
-        console.log(item);
+
         return item.map((i) => i?.product?.name).join(', ');
       },
     },
@@ -1030,8 +1030,6 @@ const AccountInfoPage = () => {
       </div>
     );
   }
-
-  console.log('Selected Order:', selectedOrder);
 
   const orderData = orders?.find((o) => o._id === selectedOrder?.id);
   const paymentStatus = {

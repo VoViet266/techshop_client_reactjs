@@ -116,7 +116,7 @@ const CreateOrderModal = ({
     setQuantity(1);
     message.success('Sản phẩm đã được thêm vào đơn hàng');
   };
-  console.log('orderData', orderData);
+
   const removeProductFromCart = (index) => {
     const newItems = orderData.items.filter((_, i) => i !== index);
     setOrderData({ ...orderData, items: newItems });
@@ -201,9 +201,6 @@ const CreateOrderModal = ({
       ?.find((p) => p._id === selectedProduct?.product?._id)
       ?.variants?.find((v) => v._id === selectedVariant?.variantId._id)
       ?.price || 0;
-  console.log('selectedProduct', selectedProduct);
-  console.log('selectedVariant', selectedVariant);
-  console.log('selectedColor', selectedColor);
 
   return (
     <Modal

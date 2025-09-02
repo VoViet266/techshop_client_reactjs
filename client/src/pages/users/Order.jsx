@@ -157,8 +157,6 @@ function Order() {
     setItems(itemList);
   };
 
-  console.log('Order:', order);
-
   useEffect(() => {
     if (items.length > 0) {
       setOrder({
@@ -262,7 +260,7 @@ function Order() {
 
   const handleOrder = async (order) => {
     let paymentInformation;
-    console.log('Order:', order);
+
     try {
       message.loading('Đang xử lý');
       const productService = new Products();
@@ -669,7 +667,6 @@ function Order() {
               onChange={(event) => {
                 const paymentMethod = event.target.value;
                 setPaymentMethod(paymentMethod);
-                console.log('Payment Method:', paymentMethod);
               }}
               defaultValue="cash"
               options={[

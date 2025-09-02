@@ -330,7 +330,6 @@ function ProductDetail() {
                             key={branch._id}
                             size="small"
                             onClick={() => {
-                              console.log('branch._id', branch._id);
                               setSelectBranchs(branch._id);
                             }}
                             className="hover:shadow-none! rounded-md! border-gray-300! cursor-default! transition-shadow"
@@ -491,7 +490,7 @@ function ProductDetail() {
                   <Row gutter={[8, 8]}>
                     {selectedVariant?.color?.map((color, index) => {
                       const isSelected = selectedColor === color.colorName;
-                      console.log(isSelected);
+
                       return (
                         <Col span={12} key={`color-${index}`}>
                           <div

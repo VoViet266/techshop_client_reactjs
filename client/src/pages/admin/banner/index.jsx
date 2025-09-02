@@ -279,7 +279,6 @@ const BannerManagement = () => {
                 icon={<EditOutlined />}
                 disabled={selectedRowKeys.length !== 1}
                 onClick={() => {
-                  console.log('selectedRows', selectedRows);
                   setDataInit(selectedRows[0]);
                   setOpenModal(true);
                 }}

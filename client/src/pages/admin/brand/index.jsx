@@ -245,7 +245,6 @@ const BrandManagement = () => {
           logoUrl = file.url;
         }
       }
-      console.log(logoUrl);
 
       if (dataInit) {
         await callUpdateBrand({

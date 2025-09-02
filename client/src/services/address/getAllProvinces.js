@@ -8,7 +8,7 @@ async function getAllProvinces() {
     }
     return provinces.data;
   } catch (error) {
-    console.log(`Lỗi: ${error.message}`);
+    throw error;
   }
 }
 
