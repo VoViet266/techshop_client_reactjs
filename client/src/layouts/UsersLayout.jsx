@@ -136,7 +136,7 @@ function Header() {
                   viewBox="0 0 44 44"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  class="mb:hidden"
+                  className="mb:hidden"
                 >
                   <rect width="44" height="44" rx="22" fill="#FECAB5"></rect>
                   <path

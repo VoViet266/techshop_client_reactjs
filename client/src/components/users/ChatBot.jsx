@@ -12,9 +12,9 @@ import {
 } from '@ant-design/icons';
 import { BsChatLeftFill, BsSearch } from 'react-icons/bs';
 import axiosInstance from '@/services/apis';
+import { useAppContext } from '@/contexts';
 
 const { Text } = Typography;
-
 // Component hiệu ứng typing
 const TypingEffect = ({ text, speed = 30 }) => {
   const [displayText, setDisplayText] = useState('');
@@ -47,6 +47,7 @@ const TypingEffect = ({ text, speed = 30 }) => {
 };
 
 const ChatBot = () => {
+  const { user } = useAppContext();
   const chatBoxRef = useRef(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,9 +79,15 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post(import.meta.env.VITE_RASA_URL, {
+      const payload = {
+        sender: user?._id,
         message: input,
-      });
+        metadata: {
+          accessToken: localStorage.getItem('access_token'),
+        }
+      }
+      print('Payload:', payload)
+      const response = await axiosInstance.post(import.meta.env.VITE_RASA_URL, payload);
 
       if (response.status === 200) {
         setChatHistory((prev) => {
