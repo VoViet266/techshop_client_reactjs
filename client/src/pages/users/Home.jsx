@@ -226,7 +226,10 @@ function Home() {
               {recommentProducts?.map((product, index) => {
                 if (index > 4) return;
                 return (
-                  <div key={index} className="lg:w-1/5 max-lg:w-1/2 max-sm:w-full max-lg:mt-16 px-8">
+                  <div
+                    key={index}
+                    className="lg:w-1/5 max-lg:w-1/2 max-sm:w-full max-lg:mt-16 px-8"
+                  >
                     <CardProduct
                       product={product}
                       loading={loading}

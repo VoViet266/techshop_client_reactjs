@@ -131,13 +131,13 @@ function PreviewListProducts({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <Slider {...settings} className="bg-white px-4! py-12! w-full rounded-xl! h-full">
+          <Slider
+            {...settings}
+            className="bg-white px-4! py-12! w-full rounded-xl! h-full"
+          >
             {products.map((product, index) => {
               return (
-                <div
-                  key={index}
-                  className="px-8 w-1/5"
-                >
+                <div key={index} className="px-8 w-1/5">
                   <CardProduct
                     product={product}
                     loading={loading}

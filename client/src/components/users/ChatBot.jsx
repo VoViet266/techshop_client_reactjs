@@ -1,20 +1,19 @@
-import axios from 'axios';
 import rehypeRaw from 'rehype-raw';
 import ReactMarkdown from 'react-markdown';
 import { useState, useRef, useEffect } from 'react';
+import SpeechToTextButton from './SpeechToTextButton';
 import { Button, Input, Flex, Typography, Spin } from 'antd';
 import {
   SendOutlined,
   MessageOutlined,
   CloseOutlined,
   RobotOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
-import { BsChatLeftFill, BsSearch } from 'react-icons/bs';
+import { BsChatLeftFill } from 'react-icons/bs';
 import axiosInstance from '@/services/apis';
+import { useAppContext } from '@/contexts';
 
 const { Text } = Typography;
-
 // Component hiệu ứng typing
 const TypingEffect = ({ text, speed = 30 }) => {
   const [displayText, setDisplayText] = useState('');
@@ -47,6 +46,7 @@ const TypingEffect = ({ text, speed = 30 }) => {
 };
 
 const ChatBot = () => {
+  const { user } = useAppContext();
   const chatBoxRef = useRef(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,6 +55,11 @@ const ChatBot = () => {
     { sender: 'bot', text: 'Xin chào! Tôi có thể giúp gì cho bạn?' },
   ]);
   const [latestBotMessageIndex, setLatestBotMessageIndex] = useState(-1);
+  // ----------------------------------------------------------------
+  // THÊM VÀO: Các ref và state mới cho speech-to-text
+  const inputRef = useRef(null); // Ref để focus vào ô input
+  const wasRecordingRef = useRef(false); // Ref theo dõi trạng thái ghi âm
+  const [isRecording, setIsRecording] = useState(false); // State đang ghi âm
 
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -62,7 +67,32 @@ const ChatBot = () => {
     }
   }, [chatHistory]);
 
+  // ----------------------------------------------------------------
+  // THÊM VÀO: useEffect để focus vào input sau khi nói xong
+  useEffect(() => {
+    // Nếu trước đó đang ghi (true) và bây giờ đã dừng (false)
+    if (wasRecordingRef.current && !isRecording) {
+      inputRef.current?.focus(); // Focus vào ô input
+    }
+    // Cập nhật trạng thái trước đó
+    wasRecordingRef.current = isRecording;
+  }, [isRecording]); // Chạy mỗi khi state 'isRecording' thay đổi
+  // ----------------------------------------------------------------
+
   const toggleChat = () => setVisible(!visible);
+
+  // ----------------------------------------------------------------
+  // THÊM VÀO: 2 hàm callback cho component micro
+  const handleTranscript = (text) => {
+    setInput(text);
+    // Tùy chọn: Bạn có thể bỏ comment dòng dưới để tự động gửi sau khi nói
+    // handleSend(text); 
+  };
+
+  const handleListeningChange = (isListening) => {
+    setIsRecording(isListening);
+  };
+  // ----------------------------------------------------------------
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -78,15 +108,27 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post(import.meta.env.VITE_RASA_URL, {
+      const payload = {
+        sender: user?._id,
         message: input,
-      });
+        metadata: {
+          accessToken: localStorage.getItem('access_token'),
+        },
+      };
+      const response = await axiosInstance.post(
+        import.meta.env.VITE_RASA_URL,
+        payload,
+      );
 
       if (response.status === 200) {
         setChatHistory((prev) => {
           const newHistory = [
             ...prev.slice(0, -1), // Xóa phần tử loading cuối cùng
-            { sender: 'bot', text: response.data?.[0]?.text, typing: true },
+            {
+              sender: 'bot',
+              text: response.data?.[0]?.text || response.data?.[0]?.custom,
+              typing: true,
+            },
           ];
           // Cập nhật index của tin nhắn bot mới nhất
           setLatestBotMessageIndex(newHistory.length - 1);
@@ -176,9 +218,6 @@ const ChatBot = () => {
                       </div>
                     ) : msg.sender === 'bot' ? (
                       <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-                      // <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                      //   {msg.text}
-                      // </ReactMarkdown>
                     ) : (
                       <span className="whitespace-pre-line">{msg.text}</span>
                     )}
@@ -190,6 +229,16 @@ const ChatBot = () => {
 
           <div className="p-10 border-t border-gray-200 bg-white">
             <div className="rounded-full! relative">
+              {/* ---------------------------------------------------------------- */}
+              {/* THÊM VÀO: Đặt nút micro ở đây */}
+              <SpeechToTextButton
+                onTranscript={handleTranscript}
+                onListeningChange={handleListeningChange}
+                // Dùng style của nút Send, nhưng đổi 'right-6' thành 'left-6'
+                // và đổi màu text
+                className="absolute! right-26! flex! items-center! w-30! h-30! justify-center! rounded-full! bg-transparent! border-none! shadow-none! text-gray-500! z-10! top-1/2! -translate-y-1/2! hover:text-primary!"
+              />
+              {/* ---------------------------------------------------------------- */}
               <Button
                 onClick={handleSend}
                 icon={
@@ -197,16 +246,29 @@ const ChatBot = () => {
                 }
                 className="absolute! flex! items-center! w-30! h-30! justify-center! right-6! rounded-full! bg-transparent! border-none! shadow-none! text-white! z-10! top-1/2! -translate-y-1/2!"
               ></Button>
-              <Input
+              {/* <Input
                 value={input}
-                // onSearch={handleSend}
                 onPressEnter={handleSend}
                 placeholder="Nhập câu hỏi của bạn..."
                 onChange={(e) => setInput(e.target.value)}
                 disabled={loading}
                 className="rounded-full! px-12! placeholder:text-sm! text-sm!"
                 size="large"
+              /> */}
+              {/* ---------------------------------------------------------------- */}
+              {/* SỬA ĐỔI: Thêm 3 props vào <Input /> */}
+              <Input
+                ref={inputRef} // 1. Thêm ref
+                value={input}
+                onPressEnter={handleSend}
+                placeholder="Nhập câu hỏi của bạn..."
+                onChange={(e) => setInput(e.target.value)}
+                disabled={loading || isRecording} // 2. Thêm || isRecording
+                status={isRecording ? 'error' : ''} // 3. Thêm status 'error'
+                className="rounded-full! px-12! placeholder:text-sm! text-sm!"
+                size="large"
               />
+              {/* ---------------------------------------------------------------- */}
             </div>
           </div>
         </div>
