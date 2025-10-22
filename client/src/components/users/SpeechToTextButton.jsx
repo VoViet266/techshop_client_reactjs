@@ -1,7 +1,7 @@
 // SpeechToTextButton.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'antd';
-import { AudioOutlined } from '@ant-design/icons';
+import { AudioOutlined, LoadingOutlined } from '@ant-design/icons';
 
 const SpeechToTextButton = ({ onTranscript, onListeningChange, className }) => {
   const [isListening, setIsListening] = useState(false);
@@ -90,7 +90,7 @@ const SpeechToTextButton = ({ onTranscript, onListeningChange, className }) => {
       type="text" // Kiểu 'text' cho nó hòa vào input
       shape="circle"
       danger={isListening} // Tự động chuyển sang màu đỏ khi isListening = true
-      icon={<AudioOutlined />}
+      icon={isListening ? <LoadingOutlined /> : <AudioOutlined />}
       onClick={handleClick}
       title={isListening ? 'Đang ghi âm...' : 'Nhấn để nói'}
       className={className} // Nhận className từ cha để định vị
