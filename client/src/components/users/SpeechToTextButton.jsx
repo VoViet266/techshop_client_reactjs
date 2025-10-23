@@ -90,10 +90,16 @@ const SpeechToTextButton = ({ onTranscript, onListeningChange, className }) => {
       type="text" // Kiểu 'text' cho nó hòa vào input
       shape="circle"
       danger={isListening} // Tự động chuyển sang màu đỏ khi isListening = true
-      icon={isListening ? <LoadingOutlined /> : <AudioOutlined />}
+      icon={
+        isListening ? (
+          <LoadingOutlined size={20} />
+        ) : (
+          <AudioOutlined size={20} />
+        )
+      }
       onClick={handleClick}
       title={isListening ? 'Đang ghi âm...' : 'Nhấn để nói'}
-      className={className} // Nhận className từ cha để định vị
+      className={className}
     />
   );
 };
