@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import {
   Tag,
   Card,
@@ -19,12 +20,10 @@ import { useAppContext } from '@contexts';
 import { useNavigate } from 'react-router-dom';
 import UserService from '@services/users';
 import CartServices from '@services/carts';
-import { useState, useEffect, use } from 'react';
 import Products from '@/services/products';
 import BranchService from '@services/branches';
-import InventoryService from '@services/inventories';
 import Address from '@/services/address';
-import { set } from 'react-hook-form';
+import MapPickerModal from '@/components/app/MapPickerModal';
 
 function Order() {
   const navigate = useNavigate();
@@ -39,32 +38,48 @@ function Order() {
   const [provinces, setProvinces] = useState([]);
   const [wards, setWards] = useState([]);
   const [districts, setDistricts] = useState([]);
-  const [selectedWard, setSelectedWard] = useState([]);
+  const [selectedWard, setSelectedWard] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [order, setOrder] = useState(null);
-  const [items, setItems] = useState([]);
   const [userTypeAddress, setUserTypeAddress] = useState({
     specificAddress: '',
     addressDetail: '',
   });
-  const [inventories, setInventories] = useState(null);
+
+  // [THÊM] State để lưu ID chi nhánh đã chọn
   const [selectedBranch, setSelectedBranch] = useState(null);
-  const [selectedAddress, setSelectedAddress] = useState(null);
+
+  const [selectedAddress, setSelectedAddress] = useState(null); // State này giờ chỉ dùng để lưu địa chỉ (giao hàng) hoặc (chuỗi text chi nhánh)
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [shippingMethod, setShippingMethod] = useState('Giao hàng tận nơi');
+  const [selectedCoords, setSelectedCoords] = useState(null);
+  const [isMapModalOpen, setMapModalOpen] = useState(false);
 
   const total = cartItems.reduce((acc, item) => {
     return acc + item.price * item.quantity;
   }, 0);
 
-  const discount = cartItems.reduce((acc, item) => {
-    return acc + item.price * item.quantity * (item.product.discount / 100);
-  }, 0);
-
   useEffect(() => {
     document.title = 'Đặt hàng';
-  }, []);
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchProvinces(),
+          getCart(),
+          getAllBranches(),
+          getUserInfo(),
+        ]);
+      } catch (err) {
+        console.error('Lỗi khi tải dữ liệu ban đầu:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [user]);
 
   const fetchProvinces = async () => {
     try {
@@ -74,113 +89,6 @@ function Order() {
       message.error('Không thể tải danh sách tỉnh/thành phố');
     }
   };
-
-  useEffect(() => {
-    fetchProvinces();
-  }, []);
-
-  useEffect(() => {
-    if (selectedProvince) {
-      fetchDistricts(selectedProvince.code);
-      setSelectedDistrict(null);
-      setSelectedWard(null);
-    }
-  }, [selectedProvince]);
-
-  useEffect(() => {
-    if (selectedDistrict) {
-      fetchWards(selectedDistrict.code);
-      setSelectedWard(null);
-    }
-  }, [selectedDistrict]);
-
-  const fetchDistricts = async (provinceCode) => {
-    try {
-      const districtsData = await Address.getDistricts(provinceCode);
-      setDistricts(districtsData);
-      return districtsData;
-    } catch (error) {
-      message.error('Không thể tải danh sách quận/huyện');
-    }
-  };
-
-  const fetchWards = async (districtCode) => {
-    try {
-      const wardsData = await Address.getWards(districtCode);
-      setWards(wardsData);
-      return wardsData;
-    } catch (error) {
-      message.error('Không thể tải danh sách xã/phường');
-    }
-  };
-
-  const checkStock = async (branchId, variantId, productId) => {
-    try {
-      const response = await InventoryService.getStockProduct(
-        branchId,
-        variantId,
-        productId,
-      );
-      if (response.status === 200) {
-        return response.data.data > 0;
-      }
-    } catch (error) {}
-  };
-
-  const getItems = async () => {
-    const itemList = await Promise.all(
-      cartItems.map(async (item) => {
-        let branch = null;
-
-        for (const b of branches) {
-          const isInStock = await checkStock(
-            b._id,
-            item.variant._id,
-            item.product._id,
-          );
-          if (isInStock) {
-            branch = b._id;
-            break;
-          }
-        }
-
-        return {
-          product: item.product._id,
-          variant: item.variant._id,
-          quantity: item.quantity,
-          price: item.price,
-          branch,
-        };
-      }),
-    );
-
-    setItems(itemList);
-  };
-
-  useEffect(() => {
-    if (items.length > 0) {
-      setOrder({
-        user: user?._id,
-        totalPrice: total,
-        status: 'pending',
-        recipient: {
-          name: fullName,
-          phone: phone || userInfo?.phone,
-          address: canChooseAddress
-            ? `${userTypeAddress?.addressDetail}, ${userTypeAddress?.specificAddress}`
-            : selectedAddress || '',
-        },
-        buyer: {
-          name: userInfo?.name || fullName,
-          phone: userInfo?.phone || phone,
-        },
-        items: items,
-        branch: selectedBranch,
-        shippingAddress: selectedAddress || '',
-        paymentMethod: paymentMethod,
-      });
-    }
-  }, [items, phone, paymentMethod]);
 
   const getCart = async () => {
     try {
@@ -194,15 +102,22 @@ function Order() {
     }
   };
 
-  const getUser = async () => {
+  const getUserInfo = async () => {
+    if (!user || !user._id) {
+    }
     try {
       const response = await UserService.get(user._id);
       if (response.status === 200) {
         setUserInfo(response.data.data);
-        setLoading(false);
-        return;
+        setPhone(response.data.data.phone || '');
+        const defaultAddress = response.data.data.addresses?.find(
+          (addr) => addr.default === true,
+        );
+        if (defaultAddress) {
+          const fullAddress = `${defaultAddress.addressDetail}, ${defaultAddress.specificAddress}`;
+          setSelectedAddress(fullAddress);
+        }
       }
-      throw new Error('Lỗi khi lấy thông tin người dùng.');
     } catch (error) {
       console.error('Lỗi khi lấy thông tin người dùng:', error);
     }
@@ -213,7 +128,6 @@ function Order() {
       const response = await BranchService.getAll();
       if (response.status === 200) {
         setBranches(response.data.data);
-        return;
       }
     } catch (error) {
       console.error('Lỗi khi lấy danh sách chi nhánh:', error);
@@ -221,28 +135,112 @@ function Order() {
   };
 
   useEffect(() => {
-    if (inventories) {
-      const branchIds = [...new Set(inventories.map((inv) => inv.branch._id))];
-      const availableBranchIds = branchIds.filter((branchId) => {
-        // Với mỗi item trong items, kiểm tra có inventory nào cùng branch, cùng product, cùng variant và đủ stock không
-        return items.every((item) => {
-          // Tìm inventory ứng với branch, product, variant
-          const inv = inventories.find(
-            (inv) =>
-              inv.branch._id === branchId &&
-              inv.product._id === item.product &&
-              inv.variants.some(
-                (v) =>
-                  v.variantId._id === item.variant && v.stock >= item.quantity,
-              ),
-          );
-          return !!inv;
-        });
-      });
-
-      setSelectedBranch(availableBranchIds[0]);
+    if (selectedProvince) {
+      fetchDistricts(selectedProvince.code);
     }
-  }, [inventories]);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (selectedDistrict) {
+      fetchWards(selectedDistrict.code);
+    }
+    setSelectedWard(null);
+  }, [selectedDistrict]);
+
+  const fetchDistricts = async (provinceCode) => {
+    try {
+      const districtsData = await Address.getDistricts(provinceCode);
+      setDistricts(districtsData);
+    } catch (error) {
+      message.error('Không thể tải danh sách quận/huyện');
+    }
+  };
+
+  const fetchWards = async (districtCode) => {
+    try {
+      const wardsData = await Address.getWards(districtCode);
+      setWards(wardsData);
+    } catch (error) {
+      message.error('Không thể tải danh sách xã/phường');
+    }
+  };
+
+  const handleLocationSelect = ({ coordinates, address }) => {
+    setSelectedCoords(coordinates);
+    setUserTypeAddress({
+      specificAddress: address,
+      addressDetail: '',
+    });
+    setCanChooseAddress(true);
+    setShippingMethod('Giao hàng tận nơi');
+    setMapModalOpen(false); // Đóng modal
+  };
+
+  // --- Logic Xây Dựng Object `Order` ---
+  useEffect(() => {
+    if (cartItems.length === 0) return;
+
+    let finalAddress = '';
+    if (shippingMethod === 'Giao hàng tận nơi') {
+      if (canChooseAddress) {
+        finalAddress = `${userTypeAddress.specificAddress}${
+          userTypeAddress.addressDetail
+            ? ', ' + userTypeAddress.addressDetail
+            : ''
+        }`;
+      } else {
+        finalAddress = selectedAddress || '';
+      }
+    } else {
+      // Nhận tại cửa hàng
+      finalAddress = selectedAddress || ''; // (selectedAddress lúc này là địa chỉ chi nhánh)
+    }
+
+    // [SỬA] Bỏ 'branch' ra khỏi items, vì nó sẽ nằm ở cấp cao nhất của order
+    const items = cartItems.map((item) => ({
+      product: item.product._id,
+      variant: item.variant._id,
+      quantity: item.quantity,
+      price: item.price,
+      branch: item.branch,
+    }));
+
+    setOrder({
+      user: user?._id,
+      totalPrice: total,
+      status: 'pending',
+      recipient: {
+        name: fullName,
+        phone: phone || userInfo?.phone,
+        address: finalAddress, // Đây là địa chỉ giao hàng, hoặc chuỗi text của chi nhánh
+      },
+      buyer: {
+        name: userInfo?.name || fullName,
+        phone: userInfo?.phone || phone,
+      },
+      items: items,
+      paymentMethod: paymentMethod,
+      source: 'ONLINE',
+      paymentStatus: 'PENDING',
+      recipientLocation: selectedCoords,
+    });
+  }, [
+    cartItems,
+    fullName,
+    phone,
+    userInfo,
+    shippingMethod,
+    canChooseAddress,
+    userTypeAddress,
+    selectedAddress,
+    selectedCoords,
+    paymentMethod,
+    total,
+    user,
+    selectedBranch, // [THÊM] Thêm dependency
+  ]);
 
   const handlePayment = async (paymentInformation) => {
     try {
@@ -255,16 +253,25 @@ function Order() {
       }
     } catch (error) {
       console.error('Đã có lỗi:', error);
+      message.error('Tạo thanh toán thất bại');
     }
   };
 
-  const handleOrder = async (order) => {
-    let paymentInformation;
+  const handleOrder = async () => {
+    if (!canOrder) {
+      message.warning('Vui lòng điền đầy đủ thông tin giao hàng.');
+      return;
+    }
 
+    let paymentInformation;
     try {
       message.loading('Đang xử lý');
       const productService = new Products();
+
+      console.log('Gửi Order lên server:', order); // KIỂM TRA DỮ LIỆU GỬI ĐI
+
       const response = await productService.order(order);
+
       if (response.status === 201) {
         paymentInformation = {
           order: response.data.data._id,
@@ -285,57 +292,15 @@ function Order() {
       throw new Error('Đặt hàng thất bại');
     } catch (error) {
       message.destroy();
-      message.error('Đặt hàng thất bại');
+      message.error(error.response?.data?.message || 'Đặt hàng thất bại');
       console.error('Đặt hàng thất bại', error);
     }
   };
 
-  useEffect(() => {
-    getCart();
-    getAllBranches();
-    if (user && user._id) {
-      getUser();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (cartItems.length > 0 && branches.length > 0) {
-      getItems();
-    }
-  }, [cartItems, branches]);
-
-  useEffect(() => {
-    if (userInfo) {
-      const defaultAddress = userInfo.addresses?.find(
-        (address) => address.default,
-      );
-      setSelectedAddress(
-        `${defaultAddress?.addressDetail}, ${defaultAddress?.specificAddress}`,
-      );
-    }
-  }, [userInfo]);
-
-  useEffect(() => {
-    if (shippingMethod === 'Giao hàng tận nơi' && userInfo) {
-      const defaultAddress = userInfo.addresses?.find(
-        (address) => address.default,
-      );
-      setSelectedAddress(defaultAddress?.addressDetail);
-      return;
-    }
-
-    if (branches.length > 0) {
-      const selectedAddress = branches[0].address;
-      setSelectedAddress(selectedAddress);
-    }
-  }, [shippingMethod]);
-
   const canOrder =
-    (order && order?.recipient.phone && order?.recipient.address) ||
-    order?.buyer.phone ||
-    selectedAddress;
-
-  let addressDisplay;
+    order?.recipient?.name &&
+    order?.recipient?.phone &&
+    order?.recipient?.address;
 
   if (loading) {
     return (
@@ -348,15 +313,19 @@ function Order() {
   return (
     <Flex gap={12} className="w-full! py-20!">
       <Flex vertical gap={12} className="print:hidden! w-[55%]!">
+        {/* Card 1: Sản phẩm */}
         <Card className="w-full! rounded-md border-none!">
           <Typography.Title level={5} className="m-0! mb-8!">
             {`Sản phẩm trong đơn (${cartItems.length})`}
           </Typography.Title>
-
           {cartItems.map((item, index) => {
-            const color = item.variant.color.find(
-              (color) => color.colorName === item.color,
+            const color = item.variant.color?.find(
+              (c) => c.colorName === item.color,
             );
+            const imageUrl =
+              color?.images?.[0] ||
+              item.product?.images?.[0] ||
+              'placeholder.png';
 
             return (
               <Card key={index} className="rounded-xl! border-none!">
@@ -365,15 +334,13 @@ function Order() {
                     width={70}
                     height={70}
                     preview={false}
-                    src={color.images[0]}
+                    src={imageUrl}
                     className=" ! flex! items-center! justify-center!"
                   />
-
                   <div className="flex-1">
                     <Typography.Text className="font-bold  text-[12px] flex! gap-8 items-center! text-base leading-5">
                       {item.variant.name}
                     </Typography.Text>
-
                     <Flex
                       align="start"
                       className="mt-4 flex! flex-col!"
@@ -383,7 +350,7 @@ function Order() {
                         Số lượng: {item?.quantity}
                       </Typography.Text>
                       <Typography.Text type="secondary">
-                        {`Màu sắc: ${color.colorName}`}
+                        {`Màu sắc: ${item.color}`}
                       </Typography.Text>
                       {item.variant.memory && (
                         <Typography.Text type="secondary">
@@ -392,7 +359,6 @@ function Order() {
                       )}
                     </Flex>
                   </div>
-
                   <div className="text-right">
                     <div className="text-red-600 font-semibold text-lg">
                       {`${formatCurrency(item.price * item?.quantity)}đ`}
@@ -404,11 +370,11 @@ function Order() {
           })}
         </Card>
 
+        {/* Card 2: Thông tin người nhận */}
         <Card className="w-full! rounded-md border-none!">
           <Typography.Title level={5} className="m-0! mb-8!">
             Thông tin người nhận hàng
           </Typography.Title>
-
           <Flex
             gap={4}
             vertical
@@ -434,7 +400,7 @@ function Order() {
               Số điện thoại
             </Typography.Text>
             <Input
-              value={phone || userInfo?.phone}
+              value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full! flex-1 py-8!"
             />
@@ -446,9 +412,16 @@ function Order() {
               gap={8}
               className="w-full! mt-20!"
             >
-              <Typography.Text strong className="">
-                Địa chỉ
-              </Typography.Text>
+              <Typography.Text strong>Địa chỉ</Typography.Text>
+              <Button
+                type="link"
+                onClick={() => {
+                  setShippingMethod('Giao hàng tận nơi');
+                  setMapModalOpen(true);
+                }}
+              >
+                Chọn trên bản đồ
+              </Button>
               <Switch
                 checked={canChooseAddress}
                 onChange={(checked) => {
@@ -471,9 +444,10 @@ function Order() {
                     className="w-full!"
                     value={selectedProvince?.code}
                     placeholder="Chọn Tỉnh/Thành phố"
-                    options={provinces.map((province) => {
-                      return { label: province.name, value: province.code };
-                    })}
+                    options={provinces.map((province) => ({
+                      label: province.name,
+                      value: province.code,
+                    }))}
                     onChange={(value) => {
                       const province = provinces.find((p) => p.code === value);
                       setSelectedProvince(province);
@@ -481,26 +455,22 @@ function Order() {
                         ...userTypeAddress,
                         addressDetail: province.name,
                       });
-                      // Reset District/Ward khi chọn Tỉnh mới
-                      setSelectedDistrict(null);
-                      setSelectedWard(null);
-                      fetchDistricts(value);
                     }}
                   />
                 </Flex>
-
                 <Flex vertical className="w-1/3!">
                   <Typography.Text strong className="mb-4">
                     Quận/Huyện
                   </Typography.Text>
                   <Select
-                    disabled={!canChooseAddress}
+                    disabled={!canChooseAddress || !selectedProvince}
                     className="w-full!"
                     value={selectedDistrict?.code}
                     placeholder="Chọn Quận/Huyện"
-                    options={districts.map((district) => {
-                      return { label: district.name, value: district.code };
-                    })}
+                    options={districts.map((district) => ({
+                      label: district.name,
+                      value: district.code,
+                    }))}
                     onChange={(value) => {
                       const district = districts.find((d) => d.code === value);
                       setSelectedDistrict(district);
@@ -508,37 +478,35 @@ function Order() {
                         ...userTypeAddress,
                         addressDetail: `${selectedProvince.name}, ${district.name}`,
                       });
-                      setSelectedWard(null);
-                      fetchWards(value);
                     }}
                   />
                 </Flex>
-
                 <Flex vertical className="flex-1!">
                   <Typography.Text strong className="mb-4">
                     Xã/Phường
                   </Typography.Text>
                   <Select
-                    disabled={!canChooseAddress}
+                    disabled={!canChooseAddress || !selectedDistrict}
                     value={selectedWard?.code}
                     placeholder="Chọn Xã/Phường"
-                    options={wards.map((ward) => {
-                      return { label: ward.name, value: ward.code };
-                    })}
+                    options={wards.map((ward) => ({
+                      label: ward.name,
+                      value: ward.code,
+                    }))}
                     onChange={(value) => {
                       const ward = wards.find((w) => w.code === value);
+                      setSelectedWard(ward);
                       setUserTypeAddress({
                         ...userTypeAddress,
                         addressDetail: `${selectedProvince.name}, ${selectedDistrict.name}, ${ward.name}`,
                       });
-                      setSelectedWard(ward);
                     }}
                   />
                 </Flex>
               </Flex>
               <Flex vertical className="mt-8! w-full!">
                 <Typography.Text strong className="mb-4">
-                  Địa chỉ chi tiết
+                  Địa chỉ chi tiết (Số nhà, tên đường)
                 </Typography.Text>
                 <Input.TextArea
                   disabled={!canChooseAddress}
@@ -557,11 +525,11 @@ function Order() {
           </Flex>
         </Card>
 
+        {/* Card 3: Hình thức nhận hàng & Thanh toán */}
         <Card className="w-full! rounded-md border-none!">
           <Typography.Title level={5} className="m-0! mb-8!">
             Thông tin nhận hàng
           </Typography.Title>
-
           <Flex
             gap={4}
             vertical
@@ -570,13 +538,37 @@ function Order() {
             className="w-full!"
           >
             <Typography.Text strong>Hình thức nhận hàng</Typography.Text>
+            {/* [SỬA] Logic onChange của Radio Group */}
             <Radio.Group
               name="radiogroup"
               onChange={(event) => {
-                const shippingMethod = event.target.value;
-                setShippingMethod(shippingMethod);
-                if (shippingMethod === 'Nhận tại cửa hàng') {
+                const method = event.target.value;
+                setShippingMethod(method);
+                if (method === 'Nhận tại cửa hàng') {
                   setCanChooseAddress(false);
+                  setSelectedCoords(null); // Xóa tọa độ nếu có
+                  // Tự động chọn chi nhánh đầu tiên
+                  if (branches.length > 0) {
+                    const firstBranch = branches[0];
+                    setSelectedBranch(firstBranch._id); // [SỬA] Lưu ID
+                    setSelectedAddress(
+                      `${firstBranch.name} - ${firstBranch.address}`, // [SỬA] Lưu chuỗi text
+                    );
+                  }
+                } else {
+                  // Giao hàng tận nơi
+                  setSelectedBranch(null); // [SỬA] Xóa ID chi nhánh
+                  // Tự động chọn địa chỉ mặc định
+                  const defaultAddress = userInfo?.addresses?.find(
+                    (a) => a.default,
+                  );
+                  if (defaultAddress) {
+                    setSelectedAddress(
+                      `${defaultAddress.addressDetail}, ${defaultAddress.specificAddress}`,
+                    );
+                  } else {
+                    setSelectedAddress(null);
+                  }
                 }
               }}
               value={shippingMethod}
@@ -586,72 +578,72 @@ function Order() {
               ]}
             />
           </Flex>
+
+          {/* Select Địa chỉ có sẵn (Không đổi) */}
           {shippingMethod === 'Giao hàng tận nơi' && (
             <Flex
               gap={4}
               vertical
               align="start"
               justify="center"
-              className="w-full!"
+              className="w-full! mt-8!"
             >
-              <Typography.Text strong className="mt-8!">
-                Địa chỉ
-              </Typography.Text>
+              <Typography.Text strong>Địa chỉ</Typography.Text>
               <Select
                 disabled={canChooseAddress}
                 showSearch
                 className="w-full! flex-1!"
-                placeholder="Chọn địa chỉ"
-                onClick={(event) => {
-                  const selectedAddress = event.target.textContent;
-                  setSelectedAddress(selectedAddress);
-                }}
+                placeholder="Chọn địa chỉ đã lưu"
+                value={selectedAddress}
+                onChange={(value) => setSelectedAddress(value)}
                 optionFilterProp="label"
-                defaultValue={() => {
-                  const userAddress = userInfo?.addresses?.filter(
-                    (address) => address.default === true,
-                  )[0];
-                  if (!userAddress) return 'Chưa có địa chỉ';
-                  return `${userAddress?.addressDetail}, ${userAddress?.specificAddress}`;
-                }}
                 options={userInfo?.addresses?.map((address) => {
+                  const fullAddress = `${address?.addressDetail}, ${address?.specificAddress}`;
                   return {
-                    value: `${address?.addressDetail}, ${address?.specificAddress}`,
-                    label: `${address?.addressDetail}, ${address?.specificAddress}`,
+                    value: fullAddress,
+                    label: fullAddress,
                   };
                 })}
               />
             </Flex>
           )}
 
+          {/* [SỬA] Select Nhận tại cửa hàng (lưu ID) */}
           {shippingMethod === 'Nhận tại cửa hàng' && (
             <Flex
               gap={4}
               vertical
               align="start"
               justify="center"
-              className="w-full!"
+              className="w-full! mt-8!"
             >
               <Typography.Text strong>Chọn cửa hàng</Typography.Text>
               <Select
                 showSearch
                 className="w-full! flex-1!"
-                placeholder="Select a person"
+                placeholder="Chọn cửa hàng"
                 optionFilterProp="label"
-                onClick={(event) => {
-                  const selectedAddress = event.target.textContent;
-                  setSelectedAddress(selectedAddress);
+                value={selectedBranch} // [SỬA] Value là ID
+                onChange={(value) => {
+                  // value bây giờ là ID
+                  const branch = branches.find((b) => b._id === value);
+                  if (branch) {
+                    setSelectedBranch(branch._id); // Lưu ID
+                    setSelectedAddress(`${branch.name} - ${branch.address}`); // Lưu chuỗi text
+                  }
                 }}
-                defaultValue={`${branches[0]?.name} - ${branches[0]?.address}`}
+                // [SỬA] Gán value là branch._id
                 options={branches.map((branch) => {
                   return {
-                    value: `${branch.name} - ${branch.address}`,
+                    value: branch._id,
                     label: `${branch.name} - ${branch.address}`,
                   };
                 })}
               />
             </Flex>
           )}
+
+          {/* Phương thức thanh toán (Không đổi) */}
           <Flex
             gap={4}
             vertical
@@ -664,36 +656,28 @@ function Order() {
             </Typography.Text>
             <Radio.Group
               name="radiogroup"
-              onChange={(event) => {
-                const paymentMethod = event.target.value;
-                setPaymentMethod(paymentMethod);
-              }}
-              defaultValue="cash"
+              onChange={(event) => setPaymentMethod(event.target.value)}
+              value={paymentMethod}
               options={[
-                {
-                  value: 'cash',
-                  label: 'Thanh toán khi nhận hàng',
-                },
-                {
-                  value: 'momo',
-                  label: 'Thanh toán qua Momo',
-                },
+                { value: 'cash', label: 'Thanh toán khi nhận hàng' },
+                { value: 'momo', label: 'Thanh toán qua Momo' },
               ]}
             />
           </Flex>
         </Card>
       </Flex>
+
+      {/* Cột phải: Thông tin đơn hàng (Không đổi) */}
       <Flex vertical className="flex-1! items-start">
         <Card className="print:p-0! w-full! border-none!">
           <Typography.Title level={5} className="m-0! mb-16!">
             Thông tin đơn hàng
           </Typography.Title>
-
           <div className="flex flex-col gap-10">
             <Flex justify="space-between">
               <Typography.Text className="text-sm!">Họ và tên</Typography.Text>
               <Typography.Text className="text-sm!">
-                {user.name}
+                {fullName || user.name}
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
@@ -702,7 +686,7 @@ function Order() {
                 Số điện thoại
               </Typography.Text>
               <Typography.Text className="text-sm!">
-                {userInfo.phone || phone || 'Chưa có'}
+                {phone || userInfo?.phone || 'Chưa có'}
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
@@ -719,12 +703,16 @@ function Order() {
               <Typography.Text className="text-sm! w-[20%]!">
                 Địa chỉ
               </Typography.Text>
-              <Typography.Text className="text-sm!">
-                {!canChooseAddress
-                  ? selectedAddress
-                    ? selectedAddress
-                    : 'Chưa có'
-                  : `${userTypeAddress?.addressDetail || ''}, ${userTypeAddress.specificAddress || ''}`}
+              <Typography.Text className="text-sm! text-right! flex-1!">
+                {shippingMethod === 'Giao hàng tận nơi'
+                  ? canChooseAddress
+                    ? `${userTypeAddress.specificAddress}${
+                        userTypeAddress.addressDetail
+                          ? ', ' + userTypeAddress.addressDetail
+                          : ''
+                      }`
+                    : selectedAddress || 'Chưa chọn địa chỉ'
+                  : selectedAddress || 'Chưa chọn cửa hàng'}
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
@@ -741,7 +729,9 @@ function Order() {
               <Typography.Text className="text-sm!">
                 Giá tạm tính
               </Typography.Text>
-              <Typography.Text className="text-sm! text-primary! font-medium!">{`${formatCurrency(total)}đ`}</Typography.Text>
+              <Typography.Text className="text-sm! text-primary! font-medium!">{`${formatCurrency(
+                total,
+              )}đ`}</Typography.Text>
             </Flex>
             <Divider className="my-0!" />
             <Flex justify="space-between">
@@ -753,13 +743,10 @@ function Order() {
               </Typography.Text>
             </Flex>
             <Divider className="my-0!" />
-
             <Flex className="w-full!" justify="end" align="center" gap={8}>
               <Button
                 disabled={!canOrder}
-                onClick={() => {
-                  handleOrder(order);
-                }}
+                onClick={handleOrder}
                 type="primary"
                 className="print:hidden! h-40! rounded-md!"
               >
@@ -767,40 +754,16 @@ function Order() {
               </Button>
             </Flex>
           </div>
-          <Flex vertical align="center" className="text-sm! mt-12!">
-            <Typography.Text className="text-gray-500!">
-              Bằng việc tiến hành đặt mua hàng, bạn đồng ý với
-            </Typography.Text>
-            <Flex className="justify-center! gap-4">
-              <Typography.Text className="underline font-medium! cursor-pointer! text-gray-500!">
-                Điều khoản dịch vụ{' '}
-              </Typography.Text>
-              <Typography.Text className="text-gray-500!"> và </Typography.Text>
-              <Typography.Text className="underline font-medium! cursor-pointer! text-gray-500!">
-                Chính sách xử lý dữ liệu cá nhân
-              </Typography.Text>
-              <Typography.Text className="text-gray-500!">
-                của TechShop
-              </Typography.Text>
-            </Flex>
-          </Flex>
         </Card>
-        <div className="-translate-y-10">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 403 28"
-            fill="none"
-            className="w-full"
-          >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M0 0H403V18.8171C403 21.7846 403 23.2683 402.487 24.4282C401.883 25.7925 400.792 26.8829 399.428 27.4867C398.268 28 396.785 28 393.817 28C391.534 28 390.392 28 389.652 27.808C388.208 27.4337 388.419 27.5431 387.28 26.579C386.696 26.0846 385.116 23.845 381.954 19.3656C379.649 16.0988 376.065 14 372.04 14C367.06 14 362.756 17.2133 360.712 21.8764C359.949 23.6168 359.568 24.487 359.531 24.5647C358.192 27.3971 357.411 27.9078 354.279 27.9975C354.193 28 353.845 28 353.15 28C352.454 28 352.107 28 352.021 27.9975C348.889 27.9078 348.107 27.3971 346.768 24.5647C346.731 24.487 346.35 23.6168 345.587 21.8765C343.544 17.2133 339.239 14 334.259 14C329.279 14 324.974 17.2133 322.931 21.8764C322.168 23.6168 321.787 24.487 321.75 24.5647C320.411 27.3971 319.629 27.9078 316.498 27.9975C316.412 28 316.064 28 315.368 28C314.673 28 314.325 28 314.239 27.9975C311.108 27.9078 310.326 27.3971 308.987 24.5647C308.95 24.487 308.569 23.6168 307.806 21.8765C305.763 17.2133 301.458 14 296.478 14C291.498 14 287.193 17.2133 285.15 21.8764C284.387 23.6168 284.005 24.487 283.969 24.5647C282.63 27.3971 281.848 27.9078 278.716 27.9975C278.63 28 278.283 28 277.587 28C276.892 28 276.544 28 276.458 27.9975C273.326 27.9078 272.545 27.3971 271.206 24.5647C271.169 24.487 270.788 23.6168 270.025 21.8765C267.981 17.2133 263.677 14 258.697 14C253.717 14 249.412 17.2133 247.368 21.8764C246.606 23.6168 246.224 24.487 246.188 24.5647C244.848 27.3971 244.067 27.9078 240.935 27.9975C240.849 28 240.501 28 239.806 28C239.111 28 238.763 28 238.677 27.9975C235.545 27.9078 234.764 27.3971 233.424 24.5647C233.388 24.487 233.006 23.6168 232.244 21.8765C230.2 17.2133 225.895 14 220.915 14C215.935 14 211.631 17.2133 209.587 21.8764C208.824 23.6168 208.443 24.487 208.406 24.5647C207.067 27.3971 206.286 27.9078 203.154 27.9975C203.068 28 202.72 28 202.025 28C201.329 28 200.982 28 200.896 27.9975C197.764 27.9078 196.982 27.3971 195.643 24.5647C195.606 24.487 195.225 23.6168 194.462 21.8765C192.419 17.2133 188.114 14 183.134 14C178.154 14 173.849 17.2133 171.806 21.8764C171.043 23.6168 170.662 24.487 170.625 24.5647C169.286 27.3971 168.504 27.9078 165.373 27.9975C165.287 28 164.939 28 164.243 28C163.548 28 163.2 28 163.114 27.9975C159.983 27.9078 159.201 27.3971 157.862 24.5647C157.825 24.487 157.444 23.6168 156.681 21.8765C154.638 17.2133 150.333 14 145.353 14C140.373 14 136.068 17.2133 134.025 21.8764C133.262 23.6168 132.881 24.487 132.844 24.5647C131.505 27.3971 130.723 27.9078 127.591 27.9975C127.505 28 127.158 28 126.462 28C125.767 28 125.419 28 125.333 27.9975C122.201 27.9078 121.42 27.3971 120.081 24.5647C120.044 24.487 119.663 23.6168 118.9 21.8764C116.856 17.2133 112.552 14 107.572 14C102.592 14 98.2868 17.2133 96.2433 21.8764C95.4806 23.6168 95.0993 24.487 95.0625 24.5647C93.7233 27.3971 92.9418 27.9078 89.8101 27.9975C89.7242 28 89.3765 28 88.681 28C87.9855 28 87.6378 28 87.5519 27.9975C84.4201 27.9078 83.6386 27.3971 82.2994 24.5647C82.2627 24.487 81.8814 23.6168 81.1187 21.8764C79.0752 17.2133 74.7703 14 69.7904 14C64.8104 14 60.5056 17.2133 58.462 21.8764C57.6993 23.6168 57.318 24.487 57.2813 24.5647C55.9421 27.3971 55.1606 27.9078 52.0289 27.9975C51.943 28 51.5952 28 50.8997 28C50.2043 28 49.8565 28 49.7706 27.9975C46.6389 27.9078 45.8574 27.3971 44.5182 24.5647C44.4815 24.487 44.1001 23.6168 43.3375 21.8764C41.2939 17.2133 36.9891 14 32.0091 14C28.1447 14 24.6868 15.9349 22.3767 18.9808C18.6745 23.8618 16.8235 26.3024 16.1428 26.81C15.1528 27.5482 15.4074 27.4217 14.2211 27.7644C13.4053 28 12.1727 28 9.70768 28C6.25895 28 4.53458 28 3.23415 27.3245C2.13829 26.7552 1.24477 25.8617 0.675519 24.7658C0 23.4654 0 21.7569 0 18.34V0Z"
-              fill="white"
-            ></path>
-          </svg>
-        </div>
       </Flex>
+
+      {isMapModalOpen && (
+        <MapPickerModal
+          open={isMapModalOpen}
+          onClose={() => setMapModalOpen(false)}
+          onLocationSelect={handleLocationSelect}
+        />
+      )}
     </Flex>
   );
 }

@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, Select, message, Row, Col } from 'antd';
+import {
+  Modal,
+  Button,
+  Form,
+  Input,
+  Select,
+  message,
+  Row,
+  Col,
+  InputNumber, // [THÊM] Dùng InputNumber cho tọa độ
+} from 'antd';
 import {
   callCreateBranch,
   callFetchBranches,
@@ -11,9 +21,11 @@ import useMessage from '@/hooks/useMessage';
 const ModalBranch = (props) => {
   const { setOpenModal, reloadTable, dataInit, setDataInit, visible } = props;
   const [form] = Form.useForm();
-  const [branches, setBranches] = useState([]);
+  const [branches, setBranches] = useState([]); // (Hình như state này không dùng?)
   const [managers, setManagers] = useState([]);
   const { success, error, warning } = useMessage();
+
+  // (Hàm fetchBranches không thấy dùng, nhưng giữ nguyên)
   const fetchBranches = async () => {
     try {
       const response = await callFetchBranches();
@@ -22,15 +34,16 @@ const ModalBranch = (props) => {
       console.error('Error fetching branches:', error);
     }
   };
+
+  // (Hàm fetchManagers giữ nguyên)
   const fetchManagers = async () => {
     try {
       const response = await callFetchUsers();
       const allUsers = response.data.data;
-
+      // [GÓP Ý] Nên filter theo role cụ thể, ví dụ: user.role === 'manager'
       const onlyManagers = allUsers.filter((user) => {
         return user.role;
       });
-
       setManagers(onlyManagers);
     } catch (error) {
       console.error('Error fetching managers:', error);
@@ -38,21 +51,40 @@ const ModalBranch = (props) => {
   };
 
   useEffect(() => {
-    fetchBranches();
+    // fetchBranches(); // (Bạn có thể bỏ dòng này nếu không dùng)
     fetchManagers();
   }, []);
 
+  // [SỬA] Cập nhật useEffect để xử lý `location`
   useEffect(() => {
     if (dataInit?._id) {
+      // --- BẮT ĐẦU SỬA ---
+      // 1. Chuẩn bị dữ liệu location cho form
+      // dataInit.location từ API là: { type: 'Point', coordinates: [lng, lat] }
+      let locationForForm = {
+        longitude: undefined,
+        latitude: undefined,
+      };
+
+      if (dataInit.location && dataInit.location.coordinates) {
+        locationForForm = {
+          longitude: dataInit.location.coordinates[0],
+          latitude: dataInit.location.coordinates[1],
+        };
+      }
+
+      // 2. Set giá trị cho form
       form.setFieldsValue({
         _id: dataInit._id,
         name: dataInit.name,
         address: dataInit.address,
         email: dataInit.email,
         phone: dataInit.phone,
-        manager: dataInit.manager?._id || dataInit.manager, // Lấy ID của manager
+        manager: dataInit.manager?._id || dataInit.manager,
         isActive: dataInit.isActive,
+        location: locationForForm, // Gán object location đã chuẩn bị
       });
+      // --- KẾT THÚC SỬA ---
     } else {
       form.resetFields();
     }
@@ -64,34 +96,48 @@ const ModalBranch = (props) => {
     setDataInit(null);
   };
 
+  // [KHÔNG CẦN SỬA] Hàm submit này đã đúng
   const submitBranch = async (values) => {
+    // Nhờ đặt tên Form.Item lồng nhau (name=['location', 'longitude']),
+    // 'values' từ Ant Design sẽ tự động có dạng:
+    // { name: "...", location: { longitude: 105.7, latitude: 10.0 } }
+    // Đây chính là DTO mà backend cần!
     const branchData = { ...values };
+
     if (dataInit?._id) {
       branchData._id = dataInit._id;
     }
-    const res = dataInit?._id
-      ? await callUpdateBranch(branchData)
-      : await callCreateBranch(branchData);
-    if (res.data) {
-      success(
-        dataInit?._id
-          ? 'Cập nhật chi nhánh thành công!'
-          : 'Tạo chi nhánh mới thành công',
-      );
-      setOpenModal(false);
-      reloadTable();
-    } else {
-      error('Lưu thông tin chi nhánh thất bại!');
+
+    try {
+      const res = dataInit?._id
+        ? await callUpdateBranch(branchData._id, branchData) // [GÓP Ý] API update thường nhận (id, data)
+        : await callCreateBranch(branchData);
+
+      if (res.data) {
+        success(
+          dataInit?._id
+            ? 'Cập nhật chi nhánh thành công!'
+            : 'Tạo chi nhánh mới thành công',
+        );
+        handleReset(); // Dùng lại hàm reset
+        reloadTable();
+      } else {
+        error('Lưu thông tin chi nhánh thất bại!');
+      }
+    } catch (apiError) {
+      error(apiError.response?.data?.message || 'Lưu thông tin thất bại!');
     }
   };
 
   return (
     <Modal
       title={dataInit?._id ? 'Cập nhật chi nhánh' : 'Tạo chi nhánh mới'}
-      visible={visible}
+      open={visible} // Sửa 'visible' thành 'open' cho antd v5+
       onCancel={handleReset}
       onOk={form.submit}
       destroyOnClose={true}
+      maskClosable={false} // Chống bấm ra ngoài
+      width={600} // Thêm độ rộng cho form
     >
       <Form
         form={form}
@@ -99,6 +145,7 @@ const ModalBranch = (props) => {
         layout="vertical"
         name="form_in_modal"
       >
+        {/* (Các trường name, address, phone, email, manager, isActive giữ nguyên) */}
         <Form.Item
           name="name"
           label="Tên chi nhánh"
@@ -128,7 +175,7 @@ const ModalBranch = (props) => {
               rules={[
                 { required: true, message: 'Vui lòng nhập số điện thoại!' },
                 {
-                  pattern: /^[\d\-\s]+$/,
+                  pattern: /^[0-9\-\s+]+$/, // Sửa pattern
                   message: 'Định dạng số điện thoại không hợp lệ!',
                 },
               ]}
@@ -177,6 +224,7 @@ const ModalBranch = (props) => {
         <Form.Item
           name="isActive"
           label="Trạng thái"
+          initialValue={true} // Set giá trị mặc định khi tạo mới
           rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
         >
           <Select>
@@ -184,6 +232,35 @@ const ModalBranch = (props) => {
             <Select.Option value={false}>Ngưng hoạt động</Select.Option>
           </Select>
         </Form.Item>
+
+        {/* --- [THÊM] Form Item cho Location --- */}
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Kinh độ (Longitude)"
+              name={['location', 'longitude']} // Tên lồng nhau
+              rules={[{ required: true, message: 'Kinh độ là bắt buộc!' }]}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="VD: 105.7706"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Vĩ độ (Latitude)"
+              name={['location', 'latitude']} // Tên lồng nhau
+              rules={[{ required: true, message: 'Vĩ độ là bắt buộc!' }]}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="VD: 10.0279"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      
       </Form>
     </Modal>
   );

@@ -43,6 +43,7 @@ import UserService from '@services/users';
 import { callLogout } from '@/services/apis';
 import Order from './Order';
 import { formatCurrency } from '@/helpers';
+import OrderTrackingMap from '@/components/app/ordertrackingmap';
 
 const AccountInfoPage = () => {
   const { user, message, logout } = useAppContext();
@@ -1117,6 +1118,7 @@ const AccountInfoPage = () => {
                       items={getStatusSteps(selectedOrder.status).steps}
                       size="small"
                     />
+                    <OrderTrackingMap orderId={selectedOrder.id} />
                   </Card>
 
                   <Row gutter={10} className="mb-4">
