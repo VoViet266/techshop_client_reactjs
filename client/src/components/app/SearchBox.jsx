@@ -190,7 +190,7 @@ function SearchBox() {
                     <div className="flex flex-wrap gap-2">
                       {recommentProducts.slice(0, 3).map((term, index) => (
                         <button
-                          key={index}
+                          key={index} 
                           onClick={() => {
                             navigate(`/product/${term._id}`);
                             setShowResults(false);

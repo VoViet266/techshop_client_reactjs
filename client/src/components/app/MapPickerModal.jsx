@@ -6,7 +6,6 @@ import { EnvironmentOutlined, AimOutlined } from '@ant-design/icons';
 
 const GEOAPIFY_PUBLIC_KEY = import.meta.env.VITE_REACT_APP_GEOAPIFY_PUBLIC_KEY;
 
-
 async function reverseGeocode(lng, lat) {
   try {
     const response = await fetch(
@@ -63,11 +62,9 @@ const MapPickerModal = ({ open, onClose, onLocationSelect }) => {
       map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
       const markerElement = document.createElement('div');
+      markerElement.innerHTML = '📍';
       markerElement.style.fontSize = '30px';
-      markerElement.style.color = 'red';
-      markerElement.style.cursor = 'grab';
-      markerElement.innerHTML =
-        '<span class="anticon anticon-environment"><svg viewBox="64 64 896 896" focusable="false" data-icon="environment" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M512 64C318.8 64 152 230.8 152 424c0 94.2 38.3 180.3 102.7 244.7l217 217c3.9 3.9 9 5.9 14.1 5.9s10.2-2 14.1-5.9l217-217A380.1 380.1 0 00872 424C872 230.8 705.2 64 512 64zm0 512c-79.5 0-144-64.5-144-144s64.5-144 144-144 144 64.5 144 144-64.5 144-144 144z"></path></svg></span>';
+      markerElement.style.cursor = 'pointer';
 
       markerRef.current = new maplibregl.Marker({
         element: markerElement,
@@ -199,7 +196,7 @@ const MapPickerModal = ({ open, onClose, onLocationSelect }) => {
         </Button>,
       ]}
       maskClosable={false}
-      destroyOnClose
+      destroyOnHidden
     >
       <div
         ref={mapContainer}
