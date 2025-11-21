@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import React, { useState, useRef, useEffect } from 'react';
 import SpeechToTextButton from './SpeechToTextButton';
 import { Send, MessageCircle, X, RefreshCw, Loader } from 'lucide-react';
-import axiosInstance, { getValidToken } from '@/services/apis';
+import axiosInstance from '@/services/apis';
 import { useAppContext } from '@/contexts';
 
 const Chatbot = () => {
@@ -67,8 +67,7 @@ const Chatbot = () => {
 
   // --- Gửi tin nhắn hoặc payload đến Rasa ---
   const handleSend = async (textToSend = null, isPayload = false) => {
-    const accessToken = await getValidToken();
-    console.log(textToSend, isPayload);
+    console.log(textToSend);
     const messageText = textToSend || input;
     if (!messageText.trim()) return;
     if (!isPayload) {
@@ -89,7 +88,7 @@ const Chatbot = () => {
         sender: user?._id || 'guest_user',
         message: messageText, // có thể là text hoặc payload "/order"
         metadata: {
-          accessToken: accessToken || '',
+          accessToken: localStorage.getItem('access_token'),
         },
       };
 
