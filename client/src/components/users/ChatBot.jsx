@@ -125,6 +125,8 @@ const Chatbot = () => {
       ]);
     } finally {
       setLoading(false);
+      // Auto-focus vào input sau khi gửi tin
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
   const handleQuickReply = (text) => {
