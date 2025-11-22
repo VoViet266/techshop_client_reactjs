@@ -22,6 +22,10 @@ const Chatbot = () => {
     'Cho tôi điện thoại giá rẻ',
     'Máy tính học sinh sinh viên',
     'Chính sách bảo hành',
+    'Shop có cài win giúp không',
+    'Máy bị lỗi màn hình xanh',
+    'Có hỗ trợ trả góp không',
+    'Nút sườn bị kẹt không bấm được'
   ];
 
   // --- Lưu và load lịch sử chat ---

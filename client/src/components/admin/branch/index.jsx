@@ -260,7 +260,6 @@ const ModalBranch = (props) => {
             </Form.Item>
           </Col>
         </Row>
-      
       </Form>
     </Modal>
   );
