@@ -21,11 +21,9 @@ import ProtectedRoute from './ProtectedRoute';
 import OrderManagement from '@/pages/admin/order';
 import BrandManagement from '@/pages/admin/brand';
 import CategoryManagement from '@/pages/admin/category/category';
-
 import UserManagement from '@/pages/admin/user';
 import RoleManagement from '@/pages/admin/role/role';
 import UserRoleManagement from '@/pages/admin/role/userRole';
-import WarehouseTransfer from '@/pages/admin/warehouse/transfer';
 import BannerManagement from '@/pages/admin/banner';
 import PermissionsManagement from '@/pages/admin/permission/permission';
 import WarehouseTransferManagement from '@/pages/admin/warehouse/transfer';
